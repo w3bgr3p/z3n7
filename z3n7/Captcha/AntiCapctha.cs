@@ -1,0 +1,270 @@
+﻿using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Text;
+using ZennoLab.CommandCenter;
+using ZennoLab.InterfacesLibrary.ProjectModel;
+
+namespace z3n7.Captcha
+{
+    public class AntiCaptcha : IDisposable
+    {
+        private readonly string _apiKey;
+        private readonly string _apiUrl = "https://api.anti-captcha.com";
+        private readonly HttpClient _httpClient;
+
+        public AntiCaptcha(string apiKey)
+        {
+            _apiKey = apiKey;
+            _httpClient = new HttpClient();
+            _httpClient.Timeout = TimeSpan.FromMinutes(5);
+        }
+
+
+        public string SolveCaptcha(
+            string imagePath,
+            int numeric = 0,
+            int minLength = 0,
+            int maxLength = 0,
+            bool phrase = false,
+            bool caseSensitive = true,
+            bool math = false)
+        {
+            // Читаем файл и конвертируем в base64
+            byte[] imageBytes = File.ReadAllBytes(imagePath);
+            string base64Image = Convert.ToBase64String(imageBytes);
+
+            return SolveCaptchaFromBase64(base64Image, numeric, minLength, maxLength, phrase, caseSensitive, math);
+        }
+
+
+        public string SolveCaptchaFromBase64(
+            string base64Image,
+            int numeric = 0,
+            int minLength = 0,
+            int maxLength = 0,
+            bool phrase = false,
+            bool caseSensitive = true,
+            bool math = false)
+        {
+            // ✅ Безопасная обертка для async метода
+            return Task.Run(async () =>
+                await SolveCaptchaFromBase64Async(base64Image, numeric, minLength, maxLength, phrase, caseSensitive,
+                        math)
+                    .ConfigureAwait(false)
+            ).GetAwaiter().GetResult();
+        }
+
+
+
+        public async Task<string> SolveCaptchaFromBase64Async(
+            string base64Image,
+            int numeric = 0,
+            int minLength = 0,
+            int maxLength = 0,
+            bool phrase = false,
+            bool caseSensitive = true,
+            bool math = false)
+        {
+            // Создаем задачу
+            int taskId = await CreateTaskAsync(base64Image, numeric, minLength, maxLength, phrase, caseSensitive, math);
+
+            // Ждем результат
+            return await GetTaskResultAsync(taskId);
+        }
+
+
+        public async Task<string> SolveCaptchaAsync(
+            string imagePath,
+            int numeric = 0,
+            int minLength = 0,
+            int maxLength = 0,
+            bool phrase = false,
+            bool caseSensitive = true,
+            bool math = false)
+        {
+            // Читаем файл и конвертируем в base64
+            byte[] imageBytes = File.ReadAllBytes(imagePath);
+            string base64Image = Convert.ToBase64String(imageBytes);
+
+            return await SolveCaptchaFromBase64Async(base64Image, numeric, minLength, maxLength, phrase, caseSensitive,
+                math);
+        }
+
+        // ============== PRIVATE ASYNC  ==============
+
+        private async Task<int> CreateTaskAsync(
+            string base64Image,
+            int numeric,
+            int minLength,
+            int maxLength,
+            bool phrase,
+            bool caseSensitive,
+            bool math)
+        {
+            var taskData = new
+            {
+                clientKey = _apiKey,
+                task = new
+                {
+                    type = "ImageToTextTask",
+                    body = base64Image,
+                    phrase = phrase,
+                    @case = caseSensitive,
+                    numeric = numeric,
+                    math = math,
+                    minLength = minLength,
+                    maxLength = maxLength
+                }
+            };
+
+            string jsonRequest = JsonConvert.SerializeObject(taskData);
+            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_apiUrl}/createTask", content);
+            string responseText = await response.Content.ReadAsStringAsync();
+
+            var jsonResponse = JObject.Parse(responseText);
+
+            int errorId = jsonResponse["errorId"].Value<int>();
+            if (errorId != 0)
+            {
+                string errorCode = jsonResponse["errorCode"]?.Value<string>() ?? "UNKNOWN_ERROR";
+                string errorDescription = jsonResponse["errorDescription"]?.Value<string>() ?? "Unknown error";
+                throw new Exception($"Ошибка создания задачи: [{errorCode}] {errorDescription}");
+            }
+
+            return jsonResponse["taskId"].Value<int>();
+        }
+
+
+        private int CreateTask(
+            string base64Image,
+            int numeric,
+            int minLength,
+            int maxLength,
+            bool phrase,
+            bool caseSensitive,
+            bool math)
+        {
+            return Task.Run(async () =>
+                await CreateTaskAsync(base64Image, numeric, minLength, maxLength, phrase, caseSensitive, math)
+                    .ConfigureAwait(false)
+            ).GetAwaiter().GetResult();
+        }
+
+
+        private async Task<string> GetTaskResultAsync(int taskId, int maxAttempts = 60)
+        {
+            var requestData = new
+            {
+                clientKey = _apiKey,
+                taskId = taskId
+            };
+
+            string jsonRequest = JsonConvert.SerializeObject(requestData);
+
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                await Task.Delay(3000);
+
+                var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_apiUrl}/getTaskResult", content);
+                string responseText = await response.Content.ReadAsStringAsync();
+
+                var jsonResponse = JObject.Parse(responseText);
+
+                int errorId = jsonResponse["errorId"].Value<int>();
+                if (errorId != 0)
+                {
+                    string errorCode = jsonResponse["errorCode"]?.Value<string>() ?? "UNKNOWN_ERROR";
+                    string errorDescription = jsonResponse["errorDescription"]?.Value<string>() ?? "Unknown error";
+                    throw new Exception($"Ошибка получения результата: [{errorCode}] {errorDescription}");
+                }
+
+                string status = jsonResponse["status"].Value<string>();
+
+                if (status == "ready")
+                {
+                    return jsonResponse["solution"]["text"].Value<string>();
+                }
+
+                if (status == "processing")
+                {
+                    continue; // Капча еще решается
+                }
+
+                throw new Exception($"Неизвестный статус задачи: {status}");
+            }
+
+            throw new TimeoutException($"Не удалось получить результат за {maxAttempts * 3} секунд");
+        }
+
+        /// <summary>
+        /// Получает результат решения капчи (SYNC обертка)
+        /// </summary>
+        private string GetTaskResult(int taskId, int maxAttempts = 60)
+        {
+            return Task.Run(async () =>
+                await GetTaskResultAsync(taskId, maxAttempts).ConfigureAwait(false)
+            ).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Освобождает ресурсы
+        /// </summary>
+        public void Dispose()
+        {
+            _httpClient?.Dispose();
+        }
+    }
+}
+
+
+
+namespace z3n7.Captcha
+{
+    using Captcha;
+    public static partial class CaptchaExtensions
+    {
+        public static string SolveHeWithAntiCaptcha(this HtmlElement he, IZennoPosterProjectModel project)
+        {
+            var api_key = project.DbGet("apikey", "_api", where: "id = 'anticaptcha'");
+            
+            using (var solver = new AntiCaptcha(api_key))
+            {
+                var bitmap = he.DrawAsBitmap(false);
+                string base64;
+                using (var ms = new System.IO.MemoryStream())
+                {
+                    bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    base64 = Convert.ToBase64String(ms.ToArray());
+                }
+
+                string result = solver.SolveCaptchaFromBase64(base64);
+                return result;
+            }
+        }
+        public static string SolveCaptchaFromUrl(IZennoPosterProjectModel project, string url, string proxy = "+")
+        {
+            var api_key = project.DbGet("apikey", "_api", where: "id = 'anticaptcha'");
+            
+            using (var solver = new AntiCaptcha(api_key))
+            {
+                var req = new NetHttp(project);
+                req.GET(url, proxy, parse: true);
+                var svg = project.Json.captcha;
+                string base64 = svg.SvgToBase64();
+                string result = solver.SolveCaptchaFromBase64(base64);
+                return result;
+            }
+        }
+    }
+    
+}

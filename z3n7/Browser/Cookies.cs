@@ -1,0 +1,595 @@
+﻿using System;
+using System.Text;
+
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using ZennoLab.InterfacesLibrary.ProjectModel;
+using ZennoLab.CommandCenter;
+
+namespace z3n7
+{
+    public static class Cookies
+    {
+        public class CookieInfo
+        {
+            public int TotalCount { get; set; }
+            public long TotalSizeBytes { get; set; }
+            public int GoogleCookies { get; set; }
+            public int ExpiredCookies { get; set; }
+            public int OldCookies { get; set; }
+            public Dictionary<string, int> ByDomain { get; set; }
+            public List<dynamic> LargestCookies { get; set; }
+        }
+
+        public static CookieInfo AnalyzeCookies(this IZennoPosterProjectModel project, string table = "_instance", string column = "cookies")
+        {
+            string cookiesBase64 = project.DbGet(column, table);
+            if (string.IsNullOrEmpty(cookiesBase64))
+                return new CookieInfo { TotalCount = 0, TotalSizeBytes = 0 };
+
+            string decoded = cookiesBase64.FromBase64();
+            string json = ConvertCookieFormat(decoded, "json");
+            var cookies = JsonConvert.DeserializeObject<List<dynamic>>(json);
+
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var sixMonthsAgo = DateTimeOffset.UtcNow.AddMonths(-6).ToUnixTimeSeconds();
+
+            return new CookieInfo
+            {
+                TotalCount = cookies.Count,
+                TotalSizeBytes = Encoding.UTF8.GetByteCount(json),
+                GoogleCookies = cookies.Count(c => c.domain.ToString().Contains("google")),
+                ExpiredCookies = cookies.Count(c => c.expirationDate != null && (long)c.expirationDate < now),
+                OldCookies = cookies.Count(c => c.expirationDate != null && (long)c.expirationDate < sixMonthsAgo),
+                ByDomain = cookies.GroupBy(c => c.domain.ToString()).ToDictionary(g => (string)g.Key, g => g.Count()),
+                LargestCookies = cookies.OrderByDescending(c => c.value.ToString().Length).Take(10).ToList()
+            };
+        }
+
+        public static void PruneCookies(this IZennoPosterProjectModel project, bool removeExpired = true, bool removeOld = true, bool removeNonGoogle = false, string table = "_instance", string column = "cookies")
+        {
+            string cookiesBase64 = project.DbGet(column, table);
+            if (string.IsNullOrEmpty(cookiesBase64))
+                return;
+
+            string decoded = cookiesBase64.FromBase64();
+            string json = ConvertCookieFormat(decoded, "json");
+            var cookies = JsonConvert.DeserializeObject<List<dynamic>>(json);
+
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var sixMonthsAgo = DateTimeOffset.UtcNow.AddMonths(-6).ToUnixTimeSeconds();
+
+            var cleaned = cookies.Where(c =>
+            {
+                if (removeExpired && c.expirationDate != null && (long)c.expirationDate < now)
+                    return false;
+
+                if (removeOld && c.expirationDate != null && (long)c.expirationDate < sixMonthsAgo)
+                    return false;
+
+                if (removeNonGoogle && !c.domain.ToString().Contains("google"))
+                    return false;
+
+                return true;
+            }).ToList();
+
+            string cleanedJson = JsonConvert.SerializeObject(cleaned);
+            string cleanedBase64 = cleanedJson.ToBase64();
+            project.DbUpd($"{column} = '{cleanedBase64}'", table);
+        }
+
+        public static void PruneAllCookies(this IZennoPosterProjectModel project, bool removeExpired = true, bool removeOld = true, bool removeNonGoogle = false)
+        {
+            var acc0 = project.Int("rangeStart")-1;
+            while (acc0 < project.Int("rangeEnd"))
+            {
+                acc0 ++;
+                project.Var("acc0",acc0);
+                project.PruneCookies(removeExpired,removeOld,removeNonGoogle);
+                project.PruneCookies(removeExpired,removeOld,removeNonGoogle,table:"folder_profile");
+            }
+            project.Var("acc0","");
+        }
+
+        public static void PrintCookieReport(this IZennoPosterProjectModel project, string table = "_instance", string column = "cookies")
+        {
+            var info = project.AnalyzeCookies(table, column);
+            var toLog = new StringBuilder();
+            
+            toLog.AppendLine ($"Всего кук: {info.TotalCount}");
+            toLog.AppendLine($"Размер: {info.TotalSizeBytes / 1024.0:F2} KB");
+            toLog.AppendLine($"Google кук: {info.GoogleCookies}");
+            toLog.AppendLine($"Просроченных: {info.ExpiredCookies}");
+            toLog.AppendLine($"Старых (>6 мес): {info.OldCookies}");
+            toLog.AppendLine("По доменам (топ 10):");
+            
+            foreach (var domain in info.ByDomain.OrderByDescending(x => x.Value).Take(10))
+            {
+                toLog.AppendLine($"  {domain.Key}: {domain.Value}");
+            }
+            
+            toLog.AppendLine("Самые большие куки (топ 5):");
+            foreach (var cookie in info.LargestCookies.Take(5))
+            {
+                toLog.AppendLine($"  {cookie.name} ({cookie.domain}): {cookie.value.ToString().Length} bytes");
+            }
+            project.SendInfoToLog(toLog.ToString());
+        }
+        
+        public static string ConvertCookieFormat(string input, string output = null)
+        {
+            input = input?.Trim();
+
+            if (string.IsNullOrEmpty(input))
+                throw new ArgumentException("Input is empty");
+
+            // Определяем текущий формат
+            bool isJson = input.StartsWith("[") || input.StartsWith("{");
+            bool isNetscape = input.Contains("\t");
+
+            if (!isJson && !isNetscape)
+                throw new ArgumentException("Unknown input format");
+
+            // Если output не указан - автоматическая конвертация
+            if (string.IsNullOrEmpty(output))
+            {
+                return isJson ? JsonToNetscape(input) : NetscapeToJson(input);
+            }
+
+            // Если output указан - проверяем совпадение
+            output = output.ToLower().Trim();
+
+            if ((output == "json" && isJson) || (output == "netscape" && isNetscape))
+            {
+                // Формат уже соответствует желаемому
+                return input;
+            }
+
+            // Конвертация в указанный формат
+            if (output == "json")
+            {
+                return NetscapeToJson(input);
+            }
+            else if (output == "netscape")
+            {
+                return JsonToNetscape(input);
+            }
+            else
+            {
+                throw new ArgumentException($"Unknown output format: {output}. Use 'json' or 'netscape'");
+            }
+        }
+
+        private static string NetscapeToJson(string content, string domainFilter = null)
+        {
+            var cookies = new List<object>();
+            var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var parts = line.Split('\t');
+                if (parts.Length < 7) continue;
+
+                try
+                {
+                    var domain = parts[0];
+                    if (!string.IsNullOrEmpty(domainFilter) && !domain.Contains(domainFilter))
+                        continue;
+
+                    var includeSubdomains = parts[1].Equals("TRUE", StringComparison.OrdinalIgnoreCase);
+                    var path = parts[2];
+                    var secure = parts[3].Equals("TRUE", StringComparison.OrdinalIgnoreCase);
+                    var expiryStr = parts[4];
+                    var name = parts[5];
+                    var value = parts.Length > 6 ? parts[6] : "";
+
+                    var httpOnly = parts.Length > 7 && parts[7].Equals("TRUE", StringComparison.OrdinalIgnoreCase);
+                    var sameSite = parts.Length > 9 ? parts[9] : "Unspecified";
+
+                    double? expirationDate = null;
+                    bool isSession = string.IsNullOrEmpty(expiryStr);
+
+                    if (!isSession && DateTime.TryParseExact(expiryStr, "MM/dd/yyyy HH:mm:ss",
+                            CultureInfo.InvariantCulture, DateTimeStyles.None, out var expiry))
+                    {
+                        expirationDate = new DateTimeOffset(expiry).ToUnixTimeSeconds();
+                    }
+
+                    cookies.Add(new
+                    {
+                        domain = domain,
+                        expirationDate = expirationDate,
+                        hostOnly = !includeSubdomains,
+                        httpOnly = httpOnly,
+                        name = name,
+                        path = path,
+                        sameSite = sameSite,
+                        secure = secure,
+                        session = isSession,
+                        storeId = (string)null,
+                        value = value,
+                        id = (domain + name + path).GetHashCode()
+                    });
+                }
+                catch
+                {
+                }
+            }
+
+            return JsonConvert.SerializeObject(cookies, formatting: Formatting.None);
+        }
+
+        private static string JsonToNetscape(string jsonCookies)
+        {
+            var cookies = Newtonsoft.Json.JsonConvert.DeserializeObject<List<dynamic>>(jsonCookies);
+            var lines = new List<string>();
+
+            foreach (var cookie in cookies)
+            {
+                string domain = cookie.domain.ToString();
+                string flag = domain.StartsWith(".") ? "TRUE" : "FALSE";
+                string path = cookie.path.ToString();
+                string secure = cookie.secure.ToString().ToUpper();
+
+                string expiration;
+                if (cookie.expirationDate == null || cookie.session == true)
+                {
+                    expiration = "01/01/2030 00:00:00";
+                }
+                else
+                {
+                    double timestamp = (double)cookie.expirationDate;
+                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(timestamp);
+                    expiration = dateTime.ToString("MM/dd/yyyy HH:mm:ss");
+                }
+
+                string name = cookie.name.ToString();
+                string value = cookie.value.ToString();
+                string httpOnly = cookie.httpOnly.ToString().ToUpper();
+
+                string line = $"{domain}\t{flag}\t{path}\t{secure}\t{expiration}\t{name}\t{value}\t{httpOnly}\tFALSE";
+                lines.Add(line);
+            }
+
+            return string.Join("\n", lines);
+        }
+
+        public static string GetCookies(this Instance instance, string domainFilter = null, string format = "json")
+        {
+            if (domainFilter == ".")
+                domainFilter = instance.ActiveTab.MainDomain;
+
+            var netscapeCookies = (string.IsNullOrEmpty(domainFilter))
+                ? instance.GetCookie()
+                : instance.GetCookie(domainFilter);
+            if (format == "json")
+                return NetscapeToJson(netscapeCookies);
+            else if (format == "netscape")
+                return netscapeCookies;
+            else if (format == "base64Json")
+                return NetscapeToJson(netscapeCookies).ToBase64();
+            else if (format == "base64Netscape")
+                return netscapeCookies.ToBase64();
+            else throw new ArgumentException($"Unknown format: {format}");
+        }
+
+        public static void SaveAllCookies(this IZennoPosterProjectModel project, Instance instance,
+            string jsonPath = null, string table = "_instance", bool saveJsonToDb = false)
+        {
+            var netscapeCookies = instance.GetCookie();
+            string jsonCookies = NetscapeToJson(netscapeCookies);
+            string base64Cookies = (saveJsonToDb) ? jsonCookies.ToBase64() : netscapeCookies.ToBase64();
+            project.DbUpd($"cookies = '{base64Cookies}'", table);
+            if (!string.IsNullOrEmpty(jsonPath))
+                File.WriteAllText(jsonPath, jsonCookies);
+        }
+
+        public static void SaveDomainCookies(this IZennoPosterProjectModel project, Instance instance,
+            string domain = null, string jsonPath = null, string tableName = "_instance", bool saveJsonToDb = false)
+        {
+            if (string.IsNullOrEmpty(domain))
+                domain = instance.ActiveTab.MainDomain;
+            var netscapeCookies = instance.GetCookie();
+            string jsonCookies = NetscapeToJson(netscapeCookies);
+            string base64Cookies = (saveJsonToDb) ? jsonCookies.ToBase64() : netscapeCookies.ToBase64();
+            project.DbUpd($"cookies = '{base64Cookies}'", tableName);
+            if (!string.IsNullOrEmpty(jsonPath))
+                File.WriteAllText(jsonPath, jsonCookies);
+        }
+
+        internal static void LoadCookies(this IZennoPosterProjectModel project, Instance instance,
+            string jsonPath = null,
+            string table = "_instance", bool isJsonInDb = false)
+        {
+            string netscapeCookies = null;
+
+            if (!string.IsNullOrEmpty(jsonPath))
+            {
+                netscapeCookies = JsonToNetscape(File.ReadAllText(jsonPath));
+            }
+            else
+            {
+                var dbCookies = project.DbGet("cookies", table).FromBase64();
+                netscapeCookies = ConvertCookieFormat(dbCookies, "netscape");
+            }
+
+            instance.SetCookie(netscapeCookies);
+        }
+
+        public static string GetCookiesByJs(this Instance instance)
+        {
+            string jsCode = @"
+                var cookies = document.cookie.split('; ').map(function(cookie) {
+                    var parts = cookie.split('=');
+                    var name = parts[0];
+                    var value = parts.slice(1).join('=');
+                    return {
+                        'domain': window.location.hostname,
+                        'name': name,
+                        'value': value,
+                        'path': '/', 
+                        'expirationDate': null, 
+                        'hostOnly': true,
+                        'httpOnly': false,
+                        'secure': window.location.protocol === 'https:',
+                        'session': false,
+                        'sameSite': 'Unspecified',
+                        'storeId': null,
+                        'id': 1
+                    };
+                });
+                return JSON.stringify(cookies);
+                ";
+            string result = instance.ActiveTab.MainDocument.EvaluateScript(jsCode).ToString();
+            return result.Replace("\r\n", "").Replace("\n", "").Replace("\r", "").Trim();
+        }
+
+        public static void SetCookiesByJs(this Instance instance, string cookiesJson)
+        {
+            var cookies = JArray.Parse(cookiesJson);
+            var uniqueCookies = cookies
+                .GroupBy(c => new { Domain = c["domain"].ToString(), Name = c["name"].ToString() })
+                .Select(g => g.Last())
+                .ToList();
+
+            string currentDomain = instance.ActiveTab.Domain;
+            string[] domainParts = currentDomain.Split('.');
+            string parentDomain = "." + string.Join(".", domainParts.Skip(domainParts.Length - 2));
+
+            var jsLines = new List<string>();
+            int cookieCount = 0;
+
+            foreach (JObject cookie in uniqueCookies)
+            {
+                string domain = cookie["domain"].ToString();
+                string name = cookie["name"].ToString();
+                string value = cookie["value"].ToString();
+
+                if (domain == currentDomain || domain == "." + currentDomain)
+                {
+                    string path = cookie["path"]?.ToString() ?? "/";
+                    string expires;
+
+                    if (cookie["expirationDate"] != null && cookie["expirationDate"].Type != JTokenType.Null)
+                    {
+                        double expValue = double.Parse(cookie["expirationDate"].ToString());
+                        expires = expValue < DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                            ? DateTimeOffset.UtcNow.AddYears(1).ToString("R")
+                            : DateTimeOffset.FromUnixTimeSeconds((long)expValue).ToString("R");
+                    }
+                    else
+                    {
+                        expires = DateTimeOffset.UtcNow.AddYears(1).ToString("R");
+                    }
+
+                    jsLines.Add(
+                        $"document.cookie = '{name}={value}; domain={parentDomain}; path={path}; expires={expires}; Secure';");
+                    cookieCount++;
+                }
+            }
+
+            if (jsLines.Count > 0)
+            {
+                string jsCode = string.Join("\n", jsLines);
+                instance.ActiveTab.MainDocument.EvaluateScript(jsCode);
+            }
+            else
+            {
+            }
+        }
+
+        /// <summary>
+        /// Очистить cookies для конкретного домена в БД
+        /// </summary>
+        /// <param name="project">Project model</param>
+        /// <param name="domain">Домен для очистки (например, "x.com" или "twitter.com")</param>
+        /// <param name="table">Таблица БД (по умолчанию "_instance")</param>
+        /// <param name="column">Колонка с cookies (по умолчанию "cookies")</param>
+        public static void CleanDomainInDb(this IZennoPosterProjectModel project, string domain,
+            string table = "_instance", string column = "cookies")
+        {
+            if (string.IsNullOrEmpty(domain))
+                throw new ArgumentException("Domain cannot be null or empty");
+
+            // Читаем cookies из БД
+            string cookiesBase64 = project.DbGet(column, table);
+
+            if (string.IsNullOrEmpty(cookiesBase64))
+                return; // Нет cookies - ничего не делаем
+
+            // Декодируем из base64
+            string cookiesDecoded = cookiesBase64.FromBase64();
+
+            // Определяем формат (JSON или Netscape)
+            bool isJson = cookiesDecoded.TrimStart().StartsWith("[") || cookiesDecoded.TrimStart().StartsWith("{");
+
+            string cleanedCookies;
+
+            if (isJson)
+            {
+                // Работаем с JSON
+                var cookies = Newtonsoft.Json.JsonConvert.DeserializeObject<List<dynamic>>(cookiesDecoded);
+
+                // Фильтруем - оставляем только те, что НЕ принадлежат домену
+                var filtered = cookies.Where(c =>
+                {
+                    string cookieDomain = c.domain.ToString();
+                    // Удаляем если домен точно совпадает или является поддоменом
+                    return !IsDomainMatch(cookieDomain, domain);
+                }).ToList();
+
+                cleanedCookies = Newtonsoft.Json.JsonConvert.SerializeObject(filtered);
+            }
+            else
+            {
+                // Работаем с Netscape
+                var lines = cookiesDecoded.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                var filteredLines = new List<string>();
+
+                foreach (var line in lines)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    var parts = line.Split('\t');
+                    if (parts.Length < 7)
+                        continue;
+
+                    string cookieDomain = parts[0];
+
+                    // Оставляем только те, что НЕ принадлежат домену
+                    if (!IsDomainMatch(cookieDomain, domain))
+                    {
+                        filteredLines.Add(line);
+                    }
+                }
+
+                cleanedCookies = string.Join("\n", filteredLines);
+            }
+
+            // Кодируем обратно в base64
+            string cleanedBase64 = cleanedCookies.ToBase64();
+
+            // Записываем в БД
+            project.DbUpd($"{column} = '{cleanedBase64}'", table);
+        }
+
+        /// <summary>
+        /// Проверка соответствия домена
+        /// </summary>
+        private static bool IsDomainMatch(string cookieDomain, string targetDomain)
+        {
+            if (string.IsNullOrEmpty(cookieDomain) || string.IsNullOrEmpty(targetDomain))
+                return false;
+
+            // Нормализуем домены (убираем точку в начале для сравнения)
+            string normalizedCookieDomain = cookieDomain.TrimStart('.');
+            string normalizedTargetDomain = targetDomain.TrimStart('.');
+
+            // Точное совпадение
+            if (normalizedCookieDomain.Equals(normalizedTargetDomain, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // Cookie домен с точкой (.x.com) - проверяем поддомены
+            if (cookieDomain.StartsWith("."))
+            {
+                // Проверяем что target является поддоменом
+                return normalizedCookieDomain.Equals(normalizedTargetDomain, StringComparison.OrdinalIgnoreCase) ||
+                       normalizedTargetDomain.EndsWith("." + normalizedCookieDomain,
+                           StringComparison.OrdinalIgnoreCase);
+            }
+
+            return false;
+        }
+        
+        public static Dictionary<string, object> ParseJwt(string jwt)
+        {
+            var result = new Dictionary<string, object>();
+            
+            if (string.IsNullOrEmpty(jwt))
+            {
+                result["error"] = "Empty token";
+                return result;
+            }
+            
+            var parts = jwt.Split('.');
+            if (parts.Length != 3)
+            {
+                result["error"] = "Invalid JWT format";
+                return result;
+            }
+            
+            try
+            {
+                // Decode header
+                string headerPayload = parts[0].Replace('-', '+').Replace('_', '/');
+                switch (headerPayload.Length % 4)
+                {
+                    case 2: headerPayload += "=="; break;
+                    case 3: headerPayload += "="; break;
+                }
+                var headerJson = Encoding.UTF8.GetString(Convert.FromBase64String(headerPayload));
+                var header = JObject.Parse(headerJson);
+                
+                // Decode payload
+                string payloadB64 = parts[1].Replace('-', '+').Replace('_', '/');
+                switch (payloadB64.Length % 4)
+                {
+                    case 2: payloadB64 += "=="; break;
+                    case 3: payloadB64 += "="; break;
+                }
+                var payloadJson = Encoding.UTF8.GetString(Convert.FromBase64String(payloadB64));
+                var payload = JObject.Parse(payloadJson);
+                
+                // Header info
+                result["alg"] = header["alg"]?.ToString();
+                result["typ"] = header["typ"]?.ToString();
+                result["kid"] = header["kid"]?.ToString();
+                
+                // Payload info
+                result["iss"] = payload["iss"]?.ToString();
+                result["sub"] = payload["sub"]?.ToString();
+                result["aud"] = payload["aud"]?.ToString();
+                
+                // Timestamps
+                long iat = payload["iat"]?.Value<long>() ?? 0;
+                long exp = payload["exp"]?.Value<long>() ?? 0;
+                
+                if (iat > 0)
+                {
+                    result["iat"] = iat;
+                    result["iat_dt"] = DateTimeOffset.FromUnixTimeSeconds(iat).UtcDateTime;
+                }
+                
+                if (exp > 0)
+                {
+                    result["exp"] = exp;
+                    result["exp_dt"] = DateTimeOffset.FromUnixTimeSeconds(exp).UtcDateTime;
+                    result["ttl_seconds"] = exp - DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    result["is_expired"] = DateTimeOffset.UtcNow.ToUnixTimeSeconds() > exp;
+                }
+                
+                // Raw payloads
+                result["header_json"] = headerJson;
+                result["payload_json"] = payloadJson;
+                result["signature"] = parts[2];
+                
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result["error"] = ex.Message;
+                return result;
+            }
+        }
+    }
+
+   
+}

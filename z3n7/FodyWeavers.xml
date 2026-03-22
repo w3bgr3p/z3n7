@@ -1,0 +1,12 @@
+﻿<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
+    <Costura>
+        <IncludeAssemblies>
+            Npgsql
+            AForge.Imaging
+            System.Net.Http
+            Svg
+            zxing
+            Otp.NET
+        </IncludeAssemblies>
+    </Costura>
+</Weavers>
