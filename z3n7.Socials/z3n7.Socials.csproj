@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;</TargetFrameworks>
+        <RootNamespace>z3n7</RootNamespace>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="W:\code_hard\.net\z3n7\z3n7\z3n7.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+    
+
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="ZennoLab.CommandCenter">
+            <HintPath>W:\code_hard\.net\z3n\ZennoLab\ZennoLab.CommandCenter.dll</HintPath>
+        </Reference>
+        <Reference Include="ZennoLab.InterfacesLibrary">
+            <HintPath>W:\code_hard\.net\z3n\ZennoLab\ZennoLab.InterfacesLibrary.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+
+
+</Project>

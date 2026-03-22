@@ -1,0 +1,39 @@
+<Project>
+    <!-- Переменные по умолчанию (можно переопределить) -->
+    <PropertyGroup>
+        <ReleasesFolder Condition="'$(ReleasesFolder)' == ''">w:\code_hard\.net\z3n8\z3n7dll\</ReleasesFolder>
+        <ExternalAssemblies Condition="'$(ExternalAssemblies)' == ''">$(SolutionDir)ZennoLab\ExternalAssemblies\</ExternalAssemblies>
+
+    </PropertyGroup>
+
+    <!-- Автоматическое копирование для проектов z3n.* -->
+    <Target Name="CopyToReleases"
+            AfterTargets="Build"
+            Condition="'$(Configuration)' == 'Release' AND $(MSBuildProjectName.StartsWith('z3n7'))">
+
+        <!-- Создаем список папок назначения -->
+        <ItemGroup>
+            <DestinationFolders Include="$(ReleasesFolder)" />
+            <DestinationFolders Include="$(ExternalAssemblies)" />
+            <DestinationFolders Include="@(AdditionalCopyFolders)" Condition="'@(AdditionalCopyFolders)' != ''" />
+        </ItemGroup>
+
+        <!-- Создаем папки (если не существуют) -->
+        <MakeDir
+                Directories="%(DestinationFolders.Identity)"
+                Condition="!Exists('%(DestinationFolders.Identity)')" />
+
+        <!-- Копируем файл в каждую папку (батчинг) -->
+        <Copy
+                SourceFiles="$(TargetPath)"
+                DestinationFolder="%(DestinationFolders.Identity)"
+                SkipUnchangedFiles="true" />
+
+        
+        <!-- Выводим сообщение для каждой папки (батчинг) -->
+        <Message
+                Text="✓ Copied $(TargetFileName) → %(DestinationFolders.Identity)"
+                Importance="high" />
+    </Target>
+
+</Project>
