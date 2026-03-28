@@ -28,19 +28,14 @@ namespace z3n7.Socials
         /// <summary>
         /// Конструктор с Instance (полный функционал: API + UI)
         /// </summary>
-        public Twitter(IZennoPosterProjectModel project, Instance instance, Logger log = null)
+        public Twitter(IZennoPosterProjectModel project, Instance instance, bool log = false)
         {
             if (instance == null)
                 throw new ArgumentNullException(nameof(instance), "Instance cannot be null for this constructor");
                 
             _project = project;
             _instance = instance;
-            _log = log;
-            if (_log != null) 
-            {
-                _log.Emoji = "X";
-            }
-            
+            _log =  new Logger(_project,null, logLevel: (log) ? LogLevel.Info : LogLevel.Off);
             InitializeSubclasses();
         }
         
