@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <Version>1.0.0.13</Version>
+        <Version>1.0.0.14</Version>
 
         <AssemblyTitle>$(MSBuildProjectName)</AssemblyTitle>
         <Product>z3n7</Product>

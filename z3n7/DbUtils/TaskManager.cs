@@ -14,9 +14,9 @@ namespace z3n7.DbUtils
 {
     public static class TaskManager
     {
-        private static readonly string _settingsTable = DbSchema.Settings;
-        private static readonly string _tasksTable    = DbSchema.Tasks;
-        private static readonly string _commandsTable = DbSchema.Commands;
+        private static readonly string _settingsTable = DbSchema.Settings.Name;
+        private static readonly string _tasksTable    = DbSchema.Tasks.Name;
+        private static readonly string _commandsTable = DbSchema.Commands.Name;
         private static readonly string _machine       = Environment.MachineName;
 
         private static string MakeId(string guid) => $"{_machine}|{guid}";

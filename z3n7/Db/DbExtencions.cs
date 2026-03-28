@@ -182,6 +182,9 @@ namespace z3n7
             
             return refCode;
         }
+        
+        
+        
 
         
     }
@@ -782,6 +785,13 @@ namespace z3n7
     
     public static class DbTable
     {
+        
+        
+        public static void EnsureTable(this IZennoPosterProjectModel project, TableSchema schema)
+        {
+            project.TblAdd(DbSchema.Process.Columns, DbSchema.Process.Name);
+        }
+        
         public static void TblAdd(this IZennoPosterProjectModel project,  Dictionary<string, string> tableStructure, string tblName, bool log = false)
         {
             if (project.TblExist(tblName, log:log)) return;
@@ -940,6 +950,9 @@ namespace z3n7
                 }
             }
         }
+        
+
+        
     }
     
     public static class DbColumn
