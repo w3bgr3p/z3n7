@@ -11,7 +11,7 @@ using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using Newtonsoft.Json.Linq;
 
-namespace z3n7
+namespace z3nIO
 {
     /// <summary>
     /// Работа с трафиком браузера - поиск и извлечение данных из HTTP запросов/ответов

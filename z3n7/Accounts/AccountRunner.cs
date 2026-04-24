@@ -7,7 +7,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.InterfacesLibrary.Enums.Log;
 
 
-namespace z3n7
+namespace z3nIO
 {
     public static class AccountRunner
     {
@@ -55,6 +55,7 @@ namespace z3n7
             bool useRange = true,
             bool filterTwitter = false,
             bool filterDiscord = false,
+            bool filterGithub = false,
             string tableName = null,
             bool debugLog = false,
             bool sqlNow = true)
@@ -151,6 +152,12 @@ namespace z3n7
                     if (!project.FilterBySocial("discord", condition))
                         continue; // Try next group
                 }
+                
+                if (filterGithub)
+                {
+                    if (!project.FilterBySocial("github", condition))
+                        continue; // Try next group
+                }
 
                 accounts = project.Lists["accs"].ToList();
 
@@ -173,6 +180,7 @@ namespace z3n7
             bool useRange = true,
             bool filterTwitter = false,
             bool filterDiscord = false,
+            bool filterGithub = false,
             string tableName = null,
             bool debugLog = false,
             bool sqlNow = true)
@@ -184,7 +192,7 @@ namespace z3n7
             }
             
             // Get filtered list from DB
-            project.GetListFromDb(condition, sortByTaskAge, useRange, filterTwitter, filterDiscord,tableName ,debugLog, sqlNow);
+            project.GetListFromDb(condition, sortByTaskAge, useRange, filterTwitter, filterDiscord, filterGithub, tableName ,debugLog, sqlNow);
 
             var accounts = project.Lists["accs"].ToList();
 
@@ -215,6 +223,7 @@ namespace z3n7
             bool useRange = true, 
             bool filterTwitter = false, 
             bool filterDiscord = false, 
+            bool filterGithub = false,
             string tableName = null, 
             bool debugLog = false,
             bool sqlNow = true,
@@ -225,7 +234,7 @@ namespace z3n7
             {
                 try
                 {
-                    project.ChooseAccountByCondition(condition, sortByTaskAge, useRange, filterTwitter, filterDiscord,
+                    project.ChooseAccountByCondition(condition, sortByTaskAge, useRange, filterTwitter, filterDiscord, filterGithub,
                         tableName, debugLog, sqlNow);  
 
                     if (string.IsNullOrEmpty(project.Var("acc0"))) 
@@ -256,6 +265,7 @@ namespace z3n7
             bool useRange = true,
             bool filterTwitter = false,
             bool filterDiscord = false,
+            bool filterGithub = false,
             string tableName = null,
             bool debugLog = false,
             bool sqlNow = true)
@@ -317,6 +327,17 @@ namespace z3n7
                 {
                     var discordFiltered = new HashSet<string>(
                         project.DbGetLines("id", $"_discord", where: @"status = 'ok'")
+                    );
+                    accounts = accounts.Where(acc => discordFiltered.Contains(acc)).ToList();
+                    
+                    if (!accounts.Any())
+                        continue;
+                }
+                
+                if (filterGithub)
+                {
+                    var discordFiltered = new HashSet<string>(
+                        project.DbGetLines("id", $"_github", where: @"status = 'ok'")
                     );
                     accounts = accounts.Where(acc => discordFiltered.Contains(acc)).ToList();
                     

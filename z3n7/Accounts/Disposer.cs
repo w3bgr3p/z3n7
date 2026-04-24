@@ -5,7 +5,7 @@ using System.IO;
 using ZennoLab.InterfacesLibrary.Enums.Log;
 using ZennoLab.InterfacesLibrary.Enums.Browser;
 
-namespace z3n7
+namespace z3nIO
 {
 
     public class Disposer

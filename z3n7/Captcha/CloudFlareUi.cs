@@ -4,7 +4,7 @@ using System.Threading;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3n7.Captcha
+namespace z3nIO.Captcha
 {
     public static partial  class CaptchaExtensions
     {

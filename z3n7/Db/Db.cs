@@ -7,7 +7,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace z3n7
+namespace z3nIO
 {
     public partial class Db
     {
@@ -42,7 +42,6 @@ namespace z3n7
             _log =  new Logger(logLevel: logLevel);
         }
         
-
 
         #region Core Query
         public string Query(string query, bool log = false, bool thrw = false, bool unSafe = false)

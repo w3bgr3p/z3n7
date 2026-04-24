@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Diagnostics;
 
-namespace z3n7
+namespace z3nIO
 {
     public class LogDisabler
     {

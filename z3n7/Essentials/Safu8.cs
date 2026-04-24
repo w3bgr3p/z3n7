@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3n7
+namespace z3nIO
 {
     public static class FunctionStorage
     {

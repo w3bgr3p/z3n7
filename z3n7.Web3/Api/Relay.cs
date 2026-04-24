@@ -13,7 +13,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace z3n7.Api
+namespace z3nIO.Api
 {
     /// <summary>
     /// Модуль для кросс-чейн бриджа токенов через Relay Link API

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace z3n7
+namespace z3nIO
 {
     /// <summary>
     /// Централизованное хранилище имён таблиц с дефолтными значениями.

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace z3n7
+namespace z3nIO
 {
     public static class AES
     {

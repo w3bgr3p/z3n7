@@ -2,7 +2,7 @@
 using System.Threading;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3n7.Tools
+namespace z3nIO.Tools
 {
     public static class Otp
     {

@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.CommandCenter;
 
-namespace z3n7
+namespace z3nIO
 {
     public static class Cookies
     {

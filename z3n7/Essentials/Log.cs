@@ -118,7 +118,7 @@ namespace z3n7
             Emoji      = classEmoji;
             _persistent = persistent;
             _stopwatch  = persistent ? Stopwatch.StartNew() : null;
-            _http       = http;
+            
             _timezone   = timezoneOffset;
             _minLevel   = logLevel;
             _logHost = !string.IsNullOrEmpty(logHost)                        ? logHost
@@ -130,13 +130,15 @@ namespace z3n7
             _minLevel = (LogLevel)Math.Min((int)_minLevel, (int)LogLevel.Info);
 
             string cfg = _project?.Var("cfgLog") ?? "";
+            
+            _http    = cfg.Contains("http");
             _fAcc    = cfg.Contains("acc");
             _fPort   = cfg.Contains("port");
             _fTime   = cfg.Contains("time");
             _fCaller = cfg.Contains("caller");
             _fWrap   = cfg.Contains("wrap");
             _fForce  = cfg.Contains("force");
-
+            
             if (_instance != null)
             {
                 var m = Regex.Match(_instance.FormTitle ?? "", @"Port:(\d+); Pid:(\d+)");
@@ -281,7 +283,8 @@ namespace z3n7
                         task_id   = taskId,
                         caller    = caller,
                         message   = body.Trim(),
-                        origin = "z3n7"
+                        origin = "z3n7",
+                        elapsed_ms = _project.Age<long>(),
                     };
 
                     string json = JsonConvert.SerializeObject(payload);

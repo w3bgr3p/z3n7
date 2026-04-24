@@ -12,7 +12,7 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 
-namespace z3n7.Web3
+namespace z3nIO.Web3
 {
     /// <summary>
     /// Универсальный RPC клиент с двумя режимами работы:
@@ -329,7 +329,7 @@ namespace z3n7.Web3
                     from = fromAddress,
                     to = contractAddress,
                     data = encodedData,
-                    value = "0x" + _value.ToString("X")
+                    value = new HexBigInteger(_value).HexValue
                 };
 
                 BigInteger gasEstimate;

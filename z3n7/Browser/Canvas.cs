@@ -12,7 +12,7 @@ using ZennoLab.CommandCenter;
     /// <summary>
     /// Canvas & Image Recognition methods for ZennoPoster automation
     /// </summary>
-   namespace z3n7
+   namespace z3nIO
 {
     public static partial class InstanceExtensions
     {

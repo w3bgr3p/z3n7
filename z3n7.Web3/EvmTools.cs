@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3n7.Web3
+namespace z3nIO.Web3
 {
     /// <summary>
     /// Класс для работы с EVM RPC
@@ -311,7 +311,7 @@ namespace z3n7.Web3
 
 
 
-namespace z3n7.Web3
+namespace z3nIO.Web3
 {
     public static partial class Web3Tools
     {

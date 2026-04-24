@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.Enums.Browser;
 using ZennoLab.InterfacesLibrary.ProjectModel;
-namespace z3n7
+namespace z3nIO
 {
     public static partial class InstanceExtensions
     {

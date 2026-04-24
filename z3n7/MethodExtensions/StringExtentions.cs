@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 
-namespace z3n7
+namespace z3nIO
 {
     public static partial class StringExtensions
     {

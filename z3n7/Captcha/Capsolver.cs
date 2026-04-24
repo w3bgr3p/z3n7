@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace z3n7.Captcha
+namespace z3nIO.Captcha
 {
     /// <summary>
     /// Capsolver API for solving Turnstile captcha

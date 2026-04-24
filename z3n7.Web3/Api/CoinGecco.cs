@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 
 
-namespace z3n7.Api
+namespace z3nIO.Api
 {
     public class CoinGecco
     {
@@ -131,7 +131,7 @@ namespace z3n7.Api
     
 }
 
-namespace z3n7
+namespace z3nIO
 {
     public static partial class W3bTools
     {

@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 
 
-namespace z3n7.Utilities
+namespace z3nIO.Utilities
 {
 /// <summary>
     /// Управление связями между процессами (PID) и аккаунтами (ACC)

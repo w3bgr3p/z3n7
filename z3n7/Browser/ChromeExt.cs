@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using ZennoLab.Emulation;
 #endif
 
-namespace z3n7
+namespace z3nIO
 {
     public class Extension
     {

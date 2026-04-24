@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ZennoLab.CommandCenter;
 using ZXing;
 
-namespace z3n7
+namespace z3nIO
 {
     public static class HtmlExtensions
     {
