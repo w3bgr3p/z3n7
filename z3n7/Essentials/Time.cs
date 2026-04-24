@@ -3,10 +3,10 @@ using System.CodeDom;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Threading;
-using z3n7;
+using z3nIO;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3n7
+namespace z3nIO
 {
     public class Time
     {
@@ -133,7 +133,7 @@ namespace z3n7
 }
 
 
-namespace z3n7
+namespace z3nIO
 {
     public static partial class ProjectExtensions
     {

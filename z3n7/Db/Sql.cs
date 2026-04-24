@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace z3n7
+namespace z3nIO
 {
     public enum DatabaseType
     {

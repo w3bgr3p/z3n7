@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3n7.Utilities
+namespace z3nIO.Utilities
 {
     public static class PropertyManager
     {

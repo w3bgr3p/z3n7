@@ -5,9 +5,9 @@ using System.Threading;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using Newtonsoft.Json.Linq;
-using z3n7.Tools;
+using z3nIO.Tools;
 
-namespace z3n7.Socials
+namespace z3nIO.Socials
 {
     #region Main Class
     

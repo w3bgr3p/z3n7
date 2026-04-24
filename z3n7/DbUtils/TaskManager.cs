@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
-using z3n7;
+using z3nIO;
 
-namespace z3n7.DbUtils
+namespace z3nIO.DbUtils
 {
     public static class TaskManager
     {
@@ -90,6 +90,13 @@ namespace z3n7.DbUtils
             return doc.ToString();
         }
 
+        private static string HashB64(string jsonB64)
+        {
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(jsonB64));
+            return BitConverter.ToString(bytes);
+        }
+
         // ── PUSH ──────────────────────────────────────────────────────────────
 
         public static void Push(this IZennoPosterProjectModel project, bool syncTasks = false)
@@ -106,7 +113,7 @@ namespace z3n7.DbUtils
 
             sw.Restart();
             var nameRows = project.DbGetLines("id,name", _tasksTable, where: MachineFilter());
-            var nameMap  = new Dictionary<string, string>(); // guid → name
+            var nameMap  = new Dictionary<string, string>();
             foreach (var row in nameRows)
             {
                 var parts = row.Split('¦');
@@ -122,14 +129,17 @@ namespace z3n7.DbUtils
             foreach (var guid in nameMap.Keys)
             {
                 var xml = ZennoPoster.ExportInputSettings(new Guid(guid));
+                Logger.Get(project).Debug($"[TaskManager.Push] ExportInputSettings guid={guid} xml_empty={string.IsNullOrEmpty(xml)}");
                 if (string.IsNullOrEmpty(xml))
                 {
+                    Logger.Get(project).Debug($"[TaskManager.Push] guid={guid} xml=null/empty → skip");
                     exports.Add((guid, nameMap[guid], "", ""));
                     continue;
                 }
                 try
                 {
                     var (xmlB64, jsonB64) = XmlToPayload(xml);
+                    Logger.Get(project).Debug($"[TaskManager.Push] guid={guid} name={nameMap[guid]} jsonB64={jsonB64}");
                     exports.Add((guid, nameMap[guid], xmlB64, jsonB64));
                 }
                 catch
@@ -142,15 +152,37 @@ namespace z3n7.DbUtils
 
             sw.Restart();
             const int batchSize = 200;
-            var values = exports
-                .Select(e => $"('{MakeId(e.guid)}', '{e.name.Replace("'", "''")}', '{e.xmlB64}', '{e.jsonB64}')")
-                .ToList();
+
+            var existingRows = project.DbGetLines("id,_json_b64", _settingsTable, where: MachineFilter());
+            var existingHash = new Dictionary<string, string>();
+            foreach (var row in existingRows)
+            {
+                var parts = row.Split('¦');
+                if (parts.Length < 2) continue;
+                existingHash[parts[0]] = HashB64(parts[1]);
+                Logger.Get(project).Debug($"[TaskManager.Push] db hash id={parts[0]} hash={HashB64(parts[1])} jsonB64={parts[1]}");
+            }
+
+            var values = exports.Where(e =>
+            {
+                var id = MakeId(e.guid);
+                if (!existingHash.TryGetValue(id, out var dbHash))
+                {
+                    Logger.Get(project).Debug($"[TaskManager.Push] guid={e.guid} → new record, will upsert");
+                    return true;
+                }
+                var zpHash = HashB64(e.jsonB64);
+                var changed = zpHash != dbHash;
+                Logger.Get(project).Debug($"[TaskManager.Push] guid={e.guid} zpHash={zpHash} dbHash={dbHash} changed={changed}");
+                return changed;
+            }).Select(e => $"('{MakeId(e.guid)}', '{e.name.Replace("'", "''")}', '{e.xmlB64}', '{e.jsonB64}')").ToList();
+
             for (int i = 0; i < values.Count; i += batchSize)
             {
                 var batch = string.Join(", ", values.Skip(i).Take(batchSize));
                 project.UpsertQ(_settingsTable, "\"id\", \"name\", \"_xml_b64\", \"_json_b64\"", batch);
             }
-            project.log($"[TaskManager.Push] UPSERT ({exports.Count} rows): {sw.ElapsedMilliseconds} ms");
+            project.log($"[TaskManager.Push] UPSERT ({values.Count}/{exports.Count} rows): {sw.ElapsedMilliseconds} ms");
 
             swTotal.Stop();
             project.log($"[TaskManager] Push done: {exports.Count} | TOTAL: {swTotal.ElapsedMilliseconds} ms");
@@ -160,11 +192,27 @@ namespace z3n7.DbUtils
         {
             var sw  = Stopwatch.StartNew();
             var xml = ZennoPoster.ExportInputSettings(taskId);
+            Logger.Get(project).Debug($"[TaskManager.Push(1)] ExportInputSettings taskId={taskId} xml_empty={string.IsNullOrEmpty(xml)}");
             if (string.IsNullOrEmpty(xml)) return;
 
             string xmlB64, jsonB64;
             try   { (xmlB64, jsonB64) = XmlToPayload(xml); }
             catch { project.warn($"[TaskManager.Push(1)] XmlToPayload failed: {taskId}"); return; }
+
+            Logger.Get(project).Debug($"[TaskManager.Push(1)] taskId={taskId} jsonB64={jsonB64}");
+
+            var id       = MakeId(taskId.ToString());
+            var existing = project.DbGet("_json_b64", _settingsTable, where: $"\"id\" = '{id}'").Split('·')[0];
+            Logger.Get(project).Debug($"[TaskManager.Push(1)] taskId={taskId} existing_jsonB64={existing}");
+
+            if (!string.IsNullOrEmpty(existing) && HashB64(existing) == HashB64(jsonB64))
+            {
+                Logger.Get(project).Debug($"[TaskManager.Push(1)] taskId={taskId} hash match → skip");
+                project.log($"[TaskManager.Push(1)] no changes, skip: {sw.ElapsedMilliseconds} ms");
+                return;
+            }
+
+            Logger.Get(project).Debug($"[TaskManager.Push(1)] taskId={taskId} hash mismatch → upsert");
 
             var name = project.DbGet("name", _tasksTable,
                 where: $"\"id\" = '{MakeId(taskId.ToString())}'").Split('·')[0];
@@ -204,6 +252,8 @@ namespace z3n7.DbUtils
                 var xmlB64  = parts[1];
                 var jsonB64 = parts[2];
 
+                Logger.Get(project).Debug($"[TaskManager.Pull] guid={guid} xmlB64_empty={string.IsNullOrEmpty(xmlB64)} jsonB64={jsonB64}");
+
                 if (string.IsNullOrEmpty(guid) || string.IsNullOrEmpty(xmlB64)) { skip++; continue; }
 
                 string xml;
@@ -211,6 +261,7 @@ namespace z3n7.DbUtils
                 catch { skip++; continue; }
                 if (string.IsNullOrEmpty(xml)) { skip++; continue; }
 
+                Logger.Get(project).Debug($"[TaskManager.Pull] ImportInputSettings guid={guid}");
                 ZennoPoster.ImportInputSettings(new Guid(guid), xml);
                 ok++;
             }
@@ -226,6 +277,8 @@ namespace z3n7.DbUtils
             var row = project.DbGet("_xml_b64,_json_b64", _settingsTable,
                 where: $"\"id\" = '{MakeId(taskId.ToString())}'");
 
+            Logger.Get(project).Debug($"[TaskManager.Pull(1)] taskId={taskId} row={row}");
+
             var parts = row.Split('·')[0].Split('¦');
             if (parts.Length < 2 || string.IsNullOrEmpty(parts[0]))
             {
@@ -233,10 +286,13 @@ namespace z3n7.DbUtils
                 return;
             }
 
+            Logger.Get(project).Debug($"[TaskManager.Pull(1)] taskId={taskId} xmlB64_empty={string.IsNullOrEmpty(parts[0])} jsonB64={( parts.Length > 1 ? parts[1] : "")}");
+
             string xml;
             try   { xml = PayloadToXml(parts[0], parts.Length > 1 ? parts[1] : ""); }
             catch { project.warn($"[TaskManager.Pull(1)] PayloadToXml failed: {taskId}"); return; }
 
+            Logger.Get(project).Debug($"[TaskManager.Pull(1)] ImportInputSettings taskId={taskId}");
             ZennoPoster.ImportInputSettings(taskId, xml);
             project.log($"[TaskManager.Pull(1)] ImportInputSettings: {sw.ElapsedMilliseconds} ms");
         }
@@ -289,6 +345,8 @@ namespace z3n7.DbUtils
             var rows = project.DbGetLines("id,task_id,action,payload", _commandsTable,
                 where: $"\"status\" = 'pending' AND {MachineFilter()}");
 
+            Logger.Get(project).Debug($"[TaskManager.ExecCommands] pending={rows.Count}");
+
             int done = 0, failed = 0;
             foreach (var row in rows)
             {
@@ -299,6 +357,8 @@ namespace z3n7.DbUtils
                 var taskId  = parts[1];
                 var action  = parts[2];
                 var payload = parts[3];
+
+                Logger.Get(project).Debug($"[TaskManager.ExecCommands] cmdId={cmdId} taskId={taskId} action={action} payload={payload}");
 
                 try
                 {
@@ -351,7 +411,6 @@ namespace z3n7.DbUtils
 
         // ── UPSERT ────────────────────────────────────────────────────────────
 
-        /// INSERT с заменой по PK "id". Универсально для SQLite и PostgreSQL.
         private static void UpsertQ(this IZennoPosterProjectModel project,
             string table, string columns, string valuesSql)
         {
@@ -364,16 +423,12 @@ namespace z3n7.DbUtils
             project.DbQ(query);
         }
 
-        /// Для PostgreSQL строит batch-совместимый UPSERT через ON CONFLICT (id) DO UPDATE SET.
-        /// valuesSql — одно или несколько значений через запятую: (...), (...)
         private static string BuildPgUpsert(string table, string columns, string valuesSql)
         {
-            // columns: "id", "name", "_xml_b64", "_json_b64"
             var cols = columns.Split(',')
                 .Select(c => c.Trim().Trim('"'))
                 .ToList();
 
-            // SET clause для всех колонок кроме id
             var setClauses = cols
                 .Where(c => c != "id")
                 .Select(c => $"\"{c}\" = EXCLUDED.\"{c}\"");

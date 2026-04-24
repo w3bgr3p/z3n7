@@ -2,7 +2,7 @@
 using System;
 using Svg;
 
-namespace z3n7
+namespace z3nIO
 {
     public class Img
     {

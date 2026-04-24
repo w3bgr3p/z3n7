@@ -5,10 +5,10 @@ using System.Threading;
 using Newtonsoft.Json;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
-using z3n7.Captcha;
-using z3n7.Tools;
+using z3nIO.Captcha;
+using z3nIO.Tools;
 
-namespace z3n7.Socials
+namespace z3nIO.Socials
 {
     
     public class Discord

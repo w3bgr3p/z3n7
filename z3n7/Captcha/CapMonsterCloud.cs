@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using System.Text;
 
 
-namespace z3n7.Captcha
+namespace z3nIO.Captcha
 {
     public class CapMonsterCloud : IDisposable
     {
@@ -116,7 +116,7 @@ namespace z3n7.Captcha
                 ["taskId"] = taskId
             };
 
-            string jsonRequest = requestData.ToString(Formatting.None);
+            string jsonRequest = JsonConvert.SerializeObject(requestData);
 
             for (int attempt = 0; attempt < maxAttempts; attempt++)
             {
@@ -162,7 +162,7 @@ namespace z3n7.Captcha
     }
 }
 
-namespace z3n7.Captcha
+namespace z3nIO.Captcha
 {
     using ZennoLab.InterfacesLibrary.ProjectModel;
 

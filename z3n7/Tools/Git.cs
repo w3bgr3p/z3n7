@@ -16,7 +16,7 @@ using Newtonsoft.Json.Linq;
 
 
 
-namespace z3n7.Utilities
+namespace z3nIO.Utilities
 {
     /// <summary>
     /// Unified GitHub manager combining git operations and REST API calls
@@ -1017,7 +1017,7 @@ namespace z3n7.Utilities
     }
 }
 
-namespace z3n7.Git
+namespace z3nIO.Git
 {
     /// <summary>
     /// Утилита для версионирования проектов ZennoPoster и управления сборками z3n7.

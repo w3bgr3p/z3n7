@@ -7,7 +7,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3n7
+namespace z3nIO
 {
     public static class Vars
     {
@@ -53,6 +53,12 @@ namespace z3n7
             {
             }
             return value;
+        }
+        public static int Int(this IZennoPosterProjectModel project, string varName, int input)
+        {
+            var counter = project.Int(varName) + input;
+            project.Var(varName, counter);
+            return counter;
         }
         public static decimal Decimal(this IZennoPosterProjectModel project, string var)
         {
