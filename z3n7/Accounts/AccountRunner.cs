@@ -190,7 +190,7 @@ namespace z3nIO
                 project.Var("acc0", project.Var("acc0Forced"));
                 return;
             }
-            
+
             // Get filtered list from DB
             project.GetListFromDb(condition, sortByTaskAge, useRange, filterTwitter, filterDiscord, filterGithub, tableName ,debugLog, sqlNow);
 
@@ -214,6 +214,147 @@ namespace z3nIO
             var left = project.Lists["accs"].Count;
             project.DbUpd($"status = 'working...'");
             project.SendToLog($"Account selected: acc={acc0}, remaining={left}, condition={condition}, range={project.Var("cfgAccRange")}", LogType.Info, true, LogColor.Gray);
+        }
+
+        public static void ChooseAccountByCondition(this IZennoPosterProjectModel project,
+            Dictionary<string, string> conditionsByTable,
+            string sortByTaskAge = null,
+            bool useRange = true,
+            bool filterTwitter = false,
+            bool filterDiscord = false,
+            bool filterGithub = false,
+            bool debugLog = false,
+            bool sqlNow = true)
+        {
+            if (!string.IsNullOrEmpty(project.Var("acc0Forced")))
+            {
+                project.Var("acc0", project.Var("acc0Forced"));
+                return;
+            }
+
+            if (conditionsByTable == null || !conditionsByTable.Any())
+            {
+                project.warn("ChooseAccountByCondition: conditionsByTable is empty", true);
+                return;
+            }
+
+            HashSet<string> resultSet = null;
+
+            foreach (var kvp in conditionsByTable)
+            {
+                var condition = kvp.Key;
+                var tableName = kvp.Value;
+
+                if (sqlNow)
+                {
+                    var dbMode = project.Var("DBmode");
+                    condition = ApplySqlNow(condition, dbMode);
+                }
+
+                List<string> rangeGroups = new List<string>();
+                if (useRange)
+                {
+                    var cfgAccRange = project.Var("cfgAccRange");
+                    rangeGroups = ParseRangeGroups(project, cfgAccRange);
+                }
+                else
+                {
+                    rangeGroups.Add(null);
+                }
+
+                HashSet<string> tableAccounts = new HashSet<string>();
+
+                foreach (var rangeGroup in rangeGroups)
+                {
+                    var fullCondition = useRange
+                        ? $"{condition} AND id in ({rangeGroup})"
+                        : condition;
+
+                    var accounts = project.DbGetLines("id", tableName: tableName, log: debugLog, where: fullCondition)
+                        .Where(acc => !string.IsNullOrWhiteSpace(acc))
+                        .ToList();
+
+                    foreach (var acc in accounts)
+                    {
+                        tableAccounts.Add(acc);
+                    }
+                }
+
+                if (resultSet == null)
+                {
+                    resultSet = tableAccounts;
+                }
+                else
+                {
+                    resultSet.IntersectWith(tableAccounts);
+                }
+
+                if (!resultSet.Any())
+                {
+                    project.warn($"No intersection found after processing table={tableName}, condition={condition}", debugLog);
+                    return;
+                }
+            }
+
+            if (resultSet == null || !resultSet.Any())
+            {
+                var conditionsStr = string.Join("; ", conditionsByTable.Select(kvp => $"{kvp.Value}:{kvp.Key}"));
+                project.warn($"Account selection failed: no accounts match ALL conditions: {conditionsStr}", true);
+                return;
+            }
+
+            var finalAccounts = resultSet.ToList();
+            project.ListSync("accs", finalAccounts);
+
+            if (filterTwitter)
+            {
+                if (!project.FilterBySocial("twitter"))
+                {
+                    project.warn("No accounts left after Twitter filter", true);
+                    return;
+                }
+            }
+
+            if (filterDiscord)
+            {
+                if (!project.FilterBySocial("discord"))
+                {
+                    project.warn("No accounts left after Discord filter", true);
+                    return;
+                }
+            }
+
+            if (filterGithub)
+            {
+                if (!project.FilterBySocial("github"))
+                {
+                    project.warn("No accounts left after Github filter", true);
+                    return;
+                }
+            }
+
+            finalAccounts = project.Lists["accs"].ToList();
+
+            if (!finalAccounts.Any())
+            {
+                project.warn("No accounts left after social filters", true);
+                return;
+            }
+
+            var acc0 = !string.IsNullOrEmpty(sortByTaskAge)
+                ? finalAccounts.First()
+                : project.RndFromList("accs", true);
+
+            project.Var("acc0", acc0);
+
+            if (!string.IsNullOrEmpty(sortByTaskAge))
+                project.Lists["accs"].Remove(acc0);
+
+            var left = project.Lists["accs"].Count;
+            project.DbUpd($"status = 'working...'");
+
+            var conditionsLog = string.Join("; ", conditionsByTable.Select(kvp => $"{kvp.Value}:{kvp.Key}"));
+            project.SendToLog($"Account selected: acc={acc0}, remaining={left}, conditions={conditionsLog}, range={project.Var("cfgAccRange")}", LogType.Info, true, LogColor.Gray);
         }
 
         public static void ChooseAndRunByCondition(this IZennoPosterProjectModel project,Instance instance, 
