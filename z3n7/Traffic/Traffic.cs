@@ -444,9 +444,17 @@ namespace z3nIO
 
         private TrafficElement ConvertToTrafficElement(dynamic rawItem)
         {
-            var responseBody = rawItem.ResponseBody == null
-                ? string.Empty
-                : Encoding.UTF8.GetString(rawItem.ResponseBody, 0, rawItem.ResponseBody.Length);
+            byte[] rawBytes = rawItem.ResponseBody == null
+                ? Array.Empty<byte>()
+                : (byte[])rawItem.ResponseBody;
+
+            string responseBody = "";
+            if (rawBytes.Length > 0)
+            {
+                var encoding = (rawItem.ResponseHeaders ?? "").ToString().ToLower();
+                responseBody = DecompressBody(rawBytes, encoding);
+            }
+
 
             return new TrafficElement(_project)
             {
@@ -461,6 +469,40 @@ namespace z3nIO
                 ResponseCookies = rawItem.ResponseCookies ?? string.Empty,
                 ResponseBody = responseBody
             };
+        }
+        
+        private static string DecompressBody(byte[] data, string headersStr)
+        {
+            if (headersStr.Contains("content-encoding: gzip") || headersStr.Contains("content-encoding: deflate"))
+            {
+                try
+                {
+                    using var ms  = new System.IO.MemoryStream(data);
+                    using var gz  = new System.IO.Compression.GZipStream(ms, System.IO.Compression.CompressionMode.Decompress);
+                    using var dst = new System.IO.MemoryStream();
+                    gz.CopyTo(dst);
+                    return Encoding.UTF8.GetString(dst.ToArray());
+                }
+                catch { }
+            }
+
+            if (headersStr.Contains("content-encoding: br"))
+            {
+                // BrotliStream недоступен в .NET Framework
+                // оставляем сырые байты
+                try { return Encoding.UTF8.GetString(data); }
+                catch { return ""; }
+            }
+
+            if (headersStr.Contains("content-encoding: zstd"))
+            {
+                // ZstdSharp NuGet или пропуск — стандартной библиотеки нет
+                // Если пакет не добавлен — fallback ниже
+            }
+
+            // fallback — сырые байты как UTF-8
+            try { return Encoding.UTF8.GetString(data); }
+            catch { return ""; }
         }
 
         #endregion
@@ -660,11 +702,11 @@ namespace z3nIO
                 // Пропускаем псевдо-заголовки HTTP/2
                 if (header.StartsWith(":")) continue;
                 if (string.IsNullOrWhiteSpace(header)) continue;
-                
                 cleanHeaders.AppendLine(header.Trim());
+                
             }
-            
-            project.Var("headers", cleanHeaders.ToString());
+            var result = Regex.Replace(cleanHeaders.ToString(), @",?\s*(br|zstd)", "", RegexOptions.IgnoreCase);
+            project.Var("headers", result);
             
             log?.Send($"Headers saved to variable 'headers':\n{cleanHeaders}");
         }
