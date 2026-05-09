@@ -787,7 +787,6 @@ namespace z3nIO
             string resp = Query(query, log);
             return resp != "0" && !string.IsNullOrEmpty(resp);
         }
-
         public List<string> GetTables(bool log = false)
         {
             string query = _dbMode == "PostgreSQL"
@@ -800,7 +799,6 @@ namespace z3nIO
                 .Where(s => !string.IsNullOrEmpty(s))
                 .ToList();
         }
-
         public List<string> GetTableColumns(string tableName, bool log = false)
         {
             string query = _dbMode == "PostgreSQL"
@@ -1098,6 +1096,348 @@ namespace z3nIO
             
             return name;
         }
+        #endregion
+
+        #region Bridge
+
+        private static readonly Dictionary<string, string> PgToSqliteTypeMap = new Dictionary<string, string>
+        {
+            { "integer", "INTEGER" },
+            { "int", "INTEGER" },
+            { "int2", "INTEGER" },
+            { "int4", "INTEGER" },
+            { "int8", "INTEGER" },
+            { "bigint", "INTEGER" },
+            { "smallint", "INTEGER" },
+            { "serial", "INTEGER" },
+            { "bigserial", "INTEGER" },
+            { "boolean", "INTEGER" },
+            { "bool", "INTEGER" },
+            { "real", "REAL" },
+            { "float4", "REAL" },
+            { "float8", "REAL" },
+            { "double precision", "REAL" },
+            { "numeric", "REAL" },
+            { "decimal", "REAL" },
+            { "text", "TEXT" },
+            { "varchar", "TEXT" },
+            { "character varying", "TEXT" },
+            { "char", "TEXT" },
+            { "character", "TEXT" },
+            { "uuid", "TEXT" },
+            { "json", "TEXT" },
+            { "jsonb", "TEXT" },
+            { "date", "TEXT" },
+            { "time", "TEXT" },
+            { "time without time zone", "TEXT" },
+            { "time with time zone", "TEXT" },
+            { "timestamp", "TEXT" },
+            { "timestamp without time zone", "TEXT" },
+            { "timestamp with time zone", "TEXT" },
+            { "bytea", "BLOB" }
+        };
+
+        private static readonly Dictionary<string, string> SqliteToPgTypeMap = new Dictionary<string, string>
+        {
+            { "INTEGER", "bigint" },
+            { "REAL", "double precision" },
+            { "TEXT", "text" },
+            { "BLOB", "bytea" }
+        };
+
+        private static string PgTypeToSqlite(string pgType)
+        {
+            string normalized = pgType.ToLower().Trim();
+            normalized = Regex.Replace(normalized, @"\(.*?\)", "").Trim();
+
+            if (PgToSqliteTypeMap.ContainsKey(normalized))
+                return PgToSqliteTypeMap[normalized];
+
+            return "TEXT";
+        }
+
+        private static string SqliteTypeToPg(string sqliteType)
+        {
+            string normalized = sqliteType.ToUpper().Trim();
+            normalized = Regex.Replace(normalized, @"\(.*?\)", "").Trim();
+
+            if (normalized.Contains("INT"))
+                return SqliteToPgTypeMap["INTEGER"];
+            if (normalized.Contains("REAL") || normalized.Contains("FLOA") || normalized.Contains("DOUB"))
+                return SqliteToPgTypeMap["REAL"];
+            if (normalized.Contains("BLOB") || string.IsNullOrEmpty(normalized))
+                return SqliteToPgTypeMap["BLOB"];
+
+            return SqliteToPgTypeMap.ContainsKey(normalized) ? SqliteToPgTypeMap[normalized] : "text";
+        }
+
+        /// <summary>
+        /// Transfer table from PostgreSQL to SQLite
+        /// </summary>
+        /// <param name="pgSchema">PostgreSQL schema (default: public)</param>
+        /// <param name="pgTable">PostgreSQL table name</param>
+        /// <param name="sqlitePath">Path to SQLite database file</param>
+        /// <param name="sqliteTable">SQLite table name</param>
+        /// <param name="log">Enable logging</param>
+        public void PgToSqlite(string pgTable, string sqlitePath, string sqliteTable, string pgSchema = "public", bool log = false)
+        {
+            if (_dbMode != "PostgreSQL")
+                throw new InvalidOperationException("Source database must be PostgreSQL");
+
+            var pgColumns = FetchPgColumns(pgSchema, pgTable, log);
+            var columnDefs = new Dictionary<string, string>();
+
+            foreach (var col in pgColumns)
+            {
+                columnDefs[col.Key] = PgTypeToSqlite(col.Value);
+            }
+
+            var rows = FetchPgRows(pgSchema, pgTable, pgColumns.Keys.ToList(), log);
+
+            using (var sqliteDb = new Sql(sqlitePath, null))
+            {
+                RecreateSqliteTable(sqliteDb, sqliteTable, columnDefs, log);
+                InsertRowsIntoSqlite(sqliteDb, sqliteTable, columnDefs.Keys.ToList(), rows, log);
+            }
+
+            _log.Send($"Transferred {rows.Count} rows from PostgreSQL {pgSchema}.{pgTable} to SQLite {sqliteTable}");
+        }
+
+        /// <summary>
+        /// Transfer table from SQLite to PostgreSQL
+        /// </summary>
+        /// <param name="sqlitePath">Path to SQLite database file</param>
+        /// <param name="sqliteTable">SQLite table name</param>
+        /// <param name="pgTable">PostgreSQL table name</param>
+        /// <param name="pgSchema">PostgreSQL schema (default: public)</param>
+        /// <param name="log">Enable logging</param>
+        public void SqliteToPg(string sqlitePath, string sqliteTable, string pgTable, string pgSchema = "public", bool log = false)
+        {
+            if (_dbMode != "PostgreSQL")
+                throw new InvalidOperationException("Target database must be PostgreSQL");
+
+            Dictionary<string, string> sqliteColumns;
+            List<List<object>> rows;
+
+            using (var sqliteDb = new Sql(sqlitePath, null))
+            {
+                sqliteColumns = FetchSqliteColumns(sqliteDb, sqliteTable, log);
+                rows = FetchSqliteRows(sqliteDb, sqliteTable, sqliteColumns.Keys.ToList(), log);
+            }
+
+            RecreatePgTable(pgSchema, pgTable, sqliteColumns, log);
+            InsertRowsIntoPg(pgSchema, pgTable, sqliteColumns.Keys.ToList(), rows, log);
+
+            _log.Send($"Transferred {rows.Count} rows from SQLite {sqliteTable} to PostgreSQL {pgSchema}.{pgTable}");
+        }
+
+        /// <summary>
+        /// Transfer table from one SQLite database to another SQLite database
+        /// </summary>
+        /// <param name="sourcePath">Source SQLite database path</param>
+        /// <param name="sourceTable">Source table name</param>
+        /// <param name="targetPath">Target SQLite database path</param>
+        /// <param name="targetTable">Target table name</param>
+        /// <param name="log">Enable logging</param>
+        public void SqliteToSqlite(string sourcePath, string sourceTable, string targetPath, string targetTable, bool log = false)
+        {
+            Dictionary<string, string> columns;
+            List<List<object>> rows;
+
+            using (var sourceDb = new Sql(sourcePath, null))
+            {
+                columns = FetchSqliteColumns(sourceDb, sourceTable, log);
+                rows = FetchSqliteRows(sourceDb, sourceTable, columns.Keys.ToList(), log);
+            }
+
+            using (var targetDb = new Sql(targetPath, null))
+            {
+                RecreateSqliteTable(targetDb, targetTable, columns, log);
+                InsertRowsIntoSqlite(targetDb, targetTable, columns.Keys.ToList(), rows, log);
+            }
+
+            _log.Send($"Transferred {rows.Count} rows from SQLite {sourceTable} to SQLite {targetTable}");
+        }
+
+        /// <summary>
+        /// Transfer table between two databases (auto-detect direction)
+        /// </summary>
+        /// <param name="sourceTable">Source table name</param>
+        /// <param name="targetDbPath">Target database path (for SQLite) or connection string</param>
+        /// <param name="targetTable">Target table name</param>
+        /// <param name="targetMode">Target database mode (PostgreSQL or SQLite)</param>
+        /// <param name="schema">Schema name for PostgreSQL</param>
+        /// <param name="log">Enable logging</param>
+        public void BridgeTable(string sourceTable, string targetDbPath, string targetTable, string targetMode = "SQLite", string schema = "public", bool log = false)
+        {
+            if (_dbMode == "PostgreSQL" && targetMode == "SQLite")
+            {
+                PgToSqlite(sourceTable, targetDbPath, targetTable, schema, log);
+            }
+            else if (_dbMode == "SQLite" && targetMode == "PostgreSQL")
+            {
+                SqliteToPg(_sqLitePath, sourceTable, targetTable, schema, log);
+            }
+            else if (_dbMode == "SQLite" && targetMode == "SQLite")
+            {
+                SqliteToSqlite(_sqLitePath, sourceTable, targetDbPath, targetTable, log);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unsupported bridge direction: {_dbMode} to {targetMode}");
+            }
+        }
+
+        private Dictionary<string, string> FetchPgColumns(string schema, string table, bool log)
+        {
+            string query = $@"
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_schema = '{schema}' AND table_name = '{table}'
+                ORDER BY ordinal_position";
+
+            var result = Query(query, log);
+            var columns = new Dictionary<string, string>();
+
+            if (string.IsNullOrEmpty(result))
+                return columns;
+
+            var rows = result.Split(RawSeparator);
+            foreach (var row in rows)
+            {
+                if (string.IsNullOrEmpty(row)) continue;
+                var parts = row.Split(ColumnSeparator);
+                if (parts.Length >= 2)
+                {
+                    columns[parts[0]] = parts[1];
+                }
+            }
+
+            return columns;
+        }
+
+        private List<List<object>> FetchPgRows(string schema, string table, List<string> columns, bool log)
+        {
+            var columnsList = string.Join(", ", columns.Select(c => Quote(c)));
+            string query = $"SELECT {columnsList} FROM \"{schema}\".\"{table}\"";
+
+            var result = Query(query, log);
+            var rows = new List<List<object>>();
+
+            if (string.IsNullOrEmpty(result))
+                return rows;
+
+            var rawRows = result.Split(RawSeparator);
+            foreach (var rawRow in rawRows)
+            {
+                if (string.IsNullOrEmpty(rawRow)) continue;
+                var values = rawRow.Split(ColumnSeparator);
+                rows.Add(new List<object>(values));
+            }
+
+            return rows;
+        }
+
+        private Dictionary<string, string> FetchSqliteColumns(Sql sqliteDb, string table, bool log)
+        {
+            string query = $"SELECT name, type FROM pragma_table_info('{UnQuote(table)}')";
+            var result = sqliteDb.DbReadAsync(query, ColumnSeparator.ToString(), RawSeparator.ToString()).GetAwaiter().GetResult();
+
+            var columns = new Dictionary<string, string>();
+            if (string.IsNullOrEmpty(result))
+                return columns;
+
+            var rows = result.Split(RawSeparator);
+            foreach (var row in rows)
+            {
+                if (string.IsNullOrEmpty(row)) continue;
+                var parts = row.Split(ColumnSeparator);
+                if (parts.Length >= 2)
+                {
+                    columns[parts[0]] = parts[1];
+                }
+            }
+
+            return columns;
+        }
+
+        private List<List<object>> FetchSqliteRows(Sql sqliteDb, string table, List<string> columns, bool log)
+        {
+            var columnsList = string.Join(", ", columns.Select(c => Quote(c)));
+            string query = $"SELECT {columnsList} FROM \"{table}\"";
+
+            var result = sqliteDb.DbReadAsync(query, ColumnSeparator.ToString(), RawSeparator.ToString()).GetAwaiter().GetResult();
+            var rows = new List<List<object>>();
+
+            if (string.IsNullOrEmpty(result))
+                return rows;
+
+            var rawRows = result.Split(RawSeparator);
+            foreach (var rawRow in rawRows)
+            {
+                if (string.IsNullOrEmpty(rawRow)) continue;
+                var values = rawRow.Split(ColumnSeparator);
+                rows.Add(new List<object>(values));
+            }
+
+            return rows;
+        }
+
+        private void RecreatePgTable(string schema, string table, Dictionary<string, string> columns, bool log)
+        {
+            Query($"DROP TABLE IF EXISTS \"{schema}\".\"{table}\"", log);
+
+            var columnsSql = string.Join(", ", columns.Select(kvp =>
+                $"\"{kvp.Key}\" {SqliteTypeToPg(kvp.Value)}"));
+
+            Query($"CREATE TABLE \"{schema}\".\"{table}\" ({columnsSql})", log);
+        }
+
+        private void InsertRowsIntoPg(string schema, string table, List<string> columns, List<List<object>> rows, bool log)
+        {
+            if (rows.Count == 0)
+                return;
+
+            var columnNames = string.Join(", ", columns.Select(c => Quote(c)));
+
+            foreach (var row in rows)
+            {
+                var values = string.Join(", ", row.Select(v =>
+                    v == null ? "NULL" : $"'{v.ToString().Replace("'", "''")}'"));
+
+                string insertSql = $"INSERT INTO \"{schema}\".\"{table}\" ({columnNames}) VALUES ({values})";
+                Query(insertSql, log);
+            }
+        }
+
+        private void RecreateSqliteTable(Sql sqliteDb, string table, Dictionary<string, string> columns, bool log)
+        {
+            sqliteDb.DbWriteAsync($"DROP TABLE IF EXISTS \"{table}\"").GetAwaiter().GetResult();
+
+            var columnsSql = string.Join(", ", columns.Select(kvp =>
+                $"\"{kvp.Key}\" {kvp.Value}"));
+
+            sqliteDb.DbWriteAsync($"CREATE TABLE \"{table}\" ({columnsSql})").GetAwaiter().GetResult();
+        }
+
+        private void InsertRowsIntoSqlite(Sql sqliteDb, string table, List<string> columns, List<List<object>> rows, bool log)
+        {
+            if (rows.Count == 0)
+                return;
+
+            var columnNames = string.Join(", ", columns.Select(c => Quote(c)));
+            var placeholders = string.Join(", ", columns.Select((_, i) => "?"));
+
+            foreach (var row in rows)
+            {
+                var values = string.Join(", ", row.Select(v =>
+                    v == null ? "NULL" : $"'{v.ToString().Replace("'", "''")}'"));
+
+                string insertSql = $"INSERT INTO \"{table}\" ({columnNames}) VALUES ({values})";
+                sqliteDb.DbWriteAsync(insertSql).GetAwaiter().GetResult();
+            }
+        }
+
         #endregion
     }
 }

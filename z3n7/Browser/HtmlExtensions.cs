@@ -8,17 +8,27 @@ namespace z3nIO
     public static class HtmlExtensions
     {
         
-        public static string DecodeQr(HtmlElement element)
+        public static string DecodeQr(this HtmlElement element)
         {
             try
             {
-                var bitmap = element.DrawPartAsBitmap(0, 0, 200, 200, true);
+                if (element.Width == 0 || element.Height == 0)
+                    return "elementZeroSize";
+
+                var bitmap = element.DrawPartAsBitmap(0, 0, element.Width, element.Height, false); // false вместо true
+
+                if (bitmap == null)
+                    return "bitmapIsNull";
+
                 var reader = new BarcodeReader();
                 var result = reader.Decode(bitmap);
-                if (result == null || string.IsNullOrEmpty(result.Text)) return "qrIsNull";
+
+                if (result == null || string.IsNullOrEmpty(result.Text))
+                    return "qrIsNull";
+
                 return result.Text;
             }
-            catch (Exception) { return "qrError"; }
+            catch (Exception ex) { return ex.Message; }
         }
         public static string GetXPath(this HtmlElement element)
         {
