@@ -15,8 +15,27 @@
         <PackageReference Include="Chaos.NaCl.Standard" Version="1.0.0" />
         <PackageReference Include="NBitcoin" Version="7.0.6.0" />
         <PackageReference Include="Nethereum.ABI" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Accounts" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.BlockchainProcessing" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Contracts" Version="4.29.0.0" />
         <PackageReference Include="Nethereum.HdWallet" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Hex" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.JsonRpc.Client" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.JsonRpc.RpcClient" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.KeyStore" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Merkle.Patricia" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Model" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.RLP" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.RPC" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Signer" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Signer.EIP712" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.StandardTokenEIP20" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Util" Version="4.29.0.0" />
+        <PackageReference Include="Nethereum.Util.Rest" Version="4.29.0.0" />
         <PackageReference Include="Nethereum.Web3" Version="4.29.0.0" />
+        
+        
+
 
         <!-- Costura с правильными настройками -->
         <PackageReference Include="Costura.Fody" Version="5.7.0">
