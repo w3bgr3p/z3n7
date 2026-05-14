@@ -40,14 +40,15 @@ namespace z3nIO
         private void LoadStats()
         {
             _instance.Go("https://www.browserscan.net/", true);
-            _project.Deadline();
+            var d = new Time.Deadline();
+            
             while (true)
             {
                 _logger?.Send("still loading...");
                 _idle.Sleep();
                 try
                 {
-                    _project.Deadline(60);
+                    d.Check(60);
                 }
                 catch
                 {
@@ -198,7 +199,6 @@ namespace z3nIO
             
         }
         
-
     }
     public static partial class ProjectExtensions
     {

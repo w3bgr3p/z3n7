@@ -64,6 +64,86 @@ namespace z3nIO.Captcha
 
             }
         }
+        public static string CFInline(this Instance instance)
+        {
+            var d = new Time.Deadline();
+            Random rnd = new Random();
+            var trustline = ""; 
+            string strX = ""; 
+            string strY = ""; 
+
+            while (string.IsNullOrEmpty(trustline))
+            {
+                d.Check(60);
+	
+                try{
+
+                    HtmlElement challenge = instance.GetHe(("div", "innerhtml", "name=\"cf_challenge_response\"", "regexp", 0), "last");
+                    if (!challenge.IsVoid)
+                    {
+                        strX = challenge.GetAttribute("leftInbrowser"); 
+                        strY = challenge.GetAttribute("topInbrowser");
+            
+		
+                        int x = (int.Parse(strX) + rnd.Next(23, 26));
+                        int y = (int.Parse(strY) + rnd.Next(27, 31));
+				
+                        Thread.Sleep(rnd.Next(4, 5) * 1000);
+                        instance.WaitFieldEmulationDelay();
+                        instance.Click(x, x, y, y, "Left", "Normal");
+                    }
+                    Thread.Sleep(rnd.Next(3, 4) * 1000);	
+                    challenge = instance.GetHe(("div", "innerhtml", "name=\"cf_challenge_response\"", "regexp", 0), "last");
+                    trustline = challenge.FirstChild.GetAttribute("value");
+                }
+                catch(Exception ex){
+		
+                }
+            }
+            return trustline;
+
+        }
+        
+        public static string CFBlank(this Instance instance)
+        {
+            var d = new Time.Deadline();
+            Random rnd = new Random();
+            var trustline = ""; 
+            string strX = ""; 
+            string strY = ""; 
+
+            while (string.IsNullOrEmpty(trustline))
+            {
+                d.Check(60);
+	
+                try{
+
+                    HtmlElement challenge = instance.GetHe(("div", "innerhtml", "name=\"cf-turnstile-response\"", "regexp", 0), "last");
+                    if (!challenge.IsVoid)
+                    {
+                        strX = challenge.GetAttribute("leftInbrowser"); 
+                        strY = challenge.GetAttribute("topInbrowser");
+            
+		
+                        int x = (int.Parse(strX) + rnd.Next(23, 26));
+                        int y = (int.Parse(strY) + rnd.Next(27, 31));
+				
+                        Thread.Sleep(rnd.Next(4, 5) * 1000);
+                        instance.WaitFieldEmulationDelay();
+                        instance.Click(x, x, y, y, "Left", "Normal");
+                    }
+                    Thread.Sleep(rnd.Next(3, 4) * 1000);	
+                    challenge = instance.GetHe(("div", "innerhtml", "name=\"cf-turnstile-response\"", "regexp", 0), "last");
+                    trustline = challenge.FirstChild.GetAttribute("value");
+                }
+                catch(Exception ex){
+		
+                }
+            }
+            return trustline;
+
+        }
+
         
     }
  
