@@ -412,7 +412,7 @@ namespace z3nIO
             jo["parameters"]["default"]["UNMASKED_VENDOR_WEBGL"]   = angle[0];
             jo["parameters"]["default"]["UNMASKED_RENDERER_WEBGL"] = angle[1];
 
-            webgl = jo.ToString(Formatting.None);
+            webgl = JsonConvert.SerializeObject(jo);
 
             project.Var("webgl", webgl);
             instance.WebGLPreferences.Load(webgl);
