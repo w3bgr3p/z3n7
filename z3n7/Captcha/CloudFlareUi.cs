@@ -144,7 +144,87 @@ namespace z3nIO.Captcha
 
         }
 
+        public static string SolveCFInLine(this Instance instance, int deadline = 60)
+        {
+            var d = new Time.Deadline();
+            Random rnd = new Random();
+            var trustline = ""; 
+            string strX = ""; 
+            string strY = ""; 
+
+            while (string.IsNullOrEmpty(trustline))
+            {
+                d.Check(deadline);
+	
+                try{
+		
+                    instance.HeClick(("button", "innertext", "Accept\\ All\\ Cookies", "regexp", 0),deadline:1, thrw:false);
+
+                    HtmlElement challenge = instance.GetHe(("div", "innerhtml", "name=\"cf_challenge_response\"", "regexp", 0), "last");
+                    if (!challenge.IsVoid)
+                    {
+                        strX = challenge.GetAttribute("leftInbrowser"); 
+                        strY = challenge.GetAttribute("topInbrowser");
+            
+		
+                        int x = (int.Parse(strX) + rnd.Next(23, 26));
+                        int y = (int.Parse(strY) + rnd.Next(27, 31));
+				
+                        Thread.Sleep(rnd.Next(4, 5) * 1000);
+                        instance.WaitFieldEmulationDelay();
+                        instance.Click(x, x, y, y, "Left", "Normal");
+                    }
+                    Thread.Sleep(rnd.Next(3, 4) * 1000);	
+                    challenge = instance.GetHe(("div", "innerhtml", "name=\"cf_challenge_response\"", "regexp", 0), "last");
+                    trustline = challenge.FirstChild.GetAttribute("value");
+                }
+                catch(Exception ex){
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            
+            return trustline;
+        }
         
+        public static string SolveCFInBlank(this Instance instance, int deadline = 60, int waitBeforeMs = 5000)
+        {
+            var d = new Time.Deadline();
+            Random rnd = new Random();
+            var trustline = ""; 
+            string strX = ""; 
+            string strY = ""; 
+            Thread.Sleep(waitBeforeMs);
+            while (!instance.ActiveTab.FindElementByAttribute("h1", "innertext", "dash.cloudflare.com", "regexp", 0).IsVoid)
+            {
+                d.Check(deadline);
+	
+                try{
+
+                    HtmlElement challenge = instance.GetHe(("div", "innerhtml", "name=\"cf-turnstile-response\"", "regexp", 0), "last");
+                    if (!challenge.IsVoid)
+                    {
+                        strX = challenge.GetAttribute("leftInbrowser"); 
+                        strY = challenge.GetAttribute("topInbrowser");
+            
+		
+                        int x = (int.Parse(strX) + rnd.Next(23, 26));
+                        int y = (int.Parse(strY) + rnd.Next(27, 31));
+				
+                        Thread.Sleep(rnd.Next(4, 5) * 1000);
+                        instance.WaitFieldEmulationDelay();
+                        instance.Click(x, x, y, y, "Left", "Normal");
+                    }
+                    Thread.Sleep(rnd.Next(3, 4) * 1000);	
+                    challenge = instance.GetHe(("div", "innerhtml", "name=\"cf-turnstile-response\"", "regexp", 0), "last");
+                    trustline = challenge.FirstChild.GetAttribute("value");
+                }
+                catch(Exception ex){
+		
+                }
+            }
+            return trustline;
+        }
+
     }
  
 }
