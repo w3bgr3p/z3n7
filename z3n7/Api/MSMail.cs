@@ -30,8 +30,9 @@ namespace z3nIO.Api
             _db = db;
             _logger = new Logger(_project, logLevel: log ? LogLevel.Debug : LogLevel.Off);
             _proxy = proxy;
-            EnsureTable();
             LoadKeys();
+            if (!string.IsNullOrEmpty(_project.Var("mail")))
+                RefreshAccessToken();
         }
         private void LoadKeys()
         {
@@ -40,6 +41,8 @@ namespace z3nIO.Api
             {
                 var raw = _db.dbString($"SELECT thunderbird_client_id, graph_refresh_token FROM mail WHERE mail = '{email}';");
                 var parts = raw.Split('|');
+                if (parts.Length < 2) throw new Exception($"MSMail: no credentials for {email}");
+
                 _clientId     = parts[0];
                 _refreshToken = parts[1];
             }
@@ -77,7 +80,7 @@ namespace z3nIO.Api
 
         public string Get(string endpoint)
         {
-            RefreshAccessToken();
+            //RefreshAccessToken();
             var url = $"{GRAPH_URL}/{endpoint.TrimStart('/')}";
             _logger?.Debug(url);
             return _project.GET(url, _proxy, AuthHeaders(), thrw: true);
@@ -85,7 +88,7 @@ namespace z3nIO.Api
 
         public string Post(string endpoint, string jsonBody)
         {
-            RefreshAccessToken();
+            //RefreshAccessToken();
             var url = $"{GRAPH_URL}/{endpoint.TrimStart('/')}";
             _logger?.Debug(url);
 
@@ -94,7 +97,7 @@ namespace z3nIO.Api
 
         public string Delete(string endpoint)
         {
-            RefreshAccessToken();
+            //RefreshAccessToken();
             var url = $"{GRAPH_URL}/{endpoint.TrimStart('/')}";
             _logger?.Debug(url);
             return _project.DELETE(url, _proxy, AuthHeaders(), thrw: true);
@@ -138,7 +141,6 @@ namespace z3nIO.Api
             _logger?.Send("MSMail: starting self-check");
 
             // Получаем свой email
-            RefreshAccessToken();
             var profileRaw = Get("me");
             var profile = JObject.Parse(profileRaw);
             var myEmail = profile["mail"]?.ToString() ?? profile["userPrincipalName"]?.ToString();
@@ -253,6 +255,7 @@ namespace z3nIO.Api
         
         public void ImportFromJson(string json)
         {
+            EnsureTable();
             var arr  = Newtonsoft.Json.Linq.JArray.Parse(json);
             foreach (var item in arr)
             {
