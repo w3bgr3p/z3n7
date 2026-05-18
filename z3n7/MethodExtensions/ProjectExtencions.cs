@@ -9,100 +9,100 @@ namespace z3nIO
     {
         private static readonly System.Drawing.Font defaultFont = new System.Drawing.Font("Cascadia Mono", 9F);
         private static string ShowInputDialog(string prompt = "Enter text:", string title = "Input", string defaultValue = "")
-{
-    string result = null;
-    
-    // Создаем форму
-    var form = new System.Windows.Forms.Form();
-    form.Text = title;
-    form.Size = new System.Drawing.Size(350, 150);
-    form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-    form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-    form.MaximizeBox = false;
-    form.MinimizeBox = false;
-    form.TopMost = true;
-    
-    // Создаем элементы управления
-    var label = new System.Windows.Forms.Label();
-    label.Text = prompt;
-    label.Font = defaultFont;
-    label.Location = new System.Drawing.Point(12, 15);
-    label.Size = new System.Drawing.Size(310, 20);
-    
-    var textBox = new System.Windows.Forms.TextBox();
-    textBox.Text = defaultValue;
-    textBox.Location = new System.Drawing.Point(12, 40);
-    textBox.Size = new System.Drawing.Size(310, 23);
-    textBox.Font = defaultFont;
-    
-    
-    var buttonOK = new System.Windows.Forms.Button();
-    buttonOK.Text = "OK";
-    buttonOK.Location = new System.Drawing.Point(167, 75);
-    buttonOK.Size = new System.Drawing.Size(75, 25);
-    buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-    
-    var buttonCancel = new System.Windows.Forms.Button();
-    buttonCancel.Text = "Cancel";
-    buttonCancel.Location = new System.Drawing.Point(247, 75);
-    buttonCancel.Size = new System.Drawing.Size(75, 25);
-    buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-    
-    // Настраиваем кнопки формы
-    form.AcceptButton = buttonOK;
-    form.CancelButton = buttonCancel;
-    
-    // Обработчики событий
-    buttonOK.Click += (s, e) => 
-    {
-        result = textBox.Text;
-        form.DialogResult = System.Windows.Forms.DialogResult.OK;
-        form.Close();
-    };
-    
-    buttonCancel.Click += (s, e) => 
-    {
-        result = null;
-        form.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-        form.Close();
-    };
-    
-    // Обработка Enter и Escape
-    textBox.KeyDown += (s, e) =>
-    {
-        if (e.KeyCode == System.Windows.Forms.Keys.Enter)
         {
-            result = textBox.Text;
-            form.DialogResult = System.Windows.Forms.DialogResult.OK;
-            form.Close();
+            string result = null;
+            
+            // Создаем форму
+            var form = new System.Windows.Forms.Form();
+            form.Text = title;
+            form.Size = new System.Drawing.Size(350, 150);
+            form.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            form.MaximizeBox = false;
+            form.MinimizeBox = false;
+            form.TopMost = true;
+            
+            // Создаем элементы управления
+            var label = new System.Windows.Forms.Label();
+            label.Text = prompt;
+            label.Font = defaultFont;
+            label.Location = new System.Drawing.Point(12, 15);
+            label.Size = new System.Drawing.Size(310, 20);
+            
+            var textBox = new System.Windows.Forms.TextBox();
+            textBox.Text = defaultValue;
+            textBox.Location = new System.Drawing.Point(12, 40);
+            textBox.Size = new System.Drawing.Size(310, 23);
+            textBox.Font = defaultFont;
+            
+            
+            var buttonOK = new System.Windows.Forms.Button();
+            buttonOK.Text = "OK";
+            buttonOK.Location = new System.Drawing.Point(167, 75);
+            buttonOK.Size = new System.Drawing.Size(75, 25);
+            buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            
+            var buttonCancel = new System.Windows.Forms.Button();
+            buttonCancel.Text = "Cancel";
+            buttonCancel.Location = new System.Drawing.Point(247, 75);
+            buttonCancel.Size = new System.Drawing.Size(75, 25);
+            buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            
+            // Настраиваем кнопки формы
+            form.AcceptButton = buttonOK;
+            form.CancelButton = buttonCancel;
+            
+            // Обработчики событий
+            buttonOK.Click += (s, e) => 
+            {
+                result = textBox.Text;
+                form.DialogResult = System.Windows.Forms.DialogResult.OK;
+                form.Close();
+            };
+            
+            buttonCancel.Click += (s, e) => 
+            {
+                result = null;
+                form.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+                form.Close();
+            };
+            
+            // Обработка Enter и Escape
+            textBox.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == System.Windows.Forms.Keys.Enter)
+                {
+                    result = textBox.Text;
+                    form.DialogResult = System.Windows.Forms.DialogResult.OK;
+                    form.Close();
+                }
+                else if (e.KeyCode == System.Windows.Forms.Keys.Escape)
+                {
+                    result = null;
+                    form.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+                    form.Close();
+                }
+            };
+            
+            // Добавляем элементы на форму
+            form.Controls.Add(label);
+            form.Controls.Add(textBox);
+            form.Controls.Add(buttonOK);
+            form.Controls.Add(buttonCancel);
+            
+            // Устанавливаем фокус на текстовое поле и выделяем весь текст
+            form.Shown += (s, e) => 
+            {
+                textBox.Focus();
+                textBox.SelectAll();
+            };
+            
+            // Показываем диалог
+            var dialogResult = form.ShowDialog();
+            
+            // Возвращаем результат
+            return dialogResult == System.Windows.Forms.DialogResult.OK ? result : null;
         }
-        else if (e.KeyCode == System.Windows.Forms.Keys.Escape)
-        {
-            result = null;
-            form.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            form.Close();
-        }
-    };
-    
-    // Добавляем элементы на форму
-    form.Controls.Add(label);
-    form.Controls.Add(textBox);
-    form.Controls.Add(buttonOK);
-    form.Controls.Add(buttonCancel);
-    
-    // Устанавливаем фокус на текстовое поле и выделяем весь текст
-    form.Shown += (s, e) => 
-    {
-        textBox.Focus();
-        textBox.SelectAll();
-    };
-    
-    // Показываем диалог
-    var dialogResult = form.ShowDialog();
-    
-    // Возвращаем результат
-    return dialogResult == System.Windows.Forms.DialogResult.OK ? result : null;
-}
         private static void ShowForm(string textToShow)
         {
             // Создаем новую форму
