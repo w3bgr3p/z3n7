@@ -203,5 +203,41 @@ namespace z3nIO.Api
                 ? link
                 : throw new Exception($"Gmail: invalid link: {link}");
         }
+
+        /// <summary>
+        /// Отправляет письмо из текущего ящика.
+        /// </summary>
+        /// <param name="to">Email получателя</param>
+        /// <param name="subject">Тема письма</param>
+        /// <param name="body">Текст письма</param>
+        public void SendMail(string to, string subject, string body)
+        {
+            _logger?.Debug($"gmail: sending email to {to}");
+            RefreshAccessToken();
+
+            // Формируем RFC 2822 сообщение
+            var message = new StringBuilder();
+            message.AppendLine($"To: {to}");
+            message.AppendLine($"Subject: {subject}");
+            message.AppendLine("Content-Type: text/plain; charset=utf-8");
+            message.AppendLine();
+            message.AppendLine(body);
+
+            // Кодируем в base64url
+            var raw = Convert.ToBase64String(Encoding.UTF8.GetBytes(message.ToString()))
+                .Replace('+', '-')
+                .Replace('/', '_')
+                .Replace("=", "");
+
+            var json = new JObject
+            {
+                ["raw"] = raw
+            };
+
+            var url = $"{GMAIL_URL}/messages/send";
+            var response = _project.POST(url, json.ToString(), _proxy, AuthHeaders(), thrw: true);
+            _logger?.Debug(response);
+            _logger?.Send($"gmail: email sent to {to}");
+        }
     }
 }

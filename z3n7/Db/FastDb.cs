@@ -13,13 +13,18 @@ using System.Net.Http;
 
 namespace z3nIO
 {
+    public static class DbLock
+    {
+        public static readonly object lockObj = new object();
+    }
+    
     public class FastDb
     {
         private readonly IZennoPosterProjectModel _project;
         private readonly string _connection;
 		private readonly bool _log;
         
-        public FastDb(IZennoPosterProjectModel project, string dbName , bool log)
+        public FastDb(IZennoPosterProjectModel project, string dbName = "db" , bool log =  false)
         {
             _project = project;
             _connection = ConnectionString(dbName);
@@ -27,7 +32,7 @@ namespace z3nIO
         }
         private string ConnectionString(string dbName)
         {
-            string pathToDb = _project.Path + "tempDb.sql";
+            string pathToDb = _project.Path + dbName +".sql";
             return $"Dsn=SQLite3 Datasource;database={pathToDb}";
         }
         private string rawQ(string query)

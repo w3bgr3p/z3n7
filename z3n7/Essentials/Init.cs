@@ -44,7 +44,6 @@ namespace z3nIO
             _project.Range();
             string keyPath = Path.Combine(_project.Path, ".internal", "safu.key");
             SAFU.InitZ3n8(_project, keyPath);
-            //SAFU.Initialize(_project);
             Logo(author, dllTitle, projectName);
             
         }
@@ -132,15 +131,28 @@ namespace z3nIO
         
         #endregion
     }
+
+
 }
 
 namespace z3nIO//ProjectExtensions
 {
+    
     public static partial class ProjectExtensions
     {
+        
+        
         public static void InitVariables(this IZennoPosterProjectModel project, Instance instance, string author = "w3bgr3p")
         {
             new Init(project, instance).InitVariables(author);
+            try
+            {
+                project.StartZpServer();
+            }
+            catch (Exception ex)
+            {
+                project.warn(ex, false, true);
+            }
         }
     }
 }
