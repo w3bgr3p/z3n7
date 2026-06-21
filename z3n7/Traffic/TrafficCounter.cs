@@ -79,7 +79,45 @@ namespace z3nIO
 
             project.Context[ContextKey] = map;
         }
+        public static string MergeAndReport(IZennoPosterProjectModel project, string existingJson)
+        {
+            var currentSteps = GetMap(project);
 
+            var previousSteps = new List<TrafficStep>();
+            if (!string.IsNullOrEmpty(existingJson))
+            {
+                try
+                {
+                    var prev = JsonConvert.DeserializeObject<dynamic>(existingJson);
+                    foreach (var s in prev.steps)
+                    {
+                        previousSteps.Add(new TrafficStep
+                        {
+                            T     = (long)s.t,
+                            Label = (string)s.label,
+                            Bytes = (long)((double)s.kb * 1024)
+                        });
+                    }
+                }
+                catch { }
+            }
+
+            var merged = previousSteps.Concat(currentSteps).OrderBy(s => s.T).ToList();
+            long total = merged.Sum(s => s.Bytes);
+
+            var report = new
+            {
+                total_kb = System.Math.Round(total / 1024.0, 1),
+                steps = merged.Select(s => new
+                {
+                    t     = s.T,
+                    label = s.Label,
+                    kb    = System.Math.Round(s.Bytes / 1024.0, 1)
+                }).ToList()
+            };
+
+            return JsonConvert.SerializeObject(report, Formatting.Indented);
+        }
         public static string ReportJson(IZennoPosterProjectModel project)
         {
             var steps = project.Context[ContextKey] as List<TrafficStep>
@@ -100,11 +138,7 @@ namespace z3nIO
 
             return JsonConvert.SerializeObject(report, Formatting.Indented);
         }
-
-        public static void LogReport(IZennoPosterProjectModel project)
-        {
-            project.SendInfoToLog("[Traffic]\n" + ReportJson(project));
-        }
+        
 
         public class TrafficStep
         {
@@ -112,5 +146,7 @@ namespace z3nIO
             public string Label { get; set; }
             public long   Bytes { get; set; }
         }
+        
+        
     }
 }

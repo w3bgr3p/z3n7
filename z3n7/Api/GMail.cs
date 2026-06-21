@@ -9,6 +9,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3nIO.Api
 {
+    
     public class GmailClient
     {
         private readonly IZennoPosterProjectModel _project;
@@ -26,7 +27,7 @@ namespace z3nIO.Api
         public GmailClient(IZennoPosterProjectModel project, bool log = false)
         {
             _project = project;
-            _logger =  new Logger(_project, logLevel: (log) ? LogLevel.Debug : LogLevel.Off);
+            _logger = new Logger(_project, logLevel: (log) ? LogLevel.Debug : LogLevel.Off);
             LoadKeys();
         }
 
@@ -40,10 +41,7 @@ namespace z3nIO.Api
             _proxy = "";
         }
 
-        // ── Access token через refresh_token ─────────────────────────────────────
-
         private static readonly System.Net.Http.HttpClient _http = new System.Net.Http.HttpClient();
-
 
         private void RefreshAccessToken()
         {
@@ -55,7 +53,7 @@ namespace z3nIO.Api
                 ["grant_type"] = "refresh_token"
             });
             _logger?.Debug(TOKEN_URL);
-            
+
             var raw = _http.PostAsync(TOKEN_URL, form).Result.Content.ReadAsStringAsync().Result;
             _logger?.Debug(raw);
             var json = JObject.Parse(raw);
@@ -71,8 +69,6 @@ namespace z3nIO.Api
             $"Authorization: Bearer {_accessToken}",
             "Accept: application/json"
         };
-
-        // ── Получить список ID писем ──────────────────────────────────────────────
 
         private List<string> GetMessageIds(string query, int maxResults = 10)
         {
@@ -91,9 +87,7 @@ namespace z3nIO.Api
             return ids;
         }
 
-        // ── Получить тело письма по ID ────────────────────────────────────────────
-
-        private (string subject, string body) GetMessage(string messageId)
+        private (string subject, string body, string to) GetMessage(string messageId)
         {
             var url = $"{GMAIL_URL}/messages/{messageId}?format=full";
             var raw = _project.GET(url, _proxy, AuthHeaders(), thrw: true);
@@ -102,22 +96,23 @@ namespace z3nIO.Api
 
             var subject = "";
             var bodyText = "";
+            var to = "";
 
-            // subject из headers
             var headers = json["payload"]?["headers"] as JArray;
             if (headers != null)
             {
                 foreach (var h in headers)
                 {
-                    if (h["name"]?.ToString().Equals("Subject", StringComparison.OrdinalIgnoreCase) == true)
+                    var name = h["name"]?.ToString() ?? "";
+                    if (name.Equals("Subject", StringComparison.OrdinalIgnoreCase))
                         subject = h["value"]?.ToString() ?? "";
+                    if (name.Equals("To", StringComparison.OrdinalIgnoreCase))
+                        to = h["value"]?.ToString() ?? "";
                 }
             }
 
-            // body — ищем text/plain рекурсивно
             bodyText = ExtractBody(json["payload"]);
-
-            return (subject, bodyText);
+            return (subject, bodyText, to);
         }
 
         private string ExtractBody(JToken part)
@@ -134,7 +129,6 @@ namespace z3nIO.Api
                         data.Replace('-', '+').Replace('_', '/')));
             }
 
-            // рекурсия по parts
             var parts = part["parts"] as JArray;
             if (parts != null)
             {
@@ -148,8 +142,6 @@ namespace z3nIO.Api
             return "";
         }
 
-        // ── Public API ────────────────────────────────────────────────────────────
-
         /// <summary>
         /// Ищет 6-значный OTP в последних письмах адресованных на targetEmail.
         /// Бросает Exception если не найден.
@@ -159,14 +151,15 @@ namespace z3nIO.Api
             _logger?.Debug($"gmail: search messages for {targetEmail}");
             RefreshAccessToken();
 
-            var query = $"to:{targetEmail} newer_than:5m";
-            var ids = GetMessageIds(query, maxResults);
-
-            _logger?.Send($"gmail: found {ids.Count} messages for {targetEmail}");
+            var ids = GetMessageIds("newer_than:5m", maxResults);
+            _logger?.Send($"gmail: found {ids.Count} messages");
 
             foreach (var id in ids)
             {
-                var (subject, body) = GetMessage(id);
+                var (subject, body, to) = GetMessage(id);
+
+                if (to.IndexOf(targetEmail, StringComparison.OrdinalIgnoreCase) < 0)
+                    continue;
 
                 var match = Regex.Match(subject, @"\b\d{6}\b");
                 if (match.Success) return match.Value;
@@ -185,37 +178,40 @@ namespace z3nIO.Api
         {
             RefreshAccessToken();
 
-            var ids = GetMessageIds($"to:{targetEmail} newer_than:5m", 5);
+            var ids = GetMessageIds("newer_than:5m", 5);
             if (ids.Count == 0)
                 throw new Exception($"Gmail: no messages for {targetEmail}");
 
-            var (_, body) = GetMessage(ids[0]);
+            foreach (var id in ids)
+            {
+                var (_, body, to) = GetMessage(id);
 
-            int start = body.IndexOf("https://");
-            if (start == -1) start = body.IndexOf("http://");
-            if (start == -1) throw new Exception($"Gmail: no link in message body");
+                if (to.IndexOf(targetEmail, StringComparison.OrdinalIgnoreCase) < 0)
+                    continue;
 
-            var link = body.Substring(start);
-            int end = link.IndexOfAny(new[] { ' ', '\n', '\r', '\t', '"' });
-            if (end != -1) link = link.Substring(0, end);
+                int start = body.IndexOf("https://");
+                if (start == -1) start = body.IndexOf("http://");
+                if (start == -1) continue;
 
-            return Uri.TryCreate(link, UriKind.Absolute, out _)
-                ? link
-                : throw new Exception($"Gmail: invalid link: {link}");
+                var link = body.Substring(start);
+                int end = link.IndexOfAny(new[] { ' ', '\n', '\r', '\t', '"' });
+                if (end != -1) link = link.Substring(0, end);
+
+                if (Uri.TryCreate(link, UriKind.Absolute, out _))
+                    return link;
+            }
+
+            throw new Exception($"Gmail: no link found for {targetEmail}");
         }
 
         /// <summary>
         /// Отправляет письмо из текущего ящика.
         /// </summary>
-        /// <param name="to">Email получателя</param>
-        /// <param name="subject">Тема письма</param>
-        /// <param name="body">Текст письма</param>
         public void SendMail(string to, string subject, string body)
         {
             _logger?.Debug($"gmail: sending email to {to}");
             RefreshAccessToken();
 
-            // Формируем RFC 2822 сообщение
             var message = new StringBuilder();
             message.AppendLine($"To: {to}");
             message.AppendLine($"Subject: {subject}");
@@ -223,16 +219,12 @@ namespace z3nIO.Api
             message.AppendLine();
             message.AppendLine(body);
 
-            // Кодируем в base64url
             var raw = Convert.ToBase64String(Encoding.UTF8.GetBytes(message.ToString()))
                 .Replace('+', '-')
                 .Replace('/', '_')
                 .Replace("=", "");
 
-            var json = new JObject
-            {
-                ["raw"] = raw
-            };
+            var json = new JObject { ["raw"] = raw };
 
             var url = $"{GMAIL_URL}/messages/send";
             var response = _project.POST(url, json.ToString(), _proxy, AuthHeaders(), thrw: true);
@@ -240,4 +232,6 @@ namespace z3nIO.Api
             _logger?.Send($"gmail: email sent to {to}");
         }
     }
+
+    
 }

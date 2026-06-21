@@ -177,7 +177,8 @@ namespace z3nIO.Socials
         }
         private string TokenGet(bool saveToDb = false)
         {
-            var stats = new Traffic(_project,_instance).FindTrafficElement("https://discord.com/api/v9/science",  reload:true).RequestHeaders;
+            _instance.F5();
+            var stats = new Traffic(_project,_instance).Find("https://discord.com/api/v9/science").RequestHeaders;
             string patern = @"(?<=uthorization:\ ).*";
             string token = System.Text.RegularExpressions.Regex.Match(stats, patern).Value;
             _log?.Send($"Token extracted: length={token?.Length ?? 0}, valid={!string.IsNullOrEmpty(token)}");

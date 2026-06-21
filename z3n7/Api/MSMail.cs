@@ -30,6 +30,7 @@ namespace z3nIO.Api
             _db = db;
             _logger = new Logger(_project, logLevel: log ? LogLevel.Debug : LogLevel.Off);
             _proxy = proxy;
+            EnsureTable();
             LoadKeys();
             if (!string.IsNullOrEmpty(_project.Var("mail")))
                 RefreshAccessToken();
@@ -255,7 +256,6 @@ namespace z3nIO.Api
         
         public void ImportFromJson(string json)
         {
-            EnsureTable();
             var arr  = Newtonsoft.Json.Linq.JArray.Parse(json);
             foreach (var item in arr)
             {
