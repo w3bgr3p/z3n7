@@ -34,8 +34,8 @@ namespace z3nIO
         
 public string GetGraphQLStructure(string urlFilter)
 {
-    var t = new Traffic(_project, _instance, log: _logger);
-    var all = t.FindAllTrafficElements(urlFilter);
+    var t = new Traffic(_project, _instance);
+    var all = t.FindAll(urlFilter);
     
     _logger?.Send($"Found {all.Count} traffic elements");
     

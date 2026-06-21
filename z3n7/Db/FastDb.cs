@@ -24,9 +24,11 @@ namespace z3nIO
         private readonly string _connection;
 		private readonly bool _log;
         
-        public FastDb(IZennoPosterProjectModel project, string dbName = "db" , bool log =  false)
+        public FastDb(IZennoPosterProjectModel project,string dbName = null, bool log =  false)
         {
             _project = project;
+            if (string.IsNullOrEmpty(dbName))
+                dbName = (string.IsNullOrEmpty(project.Var("dbName")) ? "db" : project.Var("dbName"));
             _connection = ConnectionString(dbName);
 			_log = log;
         }

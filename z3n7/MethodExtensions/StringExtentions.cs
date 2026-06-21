@@ -401,39 +401,65 @@ namespace z3nIO
         #endregion
         
         #region NEW
-        public static string NewPassword(int length)
+
+        
+        public static string NewPassword(int length = 16, bool includeDigits= true, bool randomizeCase = true, bool includeSymbols = true)
         {
-            if (length < 8)
+            if (length < 1)
+                throw new ArgumentException("Length must be at least 1.");
+		
+            var random = new Random();
+            string letters = "abcdefghijklmnopqrstuvwxyz";
+            string digits  = "0123456789";
+            string symbols = "!@#$%^&*()";
+		
+            // --- строим пул и обязательные символы ---
+            var pool      = new StringBuilder(letters);
+            var mandatory = new List<char>();
+		
+            if (includeDigits)
             {
-                throw new ArgumentException("Length must be at least 8 characters.");
+                pool.Append(digits);
+                mandatory.Add(digits[random.Next(digits.Length)]);
             }
-
-            string lowercase = "abcdefghijklmnopqrstuvwxyz";
-            string uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            string numbers = "0123456789";
-            string special = "!@#$%^&*()";
-            string allChars = lowercase + uppercase + numbers + special;
-            Random random = new Random();
-            StringBuilder password = new StringBuilder();
-
-            password.Append(lowercase[random.Next(lowercase.Length)]);
-            password.Append(uppercase[random.Next(uppercase.Length)]);
-            password.Append(numbers[random.Next(numbers.Length)]);
-            password.Append(special[random.Next(special.Length)]);
-
-            for (int i = 4; i < length; i++)
+		
+            if (includeSymbols)
             {
-                password.Append(allChars[random.Next(allChars.Length)]);
+                pool.Append(symbols);
+                mandatory.Add(symbols[random.Next(symbols.Length)]);
             }
-
+		
+            // для randomizeCase добавляем uppercase в пул,
+            // плюс один обязательный uppercase
+            if (randomizeCase)
+            {
+                string upper = letters.ToUpper();
+                pool.Append(upper);
+                mandatory.Add(upper[random.Next(upper.Length)]);
+            }
+		
+            if (mandatory.Count > length)
+                throw new ArgumentException("Length too small to satisfy all required character groups.");
+		
+            string poolStr = pool.ToString();
+		
+            // --- заполняем остаток ---
+            var password = new StringBuilder();
+            foreach (char c in mandatory)
+                password.Append(c);
+		
+            for (int i = mandatory.Count; i < length; i++)
+                password.Append(poolStr[random.Next(poolStr.Length)]);
+		
+            // --- перемешиваем ---
             for (int i = 0; i < password.Length; i++)
             {
-                int randomIndex = random.Next(password.Length);
-                char temp = password[i];
-                password[i] = password[randomIndex];
-                password[randomIndex] = temp;
+                int j    = random.Next(password.Length);
+                char tmp = password[i];
+                password[i] = password[j];
+                password[j] = tmp;
             }
-
+		
             return password.ToString();
         }
         #endregion
