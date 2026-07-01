@@ -87,11 +87,11 @@ namespace z3nIO
             {
                 if (isSuccess)
                 {
-                    _reporter.ReportSuccess(toLog: true, toTelegram: true, toDb: true);
+                    _reporter.ReportSuccess(toLog: true, toTelegram: false, toDb: true);
                 }
                 else
                 {
-                    _reporter.ReportError(toLog: true, toTelegram: true, toDb: true, screenshot: true);
+                    _reporter.ReportError(toLog: true, toTelegram: false, toDb: true, screenshot: true);
                 }
                 _logger?.Send("Report generated successfully");
             }
