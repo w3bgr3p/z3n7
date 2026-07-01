@@ -465,9 +465,13 @@ namespace z3nIO
 
             try
             {
+                string scheme = "http";
+
                 if (proxyString.Contains("//"))
                 {
-                    proxyString = proxyString.Split(new[] { "//" }, StringSplitOptions.None)[1];
+                    var schemeParts = proxyString.Split(new[] { "//" }, StringSplitOptions.None);
+                    scheme = schemeParts[0].TrimEnd(':');
+                    proxyString = schemeParts[1];
                 }
 
                 if (proxyString.Contains("@"))
@@ -476,10 +480,10 @@ namespace z3nIO
                     var credentials = parts[0];
                     var proxyHost = parts[1];
                     var creds = credentials.Split(':');
-                    return $"http://{creds[0]}:{creds[1]}@{proxyHost}";
+                    return $"{scheme}://{creds[0]}:{creds[1]}@{proxyHost}";
                 }
 
-                return $"http://{proxyString}";
+                return $"{scheme}://{proxyString}";
             }
             catch (Exception e)
             {

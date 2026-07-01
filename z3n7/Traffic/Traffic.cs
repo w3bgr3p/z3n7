@@ -3,37 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ZennoLab.CommandCenter;
-using System.Globalization;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using System.Text.RegularExpressions;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using  z3nIO.Captcha;
-
 using System.Text;
-
-
-
 namespace z3nIO
+
 {
     public class Traffic
     {
         private readonly IZennoPosterProjectModel _project;
         private readonly Instance                 _instance;
+        private string _defaultFilter;
 
-        public Traffic(IZennoPosterProjectModel project, Instance instance)
+        public Traffic(IZennoPosterProjectModel project, Instance instance, string defaultFilter = null)
         {
             _project  = project;
             _instance = instance;
             _instance.UseTrafficMonitoring = true;
+            _defaultFilter = defaultFilter;
         }
 
         // ─── Snapshot ──────────────────────────────────────────────────────────
 
         private List<TrafficElement> Grab()
         {
-            var raw = _instance.ActiveTab.GetTraffic(new[] { _instance.ActiveTab.Domain }).ToList(); // материализуем сразу
+            var filter = _defaultFilter ?? _instance.ActiveTab.Domain;
+            var raw = _instance.ActiveTab.GetTraffic(new[] { filter }).ToList(); // материализуем сразу
             return raw
                 .Where(r => r.Method != "OPTIONS")
                 .Select(r => ToElement(r))
