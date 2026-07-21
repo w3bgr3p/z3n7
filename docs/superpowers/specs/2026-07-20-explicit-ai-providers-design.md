@@ -45,7 +45,7 @@ It always uses `http://localhost:20128` with `/v1/chat/completions` and `/v1/mod
 
 ## Request Behavior
 
-Both providers send the same OpenAI-compatible chat-completion payload: explicit model, system and user messages, temperature, `top_p`, `stream: false`, and `max_tokens`. Both expose synchronous wrappers over their asynchronous methods for ZennoPoster callers.
+Both providers use the project's existing Newtonsoft.Json dependency and send the same OpenAI-compatible chat-completion payload: explicit model, system and user messages, temperature, `top_p`, `stream: false`, and `max_tokens`. Both expose synchronous wrappers over their asynchronous methods for ZennoPoster callers.
 
 Non-success HTTP responses throw an exception containing the status code and raw response body. Invalid successful responses throw an exception containing the parse error and raw response body. Model lists are sorted and cached independently per provider.
 

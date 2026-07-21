@@ -67,7 +67,7 @@ namespace z3nIO
 
             return bytes;
         }
-        // для HTTP-запросов вне браузера (AiClient, ZennoPoster.HTTP.Request)
+        // для HTTP-запросов вне браузера (AI clients, ZennoPoster.HTTP.Request)
         public static void Add(IZennoPosterProjectModel project, string label, string responseText)
         {
             long bytes = Encoding.UTF8.GetByteCount(responseText ?? "");

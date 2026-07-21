@@ -1532,7 +1532,7 @@ namespace z3nIO.Socials
             var randomNews = Rnd.RndFile(Path.Combine(_project.Path, ".data", "news"), "json");
             _project.ToJson(File.ReadAllText(randomNews));
             var article = _project.Json.FullText;
-            var ai = new Api.AI(_project, "aiio", model:model);
+            var ai = new Api.Aiio(_project);
             var bio = _project.DbGet("bio", "_profile");
             
             string system = "";
@@ -1610,7 +1610,7 @@ namespace z3nIO.Socials
             else
                 _log.Warn($"UNKNOWN PURPOSE: {purpose}");
             
-            string result = ai.Query(system, article).Replace("```json", "").Replace("```", "");
+            string result = ai.Complete(model, system, article).Replace("```json", "").Replace("```", "");
             _project.ToJson(result);
             _log?.Send($"Generated {purpose}: length={result.Length}");
             return result;
@@ -1624,7 +1624,7 @@ namespace z3nIO.Socials
             var randomNews = Rnd.RndFile(Path.Combine(_project.Path, ".data", "news"), "json");
             _project.ToJson(File.ReadAllText(randomNews));
             var article = _project.Json.FullText;
-            var ai = new Api.AI(_project, "aiio", model:model);
+            var ai = new Api.Aiio(_project);
             var bio = _project.DbGet("bio", "_profile");
             
             // Рандомизация подхода к контенту
@@ -1714,7 +1714,7 @@ namespace z3nIO.Socials
             else
                 _log.Warn($"UNKNOWN PURPOSE: {purpose}");
             
-            string result = ai.Query(system, article).Replace("```json", "").Replace("```", "");
+            string result = ai.Complete(model, system, article).Replace("```json", "").Replace("```", "");
             _project.ToJson(result);
             _log?.Send($"Generated {purpose} with approach: {randomApproach}");
             return result;
@@ -1765,7 +1765,7 @@ namespace z3nIO.Socials
         /// <param name="withNewsContext">Использовать контекст из новостной статьи</param>
         public string GenerateReply(string tweetText, bool withNewsContext = false)
         {
-            var ai = new Api.AI(_project, "aiio", "meta-llama/Llama-3.3-70B-Instruct");
+            var ai = new Api.Aiio(_project);
             var bio = _project.DbGet("bio", "_profile");
             
             // Рандомизация подхода к ответу
@@ -1848,7 +1848,7 @@ namespace z3nIO.Socials
                 {tweetText}";
             }
             
-            string result = ai.Query(system, user)
+            string result = ai.Complete("meta-llama/Llama-3.3-70B-Instruct", system, user)
                 .Replace("```json", "")
                 .Replace("```", "")
                 .Trim();
@@ -2076,7 +2076,7 @@ namespace z3nIO.Socials
         }
         public string GenerateNormalBioAI()
         {
-            var ai = new Api.AI(_project, "aiio", "meta-llama/Llama-3.3-70B-Instruct");
+            var ai = new Api.Aiio(_project);
     
             // Рандомные constraints для разнообразия
             var professionTypes = new[] { 
@@ -2119,7 +2119,7 @@ Return ONLY:
 
             string user = "Generate ONE unique bio.";
     
-            string result = ai.Query(system, user)
+            string result = ai.Complete("meta-llama/Llama-3.3-70B-Instruct", system, user)
                 .Replace("```json", "")
                 .Replace("```", "")
                 .Trim();
