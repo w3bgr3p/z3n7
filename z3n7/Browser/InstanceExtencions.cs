@@ -526,7 +526,49 @@ namespace z3nIO
             instance.SetIanaTimezone(tz["timezoneName"].ToString());
         }
 
+        public static void FixTimezone(this Instance instance, IZennoPosterProjectModel project)
+        {
+            instance.Go("https://www.browserscan.net/");
+
+            var resp = "";
+            var d = new Time.Deadline();
+
+            while (string.IsNullOrEmpty(resp))
+            {
+                d.Check(60);
+                Thread.Sleep(5000);
+
+                try
+                {
+                    resp = new Traffic(
+                            project,
+                            instance,
+                            "https://ip-scan.browserscan.net/sys/"
+                        )
+                        .Find("https://ip-scan.browserscan.net/sys/config/ip/get-visitor-ip")
+                        .ResponseBody;
+                }
+                catch
+                {
+                }
+            }
+
+            var json = Newtonsoft.Json.Linq.JObject.Parse(resp);
+
+            var timeZone = json["data"]?["ip_data"]?["timezone"]?.ToString();
+
+            if (string.IsNullOrWhiteSpace(timeZone))
+                throw new Exception("Timezone not found in response:\r\n" + resp);
+
+            instance.SetIanaTimezone(timeZone);
+
+            project.SendInfoToLog(timeZone);
+        }
+
         #endregion
+        
+        
+        
 
 
     }

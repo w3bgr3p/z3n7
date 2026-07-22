@@ -18,9 +18,9 @@
         <Compile Remove="Sql\TaskManager.cs" />
         <Compile Remove="Sql\**" />
         <Compile Remove="DbUtils\TaskManager_obsolete.cs" />
-        <Compile Remove="Tools\Extractor.cs" />
         <Compile Remove="Essentials\Log.cs" />
         <Compile Remove="Api\GMXMail.cs" />
+        <Compile Remove="Api\SuperMails.cs" />
     </ItemGroup>
 
     <ItemGroup>

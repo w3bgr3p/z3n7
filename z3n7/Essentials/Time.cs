@@ -146,18 +146,20 @@ namespace z3nIO
             return difference;
         }
 
-        public static T Age<T>(this IZennoPosterProjectModel project)
+        public static T Age<T>(this IZennoPosterProjectModel project, string var = null)
         {
+            var var0 =  var ?? "varSessionId";
+            
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             long start;
             try
             {
-                start = long.Parse(project.Variables["varSessionId"].Value);
+                start = long.Parse(project.Variables[var0].Value);
             }
             catch
             {
-                project.Variables["varSessionId"].Value = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
-                start = long.Parse(project.Variables["varSessionId"].Value);
+                project.Variables[var0].Value = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+                start = long.Parse(project.Variables[var0].Value);
             }
 
             long ageMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - start;

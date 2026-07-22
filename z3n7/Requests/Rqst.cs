@@ -640,11 +640,8 @@ namespace z3nIO
 
         private void LogStatus()
         {
-            if (_rqst.StatusCode >= 200 && _rqst.StatusCode < 300)
-            {
-                _logger?.Send($"✓ HTTP {_rqst.StatusCode}");
-            }
-            else if (_rqst.StatusCode == 429)
+
+            if (_rqst.StatusCode == 429)
             {
                 _logger?.Send($"!W HTTP 429 Rate Limited | url:[{_rqst.Url}] proxy:[{_rqst.Proxy}]");
             }

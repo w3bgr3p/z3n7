@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Numlex sample labeler</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#11151b;color:#e8edf4;font:14px system-ui,sans-serif}
+    header{position:sticky;top:0;z-index:5;display:flex;gap:10px;align-items:center;padding:10px 14px;background:#1a2029;border-bottom:1px solid #303846}
+    button{padding:8px 12px;border:1px solid #465368;border-radius:6px;background:#273244;color:#fff;cursor:pointer}button:disabled{opacity:.4;cursor:default}
+    #status{margin-left:auto;color:#aebbd0}.layout{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:18px;padding:18px}
+    #canvasBox{position:relative;display:inline-block;max-width:100%;line-height:0;background:#080a0d;border:1px solid #3b4657}
+    #canvas{display:block;max-width:100%;height:auto;cursor:crosshair;image-rendering:auto}
+    .marker{position:absolute;width:22px;height:22px;margin:-11px;border-radius:50%;display:grid;place-items:center;background:#ffd43b;color:#111;font:bold 12px system-ui;border:2px solid #111;pointer-events:none}
+    aside{background:#1a2029;border:1px solid #303846;border-radius:8px;padding:12px}.target{padding:8px;margin-bottom:8px;border:2px solid transparent;border-radius:7px;background:#fff;color:#111}.target.active{border-color:#ffd43b}.target.done{opacity:.45}
+    .target img{display:block;width:90px;height:90px;object-fit:contain;margin:auto}.target b{display:block;text-align:center;margin-top:5px}
+    #empty{padding:70px;text-align:center;color:#8390a4}.hint{margin-top:12px;color:#8d9bb0;line-height:1.5}
+  </style>
+</head>
+<body>
+  <header>
+    <button id="open">Выбрать samples</button><button id="prev" disabled>← Назад</button><button id="undo" disabled>Отменить точку</button><button id="reset" disabled>Сбросить</button><button id="next" disabled>Дальше →</button>
+    <span id="status">Папка не выбрана</span>
+  </header>
+  <main id="empty">Выбери папку <b>Numlex\samples</b></main>
+  <main id="workspace" class="layout" hidden><section><div id="canvasBox"><img id="canvas"></div><div class="hint">Кликай объекты в порядке справа. После последней точки JSON сохраняется автоматически.</div></section><aside id="targets"></aside></main>
+  <script>
+    const $=id=>document.getElementById(id);
+    let dir,cases=[],index=0,points=[];
+
+    const asImage=value=>value.startsWith('data:')?value:`data:image/png;base64,${value}`;
+    const labelName=name=>name.replace(/\.txt$/i,'.json');
+    async function readText(handle){return (await handle.getFile()).text()}
+    async function exists(name){try{await dir.getFileHandle(name);return true}catch{return false}}
+
+    $('open').onclick=async()=>{
+      if(!window.showDirectoryPicker){alert('Открой страницу в Chrome/Edge через localhost.');return}
+      dir=await window.showDirectoryPicker({mode:'readwrite'});
+      cases=[];
+      for await(const [name,handle] of dir.entries()){
+        if(handle.kind==='file'&&/^case_.*\.txt$/i.test(name)) cases.push({name,handle});
+      }
+      cases.sort((a,b)=>a.name.localeCompare(b.name));
+      for(const item of cases)item.labeled=await exists(labelName(item.name));
+      index=Math.max(0,cases.findIndex(item=>!item.labeled));
+      if(!cases.length){alert('В папке нет case_*.txt');return}
+      $('empty').hidden=true;$('workspace').hidden=false;await loadCase();
+    };
+
+    async function loadCase(){
+      const item=cases[index];
+      const lines=(await readText(item.handle)).split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+      if(lines.length<2)throw new Error(`${item.name}: нужно минимум две строки`);
+      item.images=lines;
+      points=[];
+      if(item.labeled){
+        try{
+          const handle=await dir.getFileHandle(labelName(item.name));
+          const saved=JSON.parse(await readText(handle));
+          points=Array.isArray(saved.points)?saved.points.map(p=>({index:+p.index,x:+p.x,y:+p.y})):[];
+        }catch(e){console.warn(e)}
+      }
+      $('canvas').src=asImage(lines[0]);
+      await new Promise((resolve,reject)=>{$('canvas').onload=resolve;$('canvas').onerror=reject});
+      renderTargets(lines.slice(1));renderMarkers();updateControls();
+    }
+
+    function renderTargets(images){
+      $('targets').innerHTML=images.map((src,i)=>`
+        <div class="target ${i===points.length?'active':''} ${i<points.length?'done':''}">
+          <img src="${asImage(src)}"><b>Объект ${i+1}</b>
+        </div>`).join('');
+    }
+
+    function renderMarkers(){
+      document.querySelectorAll('.marker').forEach(node=>node.remove());
+      const image=$('canvas');
+      for(const point of points){
+        const marker=document.createElement('span');marker.className='marker';marker.textContent=point.index;
+        marker.style.left=`${point.x/image.naturalWidth*100}%`;
+        marker.style.top=`${point.y/image.naturalHeight*100}%`;
+        $('canvasBox').appendChild(marker);
+      }
+    }
+
+    $('canvas').onclick=async event=>{
+      const targetCount=cases[index].images.length-1;
+      if(points.length>=targetCount)return;
+      const rect=$('canvas').getBoundingClientRect();
+      const x=Math.max(0,Math.min($('canvas').naturalWidth-1,Math.round((event.clientX-rect.left)*$('canvas').naturalWidth/rect.width)));
+      const y=Math.max(0,Math.min($('canvas').naturalHeight-1,Math.round((event.clientY-rect.top)*$('canvas').naturalHeight/rect.height)));
+      points.push({index:points.length+1,x,y});
+      renderTargets(cases[index].images.slice(1));renderMarkers();updateControls();
+      if(points.length===targetCount)await saveLabel();
+    };
+
+    async function saveLabel(){
+      const item=cases[index];
+      const handle=await dir.getFileHandle(labelName(item.name),{create:true});
+      const writable=await handle.createWritable();
+      const data={source:item.name,canvas_width:$('canvas').naturalWidth,canvas_height:$('canvas').naturalHeight,points};
+      await writable.write(JSON.stringify(data,null,2));await writable.close();
+      item.labeled=true;updateControls();
+    }
+
+    function updateControls(){
+      const done=cases.filter(item=>item.labeled).length;
+      $('status').textContent=`${index+1}/${cases.length} · размечено ${done} · ${cases[index].name}${cases[index].labeled?' · сохранено':''}`;
+      $('prev').disabled=index===0;$('next').disabled=index>=cases.length-1;
+      $('undo').disabled=!points.length;$('reset').disabled=!points.length;
+    }
+
+    async function changeCase(delta){index=Math.max(0,Math.min(cases.length-1,index+delta));await loadCase()}
+    $('prev').onclick=()=>changeCase(-1);$('next').onclick=()=>changeCase(1);
+
+    async function clearSavedLabel(){
+      const item=cases[index];
+      if(item.labeled){try{await dir.removeEntry(labelName(item.name))}catch{}item.labeled=false}
+    }
+    $('undo').onclick=async()=>{
+      await clearSavedLabel();points.pop();renderTargets(cases[index].images.slice(1));renderMarkers();updateControls();
+    };
+    $('reset').onclick=async()=>{
+      await clearSavedLabel();points=[];renderTargets(cases[index].images.slice(1));renderMarkers();updateControls();
+    };
+    document.addEventListener('keydown',event=>{
+      if(event.key==='ArrowLeft')$('prev').click();
+      if(event.key==='ArrowRight')$('next').click();
+      if(event.key==='Backspace'){event.preventDefault();$('undo').click()}
+    });
+  </script>
+</body>
+</html>
