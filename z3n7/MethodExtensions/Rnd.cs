@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
 using System.Linq;
@@ -11,7 +12,6 @@ namespace z3nIO
     {
         private static Random random = new Random();
         
-
         public static string RndHexString(int length)
         {
             const string chars = "0123456789abcdef";
@@ -264,5 +264,221 @@ namespace z3nIO
                 goto readrandom;
             }
         }
+        
+
+        private static readonly string[] EmailDomains =
+        {
+            // Google
+            "gmail.com",
+            "googlemail.com",
+
+            // Microsoft
+            "outlook.com",
+            "hotmail.com",
+            "live.com",
+            "msn.com",
+
+            // Yahoo / AOL
+            "yahoo.com",
+            "ymail.com",
+            "rocketmail.com",
+            "aol.com",
+
+            // Apple
+            "icloud.com",
+            "me.com",
+            "mac.com",
+
+            // Proton / privacy
+            "proton.me",
+            "protonmail.com",
+            "pm.me",
+            "tuta.com",
+            "tuta.io",
+            "tutanota.com",
+
+            // International providers
+            "gmx.com",
+            "gmx.net",
+            "mail.com",
+            "zoho.com",
+            "fastmail.com",
+            "hushmail.com",
+            "mailfence.com",
+            "posteo.de",
+            "runbox.com",
+
+            // Russia / CIS
+            "yandex.ru",
+            "yandex.com",
+            "ya.ru",
+            "mail.ru",
+            "inbox.ru",
+            "bk.ru",
+            "list.ru",
+            "rambler.ru",
+
+            // Europe
+            "web.de",
+            "freenet.de",
+            "t-online.de",
+            "orange.fr",
+            "laposte.net",
+            "free.fr",
+            "wanadoo.fr",
+            "libero.it",
+            "virgilio.it",
+            "alice.it",
+            "tin.it",
+            "seznam.cz",
+            "centrum.cz",
+            "email.cz",
+            "wp.pl",
+            "onet.pl",
+            "o2.pl",
+            "interia.pl",
+
+            // Asia
+            "naver.com",
+            "daum.net",
+            "hanmail.net",
+            "qq.com",
+            "163.com",
+            "126.com",
+            "sina.com",
+            "sohu.com",
+            "yeah.net",
+
+            // Misc
+            "rediffmail.com",
+            "indiatimes.com",
+            "mail.ee",
+            "email.it"
+        };
+        
+        public static string RndMail(int minLength = 5, int maxLength = 10)
+        {
+            string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+            int length = random.Next(minLength, maxLength + 1);
+            string mail = "";
+
+            for (int i = 0; i < length; i++)
+                mail += chars[random.Next(chars.Length)];
+
+            return mail + "@" + EmailDomains[random.Next(EmailDomains.Length)];
+        }
+        
+        public static string RndMonth()
+        {
+            var months = new[]
+            {
+                "January", "February", "March", "April",
+                "May", "June", "July", "August",
+                "September", "October", "November", "December"
+            };
+
+            var month = months[random.Next(months.Length)];
+            return month;
+
+        }
+        
+        public static string RndPass(int minLength = 10, int maxLength = 14, bool upperCase = true, bool symbols = true)
+        {
+            string lower = "abcdefghijklmnopqrstuvwxyz";
+            string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            string nums = "0123456789";
+            string sym = "!@#$%?&";
+
+            string chars = lower + nums;
+
+            if (upperCase)
+                chars += upper;
+
+            if (symbols)
+                chars += sym;
+
+            while (true)
+            {
+                int length = random.Next(minLength, maxLength + 1);
+
+                var pass = new List<char>();
+
+                // Обязательный минимум.
+                pass.Add(lower[random.Next(lower.Length)]);
+                pass.Add(nums[random.Next(nums.Length)]);
+
+                if (upperCase)
+                    pass.Add(upper[random.Next(upper.Length)]);
+
+                if (symbols)
+                    pass.Add(sym[random.Next(sym.Length)]);
+
+                while (pass.Count < length)
+                    pass.Add(chars[random.Next(chars.Length)]);
+
+                // Перемешивание Fisher–Yates.
+                for (int i = pass.Count - 1; i > 0; i--)
+                {
+                    int j = random.Next(i + 1);
+
+                    char tmp = pass[i];
+                    pass[i] = pass[j];
+                    pass[j] = tmp;
+                }
+
+                string password = new string(pass.ToArray());
+
+                // Отбрасывает abc, BCD, xyz, 123,
+                // а также обратные последовательности: cba, ZYX, 321.
+                if (!HasSequentialChars(password))
+                    return password;
+            }
+        }
+
+        private static bool HasSequentialChars(string value, int sequenceLength = 3)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length < sequenceLength)
+                return false;
+
+            for (int i = 0; i <= value.Length - sequenceLength; i++)
+            {
+                bool ascending = true;
+                bool descending = true;
+
+                for (int j = 1; j < sequenceLength; j++)
+                {
+                    char previous = char.ToUpperInvariant(value[i + j - 1]);
+                    char current = char.ToUpperInvariant(value[i + j]);
+
+                    // Последовательность проверяется только внутри одной группы:
+                    // цифры с цифрами или буквы с буквами.
+                    bool sameGroup =
+                        (char.IsDigit(previous) && char.IsDigit(current)) ||
+                        (char.IsLetter(previous) && char.IsLetter(current));
+
+                    if (!sameGroup || current != previous + 1)
+                        ascending = false;
+
+                    if (!sameGroup || current != previous - 1)
+                        descending = false;
+                }
+
+                if (ascending || descending)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static void RndProfileData(this IZennoPosterProjectModel project, bool email = true, bool password = true)
+        {
+            if (password)
+                project.Profile.Password = RndPass();
+            if(email)
+                project.Profile.Email = z3nIO.Rnd.RndMail();
+        }
+
     }
+    
 }

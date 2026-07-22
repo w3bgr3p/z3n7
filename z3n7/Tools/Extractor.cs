@@ -1,15 +1,8 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
-
+﻿using System.IO;
+using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7.Tools
 {
-    public class Extractor
+    public static class Extractor
     {
         public static string ExtractXml(string zpPath)
         {
@@ -32,6 +25,14 @@ namespace z3n7.Tools
             }
             return null;
         }
+
+        public static void SaveAsXml(this IZennoPosterProjectModel project, string xmlPath)
+        {
+            var xml = ExtractXml(project.Path + project.Name);
+            xml =xml.Replace("utf-16","utf-8");
+            File.WriteAllText(Path.Combine(xmlPath, project.Name.Replace(".zp",".xml")),xml);
+        }
+
     }
     
 }

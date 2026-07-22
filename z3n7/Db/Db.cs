@@ -26,7 +26,7 @@ namespace z3nIO
         private const char ColumnSeparator = '¦';
         private const string SchemaName = "public";
 
-        public Db(string dbMode = "PostgreSQL", string sqLitePath = null,
+        public Db(string dbMode = "pgSQL", string sqLitePath = null,
             string pgHost = "localhost", string pgPort = "5432", string pgDbName = "postgres",
             string pgUser = "postgres", string pgPass = "",
             string defaultTable = null, LogLevel logLevel = LogLevel.Off)
@@ -42,7 +42,6 @@ namespace z3nIO
             _log =  new Logger(logLevel: logLevel);
         }
         
-
         #region Core Query
         public string Query(string query, bool log = false, bool thrw = false, bool unSafe = false)
         {
@@ -51,7 +50,7 @@ namespace z3nIO
             int delay = 100;
             Random rnd = new Random();
 
-            using (var db = _dbMode == "PostgreSQL"
+            using (var db = _dbMode == "pgSQL"
                        ? new Sql($"Host={_pgHost};Port={_pgPort};Database={_pgDbName};Username={_pgUser};Password={_pgPass};Pooling=true;Connection Idle Lifetime=10;")
                        : new Sql(_sqLitePath, null))
             {
@@ -83,9 +82,7 @@ namespace z3nIO
             }
             
             string toLog = query.Contains("SELECT") ? $"[{query}]\n[{result}]" : $"[{query}] - [{result}]";
-            _log.Send($"[{(_dbMode == "PostgreSQL" ? "🐘" : "SQLite")}] {toLog}");
-            
-            
+            _log.Send($"[{(_dbMode == "pgSQL" ? "🐘" : "SQLite")}] {toLog}");
             return result;
         }
         #endregion
@@ -231,7 +228,7 @@ namespace z3nIO
     
             string query = $"INSERT INTO {Quote(tableName)} ({columns}) VALUES ({values})";
     
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
                 query += " ON CONFLICT DO NOTHING";
     
             Query(query, log, thrw);
@@ -575,7 +572,7 @@ namespace z3nIO
             {
                 try
                 {
-                    var tempExists = _dbMode == "PostgreSQL"
+                    var tempExists = _dbMode == "pgSQL"
                         ? Query($"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '{SchemaName}' AND table_name = '{UnQuote(tempTable)}')", log: false)
                         : Query($"SELECT name FROM sqlite_master WHERE type='table' AND name='{UnQuote(tempTable)}'", log: false);
 
@@ -592,7 +589,7 @@ namespace z3nIO
         {
             string idType = "INTEGER PRIMARY KEY";
 
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
             {
                 string getIdTypeQuery = $@"
                     SELECT data_type, is_identity 
@@ -650,7 +647,7 @@ namespace z3nIO
         {
             string colType = "TEXT DEFAULT ''";
 
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
             {
                 string getTypeQuery = $@"
                     SELECT data_type, character_maximum_length, column_default
@@ -684,7 +681,7 @@ namespace z3nIO
         private void CreateTempTable(string tempTable, Dictionary<string, string> newTableStructure, bool log)
         {
             string createTempTableQuery;
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
             {
                 createTempTableQuery = $@"CREATE TABLE {tempTable} ( 
                     {string.Join(", ", newTableStructure.Select(kvp => $"{Quote(kvp.Key)} {kvp.Value.Replace("AUTOINCREMENT", "SERIAL")}"))} )";
@@ -718,7 +715,7 @@ namespace z3nIO
         private void RenameTempTable(string tempTable, string quotedTable, string tableName, bool log)
         {
             string renameTableQuery;
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
             {
                 renameTableQuery = $"ALTER TABLE {tempTable} RENAME TO {quotedTable}";
             }
@@ -759,7 +756,7 @@ namespace z3nIO
             string quotedTable = Quote(tableName);
             string query;
 
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
             {
                 query = $"CREATE TABLE {quotedTable} ( {string.Join(", ", tableStructure.Select(kvp => $"\"{kvp.Key}\" {kvp.Value.Replace("AUTOINCREMENT", "SERIAL")}"))} )";
             }
@@ -775,7 +772,7 @@ namespace z3nIO
             tableName = UnQuote(tableName);
             string query;
 
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
             {
                 query = $"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{SchemaName}' AND table_name = '{tableName}'";
             }
@@ -789,7 +786,7 @@ namespace z3nIO
         }
         public List<string> GetTables(bool log = false)
         {
-            string query = _dbMode == "PostgreSQL"
+            string query = _dbMode == "pgSQL"
                 ? $"SELECT table_name FROM information_schema.tables WHERE table_schema = '{SchemaName}' AND table_type = 'BASE TABLE' ORDER BY table_name"
                 : "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name";
 
@@ -801,7 +798,7 @@ namespace z3nIO
         }
         public List<string> GetTableColumns(string tableName, bool log = false)
         {
-            string query = _dbMode == "PostgreSQL"
+            string query = _dbMode == "pgSQL"
                 ? $"SELECT column_name FROM information_schema.columns WHERE table_schema = '{SchemaName}' AND table_name = '{UnQuote(tableName)}'"
                 : $"SELECT name FROM pragma_table_info('{UnQuote(tableName)}')";
 
@@ -818,7 +815,7 @@ namespace z3nIO
         {
             string query;
 
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
             {
                 query = $"SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = '{SchemaName}' AND table_name = '{UnQuote(tableName)}' AND LOWER(column_name) = LOWER('{UnQuote(columnName)}')";
             }
@@ -877,7 +874,7 @@ namespace z3nIO
             {
                 string quotedColumn = Quote(columnName);
                 string quotedTable = Quote(tableName);
-                string cascade = _dbMode == "PostgreSQL" ? " CASCADE" : "";
+                string cascade = _dbMode == "pgSQL" ? " CASCADE" : "";
                 Query($"ALTER TABLE {quotedTable} DROP COLUMN {quotedColumn}{cascade}", log);
             }
         }
@@ -970,7 +967,7 @@ namespace z3nIO
 
             string quotedTable = Quote(tableName);
     
-            if (_dbMode == "PostgreSQL")
+            if (_dbMode == "pgSQL")
             {
                 Query($"TRUNCATE TABLE {quotedTable} RESTART IDENTITY CASCADE", log, thrw);
             }
@@ -1181,7 +1178,7 @@ namespace z3nIO
         /// <param name="log">Enable logging</param>
         public void PgToSqlite(string pgTable, string sqlitePath, string sqliteTable, string pgSchema = "public", bool log = false)
         {
-            if (_dbMode != "PostgreSQL")
+            if (_dbMode != "pgSQL")
                 throw new InvalidOperationException("Source database must be PostgreSQL");
 
             var pgColumns = FetchPgColumns(pgSchema, pgTable, log);
@@ -1213,7 +1210,7 @@ namespace z3nIO
         /// <param name="log">Enable logging</param>
         public void SqliteToPg(string sqlitePath, string sqliteTable, string pgTable, string pgSchema = "public", bool log = false)
         {
-            if (_dbMode != "PostgreSQL")
+            if (_dbMode != "pgSQL")
                 throw new InvalidOperationException("Target database must be PostgreSQL");
 
             Dictionary<string, string> sqliteColumns;
@@ -1270,11 +1267,11 @@ namespace z3nIO
         /// <param name="log">Enable logging</param>
         public void BridgeTable(string sourceTable, string targetDbPath, string targetTable, string targetMode = "SQLite", string schema = "public", bool log = false)
         {
-            if (_dbMode == "PostgreSQL" && targetMode == "SQLite")
+            if (_dbMode == "pgSQL" && targetMode == "SQLite")
             {
                 PgToSqlite(sourceTable, targetDbPath, targetTable, schema, log);
             }
-            else if (_dbMode == "SQLite" && targetMode == "PostgreSQL")
+            else if (_dbMode == "SQLite" && targetMode == "pgSQL")
             {
                 SqliteToPg(_sqLitePath, sourceTable, targetTable, schema, log);
             }

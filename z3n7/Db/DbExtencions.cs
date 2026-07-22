@@ -13,7 +13,6 @@ namespace z3nIO
     #region DbHelpers - Вспомогательные методы
     internal static class DbHelpers
     {
-        internal static string SchemaName = "public";
         internal const char RawSeparator = '·';
         internal const char ColumnSeparator = '¦';
         internal static string UnQuote(string name)
@@ -22,7 +21,16 @@ namespace z3nIO
         }
         internal static string Quote(string name)
         {
-            return $"\"{name.Replace("\"", "\"\"")}\"";
+            return string.Join(".", name.Split('.').Select(part => $"\"{part.Replace("\"", "\"\"")}\""));
+        }
+        internal static string Schema(string name)
+        {
+            var parts = UnQuote(name).Split('.');
+            return parts.Length > 1 ? parts[0] : "public";
+        }
+        internal static string Table(string name)
+        {
+            return UnQuote(name).Split('.').Last();
         }
         
         internal static string QuoteColumns(this string updateString)
@@ -56,7 +64,6 @@ namespace z3nIO
         }
         
         internal static readonly Regex ValidNamePattern = new Regex(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled);
-        
         
         internal static bool IsValidRange(string range)
         {
@@ -188,6 +195,20 @@ namespace z3nIO
     
     public static class DbUpdate
     {
+        public static string DbInsert(this IZennoPosterProjectModel project, Dictionary<string, string> dataDic, string tableName = null, bool log = false, bool thrw = false)
+        {
+            tableName = project.TableName(tableName);
+            var data = dataDic.Where(p => !p.Key.Equals("id", StringComparison.OrdinalIgnoreCase)).ToList();
+            var table = DbHelpers.Quote(tableName);
+
+            if (data.Count == 0)
+                return project.DbQ($"INSERT INTO {table} DEFAULT VALUES;", log, thrw: thrw);
+
+            var columns = string.Join(", ", data.Select(p => DbHelpers.Quote(p.Key)));
+            var values = string.Join(", ", data.Select(p => $"'{p.Value.Replace("'", "''")}'"));
+            return project.DbQ($"INSERT INTO {table} ({columns}) VALUES ({values});", log, thrw: thrw);
+        }
+
         public static void DicToDb(this IZennoPosterProjectModel project, Dictionary<string,string> dataDic, string tableName = null, bool log = false, bool thrw = false, string where = "")
         {
             if (string.IsNullOrWhiteSpace(tableName)) tableName = project.Var("projectTable");
@@ -783,7 +804,6 @@ namespace z3nIO
     public static class DbTable
     {
         
-        
         public static void EnsureTable(this IZennoPosterProjectModel project, TableSchema schema)
         {
             project.TblAdd(DbSchema.Process.Columns, DbSchema.Process.Name);
@@ -794,12 +814,11 @@ namespace z3nIO
             if (project.TblExist(tblName, log:log)) return;
 
             tblName = DbHelpers.Quote(tblName);
-
-            bool _pstgr = project.Var("DBmode") == "PostgreSQL";
+            
 
             string query;
-            if (_pstgr)
-                query = ($@" CREATE TABLE {tblName} ( {string.Join(", ", tableStructure.Select(kvp => $"\"{kvp.Key}\" {kvp.Value.Replace("AUTOINCREMENT", "SERIAL")}"))} );");
+            if (project.DbMode() == "pgSQL")
+                query = ($@"CREATE TABLE {tblName} ( {string.Join(", ", tableStructure.Select(kvp => $"\"{kvp.Key}\" {kvp.Value.Replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")}"))} );");
             else
                 query = ($"CREATE TABLE {tblName} (" + string.Join(", ", tableStructure.Select(kvp => $"{DbHelpers.Quote(kvp.Key)} {kvp.Value}")) + ");");
             project.DbQ(query, log: log);
@@ -807,12 +826,12 @@ namespace z3nIO
         
         public static bool TblExist(this IZennoPosterProjectModel project, string tblName, bool log = false)
         {
-            tblName = DbHelpers.UnQuote(tblName);
-            bool _pstgr = project.Var("DBmode") == "PostgreSQL";
+            var schema = DbHelpers.Schema(tblName);
+            tblName = DbHelpers.Table(tblName);
             string query;
 
-            if (_pstgr) 
-                query = ($"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '{tblName}';");
+            if (project.DbMode() == "pgSQL")
+                query = ($"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{schema}' AND table_name = '{tblName}';");
             else 
                 query = ($"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='{tblName}';");
 
@@ -822,10 +841,10 @@ namespace z3nIO
             else return true;
         }
 
-        public static List<string> TblList(this IZennoPosterProjectModel project, bool log = false)
+        public static List<string> TblList(this IZennoPosterProjectModel project, bool log = false, string schema = "public")
         {
-            string query = project.Var("DBmode") == "PostgreSQL"
-                ? @"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY table_name;"
+            string query = (project.DbMode() == "pgSQL")
+                ? $@"SELECT table_name FROM information_schema.tables WHERE table_schema = '{schema}' AND table_type = 'BASE TABLE' ORDER BY table_name;"
                 : @"SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name;";
             
             var result = project.DbQ(query, log: log)
@@ -838,8 +857,9 @@ namespace z3nIO
         public static List<string> TblColumns(this IZennoPosterProjectModel project, string tblName, bool log = false)
         {
             var result = new List<string>();
-            string query = project.Var("DBmode") == "PostgreSQL"
-                ? $@"SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{DbHelpers.UnQuote(tblName)}';"
+            var schema = DbHelpers.Schema(tblName);
+            string query = (project.DbMode() == "pgSQL")
+                ? $@"SELECT column_name FROM information_schema.columns WHERE table_schema = '{schema}' AND table_name = '{DbHelpers.Table(tblName)}';"
                 : $"SELECT name FROM pragma_table_info('{DbHelpers.UnQuote(tblName)}');";
 
             result = project.DbQ(query, log: log)
@@ -849,20 +869,12 @@ namespace z3nIO
             return result;
         }
         
-        public static Dictionary<string, string> TblForProject(this IZennoPosterProjectModel project, string[] projectColumns , string defaultType = "TEXT DEFAULT ''")
-        {
-            var projectColumnsList = projectColumns.ToList();
-            return TblForProject(project, projectColumnsList, defaultType);
-        }
-        
         public static Dictionary<string, string> TblForProject(this IZennoPosterProjectModel project, List<string> projectColumns = null,  string defaultType = "TEXT DEFAULT ''")
         {
-            string cfgToDo = project.Variables["cfgToDo"].Value;
+            string cfgToDo = project.Var("cfgToDo");
             var tableStructure = new Dictionary<string, string>
             {
-                { "id", "INTEGER PRIMARY KEY" },
-                { "status", defaultType },
-                { "last", defaultType }
+                { "id", "INTEGER PRIMARY KEY AUTOINCREMENT" },
             };
 
             if (projectColumns != null)
@@ -899,7 +911,7 @@ namespace z3nIO
 
             project.TblAdd(tableStructure, tblName, log: log);
             project.ClmnAdd(tableStructure, tblName, log: log);
-            project.AddRange(tblName,log:log);
+            
         }
         
         public static void PrepareProjectTable(this IZennoPosterProjectModel project, string[] projectColumns, string tblName = null, bool log = false, bool prune = false, bool rearrange = false)
@@ -914,11 +926,24 @@ namespace z3nIO
             if (string.IsNullOrEmpty(tblName)) tblName = project.Var("projectTable");
             project.TblAdd(tableStructure, tblName, log: log);
             project.ClmnAdd(tableStructure, tblName, log: log);
-            project.AddRange(tblName,log:log);
             if (prune) project.ClmnPrune(tableStructure,tblName, log: log);
             if (rearrange) project.ClmnRearrange(tableStructure,tblName, log: log);
         }
         
+        public static void PrepareProjectTable(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null, bool log = false, bool prune = false, bool rearrange = false)
+        {
+            if (string.IsNullOrEmpty(tblName))
+                tblName = project.Var("projectTable");
+
+            project.TblAdd(tableStructure, tblName, log: log);
+            project.ClmnAdd(tableStructure, tblName, log: log);
+
+            if (prune)
+                project.ClmnPrune(tableStructure, tblName, log: log);
+
+            if (rearrange)
+                project.ClmnRearrange(tableStructure, tblName, log: log);
+        }
         private static int TableCopy(this IZennoPosterProjectModel project, string sourceTable, string destinationTable, string sqLitePath = null, string pgHost = null, string pgPort = null, string pgDbName = null, string pgUser = null, string pgPass = null, bool thrw = false)
         {
             if (string.IsNullOrEmpty(sourceTable)) throw new ArgumentNullException(nameof(sourceTable));
@@ -929,9 +954,9 @@ namespace z3nIO
             if (string.IsNullOrEmpty(pgDbName)) pgDbName = "postgres";
             if (string.IsNullOrEmpty(pgUser)) pgUser = "postgres";
             if (string.IsNullOrEmpty(pgPass)) pgPass = project.SecureVar("DBpstgrPass");
-            string dbMode = project.Var("DBmode");
+            string dbMode = project.DbMode();
 
-            using (var db = dbMode == "PostgreSQL"
+            using (var db = dbMode == "pgSQL"
                        ? new Sql($"Host={pgHost};Port={pgPort};Database={pgDbName};Username={pgUser};Password={pgPass};Pooling=true;Connection Idle Lifetime=10;")
                        : new Sql(sqLitePath, null))
             {
@@ -956,11 +981,11 @@ namespace z3nIO
     {
         public static bool ClmnExist(this IZennoPosterProjectModel project, string clmnName, string tblName, bool log = false)
         {
-            bool _pstgr = project.Var("DBmode") == "PostgreSQL";
+            var schema = DbHelpers.Schema(tblName);
             string query;
 
-            if (_pstgr)
-                query = $@"SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = '{DbHelpers.SchemaName}' AND table_name = '{DbHelpers.UnQuote(tblName)}' AND lower(column_name) = lower('{DbHelpers.UnQuote(clmnName)}');";
+            if (project.DbMode() == "pgSQL")
+                query = $@"SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = '{schema}' AND table_name = '{DbHelpers.Table(tblName)}' AND lower(column_name) = lower('{DbHelpers.UnQuote(clmnName)}');";
             else
                 query = $"SELECT COUNT(*) FROM pragma_table_info('{DbHelpers.UnQuote(tblName)}') WHERE name='{DbHelpers.UnQuote(clmnName)}';";
             string resp = project.DbQ(query, log);
@@ -1008,9 +1033,9 @@ namespace z3nIO
         public static List<string> ClmnList(this IZennoPosterProjectModel project, string tableName = null, bool log = false)
         {
             tableName =  project.TableName(tableName);
-            string dbMode = project.Var("DBmode");
-            string Q = (dbMode == "PostgreSQL") ?
-                $@"SELECT column_name FROM information_schema.columns WHERE table_schema = '{DbHelpers.SchemaName}' AND table_name = '{tableName}'" :
+            var schema = DbHelpers.Schema(tableName);
+            string Q = (project.DbMode() == "pgSQL")?
+                $@"SELECT column_name FROM information_schema.columns WHERE table_schema = '{schema}' AND table_name = '{DbHelpers.Table(tableName)}'" :
                 $@"SELECT name FROM pragma_table_info('{tableName}')";
             return project.DbQ(Q, log: log).Split(DbHelpers.RawSeparator).ToList();
         }
@@ -1020,12 +1045,11 @@ namespace z3nIO
             tblName =  project.TableName(tblName);
 
             var current = project.TblColumns(tblName, log: log);
-            bool _pstgr = project.Var("DBmode") == "PostgreSQL";
 
             if (current.Contains(clmnName))
             {
                 clmnName = DbHelpers.Quote(clmnName);
-                string cascade = (_pstgr) ? " CASCADE" : null;
+                string cascade = (project.DbMode() == "pgSQL") ? " CASCADE" : null;
                 project.DbQ($@"ALTER TABLE {DbHelpers.Quote(tblName)} DROP COLUMN {clmnName}{cascade};", log: log);
             }
         }
@@ -1039,7 +1063,7 @@ namespace z3nIO
                 if (!current.Contains(column.Key))
                 {
                     string clmnName = DbHelpers.Quote(column.Key);
-                    string cascade = project.Var("DBmode") == "PostgreSQL" ? " CASCADE" : null;
+                    string cascade = (project.DbMode() == "pgSQL") ? " CASCADE" : null;
                     project.DbQ($@"ALTER TABLE {DbHelpers.Quote(tblName)} DROP COLUMN {clmnName}{cascade};", log: log);
                 }
             }
@@ -1085,7 +1109,7 @@ namespace z3nIO
         {
             tblName =  project.TableName(tblName);
             
-            bool _pstgr = project.Var("DBmode") == "PostgreSQL";
+            bool _pstgr = (project.DbMode() == "pgSQL");
             string quotedTable = DbHelpers.Quote(tblName);
             string tempTable = DbHelpers.Quote($"{tblName}_temp_{DateTime.Now.Ticks}");
             
@@ -1121,7 +1145,7 @@ namespace z3nIO
                 try
                 {
                     var tempExists = _pstgr 
-                        ? project.DbQ($"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '{DbHelpers.SchemaName}' AND table_name = '{DbHelpers.UnQuote(tempTable)}')", log: false)
+                        ? project.DbQ($"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = '{DbHelpers.Schema(tempTable)}' AND table_name = '{DbHelpers.Table(tempTable)}')", log: false)
                         : project.DbQ($"SELECT name FROM sqlite_master WHERE type='table' AND name='{DbHelpers.UnQuote(tempTable)}'", log: false);
                 
                     if (!string.IsNullOrEmpty(tempExists) && tempExists != "0" && tempExists.ToLower() != "false")
@@ -1142,14 +1166,15 @@ namespace z3nIO
         private static string GetIdType(IZennoPosterProjectModel project, string tblName, bool _pstgr, bool log)
         {
             string idType = "INTEGER PRIMARY KEY";
+            var schema = DbHelpers.Schema(tblName);
             
             if (_pstgr)
             {
                 string getIdTypeQuery = $@"
                     SELECT data_type, is_identity 
                     FROM information_schema.columns 
-                    WHERE table_schema = '{DbHelpers.SchemaName}' 
-                    AND table_name = '{DbHelpers.UnQuote(tblName)}' 
+                    WHERE table_schema = '{schema}' 
+                    AND table_name = '{DbHelpers.Table(tblName)}' 
                     AND column_name = 'id'";
                 
                 var idInfo = project.DbQ(getIdTypeQuery, log: log);
@@ -1200,14 +1225,15 @@ namespace z3nIO
         private static string GetColumnType(IZennoPosterProjectModel project, string tblName, string col, bool _pstgr, bool log)
         {
             string colType = "TEXT DEFAULT ''";
+            var schema = DbHelpers.Schema(tblName);
             
             if (_pstgr)
             {
                 string getTypeQuery = $@"
                     SELECT data_type, character_maximum_length, column_default
                     FROM information_schema.columns 
-                    WHERE table_schema = '{DbHelpers.SchemaName}' 
-                    AND table_name = '{DbHelpers.UnQuote(tblName)}' 
+                    WHERE table_schema = '{schema}' 
+                    AND table_name = '{DbHelpers.Table(tblName)}' 
                     AND column_name = '{col}'";
                 
                 var typeInfo = project.DbQ(getTypeQuery, log: log);
@@ -1271,7 +1297,7 @@ namespace z3nIO
             string renameTableQuery;
             if (_pstgr)
             {
-                renameTableQuery = $"ALTER TABLE {tempTable} RENAME TO {quotedTable}";
+                renameTableQuery = $"ALTER TABLE {tempTable} RENAME TO {DbHelpers.Quote(DbHelpers.Table(tblName))}";
             }
             else
             {
@@ -1286,27 +1312,6 @@ namespace z3nIO
     
     public static class DbRange
     {
-        public static void AddRange_(this IZennoPosterProjectModel project, string tblName, int range = 0, bool log = false)
-        {
-            tblName = DbHelpers.Quote(tblName);
-            if (range == 0)
-                try
-                {
-                    range = int.Parse(project.Variables["rangeEnd"].Value);
-                }
-                catch
-                {
-                    project.SendWarningToLog("var  rangeEnd is empty or 0, used default \"10\"", true);                  
-                    range = 10;
-                }
-
-            int current = int.Parse(project.DbQ($@"SELECT COALESCE(MAX({DbHelpers.Quote("id")}), 0) FROM {tblName};"));
-            
-            for (int currentAcc0 = current + 1; currentAcc0 <= range; currentAcc0++)
-            {
-                project.DbQ($@"INSERT INTO {tblName} ({DbHelpers.Quote("id")}) VALUES ({currentAcc0}) ON CONFLICT DO NOTHING;", log: log);
-            }
-        }
         public static void AddRange(this IZennoPosterProjectModel project, string tblName, int range = 0, bool log = false)
         {
             tblName = DbHelpers.Quote(tblName);
@@ -1357,8 +1362,8 @@ namespace z3nIO
         
         public static void MigrateAllTables(this IZennoPosterProjectModel project)
         {
-            string dbMode = project.Var("DBmode");
-            if (dbMode != "PostgreSQL" && dbMode != "SQLite") throw new ArgumentException("DBmode must be 'PostgreSQL' or 'SQLite'");
+            string dbMode = project.DbMode() ;
+            if (dbMode != "pgSQL" && dbMode != "SQLite") throw new ArgumentException("DBmode must be 'PostgreSQL' or 'SQLite'");
 
             string direction = dbMode == "PostgreSQL" ? "toSQLite" : "toPostgreSQL";
 
@@ -1373,8 +1378,8 @@ namespace z3nIO
 
             project.SendInfoToLog($"Migrating all tables from {dbMode} to {(direction == "toSQLite" ? "SQLite" : "PostgreSQL")}", true);
 
-            using (var sourceDb = dbMode == "PostgreSQL" ? new Sql(pgConnection) : new Sql(sqLitePath, null))
-            using (var destinationDb = dbMode == "PostgreSQL" ? new Sql(sqLitePath, null) : new Sql(pgConnection))
+            using (var sourceDb = (project.DbMode() == "pgSQL") ? new Sql(pgConnection) : new Sql(sqLitePath, null))
+            using (var destinationDb = (project.DbMode() == "pgSQL") ? new Sql(sqLitePath, null) : new Sql(pgConnection))
             {
                 try
                 {
@@ -1400,7 +1405,7 @@ namespace z3nIO
             if (string.IsNullOrEmpty(pgPass)) pgPass = project.Var("DBpstgrPass");
             string dbMode = project.Var("DBmode");
 
-            using (var db = dbMode == "PostgreSQL"
+            using (var db = (project.DbMode() == "pgSQL")
                        ? new Sql($"Host={pgHost};Port={pgPort};Database={pgDbName};Username={pgUser};Password={pgPass};Pooling=true;Connection Idle Lifetime=10;")
                        : new Sql(sqLitePath, null))
             {
@@ -1418,36 +1423,26 @@ namespace z3nIO
         }
     }
     
+    
     public static class DbCore
     {
-        public static string DbQ(this IZennoPosterProjectModel project, string query, bool log = false, string sqLitePath = null, string pgHost = null, string pgPort = null, string pgDbName = null, string pgUser = null, string pgPass = null, bool thrw = false, bool unSafe = false)
+        public static string DbQ(this IZennoPosterProjectModel project, string query, bool log = false, string sqLitePath = null,  bool thrw = false, bool unSafe = false)
         {
-            if (string.IsNullOrEmpty(sqLitePath)) sqLitePath = project.Var("DBsqltPath");
-            if (string.IsNullOrEmpty(pgHost)) pgHost = project.GVar("sqlPgHost");
-            if (string.IsNullOrEmpty(pgPort)) pgPort = project.GVar("sqlPgPort");
-            if (string.IsNullOrEmpty(pgDbName)) project.GVar("sqlPgName");
-            if (string.IsNullOrEmpty(pgUser)) project.GVar("sqlPgUser");
-            if (string.IsNullOrEmpty(pgPass)) pgPass = project.SecureVar("DBpstgrPass");
             
-            string dbMode = project.Var("DBmode");
-
-            if (string.IsNullOrEmpty(sqLitePath)) sqLitePath = project.Var("DBsqltPath");
-            if (string.IsNullOrEmpty(pgHost)) pgHost = "localhost";
-            if (string.IsNullOrEmpty(pgPort)) pgPort = "5432";
-            if (string.IsNullOrEmpty(pgDbName)) pgDbName = "postgres";
-            if (string.IsNullOrEmpty(pgUser)) pgUser = "postgres";
-
-
+            string dbSource = project.Var("dbSource");
+            if (string.IsNullOrEmpty(dbSource)) 
+                dbSource = project.GVar("dbSource");
+            if (string.IsNullOrEmpty(dbSource)) 
+                project.warn("dbSource undefined", true);
+            
+            var dbMode = dbSource.StartsWith("Host=") ? "pgSQL" : "SQLite";
+            
             string result = string.Empty;
             int maxRetries = 10;
             int delay = 100;     
             Random rnd = new Random();
-            // ✅ ИСПРАВЛЕНИЕ #1: Создаем подключение ОДИН раз (вне retry loop)
-            using (var db = dbMode == "PostgreSQL"
-                       ? new Sql($"Host={pgHost};Port={pgPort};Database={pgDbName};Username={pgUser};Password={pgPass};Pooling=true;Connection Idle Lifetime=10;")
-                       : new Sql(sqLitePath, null))
+            using (var db = dbMode == "pgSQL" ? new Sql(dbSource) : new Sql(sqLitePath, null))
             {
-                // ✅ ИСПРАВЛЕНИЕ #2: Retry только на execution, не на создание подключения
                 for (int i = 0; i < maxRetries; i++)
                 {
                     try
@@ -1457,27 +1452,38 @@ namespace z3nIO
                         else
                             result = db.DbWriteAsync(query).GetAwaiter().GetResult().ToString();
 
-                        // ✅ Успех - выходим из loop
                         break;
                     }
                     catch (Exception ex)
                     {
                         if (dbMode == "SQLite" && ex.Message.Contains("locked") && i < maxRetries - 1)
                         {
-                            // ✅ Exponential backoff для SQLite lock
                             delay = 50 * (1 << i) + rnd.Next(10, 50);
                             Thread.Sleep(delay);
-                            continue;  // ✅ Retry, но подключение УЖЕ создано
+                            continue; 
                         }
 
                         project.warn(ex.Message + $"\n [{query}]", thrw);
                         return string.Empty;
                     }
                 }
-            } // ✅ Подключение закрывается ОДИН раз
+            } 
             string toLog = (query.Contains("SELECT")) ? $"[{query}]\n[{result}]" : $"[{query}] - [{result}]";
             if (log) project.log("🐘" + toLog);
             return result;
+            
+        }
+
+        internal static string DbMode(this IZennoPosterProjectModel project)
+        {
+            string dbSource = project.Var("dbSource");
+            if (string.IsNullOrEmpty(dbSource)) 
+                dbSource = project.GVar("dbSource");
+            if (string.IsNullOrEmpty(dbSource)) 
+                project.warn("dbSource undefined", true);
+            
+            var dbMode = dbSource.StartsWith("Host=") ? "pgSQL" : "SQLite";
+            return dbMode;
         }
     }
     
