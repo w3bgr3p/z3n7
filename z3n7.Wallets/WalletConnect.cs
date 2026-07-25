@@ -7,7 +7,7 @@ using Nethereum.Web3.Accounts;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO.Wallets
+namespace z3n7.Wallets
 {
     public class WalletConnect : IWallet
     {
@@ -222,7 +222,7 @@ namespace z3nIO.Wallets
             {
                 _log?.Send($"Sending transaction via WalletConnect to {to}");
 
-                var tx = new z3nIO.Web3.Tx(_project, useNetHttp, logger: _log);
+                var tx = new z3n7.Web3.Tx(_project, useNetHttp, logger: _log);
                 var hash = tx.SendTx(
                     chainRpc: rpc,
                     contractAddress: to,

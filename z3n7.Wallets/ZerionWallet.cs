@@ -7,11 +7,11 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
-using z3nIO.Web3;
+using z3n7.Web3;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO.Wallets
+namespace z3n7.Wallets
 {
     public class ZerionWallet : IWallet
     {

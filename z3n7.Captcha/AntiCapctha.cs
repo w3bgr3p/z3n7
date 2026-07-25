@@ -10,7 +10,7 @@ using System.Text;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO.Captcha
+namespace z3n7.Captcha
 {
     public class AntiCaptcha : IDisposable
     {
@@ -228,7 +228,7 @@ namespace z3nIO.Captcha
 
 
 
-namespace z3nIO.Captcha
+namespace z3n7.Captcha
 {
     using Captcha;
     public static partial class CaptchaExtensions

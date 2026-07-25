@@ -7,12 +7,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using z3nIO.DbUtils;
-using z3nIO.Tools;
+using z3n7.DbUtils;
+using z3n7.Tools;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     /// <summary>
     /// HTTP-сервер внутри ZennoPoster.

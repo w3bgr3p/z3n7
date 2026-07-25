@@ -6,17 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using z3nIO;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.Enums.Log;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
-    public class Test
+    public class _GeeTest
     {
         private const string SamplesFolder = @"W:\code_hard\.net\z3n7\Numlex\samples";
         private const int CanvasDifferenceThreshold = 25;
@@ -532,10 +532,8 @@ namespace z3n7
         }
     }
 
-    public static class NumlexDb
+    public static class NumlexDb_
     {
-        
-        
         public static void CreateTable(IZennoPosterProjectModel project)
         {
             var jsonPath = @"W:\code_hard\numlex\localhost-provider\routes.json";
@@ -564,6 +562,7 @@ namespace z3n7
                 { "captcha_type",     "TEXT DEFAULT ''" },
                 { "success",          "INTEGER DEFAULT 0" },
                 { "failed",           "INTEGER DEFAULT 0" },
+                { "rate",             "INTEGER DEFAULT 0" },
                 { "error",            "TEXT DEFAULT ''" },
             };
 
@@ -577,7 +576,7 @@ namespace z3n7
         public static void IncreaseSuccess(IZennoPosterProjectModel project)
         {
             var q =
-                $@"UPDATE {project.Var("projectTable")} SET ""success"" = ""success"" + WHERE ""direction"" = '{project.Var("numDirection")}';";
+                $@"UPDATE {project.Var("projectTable")} SET ""success"" = ""success"" + 1 WHERE ""direction"" = '{project.Var("numDirection")}';";
             project.DbQ( q);
             project.SendToLog(q,LogType.Info, true, LogColor.Blue );
 
@@ -591,7 +590,140 @@ namespace z3n7
         }
     }
 
+    public class NumlexInstance
+    {
+        
+        private readonly IZennoPosterProjectModel _project;
+        private readonly Instance _instance;
+ 
+
+        public NumlexInstance(IZennoPosterProjectModel project, Instance instance)
+        {
+            _project = project ?? throw new ArgumentNullException(nameof(project));
+            _instance = instance ?? throw new ArgumentNullException(nameof(instance));
+        }
+
+        public void PrepareInstance(bool fixTime = true , bool pruneErrors = false)
+        {
+            _instance.AudioContextMode = ZennoLab.InterfacesLibrary.Enums.Browser.AudioMode.Emulate;
+            _instance.CanvasRenderMode = ZennoLab.InterfacesLibrary.Enums.Browser.CanvasMode.SuperEmulation;
+            _instance.ClientRectWorkMode= ZennoLab.InterfacesLibrary.Enums.Browser.ClientRectMode.Emulate;
+            _instance.UseMedia = false;
+            _instance.SetWindowSize(1280, 720);
+            _project.SpoofGpu(_instance);
+            var proxy = new NumlexProxy(_project, _instance);
+
+            var direction = "";
+            var addErr  =  (pruneErrors) ? " AND error = ''" :"";
+            var wkMode = _project.Var("wkMode");
+            var countrylist = _project.Var("countrylist")
+                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                .ToList();
+            var directions = new List<string>();
+            var selectionSource = "none";
+            var selectionWhere = "";
+
+            _project.SendInfoToLog(
+                $"[PrepareInstance:db] start wkMode='{wkMode}', pruneErrors={pruneErrors}, addErr='{addErr}', projectTable='{_project.Var("projectTable")}', countrylist_count={countrylist.Count}, countrylist=[{PreviewDirections(countrylist)}]",
+                true);
+
+            if (wkMode == "trace")
+            {
+                selectionSource = "DbGetLines(direction)";
+                selectionWhere = $"success = 0 AND failed = 0{addErr}";
+                directions = _project.DbGetLines("direction", where:selectionWhere);
+            }
+            else if (wkMode == "tested")
+            {
+                selectionSource = "DbGetLines(direction)";
+                selectionWhere = "success != 0";
+                directions = _project.DbGetLines("direction", where:selectionWhere);
+            }
+            else if (wkMode == "chosen")
+            {
+                selectionSource = "proxy_location";
+                directions = _project.Var("proxy_location").Split(',').ToList();
+            }
+
+            LogDirections("after source selection", selectionSource, selectionWhere, directions);
+
+            if (countrylist.Count > 0)
+            {
+                var beforeCountryFilter = directions.Count;
+                directions = directions
+                    .Where(x => x.Length >= 2 && countrylist.Contains(x.Substring(0, 2)))
+                    .ToList();
+                _project.SendInfoToLog(
+                    $"[PrepareInstance:db] after countrylist filter: before={beforeCountryFilter}, after={directions.Count}, allowed=[{PreviewDirections(countrylist)}], directions=[{PreviewDirections(directions)}]",
+                    true);
+            }
+            else
+            {
+                _project.SendInfoToLog("[PrepareInstance:db] countrylist filter skipped: countrylist is empty", true);
+            }
+
+            if (directions.Count == 0 || directions.All(string.IsNullOrWhiteSpace))
+            {
+                _project.SendInfoToLog(
+                    $"[PrepareInstance:db] no directions available before Rnd(): wkMode='{wkMode}', source='{selectionSource}', where='{selectionWhere}', projectTable='{_project.Var("projectTable")}', countrylist_count={countrylist.Count}",
+                    true);
+            }
+
+            direction = directions.Rnd().Trim();
+
+            if (direction.Length < 3)
+                direction = direction + "-" + _project.Var("numProvider");
+
+            _project.SendInfoToLog(direction, true);
+
+            string[] dir = direction.Split('-');
+            _project.Var("proxy_location",dir[0]);	
+            _project.Var("numProvider",dir[1]);
+            _project.Var("numDirection",direction);
+
+
+
+
+            if (_project.Var("proxy_location") == "AZ")
+                proxy.SetProxy("KZ");
+            else 
+                proxy.SetProxy(_project.Var("proxy_location"));
+
+
+            _instance.GetCookies(_project);
+            _project.RndProfileData();
+
+			if (fixTime)
+            {
+	            try	{_instance.FixTimezone(_project); }
+                catch (Exception ex){_project.warn(ex);}
+            }
+        }
+
+        private void LogDirections(string stage, string source, string where, List<string> directions)
+        {
+            _project.SendInfoToLog(
+                $"[PrepareInstance:db] {stage}: source='{source}', where='{where}', count={directions.Count}, non_empty={directions.Count(x => !string.IsNullOrWhiteSpace(x))}, directions=[{PreviewDirections(directions)}]",
+                true);
+        }
+
+        private static string PreviewDirections(IEnumerable<string> directions)
+        {
+            if (directions == null)
+                return "<null>";
+
+            var list = directions
+                .Take(12)
+                .Select(x => string.IsNullOrEmpty(x)
+                    ? "<empty>"
+                    : x.Replace("\r", "\\r").Replace("\n", "\\n"))
+                .ToList();
+
+            return list.Count == 0 ? "<empty list>" : string.Join(", ", list);
+        }
+
+
+    }
+
 }
-
-
 

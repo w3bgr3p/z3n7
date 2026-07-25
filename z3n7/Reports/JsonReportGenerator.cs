@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
-using z3nIO.Utilities;
-using z3nIO.DbUtils;
+using z3n7.Utilities;
+using z3n7.DbUtils;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO.Utilities
+namespace z3n7.Utilities
 {
        public class AccountSocialData
    {

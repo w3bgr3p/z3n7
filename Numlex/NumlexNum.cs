@@ -3,32 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 //using System.Management.Instrumentation;
 using System.IO;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.CommandCenter;
 
-namespace z3nIO.Api
+namespace z3n7.Api
 {
     public class NumlexNum
     {
+        private const string DefaultRoutesPath =
+            @"W:\code_hard\numlex\localhost-provider\routes.json";
+        private const string DefaultLocationsPath =
+            @"W:\code_hard\numlex\proxy\available_locations.json";
         
         private readonly string _baseUrl;
         
         private readonly IZennoPosterProjectModel _project;
-        private readonly Instance _instance;
         private static readonly object RndLock = new object();
         private static readonly Random Rnd = new Random();
         private readonly NumlexRoute[] _routes;
-
-
-        public NumlexNum(IZennoPosterProjectModel project, Instance instance, string apikey = null, bool GrafanaProxy = true, 
-            string routesPath = @"W:\code_hard\numlex\localhost-provider\routes.json")
+        private readonly Dictionary<string, string> _proxyFallbacks;
+        private readonly string _site;
+        
+        public NumlexNum(IZennoPosterProjectModel project, Instance instance = null, string apikey = null, bool GrafanaProxy = true, 
+            string routesPath = DefaultRoutesPath,
+            string locationsPath = DefaultLocationsPath)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
-            _instance = instance ?? throw new ArgumentNullException(nameof(instance));
+            _site = $"{project.Name.ToLower().Split('.')[1]}";
             _baseUrl = "http://127.0.0.1:18581";
             _routes = LoadRoutes(routesPath);
+            _proxyFallbacks = z3n7.NumlexProxy.BuildRouteProxyFallbacks(routesPath, locationsPath);
         }
 
         /// <summary>
@@ -38,23 +45,19 @@ namespace z3nIO.Api
         /// numCountry, numCountryCode, numNoCountryCode.
         /// </summary>
         /// <param name="site">Опциональный идентификатор сайта для мониторинга (не передаётся в Numlex)</param>
-        public string[] GetNumber(string service, int country, string site = null)
+        public string[] GetNumber(string service, int country)
         {
             if (string.IsNullOrWhiteSpace(service))
                 throw new ArgumentException("service is empty", nameof(service));
-
-            site = string.IsNullOrWhiteSpace(site)
-                ? _instance.ActiveTab.Domain.Trim()
-                : site.Trim();
+            
 
             var url =
                 $"{_baseUrl}/number" +
                 $"?country={country}" +
                 $"&service={Uri.EscapeDataString(service)}" +
-                $"&site={Uri.EscapeDataString(site)}";
+                $"&site={Uri.EscapeDataString(_site)}";
 
-            var json = _project.GET(url, log: true, useNetHttp: false, thrw: true);
-            
+            var json = _project.GET(url, log: false, useNetHttp: false, thrw: true);
             
             _project.ToJson(json);
 
@@ -65,27 +68,28 @@ namespace z3nIO.Api
             string countryCode = _project.Json.country_code?.ToString() ?? "";
             string noCountryCode = _project.Json.number_without_country_code?.ToString() ?? "";
 
-            _project.Var("numlexId", id);
-            _project.Var("numlexPhone", phone);
-            _project.Var("numlexIssued", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString());
+            _project.Var("numId", id);
+            _project.Var("numPhone", phone);
+            _project.Var("numIssued", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString());
             _project.Var("numCountry", countryName);
             _project.Var("numCountryCode", countryCode);
             _project.Var("numNoCountryCode", noCountryCode);
-
+            _project.Var("numProvider", service);
+            _project.Var("numDirection", _project.Var("proxy_location")+"-" + service);
             return new[] { id, phone };
         }
         
-        public string[] GetNumber(int country, string site = null)
+        public string[] GetNumber(int country)
         {
             var route = PickRouteByCountryId(country);
 
             if (route == null)
                 throw new Exception($"Numlex country not found in Routes: {country}");
 
-            return GetNumber(route.Service, route.CountryId, site);
+            return GetNumber(route.Service, route.CountryId);
         }
         
-        public string[] GetNumber(string countryName, string site = null)
+        public string[] GetNumber(string countryName)
         {
             if (string.IsNullOrWhiteSpace(countryName))
                 throw new ArgumentException("countryName is empty", nameof(countryName));
@@ -95,116 +99,48 @@ namespace z3nIO.Api
             if (route == null)
                 throw new Exception($"Numlex country not found in Routes: {countryName}");
 
-            return GetNumber(route.Service, route.CountryId, site);
+            return GetNumber(route.Service, route.CountryId);
         }
         
-        public string[] GetRandomNumber(bool blacklist = false, bool whitelist = false)
-        {
-            var except = blacklist
-                ? _project.GVar("bl_num_" + _instance.ActiveTab.Domain.Replace(".",""))
-                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim().ToLowerInvariant())
-                    .ToHashSet()
-                : null;
-
-            var include = whitelist
-                ? _project.GVar("wl_num_" + _instance.ActiveTab.Domain.Replace(".",""))
-                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim().ToLowerInvariant())
-                    .ToHashSet()
-                : null;
-
-            var allowed = new List<NumlexRoute>();
-
-            for (int i = 0; i < _routes.Length; i++)
-            {
-                var route = _routes[i];
-
-                // Если включен whitelist — берем только то, что есть в нем
-                if (include != null && !MatchesRoute(route, include))
-                    continue;
-
-                // Затем исключаем blacklist
-                if (except != null && MatchesRoute(route, except))
-                    continue;
-
-                allowed.Add(route);
-            }
-
-            if (allowed.Count == 0)
-                throw new Exception("Numlex: no available countries after whitelist/blacklist filtering.");
-
-            var selected = PickRandom(allowed);
-
-            return GetNumber(selected.Service, selected.CountryId, _instance.ActiveTab.Domain.Trim());
-        }
+        
 
         public void GetNumberByProxy(string provider = null)
         {
             var rnd = _project.Int("varRnd");
-            var prx = _project.Var("proxy_location").Trim().ToLower();
+            var prx = NormalizeKey(_project.Var("proxy_location"));
+            var availableRoutes = new List<NumlexRoute>();
 
-            var providers = new Dictionary<string, string[]>
+            for (int i = 0; i < _routes.Length; i++)
             {
-                { "ru", new[] { "oth 0", "mt 0", "drp 0" } },
+                if (NormalizeKey(_routes[i].CountryIso) == prx)
+                    availableRoutes.Add(_routes[i]);
+            }
 
-                { "kg", new[] { "oth 11", "sdek 11" } },
-                { "tj", new[] { "oth 143" } },
-                { "kz", new[] { "oth 2", "who 2" } },
-                { "uz", new[] { "oth 40", "who 40" } },
-
-                { "pk", new[] { "oth 66", "am 66", "aor 66" } },
-                { "hn", new[] { "oth 88" } },
-
-                { "bd", new[] { "fb 60", "am 60", "oth 60" } },
-                { "tz", new[] { "oth 9" } },
-
-                { "mx", new[] { "oth 54" } },
-                { "ph", new[] { "oth 4", "who 4" } },
-                { "bg", new[] { "oth 83" } },
-                { "rs", new[] { "oth 29" } },
-                { "il", new[] { "oth 13" } },
-                { "ve", new[] { "oth 70" } },
-
-                { "ae", new[] { "who 95" } },
-                { "az", new[] { "who 35" } },
-                { "et", new[] { "who 71" } },
-                { "id", new[] { "who 6" } },
-                { "by", new[] { "who 51" } },
-                { "ua", new[] { "who 1" } },
-                { "ke", new[] { "who 8" } },
-                { "om", new[] { "who 107" } },
-                { "am", new[] { "who 148" } },
-                { "ge", new[] { "who 128" } },
-                { "ne", new[] { "who 139" } },
-                { "ng", new[] { "who 19" } },
-                { "bj", new[] { "who 120" } },
-                { "eg", new[] { "who 21" } },
-                { "si", new[] { "who 59" } },
-                
-            };
-
-            string[] availableProviders;
-
-            if (!providers.TryGetValue(prx, out availableProviders))
+            if (availableRoutes.Count == 0)
                 throw new Exception("Provider not found for proxy location: " + prx);
+
+            var route = availableRoutes[Math.Abs(rnd) % availableRoutes.Count];
+
+            string fallbackIso;
+
+            if (_proxyFallbacks.TryGetValue(prx, out fallbackIso))
+            {
+                _project.Var("proxy_location_fallback", fallbackIso);
+            }
+            else
+            {
+                _project.Var("proxy_location_fallback", "");
+            }
+
+            var p = (string.IsNullOrWhiteSpace(provider)) ? route.Service : provider;
+            var c = route.CountryId;
             
-            if (string.IsNullOrEmpty(provider))
-                provider = availableProviders[Math.Abs(rnd) % availableProviders.Length];
-
-            var parts = provider.Split(' ');
-
-            var p = parts[0];
-            var c = int.Parse(parts[1]);
-
-            _project.Var("numProvider", p);
-            _project.Var("numDirection", _project.Var("proxy_location")+"-" + p);
             GetNumber(p, c);
         }
 
         public string GetSms(int deadline = 120)
         {
-            var id = _project.Var("numlexId");
+            var id = _project.Var("numId");
             var d  = new Time.Deadline();
 
             while (true)
@@ -216,11 +152,11 @@ namespace z3nIO.Api
                     $"{_baseUrl}/sms/{Uri.EscapeDataString(id)}" +
                     "?once=1";
 
-                var age = _project.Age<string>("numlexIssued");
+                var age = _project.Age<string>("numIssued");
 
                 var json = _project.GET(url, useNetHttp: true, thrw: true);
                 _project.ToJson(json);
-                _project.SendInfoToLog($"{age} {_project.Var("numCountry")} {_instance.ActiveTab.Domain} {json}", true);
+                _project.SendInfoToLog($"{age} {_project.Var("numCountry")} {_site} {json}", true);
 
                 string waiting = "";
 
@@ -248,7 +184,14 @@ namespace z3nIO.Api
                 throw new Exception($"Localhost provider getSms returned unexpected response: {json}");
             }
         }
-        
+
+        public long Elapsed()
+        {
+            long elapsedSeconds =
+                (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - long.Parse(_project.Var("numIssued"))) / 1000;
+            return elapsedSeconds;
+        }
+
         private static string OnlyDigits(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -331,6 +274,7 @@ namespace z3nIO.Api
             public readonly int CountryId;
             public readonly string Service;
             public readonly string CountryCode;
+            public readonly string CountryIso;
 
             private readonly string[] _aliases;
 
@@ -356,6 +300,7 @@ namespace z3nIO.Api
                 }
 
                 _aliases = list.ToArray();
+                CountryIso = FindCountryIso(_aliases);
             }
 
             public bool HasCountryName(string normalizedName)
@@ -367,6 +312,23 @@ namespace z3nIO.Api
                 }
 
                 return false;
+            }
+
+            private static string FindCountryIso(string[] aliases)
+            {
+                if (aliases == null)
+                    return "";
+
+                for (int i = 0; i < aliases.Length; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(aliases[i]) &&
+                        aliases[i].Trim().Length == 2)
+                    {
+                        return aliases[i].Trim().ToUpperInvariant();
+                    }
+                }
+
+                return "";
             }
         }
 

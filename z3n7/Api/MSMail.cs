@@ -6,7 +6,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 using Newtonsoft.Json.Linq;
 using System.Net.Http;
 
-namespace z3nIO.Api
+namespace z3n7.Api
 {
     public class MSMail
     {

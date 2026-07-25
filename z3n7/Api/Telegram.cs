@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using ZennoLab.InterfacesLibrary.Enums.Log;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     public class Telegram
     {

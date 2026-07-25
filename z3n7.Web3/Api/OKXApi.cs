@@ -10,7 +10,7 @@ using ZennoLab.InterfacesLibrary.Enums.Http;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using Newtonsoft.Json;
 
-namespace z3nIO.Api
+namespace z3n7.Api
 {
     public class OkxApi
     {

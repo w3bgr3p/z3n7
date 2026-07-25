@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using System.Text;
 
 
-namespace z3nIO.Captcha
+namespace z3n7.Captcha
 {
     public class CapMonsterCloud : IDisposable
     {
@@ -162,7 +162,7 @@ namespace z3nIO.Captcha
     }
 }
 
-namespace z3nIO.Captcha
+namespace z3n7.Captcha
 {
     using ZennoLab.InterfacesLibrary.ProjectModel;
 

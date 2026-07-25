@@ -4,14 +4,15 @@ using System.Threading;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO.Captcha
+namespace z3n7.Captcha
 {
     public static partial class CaptchaExtensions
     {
         private static readonly object LockObject = new object();
-        public static bool CapGuru(this IZennoPosterProjectModel project)
+        public static bool CapGuru(this IZennoPosterProjectModel project, string key = null)
         {
-            var key = project.SqlGet("apikey", "_api", where: "id = 'capguru'");
+            if (string.IsNullOrEmpty(key))
+                key =  project.SqlGet("apikey", "_api", where: "id = 'capguru'");
             project.Context["capguru_key"] = key;
             var extHashFile = Path.Combine(project.Path,".internal", "CapGuru.txt");
             if (!File.Exists(extHashFile)) 

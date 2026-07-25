@@ -11,7 +11,7 @@ using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.Enums.Log;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     public enum LogLevel { Debug = 0, Info = 1, Warning = 2, Error = 3, Off = 99 }
 
@@ -225,7 +225,7 @@ namespace z3nIO
 }
 
 // ── Extensions ────────────────────────────────────────────────────────────────
-namespace z3nIO
+namespace z3n7
 {
     public static partial class ProjectExtensions
     {

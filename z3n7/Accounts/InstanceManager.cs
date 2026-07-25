@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Diagnostics;
-using z3nIO.Utilities;
+using z3n7.Utilities;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.Enums.Browser;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
    public class InstanceManager
     {
@@ -512,7 +512,7 @@ namespace z3nIO
 }
 
 
-namespace z3nIO //ProjectExtensions
+namespace z3n7 //ProjectExtensions
 {
     public static partial class ProjectExtensions
     {

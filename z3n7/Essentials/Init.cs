@@ -7,7 +7,7 @@ using System.Diagnostics;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     public class Init
     {
@@ -135,7 +135,7 @@ namespace z3nIO
 
 }
 
-namespace z3nIO//ProjectExtensions
+namespace z3n7//ProjectExtensions
 {
     
     public static partial class ProjectExtensions

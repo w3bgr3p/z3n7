@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
 
-namespace z3nIO.Web3
+namespace z3n7.Web3
 {
     public class SolTools
     {
@@ -112,7 +112,7 @@ namespace z3nIO.Web3
     }
 }
 
-namespace z3nIO.Web3
+namespace z3n7.Web3
 {
     public static partial class W3bTools 
     

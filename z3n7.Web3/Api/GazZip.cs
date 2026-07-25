@@ -5,7 +5,7 @@ using System.Threading;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
 
-namespace z3nIO.Web3
+namespace z3n7.Web3
 {
 
     public class GazZip 

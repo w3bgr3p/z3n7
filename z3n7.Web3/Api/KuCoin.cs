@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
 
-namespace z3nIO.Api
+namespace z3n7.Api
 {
     public class KuCoin
     {

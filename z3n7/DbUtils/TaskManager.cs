@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
-using z3nIO;
 
-namespace z3nIO.DbUtils
+
+namespace z3n7.DbUtils
 {
     public static class TaskManager
     {

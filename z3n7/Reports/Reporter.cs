@@ -8,7 +8,7 @@ using System.Threading;
 using System.Collections.Generic;
 using ZennoLab.InterfacesLibrary.Enums.Log;
 using System.Net.Http;
-namespace z3nIO
+namespace z3n7
 {
     /// <summary>
     /// Отвечает за создание, форматирование и отправку отчетов

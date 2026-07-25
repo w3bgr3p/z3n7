@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace z3nIO.Api
+namespace z3n7.Api
 {
     public sealed class OmniRoute
     {

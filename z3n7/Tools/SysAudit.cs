@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 using System.ServiceProcess;
 
 
-namespace z3nIO.Tools
+namespace z3n7.Tools
 {
 public static class SystemSnapshot
     {

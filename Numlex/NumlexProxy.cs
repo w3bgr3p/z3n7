@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using z3nIO;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
@@ -18,6 +17,8 @@ namespace z3n7
         private const string LoginPrefix = "M7Z7GICSlq";
         private const string Password = "1O10e0ozyeEQHq3";
         private const int Ttl = 120;
+        private const string DefaultRoutesPath =
+            @"W:\code_hard\numlex\localhost-provider\routes.json";
         private const string DefaultLocationsPath =
             @"W:\code_hard\numlex\proxy\available_locations.json";
 
@@ -25,6 +26,7 @@ namespace z3n7
         private readonly Instance _instance;
         private readonly ProxyCountry[] _countries;
         private readonly Dictionary<string, ProxyCountry> _countryIndex;
+        private readonly Dictionary<string, string> _fallbackIndex;
 
         private static readonly object RandomLock = new object();
         private static readonly Random Random = new Random();
@@ -32,12 +34,14 @@ namespace z3n7
         public NumlexProxy(
             IZennoPosterProjectModel project,
             Instance instance,
-            string locationsPath = DefaultLocationsPath)
+            string locationsPath = DefaultLocationsPath,
+            string routesPath = DefaultRoutesPath)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
             _countries = LoadLocations(locationsPath);
             _countryIndex = BuildCountryIndex(_countries);
+            _fallbackIndex = BuildRouteProxyFallbacks(routesPath, locationsPath);
         }
 
         /// <summary>
@@ -47,11 +51,25 @@ namespace z3n7
         public string SetProxy(string country)
         {
             ProxyCountry selected = FindCountry(country);
+            string requested = country;
+            string fallbackIso = null;
 
             if (selected == null)
-                throw new Exception("ProxyZone country not found: " + country);
+            {
+                if (!_fallbackIndex.TryGetValue(Normalize(country), out fallbackIso))
+                    throw new Exception("ProxyZone country not found: " + country);
 
-            return SetProxy(selected);
+                selected = FindCountry(fallbackIso);
+
+                if (selected == null)
+                    throw new Exception(
+                        "ProxyZone fallback country not found: " +
+                        country +
+                        " -> " +
+                        fallbackIso);
+            }
+
+            return SetProxy(selected, requested, fallbackIso);
         }
 
         /// <summary>
@@ -120,7 +138,10 @@ namespace z3n7
 
         
         
-        private string SetProxy(ProxyCountry country)
+        private string SetProxy(
+            ProxyCountry country,
+            string requestedCountry = null,
+            string fallbackIso = null)
         {
             string sid = Rnd.RndString(5);
 
@@ -140,6 +161,9 @@ namespace z3n7
             _project.Var("proxy_password", Password);
             _project.Var("proxy_country", country.Name);
             _project.Var("proxy_country_code", country.IsoCode);
+            _project.Var("proxy_requested_country", requestedCountry ?? country.IsoCode);
+            _project.Var("proxy_effective_location", country.IsoCode);
+            _project.Var("proxy_fallback_country_code", fallbackIso ?? "");
             _project.Var("proxy_session", sid);
 
             return proxy;
@@ -275,6 +299,164 @@ namespace z3n7
             return result.ToArray();
         }
 
+        public static Dictionary<string, string> BuildRouteProxyFallbacks(
+            string routesPath = DefaultRoutesPath,
+            string locationsPath = DefaultLocationsPath)
+        {
+            ProxyCountry[] locations = LoadLocations(locationsPath);
+            RouteCountry[] routes = LoadRouteCountries(routesPath);
+
+            var available = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < locations.Length; i++)
+                available.Add(locations[i].IsoCode.ToUpperInvariant());
+
+            var result = new Dictionary<string, string>(
+                StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < routes.Length; i++)
+            {
+                RouteCountry route = routes[i];
+                string routeIso = route.IsoCode.ToUpperInvariant();
+
+                if (available.Contains(routeIso))
+                    continue;
+
+                string fallbackIso = FindNearestAvailableCountry(routeIso, available);
+
+                if (string.IsNullOrEmpty(fallbackIso))
+                    continue;
+
+                result[Normalize(route.IsoCode)] = fallbackIso;
+                result[Normalize(route.CountryName)] = fallbackIso;
+
+                for (int j = 0; j < route.Aliases.Length; j++)
+                    result[Normalize(route.Aliases[j])] = fallbackIso;
+            }
+
+            return result;
+        }
+
+        private static RouteCountry[] LoadRouteCountries(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("routesPath is empty", nameof(path));
+
+            if (!File.Exists(path))
+                throw new FileNotFoundException("routes.json not found", path);
+
+            string json = File.ReadAllText(path);
+
+            var result = new List<RouteCountry>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (Match obj in Regex.Matches(json, @"\{[^{}]*\}", RegexOptions.Singleline))
+            {
+                string block = obj.Value;
+                string countryName = JsonString(block, "country_name");
+                var aliases = JsonArray(block, "aliases");
+
+                if (aliases.Count == 0)
+                    continue;
+
+                string isoCode = aliases[0].ToUpperInvariant();
+
+                if (!seen.Add(isoCode))
+                    continue;
+
+                result.Add(new RouteCountry(countryName, isoCode, aliases.ToArray()));
+            }
+
+            return result.ToArray();
+        }
+
+        private static string FindNearestAvailableCountry(
+            string isoCode,
+            HashSet<string> available)
+        {
+            CountryPoint source;
+
+            if (!CountryCoordinates.TryGetValue(isoCode, out source))
+                return null;
+
+            string bestIso = null;
+            double bestDistance = double.MaxValue;
+
+            foreach (string candidateIso in available)
+            {
+                CountryPoint candidate;
+
+                if (!CountryCoordinates.TryGetValue(candidateIso, out candidate))
+                    continue;
+
+                double distance = DistanceKm(source, candidate);
+
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    bestIso = candidateIso;
+                }
+            }
+
+            return bestIso;
+        }
+
+        private static double DistanceKm(CountryPoint a, CountryPoint b)
+        {
+            const double earthRadiusKm = 6371.0;
+
+            double lat1 = ToRadians(a.Latitude);
+            double lat2 = ToRadians(b.Latitude);
+            double deltaLat = ToRadians(b.Latitude - a.Latitude);
+            double deltaLon = ToRadians(b.Longitude - a.Longitude);
+
+            double h =
+                Math.Sin(deltaLat / 2) * Math.Sin(deltaLat / 2) +
+                Math.Cos(lat1) * Math.Cos(lat2) *
+                Math.Sin(deltaLon / 2) * Math.Sin(deltaLon / 2);
+
+            return earthRadiusKm * 2 * Math.Atan2(Math.Sqrt(h), Math.Sqrt(1 - h));
+        }
+
+        private static double ToRadians(double degrees)
+        {
+            return degrees * Math.PI / 180.0;
+        }
+
+        private static string JsonString(string block, string name)
+        {
+            var m = Regex.Match(
+                block,
+                "\"" + Regex.Escape(name) + "\"\\s*:\\s*(\"(?<s>(?:\\\\.|[^\"])*)\"|(?<n>-?\\d+))",
+                RegexOptions.Singleline);
+
+            if (!m.Success)
+                throw new Exception("routes.json field not found: " + name);
+
+            if (m.Groups["n"].Success)
+                return m.Groups["n"].Value;
+
+            return Regex.Unescape(m.Groups["s"].Value);
+        }
+
+        private static List<string> JsonArray(string block, string name)
+        {
+            var result = new List<string>();
+
+            var m = Regex.Match(
+                block,
+                "\"" + Regex.Escape(name) + "\"\\s*:\\s*\\[(?<items>.*?)\\]",
+                RegexOptions.Singleline);
+
+            if (!m.Success)
+                return result;
+
+            foreach (Match item in Regex.Matches(m.Groups["items"].Value, "\"(?<s>(?:\\\\.|[^\"])*)\""))
+                result.Add(Regex.Unescape(item.Groups["s"].Value));
+
+            return result;
+        }
+
         private static string Normalize(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -315,5 +497,73 @@ namespace z3n7
                 Name = name;
             }
         }
+
+        private sealed class RouteCountry
+        {
+            public readonly string CountryName;
+            public readonly string IsoCode;
+            public readonly string[] Aliases;
+
+            public RouteCountry(
+                string countryName,
+                string isoCode,
+                string[] aliases)
+            {
+                CountryName = countryName;
+                IsoCode = isoCode;
+                Aliases = aliases ?? new string[0];
+            }
+        }
+
+        private struct CountryPoint
+        {
+            public readonly double Latitude;
+            public readonly double Longitude;
+
+            public CountryPoint(double latitude, double longitude)
+            {
+                Latitude = latitude;
+                Longitude = longitude;
+            }
+        }
+
+        private static readonly Dictionary<string, CountryPoint> CountryCoordinates =
+            new Dictionary<string, CountryPoint>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "AE", new CountryPoint(23.4241, 53.8478) },
+                { "AM", new CountryPoint(40.0691, 45.0382) },
+                { "AZ", new CountryPoint(40.1431, 47.5769) },
+                { "BD", new CountryPoint(23.6850, 90.3563) },
+                { "BG", new CountryPoint(42.7339, 25.4858) },
+                { "BJ", new CountryPoint(9.3077, 2.3158) },
+                { "BY", new CountryPoint(53.7098, 27.9534) },
+                { "EG", new CountryPoint(26.8206, 30.8025) },
+                { "ET", new CountryPoint(9.1450, 40.4897) },
+                { "GE", new CountryPoint(42.3154, 43.3569) },
+                { "HN", new CountryPoint(15.2000, -86.2419) },
+                { "ID", new CountryPoint(-0.7893, 113.9213) },
+                { "IL", new CountryPoint(31.0461, 34.8516) },
+                { "IN", new CountryPoint(20.5937, 78.9629) },
+                { "KE", new CountryPoint(-0.0236, 37.9062) },
+                { "KG", new CountryPoint(41.2044, 74.7661) },
+                { "KZ", new CountryPoint(48.0196, 66.9237) },
+                { "MX", new CountryPoint(23.6345, -102.5528) },
+                { "NE", new CountryPoint(17.6078, 8.0817) },
+                { "NG", new CountryPoint(9.0820, 8.6753) },
+                { "OM", new CountryPoint(21.4735, 55.9754) },
+                { "PH", new CountryPoint(12.8797, 121.7740) },
+                { "PK", new CountryPoint(30.3753, 69.3451) },
+                { "QA", new CountryPoint(25.3548, 51.1839) },
+                { "RS", new CountryPoint(44.0165, 21.0059) },
+                { "RU", new CountryPoint(61.5240, 105.3188) },
+                { "SA", new CountryPoint(23.8859, 45.0792) },
+                { "SI", new CountryPoint(46.1512, 14.9955) },
+                { "TJ", new CountryPoint(38.8610, 71.2761) },
+                { "TR", new CountryPoint(38.9637, 35.2433) },
+                { "TZ", new CountryPoint(-6.3690, 34.8888) },
+                { "UA", new CountryPoint(48.3794, 31.1656) },
+                { "UZ", new CountryPoint(41.3775, 64.5853) },
+                { "VE", new CountryPoint(6.4238, -66.5897) }
+            };
     }
 }

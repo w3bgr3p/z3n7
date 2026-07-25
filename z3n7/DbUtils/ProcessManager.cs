@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO.DbUtils
+namespace z3n7.DbUtils
 {
     public static class ProcessManager
     {
