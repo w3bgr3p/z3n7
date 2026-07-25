@@ -9,11 +9,11 @@ using NBitcoin; // BIP39
 using Chaos.NaCl; // Ed25519
 using System.Linq;
 using System.Security.Cryptography;
-using z3nIO.Web3;
+using z3n7.Web3;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.CommandCenter;
 
-namespace z3nIO.W3b
+namespace z3n7.W3b
 {
     public class SuiTools
     {
@@ -577,7 +577,7 @@ namespace z3nIO.W3b
 }
 
 
-namespace z3nIO
+namespace z3n7
 {
     using W3b;
     public static partial class W3bTools

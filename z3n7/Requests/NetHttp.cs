@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     /// <summary>
     /// ИСПРАВЛЕНО: Основной класс для HTTP запросов с ASYNC методами

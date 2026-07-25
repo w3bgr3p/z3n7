@@ -1,17 +1,14 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+
 using System.IO;
-using System.Text.RegularExpressions;
+
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using z3nIO;
-using System.Net.Http;
 
-namespace z3nIO
+
+namespace z3n7
 {
     public static class DbLock
     {

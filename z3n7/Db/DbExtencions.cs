@@ -8,7 +8,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace z3nIO
+namespace z3n7
 {
     #region DbHelpers - Вспомогательные методы
     internal static class DbHelpers

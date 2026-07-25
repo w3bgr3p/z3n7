@@ -1,5 +1,5 @@
 ﻿
-namespace z3nIO.Wallets
+namespace z3n7.Wallets
 {
     public interface IWallet
     {

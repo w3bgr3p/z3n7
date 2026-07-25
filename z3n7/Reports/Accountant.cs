@@ -8,7 +8,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 
 
-namespace z3nIO.Utilities
+namespace z3n7.Utilities
 {
     public class Accountant
     {
@@ -1455,7 +1455,7 @@ namespace z3nIO.Utilities
     }
     
   }
-  namespace z3nIO
+  namespace z3n7
   {
       public static partial class ProjectExtensions
       {

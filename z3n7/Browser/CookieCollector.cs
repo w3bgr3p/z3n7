@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -78,7 +77,10 @@ namespace z3n7
                 }
             }
 
-            return SaveCookies(cookieContainer, domains);
+            int cookieCount;
+            var result = SaveCookies(cookieContainer, domains, out cookieCount);
+            Log?.Invoke("COOKIES=" + cookieCount);
+            return result;
         }
 
         private void ProcessService(
@@ -90,43 +92,17 @@ namespace z3n7
             var uri = new Uri(url);
             domains.Add(uri.Host);
 
-            var beforeCount = cookieContainer.GetCookies(uri).Count;
-            var statusCode = 0;
-            var status = "OK";
-            var stopwatch = Stopwatch.StartNew();
-
             try
             {
                 using (var response = client.GetAsync(uri).GetAwaiter().GetResult())
-                {
-                    statusCode = (int)response.StatusCode;
                     response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
-
-                    if (statusCode >= 300 && statusCode <= 399)
-                        status = "REDIRECT";
-                    else if (statusCode >= 400)
-                        status = "HTTP_" + statusCode;
-                }
             }
-            catch (System.Threading.Tasks.TaskCanceledException)
+            catch (Exception ex) when (
+                ex is System.Threading.Tasks.TaskCanceledException ||
+                ex is HttpRequestException)
             {
-                status = "TIMEOUT";
+                // Один недоступный сервис не должен останавливать сбор cookies.
             }
-            catch (HttpRequestException ex)
-            {
-                status = "ERROR";
-                Log?.Invoke(url + " | " + ex.Message);
-            }
-
-            stopwatch.Stop();
-            var afterCount = cookieContainer.GetCookies(uri).Count;
-
-            Log?.Invoke(
-                url +
-                " | HTTP=" + statusCode +
-                " | STATUS=" + status +
-                " | TIME=" + stopwatch.ElapsedMilliseconds + " ms" +
-                " | COOKIES=" + beforeCount + " -> " + afterCount);
         }
 
         private static string NormalizeUrl(string value)
@@ -216,7 +192,10 @@ namespace z3n7
             }
         }
 
-        private string SaveCookies(CookieContainer cookieContainer, HashSet<string> domains)
+        private string SaveCookies(
+            CookieContainer cookieContainer,
+            HashSet<string> domains,
+            out int cookieCount)
         {
             var result = new JArray();
             var added = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -227,6 +206,7 @@ namespace z3n7
                 AddCookiesForUri(cookieContainer, new Uri("http://" + domain), result, added);
             }
 
+            cookieCount = result.Count;
             return JsonConvert.SerializeObject(result);
         }
 

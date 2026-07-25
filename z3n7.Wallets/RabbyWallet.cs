@@ -1,7 +1,7 @@
 ﻿using System;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
-namespace z3nIO.Wallets
+namespace z3n7.Wallets
 {
 
     public class RabbyWallet : IWallet

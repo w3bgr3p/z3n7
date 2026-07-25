@@ -5,7 +5,7 @@ using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.InterfacesLibrary.ProjectModel.Collections;
 
-namespace z3nIO.Utilities
+namespace z3n7.Utilities
 {
     public class ProfileSync
     {

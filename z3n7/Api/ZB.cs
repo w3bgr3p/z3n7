@@ -6,7 +6,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 
 
-namespace z3nIO
+namespace z3n7
 {
     public static class ZennoBrowser
     {

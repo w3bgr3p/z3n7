@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.InterfacesLibrary.ZennoPoster;
 
-namespace z3nIO.Web3
+namespace z3n7.Web3
 {
     public static class Rpc
     {

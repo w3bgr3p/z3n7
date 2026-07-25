@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO.Api
+namespace z3n7.Api
 {
     public sealed class Aiio
     {

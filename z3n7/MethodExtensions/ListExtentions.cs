@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     public static class ListExtensions
     {

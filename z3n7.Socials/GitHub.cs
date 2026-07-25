@@ -5,10 +5,10 @@ using System.Threading;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using Newtonsoft.Json.Linq;
-using z3nIO.Tools;
+using z3n7.Tools;
 
 
-namespace z3nIO.Socials
+namespace z3n7.Socials
 {
     public class GitHubAuth
     {
@@ -138,7 +138,7 @@ namespace z3nIO.Socials
 }
 
 
-namespace z3nIO
+namespace z3n7
 {
     // BluesmindsAuth.cs
     public class BluesmindsAuth

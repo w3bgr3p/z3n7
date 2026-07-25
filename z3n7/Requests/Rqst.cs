@@ -10,7 +10,7 @@ using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.Enums.Http;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     public class Rqst
     {
@@ -118,22 +118,22 @@ namespace z3nIO
 
                 if (log)
                 {
-                    LogStatus();
+                    
                     _logger?.Send($"response: [{responseBody}]");
-                }
-
-                if (_rqst.StatusCode < 200 || _rqst.StatusCode >= 300)
-                {
-                    string errorMessage = FormatErrorMessage(_rqst.StatusCode, responseBody);
-                    _logger?.Send($"!W HTTP Error: [{errorMessage}] url:[{url}] proxy:[{proxy}]");
-
-                    if (thrw) throw new Exception(errorMessage);
-                    return errorMessage;
                 }
 
                 if (returnSuccessWithStatus)
                 {
                     return $"{_rqst.StatusCode}\r\n\r\n{responseBody.Trim()}";
+                }
+
+                if (_rqst.StatusCode < 200 || _rqst.StatusCode >= 300)
+                {
+                    var rawResponse = responseBody.Trim();
+                    _logger?.Send($"!W HTTP {_rqst.StatusCode} url:[{url}] proxy:[{proxy}] response:[{rawResponse}]");
+
+                    if (thrw) throw new Exception(string.IsNullOrWhiteSpace(rawResponse) ? $"HTTP {_rqst.StatusCode}" : rawResponse);
+                    return rawResponse;
                 }
 
                 if (parse)
@@ -583,7 +583,7 @@ namespace z3nIO
                     url = req.Url,
                     statusCode = req.StatusCode,
                     durationMs = durationMs,
-                    proxy = MaskProxyCredentials(req.Proxy),
+                    proxy = (req.Proxy),
                     request = new
                     {
                         headers = req.Headers,
@@ -618,82 +618,11 @@ namespace z3nIO
             catch { }
         }
 
-        private static string MaskProxyCredentials(string proxy)
-        {
-            if (string.IsNullOrEmpty(proxy)) return "";
-
-            try
-            {
-                if (proxy.Contains("@"))
-                {
-                    var parts = proxy.Split('@');
-                    if (parts.Length == 2)
-                    {
-                        return $"***:***@{parts[1]}";
-                    }
-                }
-            }
-            catch { }
-
-            return proxy;
-        }
-
-        private void LogStatus()
-        {
-
-            if (_rqst.StatusCode == 429)
-            {
-                _logger?.Send($"!W HTTP 429 Rate Limited | url:[{_rqst.Url}] proxy:[{_rqst.Proxy}]");
-            }
-            else if (_rqst.StatusCode >= 400 && _rqst.StatusCode < 500)
-            {
-                _logger?.Send($"!W HTTP {_rqst.StatusCode} Client Error | url:[{_rqst.Url}] proxy:[{_rqst.Proxy}]");
-            }
-            else if (_rqst.StatusCode >= 500)
-            {
-                _logger?.Send($"!W HTTP {_rqst.StatusCode} Server Error | url:[{_rqst.Url}] proxy:[{_rqst.Proxy}]");
-            }
-            else if (_rqst.StatusCode == 0)
-            {
-                _logger?.Send($"!W HTTP Request Failed | url:[{_rqst.Url}] proxy:[{_rqst.Proxy}]");
-            }
-        }
+        
+        
         #endregion
 
         #region Helpers
-        private string FormatErrorMessage(int statusCode, string body)
-        {
-            string statusText = GetStatusText(statusCode);
-            string bodyPreview = body.Length > 100 ? body.Substring(0, 100) + "..." : body;
-
-            return string.IsNullOrWhiteSpace(body)
-                ? $"{statusCode} {statusText}"
-                : $"{statusCode} {statusText}: {bodyPreview}";
-        }
-
-        private static string GetStatusText(int statusCode)
-        {
-            switch (statusCode)
-            {
-                case 0: return "Connection Failed";
-                case 400: return "Bad Request";
-                case 401: return "Unauthorized";
-                case 403: return "Forbidden";
-                case 404: return "Not Found";
-                case 405: return "Method Not Allowed";
-                case 408: return "Request Timeout";
-                case 429: return "Too Many Requests";
-                case 500: return "Internal Server Error";
-                case 502: return "Bad Gateway";
-                case 503: return "Service Unavailable";
-                case 504: return "Gateway Timeout";
-                default:
-                    if (statusCode >= 400 && statusCode < 500) return "Client Error";
-                    if (statusCode >= 500) return "Server Error";
-                    return "Unknown Error";
-            }
-        }
-
         private void ParseJson(string json)
         {
             try

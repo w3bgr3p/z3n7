@@ -8,12 +8,10 @@
 
     <ItemGroup>
         <ProjectReference Include="W:\code_hard\.net\z3n7\z3n7\z3n7.csproj" />
-        <ProjectReference Include="W:\code_hard\.net\z3n7\z3n7.Captcha\z3n7.Captcha.csproj" />
-        
     </ItemGroup>
 
     <ItemGroup>
-    
+
 
     </ItemGroup>
 

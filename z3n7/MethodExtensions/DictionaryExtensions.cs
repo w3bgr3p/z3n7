@@ -2,7 +2,7 @@
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
 
-namespace z3nIO
+namespace z3n7
 {
     public static partial class ProjectExtensions
     {

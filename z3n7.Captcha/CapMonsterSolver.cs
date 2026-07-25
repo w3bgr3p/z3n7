@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO.Captcha
+namespace z3n7.Captcha
 {
 
     public class CapMonsterSolver

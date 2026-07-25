@@ -7,7 +7,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.InterfacesLibrary.Enums.Log;
 
 
-namespace z3nIO
+namespace z3n7
 {
     public static class AccountRunner
     {

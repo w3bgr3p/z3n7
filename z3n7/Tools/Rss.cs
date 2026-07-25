@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 
 
-namespace z3nIO.Tools
+namespace z3n7.Tools
 {
     public class RssNewsItem
     {

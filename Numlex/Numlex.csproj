@@ -24,10 +24,6 @@
         </Reference>
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="Test.cs" />
-    </ItemGroup>
-
 
 
 </Project>

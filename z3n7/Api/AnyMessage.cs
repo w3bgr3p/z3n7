@@ -4,7 +4,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using HtmlAgilityPack;
-using z3nIO;
+
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.Api
@@ -47,6 +47,7 @@ namespace z3n7.Api
             string email = _project.Json.email.ToString();
             _project.Var("anyMailId",    id);
             _project.Var("email", email);
+            _project.Profile.Email =  email;
             return new[] { id, email };
         }
 

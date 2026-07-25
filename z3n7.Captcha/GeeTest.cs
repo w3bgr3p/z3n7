@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Newtonsoft.Json;
 using z3n7.Captcha;
-using z3nIO;
 using ZennoLab.CommandCenter;
 
 namespace z3n7.Captcha
@@ -60,8 +59,10 @@ namespace z3n7.Captcha
             _canvasX = he.DisplacementInBrowser.X;
             _canvasY = he.DisplacementInBrowser.Y;
 
+            
+            
             var tips = _instance.ActiveTab
-                .FindElementByAttribute("div", "class", "geetest_ques_tips_", "regexp", 0)
+                .FindElementsByAttribute("div", "class", "geetest_ques_tips_", "regexp").Last()
                 .GetChildren(false)
                 .ToList();
 

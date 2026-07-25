@@ -10,7 +10,7 @@ using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.Enums.Browser;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     public static partial class JsExtensions
     {

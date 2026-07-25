@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
-namespace z3nIO
+namespace z3n7
 {
     public static class Rnd
     {
@@ -356,7 +356,7 @@ namespace z3nIO
             "email.it"
         };
         
-        public static string RndMail(int minLength = 5, int maxLength = 10)
+        public static string RndMail(int minLength = 5, int maxLength = 10, string domain = null)
         {
             string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -365,8 +365,9 @@ namespace z3nIO
 
             for (int i = 0; i < length; i++)
                 mail += chars[random.Next(chars.Length)];
-
-            return mail + "@" + EmailDomains[random.Next(EmailDomains.Length)];
+            
+            domain = domain ?? EmailDomains[random.Next(EmailDomains.Length)];
+            return mail + "@" + domain;
         }
         
         public static string RndMonth()
@@ -476,7 +477,7 @@ namespace z3nIO
             if (password)
                 project.Profile.Password = RndPass();
             if(email)
-                project.Profile.Email = z3nIO.Rnd.RndMail();
+                project.Profile.Email = RndMail();
         }
 
     }
