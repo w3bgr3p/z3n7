@@ -6,7 +6,8 @@ riderModule.iml
 /.idea/
 /.claude/
 /Scripts/
-/ZennoLab/
+/dllReady/
+/ZennoLab/ExternalAssemblies/z3n7.Numlex.dll
 /z3n7.Numlex/
 Directory.Build.props
 Directory.Build.targets
