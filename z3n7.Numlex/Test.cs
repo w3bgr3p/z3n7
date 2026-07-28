@@ -590,20 +590,20 @@ namespace z3n7
         }
     }
 
-    public class NumlexInstance
+    public class NumlexInstance_
     {
         
         private readonly IZennoPosterProjectModel _project;
         private readonly Instance _instance;
  
 
-        public NumlexInstance(IZennoPosterProjectModel project, Instance instance)
+        public NumlexInstance_(IZennoPosterProjectModel project, Instance instance)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
-        public void PrepareInstance(bool fixTime = true , bool pruneErrors = false)
+        public void PrepareInstance( bool pruneErrors = false, bool fixTime = true )
         {
             _instance.AudioContextMode = ZennoLab.InterfacesLibrary.Enums.Browser.AudioMode.Emulate;
             _instance.CanvasRenderMode = ZennoLab.InterfacesLibrary.Enums.Browser.CanvasMode.SuperEmulation;

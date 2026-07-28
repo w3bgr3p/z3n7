@@ -24,6 +24,19 @@
         </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="samples\**" />
+      <Compile Remove="Test.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="samples\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="samples\**" />
+    </ItemGroup>
+
 
 
 </Project>

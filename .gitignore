@@ -6,5 +6,8 @@ riderModule.iml
 /.idea/
 /.claude/
 /Scripts/
+/ZennoLab/
+/z3n7.Numlex/
 Directory.Build.props
 Directory.Build.targets
+.env

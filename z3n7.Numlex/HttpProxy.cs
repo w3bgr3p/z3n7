@@ -20,6 +20,7 @@ namespace z3n7
         private const int Ttl = 120;
         private const string DefaultLocationsPath =
             @"W:\code_hard\numlex\proxy\available_locations.json";
+        private const string LocationsPathEnv = "NUMLEX_LOCATIONS_PATH";
 
         private readonly IZennoPosterProjectModel _project;
         private readonly Instance _instance;
@@ -36,6 +37,7 @@ namespace z3n7
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
+            locationsPath = NumlexEnv.Resolve(project, LocationsPathEnv, locationsPath);
             _countries = LoadLocations(locationsPath);
             _countryIndex = BuildCountryIndex(_countries);
         }

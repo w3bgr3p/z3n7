@@ -78,6 +78,24 @@ namespace z3n7
             return value;
         }
 
+        public static void MaxErr(this IZennoPosterProjectModel project, int maxAttempts, Exception ex = null)
+        {
+            var errCounter = project.Int("ErrCounter");
+            var message =  ex != null  ? ex.Message : project.LastErrorComment;
+            project.Var("err", message);    
+            
+            
+            if (errCounter > maxAttempts)
+            {
+                project.SendWarningToLog($"max errors reached: {message}");
+                throw  new Exception(message);
+            }
+            else
+            {
+                project.Int("ErrCounter", 1);
+            }
+        }
+
 
         public static string VarRnd(this IZennoPosterProjectModel project, string var)
         {
@@ -197,7 +215,6 @@ namespace z3n7
         }
         
     }
-    
     public static class GVars
     {
         private static readonly object LockObject = new object();
@@ -363,7 +380,6 @@ namespace z3n7
         
     }
     
-
     public static class Constantes
     {
         private static readonly object LockObject = new object();
@@ -371,8 +387,7 @@ namespace z3n7
         public static string ProjectName(this IZennoPosterProjectModel project)
         {
             var path = "";
-    
-
+            
             var pathToFolder = project.Path;
             var filename = project.Name;
     

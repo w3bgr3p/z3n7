@@ -13,7 +13,12 @@ namespace z3n7
     {
         public static void CreateTable(IZennoPosterProjectModel project)
         {
-            var jsonPath = @"W:\code_hard\numlex\localhost-provider\routes.json";
+            var envDbSource = NumlexEnv.Read(project, "dbSource");
+            if (!string.IsNullOrWhiteSpace(envDbSource))
+                project.Var("dbSource", envDbSource);
+
+            var jsonPath = NumlexEnv.Read(project, "NUMLEX_ROUTES_PATH") ??
+                           @"W:\code_hard\numlex\localhost-provider\routes.json";
             var routes = JsonConvert.DeserializeObject<List<JObject>>(
                 File.ReadAllText(jsonPath)
             );
@@ -50,6 +55,7 @@ namespace z3n7
                 project.DbQ($@"INSERT INTO {tableName} (""direction"", ""success"", ""failed"") VALUES ('{direction.Replace("'", "''")}', 0, 0) ON CONFLICT (""direction"") DO NOTHING;");
             }
         }
+
         public static void IncreaseSuccess(IZennoPosterProjectModel project)
         {
             var q =

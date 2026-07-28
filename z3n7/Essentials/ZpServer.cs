@@ -27,7 +27,7 @@ namespace z3n7
     /// </summary>
     public static class ZpServer
     {
-        private const int Port = 8765;
+        
 
         private static HttpListener  _listener;
         private static Thread        _thread;
@@ -35,22 +35,22 @@ namespace z3n7
 
         // ── Start / Stop ──────────────────────────────────────────────────────
 
-        public static void StartZpServer(this IZennoPosterProjectModel project, bool log = false)
+        public static void StartZpServer(this IZennoPosterProjectModel project, int port = 22222, bool log = false)
         {
             if (_running) return;
-            if (IsPortBusy(Port))  return;
+            if (IsPortBusy(port))  return;
 
-            RegisterNode(project, log);
+            RegisterNode(project, port, log);
 
             _listener = new HttpListener();
-            _listener.Prefixes.Add($"http://+:{Port}/");
+            _listener.Prefixes.Add($"http://+:{port}/");
             _listener.Start();
             _running = true;
 
             _thread = new Thread(() => Loop(project, log)) { IsBackground = true };
             _thread.Start();
 
-            if (log) project.SendInfoToLog($"[ZpServer] Listening on port {Port}", false);
+            if (log) project.SendInfoToLog($"[ZpServer] Listening on port {port}", false);
         }
 
         public static void StopZpServer(this IZennoPosterProjectModel project, bool log = false)
@@ -292,7 +292,7 @@ namespace z3n7
 
         // ── Node registration ─────────────────────────────────────────────────
 
-        private static void RegisterNode(IZennoPosterProjectModel project, bool log)
+        private static void RegisterNode(IZennoPosterProjectModel project, int port, bool log)
         {
             var host    = GetLocalIp();
             var machine = Environment.MachineName;
@@ -300,13 +300,14 @@ namespace z3n7
 
             project.TblAdd(DbSchema.ZpNodes.Columns, DbSchema.ZpNodes.Name);
 
-            var isPg = project.Var("DBmode") == "PostgreSQL";
+            var isPg = project.Var("dbSource").StartsWith("Host=");
             string q = isPg
                 ? $"INSERT INTO \"{DbSchema.ZpNodes.Name}\" (machine, host, port, updated_at) " +
-                  $"VALUES ('{machine}', '{host}', '{Port}', '{now}') " +
+                  $"VALUES ('{machine}', '{host}', '{port}', '{now}') " +
                   $"ON CONFLICT (machine) DO UPDATE SET host = EXCLUDED.host, port = EXCLUDED.port, updated_at = EXCLUDED.updated_at"
+                
                 : $"INSERT OR REPLACE INTO \"{DbSchema.ZpNodes.Name}\" (machine, host, port, updated_at) " +
-                  $"VALUES ('{machine}', '{host}', '{Port}', '{now}')";
+                  $"VALUES ('{machine}', '{host}', '{port}', '{now}')";
 
             project.DbQ(q, log);
         }
