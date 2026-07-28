@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.CommandCenter;
+using ZennoLab.InterfacesLibrary.Enums.Log;
 
 namespace z3n7.Api
 {
@@ -17,6 +18,9 @@ namespace z3n7.Api
             @"W:\code_hard\numlex\localhost-provider\routes.json";
         private const string DefaultLocationsPath =
             @"W:\code_hard\numlex\proxy\available_locations.json";
+        private const string ProviderBaseUrlEnv = "NUMLEX_PROVIDER_BASE_URL";
+        private const string RoutesPathEnv = "NUMLEX_ROUTES_PATH";
+        private const string LocationsPathEnv = "NUMLEX_LOCATIONS_PATH";
         
         private readonly string _baseUrl;
         
@@ -33,7 +37,11 @@ namespace z3n7.Api
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _site = $"{project.Name.ToLower().Split('.')[1]}";
-            _baseUrl = "http://127.0.0.1:18581";
+
+            _baseUrl = z3n7.NumlexEnv.Resolve(project, ProviderBaseUrlEnv, "http://127.0.0.1:18581");
+            routesPath = z3n7.NumlexEnv.Resolve(project, RoutesPathEnv, routesPath);
+            locationsPath = z3n7.NumlexEnv.Resolve(project, LocationsPathEnv, locationsPath);
+
             _routes = LoadRoutes(routesPath);
             _proxyFallbacks = z3n7.NumlexProxy.BuildRouteProxyFallbacks(routesPath, locationsPath);
         }
@@ -44,39 +52,47 @@ namespace z3n7.Api
         /// Дополнительно сохраняет:
         /// numCountry, numCountryCode, numNoCountryCode.
         /// </summary>
-        /// <param name="site">Опциональный идентификатор сайта для мониторинга (не передаётся в Numlex)</param>
+        /// <param name="site">Опциональный идентификатор сайта для мониторинга (не передаётся в z3n7.Numlex)</param>
         public string[] GetNumber(string service, int country)
         {
             if (string.IsNullOrWhiteSpace(service))
                 throw new ArgumentException("service is empty", nameof(service));
+    
+
+            var url = $"{_baseUrl}/number" + $"?country={country}" + $"&service={Uri.EscapeDataString(service)}" + $"&site={Uri.EscapeDataString(_site)}";
+
+            var json = _project.GET(url, log: false, thrw: true);
+
+            var data = Newtonsoft.Json.Linq.JObject.Parse(json);
             
+            bool success = !json.Contains("err_message");
 
-            var url =
-                $"{_baseUrl}/number" +
-                $"?country={country}" +
-                $"&service={Uri.EscapeDataString(service)}" +
-                $"&site={Uri.EscapeDataString(_site)}";
 
-            var json = _project.GET(url, log: false, useNetHttp: false, thrw: true);
-            
-            _project.ToJson(json);
+            if (success)
+            {
+                string id = data["id"].ToString();
+                string phone = data["phone"].ToString();
 
-            string id = _project.Json.id.ToString();
-            string phone = _project.Json.phone.ToString();
+                string countryName = data["country"]?.ToString() ?? country.ToString();
+                string countryCode = data["country_code"]?.ToString() ?? "";
+                string noCountryCode = data["number_without_country_code"]?.ToString() ?? "";
 
-            string countryName = _project.Json.country?.ToString() ?? country.ToString();
-            string countryCode = _project.Json.country_code?.ToString() ?? "";
-            string noCountryCode = _project.Json.number_without_country_code?.ToString() ?? "";
-
-            _project.Var("numId", id);
-            _project.Var("numPhone", phone);
-            _project.Var("numIssued", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString());
-            _project.Var("numCountry", countryName);
-            _project.Var("numCountryCode", countryCode);
-            _project.Var("numNoCountryCode", noCountryCode);
-            _project.Var("numProvider", service);
-            _project.Var("numDirection", _project.Var("proxy_location")+"-" + service);
-            return new[] { id, phone };
+                _project.Var("numId", id);
+                _project.Var("numPhone", phone);
+                _project.Var("numIssued", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString());
+                _project.Var("numCountry", countryName);
+                _project.Var("numCountryCode", countryCode);
+                _project.Var("numNoCountryCode", noCountryCode);
+                _project.Var("numProvider", service);
+                _project.Var("numDirection", _project.Var("proxy_location") + "-" + service);
+                return new[] { id, phone };
+            }
+            else
+            {
+                string error = data["err_message"].ToString();
+                _project.warn(error);
+                throw new Exception(error);
+            }
         }
         
         public string[] GetNumber(int country)
@@ -84,7 +100,7 @@ namespace z3n7.Api
             var route = PickRouteByCountryId(country);
 
             if (route == null)
-                throw new Exception($"Numlex country not found in Routes: {country}");
+                throw new Exception($"z3n7.Numlex country not found in Routes: {country}");
 
             return GetNumber(route.Service, route.CountryId);
         }
@@ -97,7 +113,7 @@ namespace z3n7.Api
             var route = PickRouteByCountryName(countryName);
 
             if (route == null)
-                throw new Exception($"Numlex country not found in Routes: {countryName}");
+                throw new Exception($"z3n7.Numlex country not found in Routes: {countryName}");
 
             return GetNumber(route.Service, route.CountryId);
         }
@@ -125,11 +141,11 @@ namespace z3n7.Api
 
             if (_proxyFallbacks.TryGetValue(prx, out fallbackIso))
             {
-                _project.Var("proxy_location_fallback", fallbackIso);
+                _project.Var("proxy_fallback", fallbackIso);
             }
             else
             {
-                _project.Var("proxy_location_fallback", "");
+                _project.Var("proxy_fallback", "");
             }
 
             var p = (string.IsNullOrWhiteSpace(provider)) ? route.Service : provider;
@@ -138,7 +154,7 @@ namespace z3n7.Api
             GetNumber(p, c);
         }
 
-        public string GetSms(int deadline = 120)
+        public string GetSms(int deadline = 180)
         {
             var id = _project.Var("numId");
             var d  = new Time.Deadline();
@@ -148,40 +164,35 @@ namespace z3n7.Api
                 Thread.Sleep(5000);
                 d.Check(deadline);
 
-                var url =
-                    $"{_baseUrl}/sms/{Uri.EscapeDataString(id)}" +
-                    "?once=1";
+                var url = $"{_baseUrl}/sms/{Uri.EscapeDataString(id)}" + "?once=1";
 
                 var age = _project.Age<string>("numIssued");
 
-                var json = _project.GET(url, useNetHttp: true, thrw: true);
-                _project.ToJson(json);
-                _project.SendInfoToLog($"{age} {_project.Var("numCountry")} {_site} {json}", true);
+                var json = _project.GET(url, thrw: true);
+                var data = Newtonsoft.Json.Linq.JObject.Parse(json);
+                bool success = !json.Contains("err_message");
+                
+                bool received = json.Contains("sms_code");
 
-                string waiting = "";
-
-                try
+                if (received)
                 {
-                    waiting = _project.Json.waiting.ToString();
+                    var smsCode = data["sms_code"].ToString();
+                    _project.SendToLog($" received {smsCode} for {_site} on {_project.Var("numDirection")}. Took {age.Substring(3,5)}m", LogType.Info,  true , LogColor.Blue);
+                    return smsCode;
                 }
-                catch { }
-
-                if (waiting.Equals("True", StringComparison.OrdinalIgnoreCase) ||
-                    waiting.Equals("true", StringComparison.OrdinalIgnoreCase))
+                
+                if (success)
+                {
+                    _project.SendInfoToLog($" waiting sms for {_site} on {_project.Var("numDirection")}. elapsed {age.Substring(3,5)}", true);
                     continue;
-
-                string code = "";
-
-                try
-                {
-                    code = _project.Json.sms_code.ToString();
                 }
-                catch { }
 
-                if (!string.IsNullOrEmpty(code))
-                    return code;
-
-                throw new Exception($"Localhost provider getSms returned unexpected response: {json}");
+                
+                string error = data["err_message"].ToString();
+                _project.warn(error);
+                throw new Exception(error);
+                
+                
             }
         }
 
@@ -191,22 +202,7 @@ namespace z3n7.Api
                 (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - long.Parse(_project.Var("numIssued"))) / 1000;
             return elapsedSeconds;
         }
-
-        private static string OnlyDigits(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return "";
-
-            var chars = new List<char>();
-
-            for (int i = 0; i < value.Length; i++)
-            {
-                if (char.IsDigit(value[i]))
-                    chars.Add(value[i]);
-            }
-
-            return new string(chars.ToArray());
-        }
+        
 
         private NumlexRoute PickRouteByCountryId(int countryId)
         {
@@ -267,7 +263,6 @@ namespace z3n7.Api
 
             return new string(chars.ToArray());
         }
-
         private class NumlexRoute
         {
             public readonly string CountryName;
@@ -330,37 +325,6 @@ namespace z3n7.Api
 
                 return "";
             }
-        }
-
-        private class PhoneSplit
-        {
-            public readonly string CountryCode;
-            public readonly string NoCountryCode;
-
-            public PhoneSplit(string countryCode, string noCountryCode)
-            {
-                CountryCode = countryCode;
-                NoCountryCode = noCountryCode;
-            }
-        }
-        private static bool MatchesRoute(NumlexRoute route, HashSet<string> bad)
-        {
-            if (route == null || bad == null || bad.Count == 0)
-                return false;
-
-            if (bad.Contains(NormalizeKey(route.CountryName)))
-                return true;
-
-            if (bad.Contains(route.CountryId.ToString()))
-                return true;
-
-            if (bad.Contains(OnlyDigits(route.CountryCode)))
-                return true;
-
-            if (bad.Contains("+" + OnlyDigits(route.CountryCode)))
-                return true;
-
-            return false;
         }
         
         private static NumlexRoute[] LoadRoutes(string path)

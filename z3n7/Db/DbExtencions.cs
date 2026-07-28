@@ -79,8 +79,6 @@ namespace z3n7
         }
     }
     #endregion
-
-    
     public static class Get
     {
         public static string DbGet(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", string acc = null, string where = "")
@@ -1429,7 +1427,7 @@ namespace z3n7
         public static string DbQ(this IZennoPosterProjectModel project, string query, bool log = false, string sqLitePath = null,  bool thrw = false, bool unSafe = false)
         {
             
-            string dbSource = project.Var("dbSource");
+            string dbSource = project.Var("dbSource"); 
             if (string.IsNullOrEmpty(dbSource)) 
                 dbSource = project.GVar("dbSource");
             if (string.IsNullOrEmpty(dbSource)) 

@@ -14,16 +14,18 @@ namespace z3n7.Api
         private const string BaseUrl = "https://api.anymessage.shop";
         private readonly string _apikey;
         private readonly IZennoPosterProjectModel _project;
-        public AnyMessage(IZennoPosterProjectModel project, string apikey )
+        private readonly bool _log;
+        public AnyMessage(IZennoPosterProjectModel project, string apikey , bool log = false)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _apikey  = apikey  ?? throw new ArgumentNullException(nameof(apikey));
+            _log = log;
         }
 
         // ── helpers ──────────────────────────────────────────────────────────────
 
         private string Get(string path) =>
-            _project.GET($"{BaseUrl}{path}", log: true, useNetHttp: false, thrw: true);
+            _project.GET($"{BaseUrl}{path}", log: _log, useNetHttp: false, thrw: true);
 
         private void Check(string tag = null)
         {
