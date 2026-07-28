@@ -3,7 +3,7 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
-/.idea/
+.idea/
 /.claude/
 /Scripts/
 /dllReady/
