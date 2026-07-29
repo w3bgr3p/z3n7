@@ -25,15 +25,15 @@ A sample is eligible when its directory does not contain `solved.json`.
 `solution.json` does not make a sample ineligible: existing manual solutions
 must be loaded and remain editable.
 
-Known inputs:
+Supported inputs:
 
 - `icon`: `imgs.json` contains `canvas` and `tips`.
 - `nine`: `imgs.json` contains `prompt` and nine `items`; `request.json`
   contains `nine_nums`.
-- `svg_seed`: `request.json` contains `question_path` SVG and `answer_path`
-  Base64 PNG; `imgs.json` may be absent.
 
-Malformed samples are shown as errors and do not prevent loading the rest.
+Other type directories, including the future `svg_seed` cache, are outside the
+current scope and are ignored. Malformed supported samples are shown as errors
+and do not prevent loading the rest.
 
 ## Application
 
@@ -65,14 +65,6 @@ after the number of points equals the number of tips.
 Render `imgs.prompt` and a 3 by 3 grid from `imgs.items`. Clicking a tile toggles
 its selection. Save automatically when the selected count reaches
 `request.data.nine_nums`. Store zero-based indices matching the source array.
-
-### svg_seed
-
-Render `request.data.question_path` as the click surface and
-`request.data.answer_path` as the target hint. Record points in the SVG viewBox
-coordinate system. Permit an arbitrary number of ordered points and require an
-explicit Save action because the source does not declare a verified answer
-count.
 
 ## Output format
 
@@ -108,9 +100,6 @@ Every solution contains stable common metadata:
 }
 ```
 
-`svg_seed` adds viewBox dimensions and ordered `points` using the same point
-shape as `icon`.
-
 The page writes formatted UTF-8 JSON to `solution.json` inside the sample
 directory. No other source or cache file is modified.
 
@@ -120,10 +109,10 @@ Before saving:
 
 - the sample type must be supported;
 - required JSON and image fields must exist;
-- coordinates must lie inside the original canvas or SVG viewBox;
+- coordinates must lie inside the original canvas;
 - `icon` point count must equal the tip count;
 - `nine` selection count must equal `nine_nums`;
-- `svg_seed` must contain at least one point.
 
-Verification will use fixture directories for all three types, including an
-existing solution, a directory with `solved.json`, and malformed input.
+Verification will use fixture directories for both supported types, including
+an existing solution, a directory with `solved.json`, an ignored `svg_seed`
+directory, and malformed input.
