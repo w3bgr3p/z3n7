@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
@@ -74,9 +75,11 @@ namespace z3n7.Captcha
                 throw new InvalidOperationException("Hunt football canvas was not found");
 
             int imageWidth;
+            int imageHeight;
             using (var image = DecodeBitmap(canvas.DrawToBitmap(true)))
             {
                 imageWidth = image.Width;
+                imageHeight = image.Height;
             }
 
             var displayWidth = canvas.BoundingClientWidth;
@@ -88,6 +91,18 @@ namespace z3n7.Captcha
             var maximumX = position.X + displayWidth - 2;
             var mouseDown = false;
             HuntBallResult result = null;
+            var diagnostics = new StringBuilder();
+            diagnostics.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "canvas image={0}x{1}, display={2}x{3}, position=({4},{5}), slider=({6},{7})",
+                imageWidth,
+                imageHeight,
+                displayWidth,
+                displayHeight,
+                position.X,
+                position.Y,
+                sliderX,
+                sliderY);
 
             try
             {
@@ -100,7 +115,19 @@ namespace z3n7.Captcha
                 if (result.Ball == null || result.Circle == null)
                     throw new InvalidOperationException("Hunt football ball or circle was not detected");
 
-                for (var attempt = 0; attempt < 3; attempt++)
+                diagnostics.AppendFormat(
+                    CultureInfo.InvariantCulture,
+                    "\nstart ball=({0:0.0},{1:0.0}), circle=({2:0.0},{3:0.0})",
+                    result.Ball.CenterX,
+                    result.Ball.CenterY,
+                    result.Circle.CenterX,
+                    result.Circle.CenterY);
+
+                var lastCursorDelta = 0;
+                var lastBallDeltaX = 0f;
+                var lastBallDeltaY = 0f;
+
+                for (var attempt = 0; attempt < 6; attempt++)
                 {
                     var ballX = result.Ball.CenterX;
                     var ballY = result.Ball.CenterY;
@@ -111,26 +138,89 @@ namespace z3n7.Captcha
                     {
                         _instance.ActiveTab.MouseClick(sliderX, sliderY, "left", "up");
                         mouseDown = false;
+                        diagnostics.AppendFormat(
+                            CultureInfo.InvariantCulture,
+                            "\nsuccess ball=({0:0.0},{1:0.0}), cursor={2}",
+                            ballX,
+                            ballY,
+                            sliderX);
+                        _project.SendInfoToLog(
+                            "Hunt football calibration:\n" + diagnostics,
+                            true);
                         return result;
                     }
 
-                    var correction = (int)Math.Round(
-                        (result.Circle.CenterX - ballX) * displayWidth / imageWidth);
-                    var nextX = Math.Max(minimumX, Math.Min(maximumX, sliderX + correction));
+                    var previousX = sliderX;
+                    var previousBallX = ballX;
+                    var previousBallY = ballY;
+                    int movement;
+
+                    if (attempt == 0)
+                    {
+                        movement = sliderX + 12 <= maximumX ? 12 : -12;
+                    }
+                    else
+                    {
+                        var response =
+                            lastBallDeltaX * lastBallDeltaX +
+                            lastBallDeltaY * lastBallDeltaY;
+                        if (Math.Abs(lastCursorDelta) < 1 || response < 1f)
+                        {
+                            movement = attempt % 2 == 0 ? 12 : -12;
+                        }
+                        else
+                        {
+                            var targetDeltaX = result.Circle.CenterX - ballX;
+                            var targetDeltaY = result.Circle.CenterY - ballY;
+                            var calculated = lastCursorDelta *
+                                (targetDeltaX * lastBallDeltaX +
+                                 targetDeltaY * lastBallDeltaY) /
+                                response;
+                            movement = (int)Math.Round(Math.Max(-80f, Math.Min(80f, calculated)));
+
+                            if (Math.Abs(movement) < 4)
+                                movement = movement < 0 ? -4 : 4;
+                        }
+                    }
+
+                    var nextX = Math.Max(minimumX, Math.Min(maximumX, sliderX + movement));
                     _instance.ActiveTab.MouseMove(
                         sliderX, sliderY, nextX, sliderY, false, false);
                     sliderX = nextX;
 
-                    Thread.Sleep(50);
-                    result = DetectBall(canvas.DrawToBitmap(true), confidence);
-                    if (result.Ball == null || result.Circle == null)
+                    Thread.Sleep(80);
+                    var nextResult = DetectBall(canvas.DrawToBitmap(true), confidence);
+                    if (nextResult.Ball == null || nextResult.Circle == null)
                     {
-                        result = DetectBall(canvas.DrawToBitmap(true), 0.10f);
-                        if (result.Ball == null || result.Circle == null)
+                        nextResult = DetectBall(canvas.DrawToBitmap(true), 0.10f);
+                        if (nextResult.Ball == null || nextResult.Circle == null)
                             break;
                     }
+
+                    diagnostics.AppendFormat(
+                        CultureInfo.InvariantCulture,
+                        "\nmove {0}: cursor {1}->{2} ({9:+#;-#;0}); ball ({3:0.0},{4:0.0})->({5:0.0},{6:0.0}) ({10:+0.0;-0.0;0.0},{11:+0.0;-0.0;0.0}); target=({7:0.0},{8:0.0})",
+                        attempt + 1,
+                        previousX,
+                        sliderX,
+                        previousBallX,
+                        previousBallY,
+                        nextResult.Ball.CenterX,
+                        nextResult.Ball.CenterY,
+                        nextResult.Circle.CenterX,
+                        nextResult.Circle.CenterY,
+                        sliderX - previousX,
+                        nextResult.Ball.CenterX - previousBallX,
+                        nextResult.Ball.CenterY - previousBallY);
+                    lastCursorDelta = sliderX - previousX;
+                    lastBallDeltaX = nextResult.Ball.CenterX - previousBallX;
+                    lastBallDeltaY = nextResult.Ball.CenterY - previousBallY;
+                    result = nextResult;
                 }
 
+                _project.SendWarningToLog(
+                    "Hunt football calibration failed:\n" + diagnostics,
+                    true);
                 throw new InvalidOperationException(
                     "Hunt football target was not reached. Ball: " +
                     (result?.Ball == null
@@ -149,7 +239,9 @@ namespace z3n7.Captcha
                             "({0:0.0},{1:0.0}) {2:0.000}",
                             result.Circle.CenterX,
                             result.Circle.CenterY,
-                            result.Circle.Confidence)));
+                            result.Circle.Confidence)) +
+                    Environment.NewLine +
+                    diagnostics);
             }
             finally
             {
