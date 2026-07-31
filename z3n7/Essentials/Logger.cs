@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -17,34 +16,19 @@ namespace z3n7
 
     public class Logger
     {
-        // ── Static cache ──────────────────────────────────────────────────────
-        private static readonly ConcurrentDictionary<string, Logger> _cache
-            = new ConcurrentDictionary<string, Logger>();
-
         public static Logger Get(IZennoPosterProjectModel project, Instance instance = null)
-        {
-            string key = project.Var("acc0");
-
-            if (instance != null && _cache.TryGetValue(key, out var existing) && existing._instance != instance)
-                return _cache[key] = new Logger(project, instance);
-
-            return _cache.GetOrAdd(key, _ => new Logger(project, instance));
-        }
+            => new Logger(project, instance);
 
         public static void ClearCache(IZennoPosterProjectModel project)
-            => _cache.TryRemove(project.Var("acc0"), out _);
+        {
+            // Kept for compatibility. Logger no longer has a cache.
+        }
 
         public Logger WithInstance(Instance instance)
-        {
-            var updated = new Logger(_project, instance, _minLevel, _logHost, _http);
-            string key = _project?.Var("acc0") ?? "";
-            if (!string.IsNullOrEmpty(key)) _cache[key] = updated;
-            return updated;
-        }
+            => new Logger(_project, instance, _minLevel, _logHost, _http, _timezone, Emoji);
 
         // ── Config ────────────────────────────────────────────────────────────
         private readonly IZennoPosterProjectModel _project;
-        private readonly Instance  _instance;
         private readonly LogLevel  _minLevel;
         private readonly string    _logHost;
         private readonly bool      _http;
@@ -70,7 +54,6 @@ namespace z3n7
             string    classEmoji     = null)
         {
             _project  = project;
-            _instance = instance;
             _timezone = timezoneOffset;
             Emoji     = classEmoji;
 
@@ -92,9 +75,9 @@ namespace z3n7
             _fWrap   = cfg.Contains("wrap");
             _fForce  = cfg.Contains("force");
 
-            if (_instance != null)
+            if (instance != null)
             {
-                var m = Regex.Match(_instance.FormTitle ?? "", @"Port:(\d+); Pid:(\d+)");
+                var m = Regex.Match(instance.FormTitle ?? "", @"Port:(\d+); Pid:(\d+)");
                 _port = m.Groups[1].Value;
                 _pid  = m.Groups[2].Value;
             }
