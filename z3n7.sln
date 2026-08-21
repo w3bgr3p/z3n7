@@ -10,9 +10,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Socials", "z3n7.Social
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scripts", "Scripts\Scripts.csproj", "{543B3E9B-2552-4525-8E31-947253E0E29F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Numlex", "z3n7.Numlex\z3n7.Numlex.csproj", "{56935C01-7A84-4171-8E26-F6348E801F39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Numelx", "z3n7.Numelx\z3n7.Numelx.csproj", "{56935C01-7A84-4171-8E26-F6348E801F39}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Captcha", "z3n7.Captcha\z3n7.Captcha.csproj", "{F4EE381E-66FF-4C25-B443-E8DDE27DD0CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Simroute", "..\z3n7.Simroute\z3n7.Simroute\z3n7.Simroute.csproj", "{D7B3749A-C6E5-4DF9-AF8F-C68955C37769}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,5 +50,9 @@ Global
 		{F4EE381E-66FF-4C25-B443-E8DDE27DD0CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4EE381E-66FF-4C25-B443-E8DDE27DD0CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4EE381E-66FF-4C25-B443-E8DDE27DD0CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7B3749A-C6E5-4DF9-AF8F-C68955C37769}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7B3749A-C6E5-4DF9-AF8F-C68955C37769}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7B3749A-C6E5-4DF9-AF8F-C68955C37769}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7B3749A-C6E5-4DF9-AF8F-C68955C37769}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

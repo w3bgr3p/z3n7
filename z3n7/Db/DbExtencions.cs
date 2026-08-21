@@ -7,6 +7,7 @@ using System.Threading;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ZennoLab.InterfacesLibrary.Enums.Log;
 
 namespace z3n7
 {
@@ -1424,6 +1425,27 @@ namespace z3n7
     
     public static class DbCore
     {
+        private static void Log(this IZennoPosterProjectModel project, string query)
+        {
+            var color = LogColor.Default;
+            var type = LogType.Info;
+            if (query.Contains("error"))
+            {
+                color = LogColor.Orange;
+                type = LogType.Error;
+            }
+            else if (query.Contains("success"))
+            {
+                color = LogColor.Blue;
+            }
+            else if (query.Contains("failed"))
+            {
+                color = LogColor.Yellow;
+            }
+            project.SendToLog(query,type,true,color);
+        }
+        
+
         public static string DbQ(this IZennoPosterProjectModel project, string query, bool log = false, string sqLitePath = null,  bool thrw = false, bool unSafe = false)
         {
             
@@ -1467,7 +1489,7 @@ namespace z3n7
                 }
             } 
             string toLog = (query.Contains("SELECT")) ? $"[{query}]\n[{result}]" : $"[{query}] - [{result}]";
-            if (log) project.log("🐘" + toLog);
+            if (log) project.Log("[SQL] " + toLog);
             return result;
             
         }

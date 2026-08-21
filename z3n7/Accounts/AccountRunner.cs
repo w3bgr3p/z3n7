@@ -68,8 +68,7 @@ namespace z3n7
                 tableName = project.ProjectTable();
             if (sqlNow)
             {
-                var dbMode = project.Var("DBmode");
-                condition = ApplySqlNow(condition, dbMode); 
+                condition = ApplySqlNow(condition, project.DbMode()); 
             }
             // Parse priority groups from cfgAccRange
             List<string> rangeGroups = new List<string>();
@@ -247,8 +246,7 @@ namespace z3n7
 
                 if (sqlNow)
                 {
-                    var dbMode = project.Var("DBmode");
-                    condition = ApplySqlNow(condition, dbMode);
+                    condition = ApplySqlNow(condition, project.DbMode());
                 }
 
                 List<string> rangeGroups = new List<string>();
@@ -417,8 +415,7 @@ namespace z3n7
             
             if (sqlNow)
             {
-                var dbMode = project.Var("DBmode");
-                condition = ApplySqlNow(condition, dbMode); 
+                condition = ApplySqlNow(condition, project.DbMode()); 
             }
 
             
@@ -498,12 +495,10 @@ namespace z3n7
         
         private static string ApplySqlNow(string condition, string dbMode)
         {
-            if (dbMode.ToLower().Contains("postgre"))
+            if (dbMode == "pgSQL")
                 return condition.Replace("NOW", "to_char(NOW(), 'YYYY-MM-DD\"T\"HH24:MI:SS')");
-            else if (dbMode.ToLower().Contains("sqlite")) 
+            else if (dbMode == "SQLite") 
                 return condition.Replace("NOW", "strftime('%Y-%m-%dT%H:%M:%S', 'now')");
-            else if (dbMode.ToLower().Contains("mysql")) 
-                return condition.Replace("NOW", "DATE_FORMAT(NOW(), '%Y-%m-%dT%H:%i:%s')");
             else 
                 throw new NotImplementedException(dbMode);
         }

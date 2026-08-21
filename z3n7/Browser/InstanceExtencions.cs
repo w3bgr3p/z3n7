@@ -208,7 +208,7 @@ namespace z3n7
                 try
                 {
                     HtmlElement he = instance.GetHe(obj, method);
-                    throw new Exception($"error detected: {atr}='{he.GetAttribute(atr)}'");
+                    throw new Exception(he.GetAttribute(atr));
                 }
                 catch (Exception ex)
                 {

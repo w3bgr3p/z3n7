@@ -4,6 +4,8 @@ using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Text;
+using System.Threading;
+using ZennoLab.CommandCenter;
 
 
 namespace z3n7.Captcha
@@ -171,11 +173,7 @@ namespace z3n7.Captcha
         /// <summary>
         /// Решает ReCaptcha v2 через CapMonster Cloud
         /// </summary>
-        public static string SolveRecaptchaV2WithCapMonster(
-            this IZennoPosterProjectModel project, 
-            string websiteUrl, 
-            string websiteKey,
-            string proxy = null)
+        public static string SolveRecaptchaV2WithCapMonster(this IZennoPosterProjectModel project, string websiteUrl, string websiteKey, string proxy = null)
         {
             var api_key = project.DbGet("apikey", "_api", where: "id = 'capmonster'");
 
@@ -206,6 +204,18 @@ namespace z3n7.Captcha
             }
         }
 
+        public static void AddCapMonsterCloudExt(this Instance instance, string path  , string key )
+        {
+            
+            instance.InstallCrxExtension(path);
+            Thread.Sleep(3000);
+            instance.Go("chrome-extension://pabjfbciaedomjjfelfafejkppknjleh/popup.html");
+            instance.HeSet(("client-key-input", "id"), key);
+            instance.HeClick(("client-key-save-btn", "id"));
+
+        }
+        
+        
         private static (string type, string address, int port, string login, string password) ParseProxy(string proxy)
         {
             // Формат: http://user:pass@ip:port или http://ip:port

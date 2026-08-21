@@ -43,9 +43,9 @@ namespace z3n7
         public string dbString(string query)
         {
 			
-			if (_log) _project.SendInfoToLog($"-> {query}");
+			if (_log) _project.SendInfoToLog($"-> {query}", true);
 			var resp = rawQ(query);
-			if (_log && resp.StartsWith("SELECT")) _project.SendInfoToLog($"<- {resp}");
+			if (_log && resp.StartsWith("SELECT")) _project.SendInfoToLog($"<- {resp}",true);
             return resp;
         }
 		

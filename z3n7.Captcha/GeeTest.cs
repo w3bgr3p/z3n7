@@ -7,8 +7,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using z3n7.Captcha;
 using ZennoLab.CommandCenter;
+using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.Captcha
 {
@@ -29,6 +31,7 @@ namespace z3n7.Captcha
         };
         
         private readonly Instance _instance;
+        private readonly IZennoPosterProjectModel _project;
 
         private string _canvasImage;
         private string[] _targetImages;
@@ -36,11 +39,132 @@ namespace z3n7.Captcha
         private int _canvasY;
         private List<ResultPoint> _points;
         private int _deadline;
+        private string _solutionJson;
+        private string _type;
 
         public GeeTest(Instance instance , int deadline = 30)
         {
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
             _deadline = deadline;
+        }
+
+        public GeeTest(IZennoPosterProjectModel project, Instance instance, int deadline = 30)
+            : this(instance, deadline)
+        {
+            _project = project ?? throw new ArgumentNullException(nameof(project));
+        }
+
+        public void SaveSamples()
+        {
+            var project = RequireProject();
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+            var raw = "";
+
+            try
+            {
+                var items = new Traffic(project, _instance, "https://gcaptcha4.geetest.com/")
+                    .FindAll("https://gcaptcha4.geetest.com/load");
+                raw = items
+                    .Select(item => item.ResponseBody)
+                    .FirstOrDefault(responseBody => !string.IsNullOrWhiteSpace(responseBody)) ?? "";
+                if (raw == "")
+                    throw new InvalidOperationException("captcha type not found in traffic");
+
+                var body = ExtractJsonBody(raw);
+                var response = JObject.Parse(body);
+                var typeToken = response.SelectToken("data.captcha_type");
+                _type = typeToken == null ? null : typeToken.ToString();
+                if (string.IsNullOrWhiteSpace(_type))
+                    throw new JsonException("data.captcha_type was not found");
+
+                project.Var("geetestType", _type);
+                var sampleFolder = Path.Combine(project.Path, "geetest_cache", _type, timestamp);
+                project.Var("sampleFolder", sampleFolder);
+                Directory.CreateDirectory(sampleFolder);
+                File.WriteAllText(Path.Combine(sampleFolder, "request.json"), body);
+
+                string imagesJson;
+                if (_type == "icon")
+                {
+                    GetImg();
+                    imagesJson = JsonConvert.SerializeObject(new
+                    {
+                        type = _type,
+                        canvas = _canvasImage,
+                        tips = _targetImages
+                    });
+                }
+                else if (_type == "nine")
+                {
+                    var prompt = _instance.ActiveTab.FindElementByAttribute(
+                        "img",
+                        "src",
+                        "https://static.geetest.com/nerualpic/v4_pic/nine_prompt/",
+                        "regexp",
+                        0).DrawToBitmap(true);
+                    var itemsImages = _instance.ActiveTab
+                        .FindElementsByAttribute("div", "class", "geetest_item_ghost", "regexp")
+                        .Select(item => item.DrawToBitmap(true))
+                        .ToList();
+                    imagesJson = JsonConvert.SerializeObject(new
+                    {
+                        type = _type,
+                        prompt,
+                        items = itemsImages
+                    });
+                }
+                else
+                {
+                    throw new NotSupportedException($"type {_type} not implemented");
+                }
+
+                File.WriteAllText(Path.Combine(sampleFolder, "imgs.json"), imagesJson);
+            }
+            catch (Exception ex)
+            {
+                project.warn(ex + $"\nraw: {raw}");
+                throw;
+            }
+        }
+
+        public string GetResult()
+        {
+            var project = RequireProject();
+            Thread.Sleep(3000);
+            var item = new Traffic(project, _instance, "https://gcaptcha4.geetest.com/")
+                .Find("https://gcaptcha4.geetest.com/verify");
+            var body = ExtractJsonBody(item.ResponseBody);
+            var response = JObject.Parse(body);
+            var resultToken = response.SelectToken("data.result");
+            var result = resultToken == null ? null : resultToken.ToString();
+            if (string.IsNullOrWhiteSpace(result))
+                throw new JsonException("data.result was not found");
+
+            project.SendInfoToLog($"geetest: {result}", true);
+            SaveSuccessfulResult(result, body, project.Var("sampleFolder"), _solutionJson);
+            return result;
+        }
+
+        private IZennoPosterProjectModel RequireProject()
+        {
+            if (_project == null)
+                throw new InvalidOperationException(
+                    "This operation requires GeeTest(IZennoPosterProjectModel project, Instance instance)");
+            return _project;
+        }
+
+        private static string ExtractJsonBody(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                throw new JsonException("GeeTest response body is empty");
+            if (raw.StartsWith("{"))
+                return raw;
+
+            var open = raw.IndexOf('(');
+            var close = raw.LastIndexOf(')');
+            if (open < 0 || close <= open)
+                throw new JsonException("GeeTest JSONP response is invalid");
+            return raw.Substring(open + 1, close - open - 1);
         }
 
         public GeeTest GetImg()
@@ -81,12 +205,68 @@ namespace z3n7.Captcha
 
             _points = SolveImages(_canvasImage, _targetImages);
             var canvasSize = DecodeSize(_canvasImage);
-            return JsonConvert.SerializeObject(new
+            if (_project != null)
+            {
+                var sampleFolder = _project.Var("sampleFolder");
+                if (!string.IsNullOrWhiteSpace(sampleFolder))
+                {
+                    var sampleId = Path.GetFileName(sampleFolder.TrimEnd(
+                        Path.DirectorySeparatorChar,
+                        Path.AltDirectorySeparatorChar));
+                    _solutionJson = BuildIconSolutionJson(
+                        sampleId,
+                        canvasSize.Width,
+                        canvasSize.Height,
+                        _points);
+                    return _solutionJson;
+                }
+            }
+
+            _solutionJson = JsonConvert.SerializeObject(new
             {
                 canvas_width = canvasSize.Width,
                 canvas_height = canvasSize.Height,
                 points = _points
             });
+            return _solutionJson;
+        }
+
+        private static string BuildIconSolutionJson(
+            string sampleId,
+            int canvasWidth,
+            int canvasHeight,
+            IEnumerable<ResultPoint> points)
+        {
+            return JsonConvert.SerializeObject(new
+            {
+                version = 1,
+                type = "icon",
+                sample_id = sampleId,
+                canvas_width = canvasWidth,
+                canvas_height = canvasHeight,
+                points = points.Select(point => new
+                {
+                    index = point.index,
+                    x = point.x,
+                    y = point.y
+                })
+            }, Formatting.Indented);
+        }
+
+        private static void SaveSuccessfulResult(
+            string result,
+            string verifyBody,
+            string sampleFolder,
+            string solutionJson)
+        {
+            if (result != "success")
+                return;
+            if (string.IsNullOrWhiteSpace(sampleFolder))
+                throw new InvalidOperationException("sampleFolder is not set");
+
+            File.WriteAllText(Path.Combine(sampleFolder, "solved.json"), verifyBody);
+            if (!string.IsNullOrWhiteSpace(solutionJson))
+                File.WriteAllText(Path.Combine(sampleFolder, "solution.json"), solutionJson);
         }
 
         private static List<ResultPoint> SolveImages(string canvasImage, IList<string> targetImages)
@@ -531,6 +711,13 @@ namespace z3n7.Captcha
 
         public string SolveAndSubmit()
         {
+            if (_project != null)
+            {
+                if (_type != "icon")
+                    throw new NotSupportedException($"type {_type} not implemented");
+                _project.SendInfoToLog($"solving: {_type}", true);
+            }
+
             var result = Solve();
             Submit();
             return result;
