@@ -128,6 +128,15 @@ namespace z3n7
             }
         }
 
+        public static int TillNextHour()
+        {
+            var now = DateTime.Now;
+            var endOfHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 59, 59).AddSeconds(1);
+            var secondsToEndOfHour = (int)(endOfHour - now).TotalSeconds;
+            return secondsToEndOfHour;
+        }
+
+
     }
 
 }

@@ -31,11 +31,13 @@ namespace z3n7.Tools
             return null;
         }
 
-        public static void SaveAsXml(this IZennoPosterProjectModel project, string xmlPath)
+        public static void SaveAsXml(this IZennoPosterProjectModel project, string xmlPath = null)
         {
             var xml = ExtractXml(project.Path + project.Name);
             xml =xml.Replace("utf-16","utf-8");
-            File.WriteAllText(Path.Combine(xmlPath, project.Name.Replace(".zp",".xml")),xml);
+            if (xmlPath == null)
+                xmlPath = Path.Combine(project.Path, project.Name.Replace(".zp",".xml"));
+            File.WriteAllText(xmlPath,xml);
         }
         public static string ExtractInputSettingsHtml(string zpPath)
         {

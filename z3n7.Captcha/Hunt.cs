@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Microsoft.ML.OnnxRuntime;
@@ -22,6 +23,7 @@ namespace z3n7.Captcha
         private readonly IZennoPosterProjectModel _project;
         private HuntShapes _shapes;
         private HuntFootball _football;
+        private string _lastType;
 
         public Hunt(IZennoPosterProjectModel project,  Instance instance)
         {
@@ -29,19 +31,23 @@ namespace z3n7.Captcha
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
-        public void SolveAndSubmit(float confidence = 0.30f, int minimumDelayMs = 700, int maximumDelayMs = 1300)
+        public void SolveAndSubmit(string type, float confidence = 0.30f, int minimumDelayMs = 700, int maximumDelayMs = 1300)
         {
-            _instance.HeGet(("canvas", "fulltag", "canvas", "text", 0), deadline:30);
-            Thread.Sleep(500);
+            _lastType = type;
 
-            var root = _instance.ActiveTab.FindElementById("huntCaptcha");
-            if (root == null || root.IsVoid)
+            if (type == "shapes")
+            {
+                SolveAndSubmitShapes(confidence, minimumDelayMs, maximumDelayMs);
+                return;
+            }
+
+            else if (type == "football")
             {
                 SolveAndSubmitBall(confidence);
                 return;
             }
 
-            SolveAndSubmitShapes(confidence, minimumDelayMs, maximumDelayMs);
+            throw new ArgumentOutOfRangeException(nameof(type), type, $"unknown type: {type}. [shapes | football] is available");
         }
 
         public HuntBallResult SolveAndSubmitBall(float confidence = 0.30f)
@@ -64,13 +70,6 @@ namespace z3n7.Captcha
 
         public IReadOnlyList<HuntPoint> SolveAndSubmitShapes(float confidence = 0.30f, int minimumDelayMs = 700, int maximumDelayMs = 1300)
         {
-            var root = _instance.ActiveTab.FindElementById("huntCaptcha");
-            if (root == null || root.IsVoid)
-            {
-                SolveAndSubmitBall(confidence);
-                return Array.Empty<HuntPoint>();
-            }
-
             if (_shapes == null)
                 _shapes = new HuntShapes(_project, _instance);
 
@@ -82,17 +81,18 @@ namespace z3n7.Captcha
 
         public bool CheckResult()
         {
-            var t  = new  Traffic(_project, _instance, "/captcha-api/api/v4/captcha/verify").FindAll("/captcha-api/api/v4/captcha/verify");
-
+            const string verifyUrl = "/captcha-api/api/v4/captcha/verify";
+            var t = new Traffic(_project, _instance, verifyUrl).FindAll(verifyUrl);
             var result = true;
-            foreach (var  item in t)
+            foreach (var item in t)
             {
-                if (item.ResponseBody.Contains("Verification failed") )
+                if (item.ResponseBody.Contains("Verification failed"))
                 {
-                    result =  false;
+                    result = false;
                     break;
                 }
             }
+
             return result;
         }
 
@@ -122,6 +122,23 @@ namespace z3n7.Captcha
                 _instance.ActiveTab.RiseEvent("click", clickPoint, "Left");
             }
         }
+
+        public bool SaveCachedCanvas(string filePath)
+        {
+            var cachedCanvas = _lastType == "football"
+                ? _football?.CachedCanvas
+                : _shapes?.CachedCanvas;
+            if (string.IsNullOrWhiteSpace(cachedCanvas))
+                return false;
+
+            var comma = cachedCanvas.IndexOf(',');
+            var base64 = comma >= 0
+                ? cachedCanvas.Substring(comma + 1)
+                : cachedCanvas;
+
+            File.WriteAllBytes(filePath, Convert.FromBase64String(base64));
+            return true;
+        }
         
         public void Dispose()
         {
@@ -132,6 +149,10 @@ namespace z3n7.Captcha
 
     public class HuntShapes : IDisposable
     {
+        private const int CanvasLoadTimeoutMs = 10000;
+        private const int CanvasLoadPollMs = 250;
+        private const string LoadingCanvasSha256 =
+            "849B8C1C38055EA3367147A3B21ABF65D9AAA05C85AA6DBB6881E4C9ADE2EC42";
         private const float TargetFallbackConfidence = 0.20f;
 
         private static readonly string[] ShapeNames =
@@ -143,17 +164,21 @@ namespace z3n7.Captcha
         };
 
         private readonly Instance _instance;
+        private readonly IZennoPosterProjectModel _project;
         private readonly HuntModel _model;
+        internal string CachedCanvas { get; private set; }
 
         public HuntShapes(IZennoPosterProjectModel project, Instance instance)
         {
             if (project == null)
                 throw new ArgumentNullException(nameof(project));
 
+            _project = project;
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
-            _model = new HuntModel(
-                Path.Combine(project.ReadEnv("ONNX_FOLDER"), "hunt-shape.onnx"),
-                ShapeNames);
+            var modelPath = Path.Combine(
+                project.ReadEnv("ONNX_FOLDER"),
+                "hunt-shape.onnx");
+            _model = new HuntModel(modelPath, ShapeNames);
         }
 
         public IReadOnlyList<HuntPoint> SolveAndSubmit(
@@ -162,7 +187,6 @@ namespace z3n7.Captcha
             int maximumDelayMs = 1300)
         {
             _instance.HeGet(("canvas", "fulltag", "canvas", "text", 0), deadline:30);
-            Thread.Sleep(5000);
 
             if (minimumDelayMs < 0 || maximumDelayMs < minimumDelayMs)
                 throw new ArgumentException("Invalid click delay range");
@@ -177,12 +201,15 @@ namespace z3n7.Captcha
             if (canvas == null || canvas.IsVoid)
                 throw new InvalidOperationException("Canvas inside #huntCaptcha was not found");
 
+            var displayedImageBase64 = WaitForLoadedCanvas(canvas);
+
             var imageBase64 = _instance.ActiveTab.MainDocument.EvaluateScript(@"
                 var canvas = document.querySelector('#huntCaptcha canvas');
                 return canvas ? canvas.toDataURL('image/png') : null;
             ");
             if (string.IsNullOrWhiteSpace(imageBase64))
                 throw new InvalidOperationException("Could not read Hunt canvas");
+            CachedCanvas = imageBase64;
 
             int imageWidth;
             int imageHeight;
@@ -194,13 +221,23 @@ namespace z3n7.Captcha
 
             int displayWidth;
             int displayHeight;
-            using (var displayedCanvas = _model.ReadImage(canvas.DrawToBitmap(true)))
+            using (var displayedCanvas = _model.ReadImage(displayedImageBase64))
             {
                 displayWidth = displayedCanvas.Width;
                 displayHeight = displayedCanvas.Height;
             }
 
+            HuntStateLog.Write(
+                _project,
+                "shapes",
+                "recognizing",
+                "detecting prompts and targets");
             var points = FindPoints(imageBase64, confidence);
+            HuntStateLog.Write(
+                _project,
+                "shapes",
+                "interacting",
+                "clicking " + points.Count + " targets");
             var canvasPosition = canvas.DisplacementInBrowser;
             var scaleX = (double)displayWidth / imageWidth;
             var scaleY = (double)displayHeight / imageHeight;
@@ -218,6 +255,11 @@ namespace z3n7.Captcha
             }
 
             Thread.Sleep(2000);
+            HuntStateLog.Write(
+                _project,
+                "shapes",
+                "submitting",
+                "target clicks complete");
             var submit = new Rectangle(
                 canvasPosition.X + displayWidth / 2,
                 canvasPosition.Y + (int)Math.Round(displayHeight * 0.94),
@@ -226,6 +268,63 @@ namespace z3n7.Captcha
             _instance.ActiveTab.RiseEvent("click", submit, "Left");
 
             return points;
+        }
+
+        private string WaitForLoadedCanvas(HtmlElement canvas)
+        {
+            var started = DateTime.UtcNow;
+            var deadline = started.AddMilliseconds(CanvasLoadTimeoutMs);
+            string imageBase64 = null;
+            var waitingLogged = false;
+
+            do
+            {
+                imageBase64 = canvas.DrawToBitmap(true);
+                if (!IsLoadingCanvasImage(imageBase64))
+                {
+                    var waited = (long)(DateTime.UtcNow - started).TotalMilliseconds;
+                    HuntStateLog.Write(
+                        _project,
+                        "shapes",
+                        "canvas_ready",
+                        waitingLogged ? "waited " + waited + " ms" : "ready immediately");
+                    return imageBase64;
+                }
+
+                if (!waitingLogged)
+                {
+                    HuntStateLog.Write(
+                        _project,
+                        "shapes",
+                        "waiting_canvas",
+                        "loader detected; waiting up to 10s");
+                    waitingLogged = true;
+                }
+
+                Thread.Sleep(CanvasLoadPollMs);
+            }
+            while (DateTime.UtcNow < deadline);
+
+            CachedCanvas = imageBase64;
+            throw new TimeoutException("Hunt shapes canvas did not finish loading");
+        }
+
+        internal static bool IsLoadingCanvasImage(string imageBase64)
+        {
+            if (string.IsNullOrWhiteSpace(imageBase64))
+                return true;
+
+            var comma = imageBase64.IndexOf(',');
+            var raw = imageBase64.StartsWith("data:", StringComparison.OrdinalIgnoreCase) && comma >= 0
+                ? imageBase64.Substring(comma + 1)
+                : imageBase64;
+            var bytes = Convert.FromBase64String(raw);
+
+            using (var sha256 = SHA256.Create())
+            {
+                var hash = BitConverter.ToString(sha256.ComputeHash(bytes)).Replace("-", "");
+                return string.Equals(hash, LoadingCanvasSha256, StringComparison.Ordinal);
+            }
         }
 
         private IReadOnlyList<HuntPoint> FindPoints(string imageBase64, float confidence)
@@ -317,31 +416,37 @@ namespace z3n7.Captcha
 
     public class HuntFootball : IDisposable
     {
+        private const int CanvasLoadTimeoutMs = 10000;
+        private const int CanvasLoadPollMs = 250;
         private static readonly string[] BallNames = { "ball", "circle" };
 
         private readonly IZennoPosterProjectModel _project;
         private readonly Instance _instance;
         private readonly HuntModel _model;
+        internal string CachedCanvas { get; private set; }
 
         public HuntFootball(IZennoPosterProjectModel project, Instance instance)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
-            _model = new HuntModel(
-                Path.Combine(project.ReadEnv("ONNX_FOLDER"), "hunt-ball.onnx"),
-                BallNames);
+            var modelPath = Path.Combine(
+                project.ReadEnv("ONNX_FOLDER"),
+                "hunt-ball.onnx");
+            _model = new HuntModel(modelPath, BallNames);
         }
 
         public HuntBallResult SolveAndSubmit(float confidence = 0.30f)
         {
+            _instance.HeGet(("canvas", "fulltag", "canvas", "text", 0), deadline:30);
             var canvas = _instance.ActiveTab.FindElementByAttribute(
                 "canvas", "fulltag", "canvas", "text", 0);
             if (canvas == null || canvas.IsVoid)
                 throw new InvalidOperationException("Hunt football canvas was not found");
 
+            CachedCanvas = WaitForLoadedCanvas(canvas);
             int imageWidth;
             int imageHeight;
-            using (var image = _model.ReadImage(canvas.DrawToBitmap(true)))
+            using (var image = _model.ReadImage(CachedCanvas))
             {
                 imageWidth = image.Width;
                 imageHeight = image.Height;
@@ -368,6 +473,11 @@ namespace z3n7.Captcha
                 position.Y,
                 sliderX,
                 sliderY);
+            HuntStateLog.Write(
+                _project,
+                "football",
+                "interacting",
+                "detecting ball and moving slider");
 
             try
             {
@@ -519,6 +629,97 @@ namespace z3n7.Captcha
             }
         }
 
+        private string WaitForLoadedCanvas(HtmlElement canvas)
+        {
+            var started = DateTime.UtcNow;
+            var deadline = started.AddMilliseconds(CanvasLoadTimeoutMs);
+            string imageBase64 = null;
+            var waitingLogged = false;
+
+            do
+            {
+                imageBase64 = canvas.DrawToBitmap(true);
+                if (!IsLoadingCanvasImage(imageBase64))
+                {
+                    var waited = (long)(DateTime.UtcNow - started).TotalMilliseconds;
+                    HuntStateLog.Write(
+                        _project,
+                        "football",
+                        "canvas_ready",
+                        waitingLogged ? "waited " + waited + " ms" : "ready immediately");
+                    return imageBase64;
+                }
+
+                if (!waitingLogged)
+                {
+                    HuntStateLog.Write(
+                        _project,
+                        "football",
+                        "waiting_canvas",
+                        "loader detected; waiting up to 10s");
+                    waitingLogged = true;
+                }
+
+                Thread.Sleep(CanvasLoadPollMs);
+            }
+            while (DateTime.UtcNow < deadline);
+
+            CachedCanvas = imageBase64;
+            throw new TimeoutException("Hunt football canvas did not finish loading");
+        }
+
+        internal static bool IsLoadingCanvasImage(string imageBase64)
+        {
+            if (string.IsNullOrWhiteSpace(imageBase64))
+                return true;
+
+            var comma = imageBase64.IndexOf(',');
+            var raw = imageBase64.StartsWith("data:", StringComparison.OrdinalIgnoreCase) && comma >= 0
+                ? imageBase64.Substring(comma + 1)
+                : imageBase64;
+
+            using (var stream = new MemoryStream(Convert.FromBase64String(raw)))
+            using (var bitmap = new Bitmap(stream))
+            {
+                var contentTop = bitmap.Height * 18 / 100;
+                var contentPixels = bitmap.Width * (bitmap.Height - contentTop);
+                var nonWhite = 0;
+                var blue = 0;
+                var minX = bitmap.Width;
+                var minY = bitmap.Height;
+                var maxX = -1;
+                var maxY = -1;
+
+                for (var y = contentTop; y < bitmap.Height; y++)
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    var color = bitmap.GetPixel(x, y);
+                    if (color.R >= 245 && color.G >= 245 && color.B >= 245)
+                        continue;
+
+                    nonWhite++;
+                    minX = Math.Min(minX, x);
+                    minY = Math.Min(minY, y);
+                    maxX = Math.Max(maxX, x);
+                    maxY = Math.Max(maxY, y);
+
+                    if (color.B >= color.R + 20 && color.B >= color.G)
+                        blue++;
+                }
+
+                if (nonWhite < Math.Max(50, contentPixels / 1000))
+                    return true;
+
+                var sparse = nonWhite <= contentPixels * 15 / 1000;
+                var centered = minX >= bitmap.Width * 30 / 100 &&
+                               maxX <= bitmap.Width * 70 / 100 &&
+                               minY >= bitmap.Height * 35 / 100 &&
+                               maxY <= bitmap.Height * 65 / 100;
+                var mostlyBlue = blue >= nonWhite * 80 / 100;
+                return sparse && centered && mostlyBlue;
+            }
+        }
+
         public HuntBallResult Detect(string imageBase64, float confidence = 0.30f)
         {
             var detections = _model.Detect(imageBase64, confidence);
@@ -547,7 +748,9 @@ namespace z3n7.Captcha
         private readonly InferenceSession _session;
         private readonly IReadOnlyList<string> _classNames;
 
-        public HuntModel(string path, IReadOnlyList<string> classNames)
+        public HuntModel(
+            string path,
+            IReadOnlyList<string> classNames)
         {
             if (string.IsNullOrWhiteSpace(path))
                 throw new ArgumentException("Model path is required", nameof(path));
@@ -558,7 +761,14 @@ namespace z3n7.Captcha
 
             _classNames = classNames ??
                 throw new ArgumentNullException(nameof(classNames));
-            _session = new InferenceSession(fullPath);
+            using (var options = new SessionOptions())
+            {
+                options.IntraOpNumThreads = 1;
+                options.InterOpNumThreads = 1;
+                options.ExecutionMode = ExecutionMode.ORT_SEQUENTIAL;
+
+                _session = new InferenceSession(fullPath, options);
+            }
         }
 
         public IReadOnlyList<HuntDetection> Detect(
@@ -743,6 +953,23 @@ namespace z3n7.Captcha
         }
     }
 
+    internal static class HuntStateLog
+    {
+        internal static void Write(
+            IZennoPosterProjectModel project,
+            string type,
+            string state,
+            string current)
+        {
+            project.SendInfoToLog(Format(type, state, current), true);
+        }
+
+        internal static string Format(string type, string state, string current)
+        {
+            return "Hunt " + type + " | " + state + " | " + current;
+        }
+    }
+
     public class HuntDetection
     {
         public int ClassId { get; set; }
@@ -776,35 +1003,69 @@ namespace z3n7.Captcha
 {
     public static partial class CaptchaExtensions
     {
-        public static void SolveHunt(this Instance instance, IZennoPosterProjectModel project , int attempts = 10)
+        public static void SolveHunt(this Instance instance, IZennoPosterProjectModel project , string type, int attempts = 5)
         {
+            if (type != "shapes" && type != "football")
+                throw new ArgumentOutOfRangeException(nameof(type), type, $"unknown type: {type}. [shapes | football] is available");
             var solved = false;
+            Exception lastError = null;
             
             using (var hunt = new Hunt( project,   instance))
             {
-	    
                 while ( attempts-- > 0)
                 {
                     try
                     {
-                        hunt.SolveAndSubmit();
+                        hunt.SolveAndSubmit(type);
+                        HuntStateLog.Write(
+                            project,
+                            type,
+                            "verifying",
+                            "waiting 5s for server response");
                         Thread.Sleep(5000);
                         solved = hunt.CheckResult();
 				
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        hunt.MainButtonClick();
+                        lastError = ex;
+                        project.SendErrorToLog(
+                            $"hunt {type} attempt failed:{Environment.NewLine}{ex}",
+                            true);
+
+                        var folder = instance.ActiveTab.Domain;
+                        var timestamp = DateTimeOffset.UtcNow
+                            .ToUnixTimeMilliseconds()
+                            .ToString();
+
+                        var dirPath = Path.Combine(project.Path,"hunt_cache", folder);
+                        Directory.CreateDirectory(dirPath);
+
+                        hunt.SaveCachedCanvas(
+                            Path.Combine(dirPath, timestamp + ".png"));
+
+                        File.WriteAllText(
+                            Path.Combine(dirPath, timestamp + ".txt"),
+                            ex.ToString());
+
+                        if (type == "shapes")
+                            hunt.MainButtonClick();
+
                         hunt.CheckResult();
                         
                     }
+
                     if (solved)
+                    {
+                        HuntStateLog.Write(project, type, "solved", "verification passed");
                         return ;
-			
-			
+                    }
+
+                    if (attempts > 0)
+                        HuntStateLog.Write(project, type, "retrying", "starting next attempt");
                 }
-		
-                throw new  Exception ("too many attempts");
+
+                throw new Exception("too many attempts", lastError);
             }
 
 

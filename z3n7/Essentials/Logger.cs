@@ -217,12 +217,11 @@ namespace z3n7
             object toLog,
             [CallerMemberName] string caller = "",
             bool show = true,
-            bool thrw = false,
             bool toZp = true)
         {
             if (Regex.IsMatch(caller, @"^M[a-f0-9]{32}$"))
                 caller = project.Name;
-            Logger.Get(project).Send(toLog, caller, show: show, thrw: thrw, toZp: toZp);
+            Logger.Get(project).Send(toLog, caller, show: show,  toZp: toZp);
         }
 
         public static void warn(
@@ -243,6 +242,7 @@ namespace z3n7
             [CallerMemberName] string caller = "")
         {
             var msg = withStack ? ex.Message + "\n" + ex.StackTrace : ex.Message;
+            project.Var("err", msg);
             Logger.Get(project).Warn(msg, caller, show: true, thrw: thrw);
         }
     }

@@ -9,12 +9,12 @@ namespace z3n7.Captcha
     public static partial class CaptchaExtensions
     {
         private static readonly object LockObject = new object();
-        public static bool CapGuru(this IZennoPosterProjectModel project, string key = null)
+        public static bool CapGuru(this IZennoPosterProjectModel project)
         {
-            if (string.IsNullOrEmpty(key))
-                key =  project.SqlGet("apikey", "_api", where: "id = 'capguru'");
+            string key = project.ReadEnv("CAPGURU_KEY");
             project.Context["capguru_key"] = key;
-            var extHashFile = Path.Combine(project.Path,".internal", "CapGuru.txt");
+            
+            var extHashFile = project.ReadEnv("CAPGURU_HASH_FILE");
             if (!File.Exists(extHashFile)) 
                 throw new FileNotFoundException("CapGuru.txt file not found", extHashFile);
             

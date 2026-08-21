@@ -20,7 +20,6 @@
         <Compile Remove="DbUtils\TaskManager_obsolete.cs" />
         <Compile Remove="Essentials\Log.cs" />
         <Compile Remove="Api\GMXMail.cs" />
-        <Compile Remove="Api\SuperMails.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -75,10 +74,6 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
 
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Captcha\" />
     </ItemGroup>
 
 
