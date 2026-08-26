@@ -38,6 +38,7 @@ namespace z3n7.Tools
             if (xmlPath == null)
                 xmlPath = Path.Combine(project.Path, project.Name.Replace(".zp",".xml"));
             File.WriteAllText(xmlPath,xml);
+            project.SendInfoToLog($"saved as {xmlPath}");
         }
         public static string ExtractInputSettingsHtml(string zpPath)
         {
