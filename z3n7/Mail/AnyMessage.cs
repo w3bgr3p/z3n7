@@ -77,13 +77,13 @@ namespace z3n7.Api
         }
 
         /// <summary>Получить OTP (6 цифр) из письма.</summary>
-        public string Otp()
+        public string Otp(int matchIndex = 0)
         {
             var html = GetMail();
             var body = Regex.Replace(html, "<.*?>", "");
 
-            var match = Regex.Match(body, @"\b\d{6}\b");
-            if (match.Success) return match.Value;
+            var matches = Regex.Matches(body, @"\b\d{6}\b");
+            if (matches.Count > matchIndex) return matches[matchIndex].Value;
 
             throw new Exception("AnyMessage: OTP not found");
         }
