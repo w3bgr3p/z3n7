@@ -32,126 +32,126 @@ namespace z3n7
 
         #endregion
         
-public string GetGraphQLStructure(string urlFilter)
-{
-    var t = new Traffic(_project, _instance);
-    var all = t.FindAll(urlFilter);
-    
-    _logger?.Send($"Found {all.Count} traffic elements");
-    
-    var uniqueOperations = new Dictionary<string, JObject>();
-    int skippedNoBody = 0;
-    int skippedNoKey = 0;
-    int skippedDuplicate = 0;
+		public string GetGraphQLStructure(string urlFilter)
+		{
+		    var t = new Traffic(_instance);
+		    var all = t.FindAll(urlFilter);
+		    
+		    _logger?.Send($"Found {all.Count} traffic elements");
+		    
+		    var uniqueOperations = new Dictionary<string, JObject>();
+		    int skippedNoBody = 0;
+		    int skippedNoKey = 0;
+		    int skippedDuplicate = 0;
 
-    foreach (var el in all)
-    {
-        _logger?.Send($"Processing: {el.Method} {el.Url}");
-        _logger?.Send($"RequestBody length: {el.RequestBody?.Length ?? 0}");
-        _logger?.Send($"RequestBody preview: {el.RequestBody?.Substring(0, Math.Min(200, el.RequestBody?.Length ?? 0))}");
-        
-        if (string.IsNullOrEmpty(el.RequestBody))
-        {
-            skippedNoBody++;
-            _logger?.Send("Skipped: no request body");
-            continue;
-        }
+		    foreach (var el in all)
+		    {
+		        _logger?.Send($"Processing: {el.Method} {el.Url}");
+		        _logger?.Send($"RequestBody length: {el.RequestBody?.Length ?? 0}");
+		        _logger?.Send($"RequestBody preview: {el.RequestBody?.Substring(0, Math.Min(200, el.RequestBody?.Length ?? 0))}");
+		        
+		        if (string.IsNullOrEmpty(el.RequestBody))
+		        {
+		            skippedNoBody++;
+		            _logger?.Send("Skipped: no request body");
+		            continue;
+		        }
 
-        string operationKey = ExtractGraphQLOperationKey(el.RequestBody);
-        
-        if (string.IsNullOrEmpty(operationKey))
-        {
-            skippedNoKey++;
-            _logger?.Send("Skipped: could not extract operation key");
-            continue;
-        }
+		        string operationKey = ExtractGraphQLOperationKey(el.RequestBody);
+		        
+		        if (string.IsNullOrEmpty(operationKey))
+		        {
+		            skippedNoKey++;
+		            _logger?.Send("Skipped: could not extract operation key");
+		            continue;
+		        }
 
-        if (uniqueOperations.ContainsKey(operationKey))
-        {
-            skippedDuplicate++;
-            _logger?.Send("Skipped: duplicate operation");
-            continue;
-        }
+		        if (uniqueOperations.ContainsKey(operationKey))
+		        {
+		            skippedDuplicate++;
+		            _logger?.Send("Skipped: duplicate operation");
+		            continue;
+		        }
 
-        var item = new JObject();
-        item["operationType"] = GetOperationType(el.RequestBody);
-        item["operationName"] = ExtractOperationName(el.RequestBody);
-        item["url"] = el.Url;
-        item["statusCode"] = el.StatusCode;
-        
-        var requestJson = JObject.Parse(el.RequestBody);
-        if (requestJson["extensions"]?["persistedQuery"] != null)
-        {
-            item["isPersistedQuery"] = true;
-            item["queryHash"] = requestJson["extensions"]["persistedQuery"]["sha256Hash"]?.ToString();
-        }
-        else
-        {
-            item["isPersistedQuery"] = false;
-        }
-        
+		        var item = new JObject();
+		        item["operationType"] = GetOperationType(el.RequestBody);
+		        item["operationName"] = ExtractOperationName(el.RequestBody);
+		        item["url"] = el.Url;
+		        item["statusCode"] = el.StatusCode;
+		        
+		        var requestJson = JObject.Parse(el.RequestBody);
+		        if (requestJson["extensions"]?["persistedQuery"] != null)
+		        {
+		            item["isPersistedQuery"] = true;
+		            item["queryHash"] = requestJson["extensions"]["persistedQuery"]["sha256Hash"]?.ToString();
+		        }
+		        else
+		        {
+		            item["isPersistedQuery"] = false;
+		        }
+		        
 
-        try { item["requestBody"] = JToken.Parse(el.RequestBody); }
-        catch { item["requestBody"] = el.RequestBody; }
+		        try { item["requestBody"] = JToken.Parse(el.RequestBody); }
+		        catch { item["requestBody"] = el.RequestBody; }
 
-        if (!string.IsNullOrEmpty(el.ResponseBody))
-        {
-            try { item["responseBody"] = JToken.Parse(el.ResponseBody); }
-            catch { item["responseBody"] = el.ResponseBody; }
-        }
+		        if (!string.IsNullOrEmpty(el.ResponseBody))
+		        {
+		            try { item["responseBody"] = JToken.Parse(el.ResponseBody); }
+		            catch { item["responseBody"] = el.ResponseBody; }
+		        }
 
-        uniqueOperations[operationKey] = item;
-        _logger?.Send($"Added operation: {item["operationName"]}");
-    }
+		        uniqueOperations[operationKey] = item;
+		        _logger?.Send($"Added operation: {item["operationName"]}");
+		    }
 
-    _logger?.Send($"Stats - NoBody: {skippedNoBody}, NoKey: {skippedNoKey}, Duplicate: {skippedDuplicate}, Added: {uniqueOperations.Count}");
+		    _logger?.Send($"Stats - NoBody: {skippedNoBody}, NoKey: {skippedNoKey}, Duplicate: {skippedDuplicate}, Added: {uniqueOperations.Count}");
 
-    var snapshot = new JObject();
-    snapshot["totalOperations"] = uniqueOperations.Count;
-    snapshot["operations"] = new JArray(uniqueOperations.Values);
+		    var snapshot = new JObject();
+		    snapshot["totalOperations"] = uniqueOperations.Count;
+		    snapshot["operations"] = new JArray(uniqueOperations.Values);
 
-    string json = JsonConvert.SerializeObject(snapshot, Formatting.Indented);
-    return json;
-}		
-private string ExtractGraphQLOperationKey(string requestBody)
-{
-    try
-    {
-        var json = JObject.Parse(requestBody);
-        
-        // Проверяем наличие полного query
-        string query = json["query"]?.ToString();
-        
-        if (!string.IsNullOrEmpty(query))
-        {
-            // Обычный GraphQL запрос
-            query = System.Text.RegularExpressions.Regex.Replace(query, @"\s+", " ").Trim();
-            return query;
-        }
-        
-        // Если query нет, проверяем Persisted Query (Apollo)
-        string operationName = json["operationName"]?.ToString();
-        string hash = json["extensions"]?["persistedQuery"]?["sha256Hash"]?.ToString();
-        
-        if (!string.IsNullOrEmpty(operationName) && !string.IsNullOrEmpty(hash))
-        {
-            // Используем комбинацию operationName + hash как ключ
-            return $"{operationName}:{hash}";
-        }
-        
-        // Если есть только operationName (без query и без hash)
-        if (!string.IsNullOrEmpty(operationName))
-        {
-            return operationName;
-        }
-        
-        return null;
-    }
-    catch
-    {
-        return null;
-    }
-}		
+		    string json = JsonConvert.SerializeObject(snapshot, Formatting.Indented);
+		    return json;
+		}		
+		private string ExtractGraphQLOperationKey(string requestBody)
+		{
+		    try
+		    {
+		        var json = JObject.Parse(requestBody);
+		        
+		        // Проверяем наличие полного query
+		        string query = json["query"]?.ToString();
+		        
+		        if (!string.IsNullOrEmpty(query))
+		        {
+		            // Обычный GraphQL запрос
+		            query = System.Text.RegularExpressions.Regex.Replace(query, @"\s+", " ").Trim();
+		            return query;
+		        }
+		        
+		        // Если query нет, проверяем Persisted Query (Apollo)
+		        string operationName = json["operationName"]?.ToString();
+		        string hash = json["extensions"]?["persistedQuery"]?["sha256Hash"]?.ToString();
+		        
+		        if (!string.IsNullOrEmpty(operationName) && !string.IsNullOrEmpty(hash))
+		        {
+		            // Используем комбинацию operationName + hash как ключ
+		            return $"{operationName}:{hash}";
+		        }
+		        
+		        // Если есть только operationName (без query и без hash)
+		        if (!string.IsNullOrEmpty(operationName))
+		        {
+		            return operationName;
+		        }
+		        
+		        return null;
+		    }
+		    catch
+		    {
+		        return null;
+		    }
+		}		
 		private string GetOperationType(string requestBody)
 		{
 		    try

@@ -34,15 +34,15 @@
 
     <ItemGroup>
         <Reference Include="ZennoLab.CommandCenter">
-            <HintPath>W:\code_hard\.net\z3n\ZennoLab\ZennoLab.CommandCenter.dll</HintPath>
+            <HintPath>c:\Program Files\ZennoLab\RU\ZennoPoster Pro V7\7.9.1.0\Progs\ZennoLab.CommandCenter.dll</HintPath>
             <Private>True</Private>
             <SpecificVersion>False</SpecificVersion>
         </Reference>
         <Reference Include="ZennoLab.Emulation">
-            <HintPath>W:\code_hard\.net\z3n\ZennoLab\ZennoLab.Emulation.dll</HintPath>
+            <HintPath>c:\Program Files\ZennoLab\RU\ZennoPoster Pro V7\7.9.1.0\Progs\ZennoLab.Emulation.dll</HintPath>
         </Reference>
         <Reference Include="ZennoLab.InterfacesLibrary">
-            <HintPath>W:\code_hard\.net\z3n\ZennoLab\ZennoLab.InterfacesLibrary.dll</HintPath>
+            <HintPath>c:\Program Files\ZennoLab\RU\ZennoPoster Pro V7\7.9.1.0\Progs\ZennoLab.InterfacesLibrary.dll</HintPath>
             <Private>True</Private>
             <SpecificVersion>False</SpecificVersion>
         </Reference>

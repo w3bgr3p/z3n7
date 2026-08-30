@@ -40,7 +40,7 @@ namespace z3n7.Wallets
                 default:
                     return key;
             }
-            if (string.IsNullOrEmpty(key)) _project.warn("keyIsEmpy", true); 
+            if (string.IsNullOrEmpty(key)) _project.warn("keyIsEmpy", thrw: true); 
 
             return key;
         }

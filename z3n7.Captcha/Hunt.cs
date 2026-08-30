@@ -82,7 +82,7 @@ namespace z3n7.Captcha
         public bool CheckResult()
         {
             const string verifyUrl = "/captcha-api/api/v4/captcha/verify";
-            var t = new Traffic(_project, _instance, verifyUrl).FindAll(verifyUrl);
+            var t = new Traffic( _instance).FindAll(verifyUrl);
             var result = true;
             foreach (var item in t)
             {

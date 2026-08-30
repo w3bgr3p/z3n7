@@ -13,24 +13,23 @@ namespace z3n7
 {
     public class Traffic
     {
-        private readonly IZennoPosterProjectModel _project;
         private readonly Instance                 _instance;
-        private string _defaultFilter;
-
-        public Traffic(IZennoPosterProjectModel project, Instance instance, string defaultFilter = null)
+        private static readonly string[] AllUrlFilters =
+            "abcdefghijklmnopqrstuvwxyz0123456789"
+                .Select(character => character.ToString())
+                .ToArray();
+        public Traffic(Instance instance)
         {
-            _project  = project;
             _instance = instance;
             _instance.UseTrafficMonitoring = true;
-            _defaultFilter = defaultFilter;
         }
 
         // ─── Snapshot ──────────────────────────────────────────────────────────
 
         private List<TrafficElement> Grab()
         {
-            var filter = _defaultFilter ?? _instance.ActiveTab.Domain;
-            var raw = _instance.ActiveTab.GetTraffic(new[] { filter }).ToList(); // материализуем сразу
+            
+            var raw = _instance.ActiveTab.GetTraffic(AllUrlFilters).ToList(); // материализуем сразу
             return raw
                 .Where(r => r.Method != "OPTIONS")
                 .Select(r => ToElement(r))
@@ -93,7 +92,7 @@ namespace z3n7
             return json;
         }
 
-        public void SaveHeadersToVar(string url, string varName = "headers", bool strict = false)
+        public void SaveHeadersToVar(IZennoPosterProjectModel project,  string url, string varName = "headers", bool strict = false)
         {
             var el  = Find(url, strict);
             var sb  = new StringBuilder();
@@ -103,7 +102,7 @@ namespace z3n7
                 if (string.IsNullOrEmpty(t) || t.StartsWith(":")) continue;
                 sb.AppendLine(t);
             }
-            _project.Var(varName, sb.ToString());
+            project.Var(varName, sb.ToString());
         }
 
         // ─── TrafficElement ────────────────────────────────────────────────────

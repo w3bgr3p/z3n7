@@ -226,12 +226,17 @@ namespace z3n7
 
         public static void warn(
             this IZennoPosterProjectModel project,
-            string toLog,
+            string msg,
             bool thrw = false,
             bool show = true,
-            bool toZp = true,
             [CallerMemberName] string caller = "")
-            => Logger.Get(project).Warn(toLog, caller, show: show, thrw: thrw);
+        {
+            if (thrw)
+                project.Var("err", msg);
+            Logger.Get(project).Warn(msg, caller, show: show, thrw: thrw);
+            
+        }
+        
 
         public static void warn(
             this IZennoPosterProjectModel project,

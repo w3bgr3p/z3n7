@@ -1453,7 +1453,7 @@ namespace z3n7
             if (string.IsNullOrEmpty(dbSource)) 
                 dbSource = project.GVar("dbSource");
             if (string.IsNullOrEmpty(dbSource)) 
-                project.warn("dbSource undefined", true);
+                project.warn("dbSource undefined", thrw: true);
             
             var dbMode = dbSource.StartsWith("Host=") ? "pgSQL" : "SQLite";
             
@@ -1483,7 +1483,7 @@ namespace z3n7
                             continue; 
                         }
 
-                        project.warn(ex.Message + $"\n [{query}]", thrw);
+                        project.warn(ex.Message + $"\n [{query}]", thrw: thrw);
                         return string.Empty;
                     }
                 }
@@ -1500,7 +1500,7 @@ namespace z3n7
             if (string.IsNullOrEmpty(dbSource)) 
                 dbSource = project.GVar("dbSource");
             if (string.IsNullOrEmpty(dbSource)) 
-                project.warn("dbSource undefined", true);
+                project.warn("dbSource undefined", thrw: true);
             
             var dbMode = dbSource.StartsWith("Host=") ? "pgSQL" : "SQLite";
             return dbMode;

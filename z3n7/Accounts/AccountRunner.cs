@@ -197,7 +197,7 @@ namespace z3n7
 
             if (!accounts.Any())
             {
-                project.warn($"Account selection failed: condition={condition}, found=0 in all priority groups", true);
+                project.warn($"Account selection failed: condition={condition}, found=0 in all priority groups", thrw: true);
                 return;
             }
 
@@ -233,7 +233,7 @@ namespace z3n7
 
             if (conditionsByTable == null || !conditionsByTable.Any())
             {
-                project.warn("ChooseAccountByCondition: conditionsByTable is empty", true);
+                project.warn("ChooseAccountByCondition: conditionsByTable is empty", thrw: true);
                 return;
             }
 
@@ -289,7 +289,7 @@ namespace z3n7
 
                 if (!resultSet.Any())
                 {
-                    project.warn($"No intersection found after processing table={tableName}, condition={condition}", debugLog);
+                    project.warn($"No intersection found after processing table={tableName}, condition={condition}", thrw: debugLog);
                     return;
                 }
             }
@@ -297,7 +297,7 @@ namespace z3n7
             if (resultSet == null || !resultSet.Any())
             {
                 var conditionsStr = string.Join("; ", conditionsByTable.Select(kvp => $"{kvp.Value}:{kvp.Key}"));
-                project.warn($"Account selection failed: no accounts match ALL conditions: {conditionsStr}", true);
+                project.warn($"Account selection failed: no accounts match ALL conditions: {conditionsStr}", thrw: true);
                 return;
             }
 
@@ -308,7 +308,7 @@ namespace z3n7
             {
                 if (!project.FilterBySocial("twitter"))
                 {
-                    project.warn("No accounts left after Twitter filter", true);
+                    project.warn("No accounts left after Twitter filter", thrw: true);
                     return;
                 }
             }
@@ -317,7 +317,7 @@ namespace z3n7
             {
                 if (!project.FilterBySocial("discord"))
                 {
-                    project.warn("No accounts left after Discord filter", true);
+                    project.warn("No accounts left after Discord filter", thrw: true);
                     return;
                 }
             }
@@ -326,7 +326,7 @@ namespace z3n7
             {
                 if (!project.FilterBySocial("github"))
                 {
-                    project.warn("No accounts left after Github filter", true);
+                    project.warn("No accounts left after Github filter", thrw: true);
                     return;
                 }
             }
@@ -335,7 +335,7 @@ namespace z3n7
 
             if (!finalAccounts.Any())
             {
-                project.warn("No accounts left after social filters", true);
+                project.warn("No accounts left after social filters", thrw: true);
                 return;
             }
 
