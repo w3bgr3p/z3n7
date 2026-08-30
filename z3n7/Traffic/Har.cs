@@ -66,7 +66,10 @@ namespace z3n7
             var fullPath = Path.GetFullPath(path);
             var directory = Path.GetDirectoryName(fullPath);
             if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
-            File.WriteAllText(fullPath, har.ToString(Formatting.Indented), new UTF8Encoding(false));
+            File.WriteAllText(
+                fullPath,
+                JsonConvert.SerializeObject(har, Formatting.Indented),
+                new UTF8Encoding(false));
             
 
             return entries.Count;
