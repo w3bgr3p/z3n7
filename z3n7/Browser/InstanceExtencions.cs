@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace z3n7
         private static readonly object LockObject = new object();
         private static readonly Time.Sleeper _clickSleep = new Time.Sleeper(1008, 1337);
         private static readonly Time.Sleeper _inputSleep = new Time.Sleeper(1337, 2077);
+        private static readonly Time.Sleeper _longSleep = new Time.Sleeper(2, 4);
         private static Random _random = new Random();
         
         private class ElementNotFoundException : Exception
@@ -297,6 +299,103 @@ namespace z3n7
             }
         }
         
+        public static void HeLongClick(this Instance instance, object obj, int holdMs = 3 , string method = "", int deadline = 10, double delay = 1, string comment = "", bool thrw = true, bool thr0w = true, int emu = 0)
+        {
+            if (holdMs < 0) throw new ArgumentOutOfRangeException(nameof(holdMs));
+            if (!thr0w) thrw = false;
+
+            bool emuSnap = instance.UseFullMouseEmulation;
+            DateTime functionStart = DateTime.Now;
+            string lastExceptionMessage = "";
+
+            try
+            {
+                if (emu > 0) instance.UseFullMouseEmulation = true;
+                if (emu < 0) instance.UseFullMouseEmulation = false;
+
+                while (true)
+                {
+                    if ((DateTime.Now - functionStart).TotalSeconds > deadline)
+                    {
+                        if (thrw) throw new TimeoutException($"{comment} not found in {deadline}s: {lastExceptionMessage}");
+                        return;
+                    }
+
+                    try
+                    {
+                        HtmlElement he = instance.GetHe(obj, method);
+                        
+                        var position = he.DisplacementInTabWindow;
+                        var area = new Rectangle(
+                            position.X,
+                            position.Y,
+                            he.BoundingClientWidth,
+                            he.BoundingClientHeight);
+
+                        _clickSleep.Sleep(delay);
+                        HoldClick(instance, area, holdMs);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        lastExceptionMessage = ex.Message;
+                    }
+
+                    Thread.Sleep(500);
+                }
+            }
+            finally
+            {
+                instance.UseFullMouseEmulation = emuSnap;
+            }
+        }
+
+        public static void HeLongClick(this Instance instance, int x, int y, int holdMs = 3, double delay = 1, int emu = 0)
+        {
+            if (holdMs < 0) throw new ArgumentOutOfRangeException(nameof(holdMs));
+
+            bool emuSnap = instance.UseFullMouseEmulation;
+
+            try
+            {
+                if (emu > 0) instance.UseFullMouseEmulation = true;
+                if (emu < 0) instance.UseFullMouseEmulation = false;
+
+                _clickSleep.Sleep(delay);
+                HoldClick(instance, new Rectangle(x, y, 1, 1), holdMs);
+            }
+            finally
+            {
+                instance.UseFullMouseEmulation = emuSnap;
+            }
+        }
+
+        private static void HoldClick(Instance instance, Rectangle area, int holdMs)
+        {
+            if (area.Width <= 0 || area.Height <= 0)
+                throw new ArgumentException("Click area must have positive width and height", nameof(area));
+
+            int x;
+            int y;
+
+            lock (LockObject)
+            {
+                x = _random.Next(area.Left, area.Right);
+                y = _random.Next(area.Top, area.Bottom);
+            }
+
+            try
+            {
+                instance.ActiveTab.MouseClick(x, y, "left", "down");
+                Thread.Sleep(holdMs);
+            }
+            finally
+            {
+                instance.ActiveTab.MouseClick(x, y, "left", "up");
+            }
+        }
+        
+        
         public static void HeSet(this Instance instance, object obj, string value, string method = "id", int deadline = 10, double delay = 1, string comment = "", bool thrw = true, bool thr0w = true, string pathToScript = null)
         {
             DateTime functionStart = DateTime.Now;
@@ -359,9 +458,10 @@ namespace z3n7
             }
         }
         
+
+
         #endregion
-        
-        
+
         #region Browser Management
         
         public static void ClearShit(this Instance instance, string domain)
@@ -540,11 +640,7 @@ namespace z3n7
 
                 try
                 {
-                    resp = new Traffic(
-                            project,
-                            instance,
-                            "https://ip-scan.browserscan.net/sys/"
-                        )
+                    resp = new Traffic(instance)
                         .Find("https://ip-scan.browserscan.net/sys/config/ip/get-visitor-ip")
                         .ResponseBody;
                 }
@@ -567,9 +663,6 @@ namespace z3n7
 
         #endregion
         
-        
-        
-
 
     }
     

@@ -48,10 +48,10 @@
 
     <ItemGroup>
         <Reference Include="ZennoLab.CommandCenter">
-            <HintPath>W:\code_hard\.net\z3n\ZennoLab\ZennoLab.CommandCenter.dll</HintPath>
+            <HintPath>c:\Program Files\ZennoLab\RU\ZennoPoster Pro V7\7.9.1.0\Progs\ZennoLab.CommandCenter.dll</HintPath>
         </Reference>
         <Reference Include="ZennoLab.InterfacesLibrary">
-            <HintPath>W:\code_hard\.net\z3n\ZennoLab\ZennoLab.InterfacesLibrary.dll</HintPath>
+            <HintPath>c:\Program Files\ZennoLab\RU\ZennoPoster Pro V7\7.9.1.0\Progs\ZennoLab.InterfacesLibrary.dll</HintPath>
         </Reference>
     </ItemGroup>
 

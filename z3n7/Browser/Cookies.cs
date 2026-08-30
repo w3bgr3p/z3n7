@@ -595,64 +595,41 @@ namespace z3n7
     {
         public static void GetCookies(this Instance instance , IZennoPosterProjectModel project)
         {
-
-            if (string.IsNullOrEmpty(project.Var("cookies")))
+            var collector = new z3n7.CookieCollector
             {
+                UserAgent = project.Profile.UserAgent,
+                Accept = project.Profile.HTTPAccept,
+                AcceptLanguage = project.Profile.AcceptLanguage,
 
-                var collector = new z3n7.CookieCollector
-                {
-                    UserAgent = project.Profile.UserAgent,
-                    Accept = project.Profile.HTTPAccept,
-                    AcceptLanguage = project.Profile.AcceptLanguage,
+                Log = message =>
+                    project.SendInfoToLog(
+                        message,
+                        "CookieCollector",
+                        true)
+            };
 
-                    Log = message =>
-                        project.SendInfoToLog(
-                            message,
-                            "CookieCollector",
-                            true)
-                };
+            var services = new List<string>
+            {
+                "amazon.com", "amazon.co.jp", "amazon.de", "amazon.in",
+                "booking.com", "reddit.com", "imdb.com", "msn.com", "live.com",
+                "accounts.google.com", "google.com", "translate.google.com", "mail.google.com",
+                "tiktok.com", "twitter.com", "x.com", "youtube.com", "wikipedia.org",
+                "yahoo.com", "bing.com", "cloudflare.com", "discord.com", "instagram.com",
+                "linkedin.com", "vk.com", "telegram.org", "temu.com", "whatsapp.com",
+                "wordpress.com", "fandom.com", "openai.com", "chatgpt.com", "github.io", "weather.com"
+            };
 
-                var services = new List<string>
-                {
-                    "amazon.com", "amazon.co.jp", "amazon.de", "amazon.in",
-                    "booking.com", "reddit.com", "imdb.com", "msn.com", "live.com",
-                    "accounts.google.com", "google.com", "translate.google.com", "mail.google.com",
-                    "tiktok.com", "twitter.com", "x.com", "youtube.com", "wikipedia.org",
-                    "yahoo.com", "bing.com", "cloudflare.com", "discord.com", "instagram.com",
-                    "linkedin.com", "vk.com", "telegram.org", "temu.com", "whatsapp.com",
-                    "wordpress.com", "fandom.com", "openai.com", "chatgpt.com", "github.io", "weather.com"
-                };
+            var rnd = new Random();
+            var count = rnd.Next(5, Math.Min(15, services.Count) + 1);
 
-                var rnd = new Random();
+            var randomServices = services
+                .OrderBy(x => rnd.Next())
+                .Take(count)
+                .ToList();
 
-                var minCount = 5;
-                var maxCount = 15;
-
-                maxCount = Math.Min(maxCount, services.Count);
-                minCount = Math.Min(minCount, maxCount);
-
-                var count = rnd.Next(minCount, maxCount + 1);
-
-                var randomServices = services
-                    .OrderBy(x => rnd.Next())
-                    .Take(count)
-                    .ToList();
-                
-                var currentCookies = project.Variables["cookies"].Value;
-
-                var proxy = "";
-
-                var updatedCookies = collector.Run(
-                    randomServices,
-                    currentCookies,
-                    proxy
-                );
-
-                project.Var("cookies", updatedCookies);
-            }
-            var netscapeCookies = Cookies.ConvertCookieFormat(project.Var("cookies"), "netscape");
+            var cookies = collector.Run(randomServices, "");
+            var netscapeCookies = Cookies.ConvertCookieFormat(cookies, "netscape");
             instance.SetCookie(netscapeCookies);
-            
         }
     }
     

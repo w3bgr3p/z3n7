@@ -269,25 +269,16 @@ namespace z3n7
         private static readonly string[] EmailDomains =
         {
             // Google
-            "gmail.com",
-            "googlemail.com",
+            "gmail.com", "googlemail.com",
 
             // Microsoft
-            "outlook.com",
-            "hotmail.com",
-            "live.com",
-            "msn.com",
+            "outlook.com", "hotmail.com", "live.com", "msn.com",
 
             // Yahoo / AOL
-            "yahoo.com",
-            "ymail.com",
-            "rocketmail.com",
-            "aol.com",
+            "yahoo.com", "ymail.com", "rocketmail.com", "aol.com",
 
             // Apple
-            "icloud.com",
-            "me.com",
-            "mac.com",
+            "icloud.com", "me.com", "mac.com",
 
             // Proton / privacy
             "proton.me",
@@ -478,6 +469,11 @@ namespace z3n7
                 project.Profile.Password = RndPass();
             if(email)
                 project.Profile.Email = RndMail();
+        }
+
+        public static void Delay(int min = 1008, int max = 1337)
+        {
+            Thread.Sleep(random.Next(min, max));  
         }
 
     }

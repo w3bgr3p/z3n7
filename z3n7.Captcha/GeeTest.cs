@@ -62,7 +62,7 @@ namespace z3n7.Captcha
 
             try
             {
-                var items = new Traffic(project, _instance, "https://gcaptcha4.geetest.com/")
+                var items = new Traffic(_instance)
                     .FindAll("https://gcaptcha4.geetest.com/load");
                 raw = items
                     .Select(item => item.ResponseBody)
@@ -131,7 +131,7 @@ namespace z3n7.Captcha
         {
             var project = RequireProject();
             Thread.Sleep(3000);
-            var item = new Traffic(project, _instance, "https://gcaptcha4.geetest.com/")
+            var item = new Traffic(_instance)
                 .Find("https://gcaptcha4.geetest.com/verify");
             var body = ExtractJsonBody(item.ResponseBody);
             var response = JObject.Parse(body);

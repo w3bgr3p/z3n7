@@ -43,7 +43,7 @@ namespace z3n7.Captcha
             var raw = "";
             
             try{
-	            var items = new Traffic(_project,_instance, "https://gcaptcha4.geetest.com/").FindAll("https://gcaptcha4.geetest.com/load");
+	            var items = new Traffic(_instance).FindAll("https://gcaptcha4.geetest.com/load");
 	            
 	            
 	            foreach (var item in items)
@@ -125,7 +125,7 @@ namespace z3n7.Captcha
         public string GetResult()
         {
             Thread.Sleep(3000);
-            var item = new Traffic(_project,_instance, "https://gcaptcha4.geetest.com/").Find("https://gcaptcha4.geetest.com/verify");
+            var item = new Traffic(_instance).Find("https://gcaptcha4.geetest.com/verify");
             var raw = item.ResponseBody;
             var body = !raw.StartsWith("{") ? raw.Substring(raw.IndexOf('(') + 1,raw.LastIndexOf(')') - raw.IndexOf('(') - 1) : raw ;
             var response = JObject.Parse(body);

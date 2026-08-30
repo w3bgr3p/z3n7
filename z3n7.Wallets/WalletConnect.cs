@@ -55,7 +55,7 @@ namespace z3n7.Wallets
             }
 
             if (string.IsNullOrEmpty(key))
-                _project.warn("keyIsEmpty", true);
+                _project.warn("keyIsEmpty", thrw: true);
 
             return key;
         }
