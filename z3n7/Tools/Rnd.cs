@@ -281,70 +281,23 @@ namespace z3n7
             "icloud.com", "me.com", "mac.com",
 
             // Proton / privacy
-            "proton.me",
-            "protonmail.com",
-            "pm.me",
-            "tuta.com",
-            "tuta.io",
-            "tutanota.com",
+            "proton.me", "protonmail.com", "pm.me", "tuta.com", "tuta.io", "tutanota.com",
 
             // International providers
-            "gmx.com",
-            "gmx.net",
-            "mail.com",
-            "zoho.com",
-            "fastmail.com",
-            "hushmail.com",
-            "mailfence.com",
-            "posteo.de",
-            "runbox.com",
+            "gmx.com", "gmx.net", "mail.com", "zoho.com", "fastmail.com", "hushmail.com", "mailfence.com", "posteo.de", "runbox.com",
 
             // Russia / CIS
-            "yandex.ru",
-            "yandex.com",
-            "ya.ru",
-            "mail.ru",
-            "inbox.ru",
-            "bk.ru",
-            "list.ru",
-            "rambler.ru",
+            "yandex.ru", "yandex.com", "ya.ru", "mail.ru", "inbox.ru", "bk.ru", "list.ru", "rambler.ru",
 
             // Europe
-            "web.de",
-            "freenet.de",
-            "t-online.de",
-            "orange.fr",
-            "laposte.net",
-            "free.fr",
-            "wanadoo.fr",
-            "libero.it",
-            "virgilio.it",
-            "alice.it",
-            "tin.it",
-            "seznam.cz",
-            "centrum.cz",
-            "email.cz",
-            "wp.pl",
-            "onet.pl",
-            "o2.pl",
-            "interia.pl",
+            "web.de", "freenet.de", "t-online.de", "orange.fr", "laposte.net", "free.fr", "wanadoo.fr", "libero.it", "virgilio.it",
+            "alice.it", "tin.it", "seznam.cz", "centrum.cz", "email.cz", "wp.pl", "onet.pl", "o2.pl", "interia.pl",
 
             // Asia
-            "naver.com",
-            "daum.net",
-            "hanmail.net",
-            "qq.com",
-            "163.com",
-            "126.com",
-            "sina.com",
-            "sohu.com",
-            "yeah.net",
+            "naver.com", "daum.net", "hanmail.net", "qq.com", "163.com", "126.com", "sina.com", "sohu.com", "yeah.net",
 
             // Misc
-            "rediffmail.com",
-            "indiatimes.com",
-            "mail.ee",
-            "email.it"
+            "rediffmail.com", "indiatimes.com", "mail.ee", "email.it"
         };
         
         public static string RndMail(int minLength = 5, int maxLength = 10, string domain = null)

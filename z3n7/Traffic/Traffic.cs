@@ -14,22 +14,22 @@ namespace z3n7
     public class Traffic
     {
         private readonly Instance                 _instance;
-        private static readonly string[] AllUrlFilters =
-            "abcdefghijklmnopqrstuvwxyz0123456789"
-                .Select(character => character.ToString())
-                .ToArray();
-        public Traffic(Instance instance)
+        private string _defaultFilter;
+
+        public Traffic(Instance instance, string defaultFilter = null)
         {
+            //_project  = project;
             _instance = instance;
             _instance.UseTrafficMonitoring = true;
+            _defaultFilter = defaultFilter;
         }
 
         // ─── Snapshot ──────────────────────────────────────────────────────────
 
         private List<TrafficElement> Grab()
         {
-            
-            var raw = _instance.ActiveTab.GetTraffic(AllUrlFilters).ToList(); // материализуем сразу
+            var filter = _defaultFilter ?? _instance.ActiveTab.Domain;
+            var raw = _instance.ActiveTab.GetTraffic(new[] { filter }).ToList(); // материализуем сразу
             return raw
                 .Where(r => r.Method != "OPTIONS")
                 .Select(r => ToElement(r))
@@ -92,7 +92,7 @@ namespace z3n7
             return json;
         }
 
-        public void SaveHeadersToVar(IZennoPosterProjectModel project,  string url, string varName = "headers", bool strict = false)
+        public void SaveHeadersToVar(string url, string varName = "headers", bool strict = false)
         {
             var el  = Find(url, strict);
             var sb  = new StringBuilder();
@@ -102,7 +102,7 @@ namespace z3n7
                 if (string.IsNullOrEmpty(t) || t.StartsWith(":")) continue;
                 sb.AppendLine(t);
             }
-            project.Var(varName, sb.ToString());
+            //_project.Var(varName, sb.ToString());
         }
 
         // ─── TrafficElement ────────────────────────────────────────────────────
@@ -182,6 +182,19 @@ namespace z3n7
                 catch { }
             }
             try { return Encoding.UTF8.GetString(data); } catch { return ""; }
+        }
+    }
+}
+
+namespace z3n7
+{
+
+    public static partial class InstanceExtensions
+    {
+        public static List<Traffic.TrafficElement> GrabTrafficList(this Instance instance, string url, bool strict = false)
+        {
+            var allFounded = new Traffic(instance, url).FindAll( url, strict );
+            return allFounded;
         }
     }
 }

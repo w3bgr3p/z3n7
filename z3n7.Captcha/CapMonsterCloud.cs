@@ -204,7 +204,7 @@ namespace z3n7.Captcha
             }
         }
 
-        public static void AddCapMonsterCloudExt(this Instance instance, string path  , string key )
+        public static void AddCapMonsterCloudExt(this Instance instance, string path  , string key, int maxReties = 5 )
         {
             
             instance.InstallCrxExtension(path);
@@ -212,9 +212,9 @@ namespace z3n7.Captcha
             instance.Go("chrome-extension://pabjfbciaedomjjfelfafejkppknjleh/popup.html");
             instance.HeSet(("client-key-input", "id"), key);
             instance.HeClick(("client-key-save-btn", "id"));
-
+            instance.HeClick(("span", "class", "ant-select-selection-item", "regexp", 1));
+            instance.HeClick(("div", "class", "ant-select-item-option-content", "regexp", maxReties));
         }
-        
         
         private static (string type, string address, int port, string login, string password) ParseProxy(string proxy)
         {

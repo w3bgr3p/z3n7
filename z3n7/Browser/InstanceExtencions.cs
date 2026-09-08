@@ -19,7 +19,7 @@ namespace z3n7
         private static readonly Time.Sleeper _clickSleep = new Time.Sleeper(1008, 1337);
         private static readonly Time.Sleeper _inputSleep = new Time.Sleeper(1337, 2077);
         private static readonly Time.Sleeper _longSleep = new Time.Sleeper(2, 4);
-        private static Random _random = new Random();
+        private static Random _rnd = new Random();
         
         private class ElementNotFoundException : Exception
         {
@@ -380,8 +380,8 @@ namespace z3n7
 
             lock (LockObject)
             {
-                x = _random.Next(area.Left, area.Right);
-                y = _random.Next(area.Top, area.Bottom);
+                x = _rnd.Next(area.Left, area.Right);
+                y = _rnd.Next(area.Top, area.Bottom);
             }
 
             try
@@ -456,6 +456,57 @@ namespace z3n7
                 
                 Thread.Sleep(500);
             }
+        }
+        
+        public static Point DrugAndDrop(this Instance instance, HtmlElement element, int offsetX, int offsetY = 0)
+        {
+            var tab = instance.ActiveTab;
+            var p0 = element.Center(element.DisplacementInTabWindow);
+            int startX = p0.X;
+            int startY = p0.Y;
+            int targetX = startX + offsetX;
+            int targetY = startY + offsetY;
+            tab.MouseMove(startX, startY);
+            Thread.Sleep(_rnd.Next(100, 200));
+            tab.MouseClick(startX, startY, "left", "down");
+            Thread.Sleep(_rnd.Next(60, 140)); 
+            int overshoot = offsetX > 50 ? _rnd.Next(2, 5) : 0;
+            int forwardDistance = offsetX + overshoot;
+            int steps = _rnd.Next(18, 26);
+            int currentX = startX;
+            int currentY = startY;
+            for (int i = 1; i <= steps; i++)
+            {
+                double t = (double)i / steps;
+                
+                double progress = 1.0 - Math.Pow(1.0 - t, 2.7);
+                int nextX = startX + (int)Math.Round(progress * forwardDistance);
+                
+                int waveY = (int)Math.Round(Math.Sin(t * Math.PI) * _rnd.Next(-2, 3));
+                int nextY = startY + offsetY + waveY;
+                tab.MouseMove(nextX, nextY);
+                int delay = (int)(10 + (t * t) * 35 + _rnd.Next(-3, 6));
+                Thread.Sleep(Math.Max(6, delay));
+                currentX = nextX;
+                currentY = nextY;
+            }
+            if (overshoot > 0)
+            {
+                Thread.Sleep(_rnd.Next(30, 70)); 
+                int corrSteps = _rnd.Next(3, 5);
+                for (int j = 1; j <= corrSteps; j++)
+                {
+                    double backProgress = (double)j / corrSteps;
+                    int backX = (int)Math.Round(currentX - backProgress * overshoot);
+                    
+                    tab.MouseMove(backX, targetY);
+                    Thread.Sleep(_rnd.Next(25, 55));
+                }
+            }
+            Thread.Sleep(_rnd.Next(120, 250));
+            tab.MouseClick(targetX, targetY, "left", "up");
+            Thread.Sleep(_rnd.Next(100, 200));
+            return new Point(targetX, targetY);
         }
         
 

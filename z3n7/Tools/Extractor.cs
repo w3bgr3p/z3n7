@@ -34,10 +34,9 @@ namespace z3n7.Tools
         public static void SaveAsXml(this IZennoPosterProjectModel project, string xmlPath = null)
         {
             var xml = ExtractXml(project.Path + project.Name);
-            xml =xml.Replace("utf-16","utf-8");
             if (xmlPath == null)
                 xmlPath = Path.Combine(project.Path, project.Name.Replace(".zp",".xml"));
-            File.WriteAllText(xmlPath,xml);
+            File.WriteAllText(xmlPath, xml, Encoding.Unicode);
             project.SendInfoToLog($"saved as {xmlPath}");
         }
         public static string ExtractInputSettingsHtml(string zpPath)
@@ -115,35 +114,67 @@ namespace z3n7.Tools
             }
         }
 
-        public static void BuildZpFromXml(string xml, string zpPath)
+        public static void BuildZpFromXml(this IZennoPosterProjectModel project,string xml = null, string zpPath= null)
         {
+            var sourceZpPath = Path.Combine(project.Path, project.Name);
+            if (xml == null)
+            {
+                var xmlPath = Path.Combine(project.Path, project.Name.Replace(".zp", ".xml"));
+                xml = File.ReadAllText(xmlPath);
+            }
+
+            zpPath = zpPath ?? Path.Combine(
+                project.Path,
+                project.Name.Replace(".zp", $".{((long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds)).ToString()}.zp"));
+            
             foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (asm.GetName().Name != "ProjectMaker") continue;
 	            
                 var loaderType  = asm.GetType("ZennoLab.TemplateManipulator.V4.ProjectLoaderV4");
                 var archiveType = asm.GetType("ZennoLab.TemplateManipulator.V4.ProjectArchiveV4");
-	            
-                string tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".zp");
-				        
-                byte[] zpBytes = Convert.FromBase64String(ZpToCsx.Template());
-                File.WriteAllBytes(tmpPath, zpBytes);
-                var archive = Activator.CreateInstance(archiveType, tmpPath);
-                var loader  = Activator.CreateInstance(loaderType);
-                
-                byte[] bytes = (byte[])loaderType.GetMethod("ToByteArray")
-                    .Invoke(loader, new object[] { xml });
-	        
-                archiveType.GetMethod("RemoveEntries")
-                    .Invoke(archive, new object[] {(Func<string, bool>)(name => name.EndsWith(".xml"))});
-	        
-                archiveType.GetMethod("SaveProject")
-                    .Invoke(archive, new object[] { "Template.xml", bytes });
-		        
-                archiveType.GetMethod("SaveToFile")
-                    .Invoke(archive, new object[] { zpPath });
-	            
-                File.Delete(tmpPath);
+                var tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".zp");
+                object archive = null;
+
+                try
+                {
+                    File.Copy(sourceZpPath, tmpPath, true);
+                    archive = Activator.CreateInstance(archiveType, tmpPath);
+                    var loader = Activator.CreateInstance(loaderType);
+
+                    byte[] bytes = (byte[])loaderType.GetMethod("ToByteArray")
+                        .Invoke(loader, new object[] { xml });
+
+                    archiveType.GetMethod("RemoveEntries")
+                        .Invoke(archive, new object[]
+                        {
+                            (Func<string, bool>)(name => string.Equals(
+                                name,
+                                "Template.xml",
+                                StringComparison.OrdinalIgnoreCase))
+                        });
+
+                    archiveType.GetMethod("SaveProject")
+                        .Invoke(archive, new object[] { "Template.xml", bytes });
+
+                    archiveType.GetMethod("SaveToFile")
+                        .Invoke(archive, new object[] { zpPath });
+                }
+                catch (System.Reflection.TargetInvocationException ex)
+                {
+                    if (ex.InnerException != null)
+                        System.Runtime.ExceptionServices.ExceptionDispatchInfo
+                            .Capture(ex.InnerException)
+                            .Throw();
+                    throw;
+                }
+                finally
+                {
+                    if (archive != null)
+                        archiveType.GetMethod("Dispose", Type.EmptyTypes)?.Invoke(archive, null);
+                    File.Delete(tmpPath);
+                }
+
                 break;
             }
         }

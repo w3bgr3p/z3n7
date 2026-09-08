@@ -17,28 +17,23 @@ namespace z3n7
     /// </summary>
     public static class HarTraffic
     {
-        // ZennoPoster 7.9 does not return traffic with an empty filter set and
-        // does not reliably handle catch-all patterns. Filters are OR-ed, and
-        // every valid HTTP(S) host contains at least one ASCII letter or digit.
-        private static readonly string[] AllUrlFilters =
-            "abcdefghijklmnopqrstuvwxyz0123456789"
-                .Select(character => character.ToString())
-                .ToArray();
-
-        public static int Save(
-            Instance instance,
-            string path)
+        public static int Save(Instance instance, string path,string filter = null)
         {
             if (instance == null) throw new ArgumentNullException("instance");
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentNullException("path");
-            if (instance.ActiveTab == null) throw new InvalidOperationException("ActiveTab is null");
-
-            var traffic = instance.ActiveTab.GetTraffic(
-                new ZennoLab.CommandCenter.Classes.GetTrafficSettings
-                {
-                    GatherAllTraffic = true,
-                    UrlFilters = AllUrlFilters
-                }).ToList();
+            if (!path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                    .EndsWith(".har", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException(
+                    "HAR path must end with .har. Pass the traffic filter as the third HarTraffic.Save argument.",
+                    "path");
+            filter = filter ?? instance.ActiveTab.Domain;
+            var settings = new ZennoLab.CommandCenter.Classes.GetTrafficSettings
+            {
+                GatherAllTraffic = true,
+                UrlFilters = new[] { filter }
+            };
+            
+            var traffic = instance.ActiveTab.GetTraffic(settings).ToList();
             var entries = new JArray();
             var skipped = new List<string>();
 
@@ -63,13 +58,30 @@ namespace z3n7
                     new JProperty("pages", new JArray()),
                     new JProperty("entries", entries))));
 
-            var fullPath = Path.GetFullPath(path);
+            var normalizedPath = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (normalizedPath.Length == 0) throw new ArgumentException("HAR path is empty", "path");
+
+            var fullPath = Path.GetFullPath(normalizedPath);
             var directory = Path.GetDirectoryName(fullPath);
-            if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
-            File.WriteAllText(
+            if (string.IsNullOrEmpty(directory))
+                throw new InvalidOperationException("Cannot determine HAR parent directory: " + fullPath);
+
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            if (Directory.Exists(fullPath))
+                throw new IOException("HAR path points to a directory: " + fullPath);
+
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
+
+            using (var stream = new FileStream(
                 fullPath,
-                JsonConvert.SerializeObject(har, Formatting.Indented),
-                new UTF8Encoding(false));
+                FileMode.CreateNew,
+                FileAccess.Write,
+                FileShare.Read))
+            using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
+                writer.Write(JsonConvert.SerializeObject(har, Formatting.Indented));
             
 
             return entries.Count;
@@ -453,4 +465,18 @@ namespace z3n7
             return result.ToString();
         }
     }
+
+    public partial class ProjectExtensions
+    {
+        public static void SaveSuccessHar(this IZennoPosterProjectModel project , Instance instance, string filter = null, string result = "success")
+        {
+            var domain = instance.ActiveTab.MainDomain;
+            filter = filter ?? domain;
+            var filename = Path.Combine(project.Path,"har",DateTime.Today.ToString("yyyy-MM-dd"), result, domain, $"{((long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds)).ToString()}.har");
+            var count = z3n7.HarTraffic.Save(instance,filename, filter);
+            project.SendInfoToLog($"{count} elements saved to {filename} by filter {filter}");
+            
+        }
+    }
+
 }
