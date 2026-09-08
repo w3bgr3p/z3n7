@@ -593,7 +593,7 @@ namespace z3n7
 
     public static partial class InstanceExtensions
     {
-        public static void GetCookies(this Instance instance , IZennoPosterProjectModel project)
+        public static string GetCookies(this Instance instance , IZennoPosterProjectModel project)
         {
             var collector = new z3n7.CookieCollector
             {
@@ -604,8 +604,7 @@ namespace z3n7
                 Log = message =>
                     project.SendInfoToLog(
                         message,
-                        "CookieCollector",
-                        true)
+                        "CookieCollector")
             };
 
             var services = new List<string>
@@ -630,6 +629,7 @@ namespace z3n7
             var cookies = collector.Run(randomServices, "");
             var netscapeCookies = Cookies.ConvertCookieFormat(cookies, "netscape");
             instance.SetCookie(netscapeCookies);
+            return netscapeCookies;
         }
     }
     

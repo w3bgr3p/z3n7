@@ -172,21 +172,23 @@ namespace z3n7
             _rqst.UserAgent = tempUserAgent;
             _rqst.ContentType = tempContentType;
 
-            bool isAccount = !string.IsNullOrEmpty(_project.Var("acc0"));
-    
-            if (cookies == "-" || !isAccount)
+            if (cookies == "-")
             {
                 _rqst.Cookies = "";
                 _rqst.UseContainer = false;
                 _rqst.CookieSource = "null";
             }
+            else if (!string.IsNullOrEmpty(cookies))
+            {
+                _rqst.Cookies = cookies;
+                _rqst.UseContainer = false;
+                _rqst.CookieSource = "argument";
+            }
             else
             {
-                _rqst.Cookies = string.IsNullOrEmpty(cookies) 
-                    ? GetCookiesForRequest(url) 
-                    : cookies;
+                _rqst.Cookies = GetCookiesForRequest(url);
                 _rqst.UseContainer = string.IsNullOrEmpty(_rqst.Cookies);
-        
+
                 if (_rqst.UseContainer)
                     _rqst.CookieSource = "container";
             }
@@ -275,10 +277,10 @@ namespace z3n7
         #region Cookies Management
         private string GetCookiesForRequest(string url)
         {
-            string cookiesJson = _project.Var("cookies");
+            string cookiesJson = GetLocalVariable("cookies");
             _rqst.CookieSource = "var";
 
-            if (string.IsNullOrEmpty(cookiesJson))
+            if (string.IsNullOrEmpty(cookiesJson) && HasDatabaseCookieProfile())
             {
                 string cookiesBase64 = _project.DbGet("cookies", "_instance");
                 if (!string.IsNullOrEmpty(cookiesBase64))
@@ -326,6 +328,26 @@ namespace z3n7
             }
 
             return cookiePairs.Count == 0 ? null : string.Join("; ", cookiePairs) + ";";
+        }
+
+        private bool HasDatabaseCookieProfile()
+        {
+            if (string.IsNullOrWhiteSpace(GetLocalVariable("acc0")))
+                return false;
+
+            string dbSource = GetLocalVariable("dbSource");
+
+            if (string.IsNullOrWhiteSpace(dbSource))
+                dbSource = _project.GVar("dbSource");
+
+            return !string.IsNullOrWhiteSpace(dbSource);
+        }
+
+        private string GetLocalVariable(string name)
+        {
+            return _project.Variables.Keys.Contains(name)
+                ? _project.Variables[name].Value
+                : "";
         }
 
         private static bool IsDomainMatch(string requestDomain, string cookieDomain)

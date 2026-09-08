@@ -32,25 +32,31 @@ namespace z3n7
         private static HttpListener  _listener;
         private static Thread        _thread;
         private static volatile bool _running;
+        private static int           _port;
+
+        /// <summary>Сколько портов подряд перебрать, начиная с запрошенного.</summary>
+        private const int PortRange = 20;
 
         // ── Start / Stop ──────────────────────────────────────────────────────
 
-        public static void StartZpServer(this IZennoPosterProjectModel project, int port = 22222, bool log = false)
+        public static void StartZpServer(this IZennoPosterProjectModel project, int port = 22222, bool log = false, bool openFirewall = false)
         {
-            if (_running) return;
-            if (IsPortBusy(port))  return;
+            // Сервер переживает запуск проекта, поэтому строку узла печатаем
+            // на каждый вызов — и когда подняли сейчас, и когда он уже висел.
+            if (_running)
+            {
+                if (log) LogNode(project, _port);
+                return;
+            }
 
-            RegisterNode(project, port, log);
+            if (!Bind(project, port)) return;
+            if (openFirewall) EnsureFirewall(project, _port, log);
 
-            _listener = new HttpListener();
-            _listener.Prefixes.Add($"http://+:{port}/");
-            _listener.Start();
             _running = true;
-
-            _thread = new Thread(() => Loop(project, log)) { IsBackground = true };
+            _thread  = new Thread(() => Loop(project, log)) { IsBackground = true };
             _thread.Start();
 
-            if (log) project.SendInfoToLog($"[ZpServer] Listening on port {port}", false);
+            if (log) LogNode(project, _port);
         }
 
         public static void StopZpServer(this IZennoPosterProjectModel project, bool log = false)
@@ -58,8 +64,44 @@ namespace z3n7
             if (!_running) return;
             _running = false;
             _listener?.Stop();
-            UnregisterNode(project);
             if (log) project.SendInfoToLog("[ZpServer] Stopped", false);
+        }
+
+        /// <summary>
+        /// Занимает первый свободный порт начиная с <paramref name="port"/>.
+        /// Занятый порт — не ошибка: на машине может уже висеть чужой слушатель.
+        /// </summary>
+        private static bool Bind(IZennoPosterProjectModel project, int port)
+        {
+            for (var p = port; p < port + PortRange; p++)
+            {
+                if (IsPortBusy(p)) continue;
+
+                var listener = new HttpListener();
+                listener.Prefixes.Add($"http://+:{p}/");
+                try
+                {
+                    listener.Start();
+                }
+                catch (HttpListenerException ex)
+                {
+                    // 5 = ERROR_ACCESS_DENIED: нет URL ACL на префикс. Перебор портов
+                    // не поможет — упрёмся в то же самое на каждом.
+                    if (ex.ErrorCode == 5)
+                    {
+                        project.warn($"[ZpServer] {ex.Message} — нужен netsh http add urlacl url=http://+:{p}/ user=Everyone");
+                        return false;
+                    }
+                    continue; // порт перехватили между проверкой и Start
+                }
+
+                _listener = listener;
+                _port     = p;
+                return true;
+            }
+
+            project.warn($"[ZpServer] нет свободного порта в диапазоне {port}..{port + PortRange - 1}");
+            return false;
         }
 
         // ── Loop ──────────────────────────────────────────────────────────────
@@ -100,6 +142,8 @@ namespace z3n7
                 if (path == "/command" && method == "POST") { await ServeCommand(ctx, project, log); return; }
                 if (path == "/task/xml"    && method == "GET")  { await ServeTaskXml(ctx);            return; }
                 if (path == "/task/xml"    && method == "POST") { await ReceiveTaskXml(ctx, log);     return; }
+                if (path == "/task/settings" && method == "GET") { await ServeTaskSettings(ctx); return; }
+                if (path == "/log"     && method == "GET")  { await ServeLog(ctx, project);     return; }
                 if (path == "/debug/assemblies" && method == "GET") { await ServeDebugAssemblies(ctx); return; }
 
                 ctx.Response.StatusCode = 404;
@@ -249,6 +293,82 @@ namespace z3n7
             }
         }
 
+        // GET /task/settings?task_id=<guid> — input settings задачи плоским словарём
+        private static async Task ServeTaskSettings(HttpListenerContext ctx)
+        {
+            Guid guid;
+            if (!Guid.TryParse(ctx.Request.QueryString["task_id"] ?? "", out guid))
+            { await WriteError(ctx.Response, 400, "valid task_id required"); return; }
+
+            var xml = ZennoPoster.ExportInputSettings(guid);
+            if (string.IsNullOrEmpty(xml))
+            { await WriteError(ctx.Response, 404, $"no input settings for {guid}"); return; }
+
+            var payload = TaskManager.XmlToPayload(xml);
+            await WriteJson(ctx.Response, new
+            {
+                task_id  = guid.ToString(),
+                xml_b64  = payload.xmlB64,
+                json_b64 = payload.jsonB64,
+            });
+        }
+
+        /// <summary>
+        /// payload — {"xml_b64":"...","json_b64":"..."}, те же два блоба, что лежали
+        /// в БД колонками _xml_b64 и _json_b64. Наложение делает TaskManager.PayloadToXml,
+        /// то есть ровно тот же код, что и путь через базу.
+        /// </summary>
+        private static void SetInputSettings(Guid guid, string payload)
+        {
+            JsonElement json;
+            try   { json = JsonSerializer.Deserialize<JsonElement>(payload); }
+            catch { throw new Exception("payload must be JSON with xml_b64 and json_b64"); }
+
+            JsonElement x, j;
+            var xmlB64  = json.TryGetProperty("xml_b64",  out x) ? x.GetString() ?? "" : "";
+            var jsonB64 = json.TryGetProperty("json_b64", out j) ? j.GetString() ?? "" : "";
+
+            if (string.IsNullOrEmpty(xmlB64)) throw new Exception("xml_b64 required");
+
+            var xml = TaskManager.PayloadToXml(xmlB64, jsonB64);
+            if (string.IsNullOrEmpty(xml)) throw new Exception("PayloadToXml produced nothing");
+
+            ZennoPoster.ImportInputSettings(guid, xml);
+        }
+
+        // GET /log?kind=execution&process=ZennoPoster&n=200&project=Simroute.uber
+        //
+        // kind: execution (лог проектов) | errors (nonCriticalErrors, со стектрейсами
+        // движка) | critical. process по умолчанию ZennoPoster — его лог интересен и
+        // тогда, когда сам код крутится в ProjectMaker.
+        private static async Task ServeLog(HttpListenerContext ctx, IZennoPosterProjectModel project)
+        {
+            var q       = ctx.Request.QueryString;
+            var kind    = q["kind"]    ?? "execution";
+            var process = q["process"] ?? "ZennoPoster";
+            var filter  = q["project"] ?? "";
+
+            int n;
+            if (!int.TryParse(q["n"], out n) || n <= 0) n = 200;
+            if (n > 2000) n = 2000;
+
+            string error;
+            var file = ZpLog.Resolve(project, kind, process, out error);
+            if (file == null)
+            {
+                await WriteJson(ctx.Response, new { error, available = ZpLog.Available(project) });
+                return;
+            }
+
+            var entries = ZpLog.Tail(file, n, filter, ZpLog.HasProjectColumn(kind));
+            await WriteJson(ctx.Response, new
+            {
+                file,
+                count   = entries.Count,
+                entries = entries.Select(e => e.ToJson()),
+            });
+        }
+
         // GET /debug/assemblies — список загруженных сборок
         private static async Task ServeDebugAssemblies(HttpListenerContext ctx)
         {
@@ -284,49 +404,138 @@ namespace z3n7
                 case "set_threads":            if (int.TryParse(payload, out var thr))     ZennoPoster.SetMaxThreads(guid, thr);         break;
                 case "clear_success":          ZennoPoster.ClearSuccess(guid);                                                            break;
                 case "clear_fails":            ZennoPoster.ClearFails(guid);                                                             break;
-                case "update_settings":        project.Pull(guid);                                                                       break;
                 case "kill_by_uptime":         if (int.TryParse(payload, out var min))     project.KillByUptime(min);                   break;
+                case "set_input_settings":     SetInputSettings(guid, payload);                                                          break;
+                case "set_execution_settings": ZennoPoster.SetExecutionSettings(guid, TaskManager.JsonToXml(payload));                  break;
+                case "set_scheduler_settings": ZennoPoster.SetSchedulerSettings(guid, TaskManager.JsonToXml(payload));                  break;
                 default: throw new Exception($"Unknown action: {action}");
             }
         }
 
-        // ── Node registration ─────────────────────────────────────────────────
+        // ── Node info ──────────────────────────────────────────────────────────
 
-        private static void RegisterNode(IZennoPosterProjectModel project, int port, bool log)
+        /// <summary>
+        /// Печатает строку регистрации узла: сначала подсказку, затем сам JSON
+        /// отдельной строкой, чтобы её можно было скопировать целиком.
+        /// </summary>
+        private static void LogNode(IZennoPosterProjectModel project, int port)
         {
-            var host    = GetLocalIp();
-            var machine = Environment.MachineName;
-            var now     = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+            var firewall = Firewall.Enabled();
+            var portRule = Firewall.HasPortRule(port);
+            var external = GetExternalIp(project);
 
-            project.TblAdd(DbSchema.ZpNodes.Columns, DbSchema.ZpNodes.Name);
+            project.SendInfoToLog("Скопируйте следующую строку и вставьте в панели управления узлами DevDeck", true);
+            project.SendInfoToLog(NodeJson(port, external, firewall, portRule), true);
 
-            var isPg = project.Var("dbSource").StartsWith("Host=");
-            string q = isPg
-                ? $"INSERT INTO \"{DbSchema.ZpNodes.Name}\" (machine, host, port, updated_at) " +
-                  $"VALUES ('{machine}', '{host}', '{port}', '{now}') " +
-                  $"ON CONFLICT (machine) DO UPDATE SET host = EXCLUDED.host, port = EXCLUDED.port, updated_at = EXCLUDED.updated_at"
-                
-                : $"INSERT OR REPLACE INTO \"{DbSchema.ZpNodes.Name}\" (machine, host, port, updated_at) " +
-                  $"VALUES ('{machine}', '{host}', '{port}', '{now}')";
-
-            project.DbQ(q, log);
+            if (firewall == true && portRule == false)
+                project.SendInfoToLog($"[ZpServer] файрвол включён, правила на порт {port} не видно. Открыть: netsh advfirewall firewall add rule name={Firewall.RuleName(port)} dir=in action=allow protocol=TCP localport={port}", true);
         }
 
-        private static void UnregisterNode(IZennoPosterProjectModel project)
+        /// <summary>
+        /// Создаёт правило файрвола, если подходящего не нашлось. Неудача не мешает
+        /// серверу работать: HasPortRule не учитывает block-правила и привязку к
+        /// профилю, так что порт может оказаться открыт и без нашего правила.
+        /// </summary>
+        private static void EnsureFirewall(IZennoPosterProjectModel project, int port, bool log)
         {
-            project.DbQ($"DELETE FROM \"{DbSchema.ZpNodes.Name}\" WHERE \"machine\" = '{Environment.MachineName}'");
+            if (Firewall.HasPortRule(port) == true) return;
+
+            string error;
+            if (Firewall.TryOpen(port, out error))
+            {
+                if (log) project.SendInfoToLog($"[ZpServer] правило файрвола создано: {Firewall.RuleName(port)}", true);
+            }
+            else
+            {
+                project.warn($"[ZpServer] не удалось открыть порт {port}: {error}");
+            }
         }
 
+        private static string NodeJson(int port, string external, bool? firewall, bool? portRule) =>
+            JsonSerializer.Serialize(new
+            {
+                machine  = Environment.MachineName,
+                host     = GetLocalIp(),
+                external = external,
+                port     = port,
+                firewall = State(firewall, "on",  "off"),
+                portRule = State(portRule, "yes", "no"),
+            });
+
+        /// <summary>
+        /// Сервисы-эхо, отдающие адрес, с которого к ним пришло соединение.
+        /// Хосты выбраны IPv4-only намеренно: универсальные (api.ipify.org,
+        /// icanhazip.com) на машине с IPv6-связностью возвращают v6-адрес,
+        /// и в строке узла оказывалась бы то одна семья, то другая.
+        /// </summary>
+        private static readonly string[] IpEcho =
+        {
+            "https://api4.ipify.org",
+            "https://ipv4.icanhazip.com",
+            "https://checkip.amazonaws.com",
+        };
+
+        /// <summary>
+        /// Внешний IPv4 узла. Пустая строка, если ни один сервис не ответил —
+        /// пустое поле честнее выдуманного адреса.
+        /// </summary>
+        private static string GetExternalIp(IZennoPosterProjectModel project)
+        {
+            foreach (var url in IpEcho)
+            {
+                try
+                {
+                    var body = project.GET(url, deadline: 5, bodyOnly: true);
+                    if (string.IsNullOrEmpty(body)) continue;
+
+                    var ip = body.Trim();
+                    if (IPAddress.TryParse(ip, out var parsed) &&
+                        parsed.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                        return ip;
+                }
+                catch { }
+            }
+
+            return "";
+        }
+
+        private static string State(bool? value, string yes, string no) =>
+            value == null ? "unknown" : (value.Value ? yes : no);
+
+        /// <summary>
+        /// Адрес адаптера, через который система реально ходит наружу.
+        ///
+        /// Dns.GetHostEntry отдаёт IPv4 в произвольном порядке, и на машине с
+        /// VirtualBox или WSL первым оказывается виртуальный адаптер, недостижимый
+        /// из сети. UDP-connect пакетов не шлёт — только заставляет ОС выбрать
+        /// маршрут и назначить сокету локальный адрес.
+        /// </summary>
         private static string GetLocalIp()
         {
             try
             {
-                var host  = Dns.GetHostEntry(Dns.GetHostName());
+                using (var s = new System.Net.Sockets.Socket(
+                           System.Net.Sockets.AddressFamily.InterNetwork,
+                           System.Net.Sockets.SocketType.Dgram,
+                           System.Net.Sockets.ProtocolType.Udp))
+                {
+                    s.Connect("8.8.8.8", 65530);
+                    var ip = (s.LocalEndPoint as IPEndPoint)?.Address;
+                    if (ip != null) return ip.ToString();
+                }
+            }
+            catch { }
+
+            // Нет маршрута по умолчанию — падаем обратно на список адресов хоста.
+            try
+            {
+                var host = Dns.GetHostEntry(Dns.GetHostName());
                 foreach (var ip in host.AddressList)
                     if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                         return ip.ToString();
             }
             catch { }
+
             return "127.0.0.1";
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using ZennoLab.CommandCenter;
 using ZXing;
 
@@ -8,6 +9,17 @@ namespace z3n7
     public static class HtmlExtensions
     {
         
+        public static Point Center(this HtmlElement element, Point origin)
+        {
+            if (element == null || element.IsVoid || element.IsNull)
+                throw new ArgumentException("element is null or void", "element");
+
+            int w = element.BoundingClientWidth > 0 ? element.BoundingClientWidth : element.Width;
+            int h = element.BoundingClientHeight > 0 ? element.BoundingClientHeight : element.Height;
+
+            return new Point(origin.X + w / 2, origin.Y + h / 2);
+        }
+
         public static string DecodeQr(this HtmlElement element)
         {
             try
