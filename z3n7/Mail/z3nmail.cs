@@ -17,12 +17,7 @@ namespace z3n7.Api
         private readonly bool _useNetHttp;
         private readonly bool _log;
 
-        public z3nmail(
-            IZennoPosterProjectModel project,
-            string apikey = null,
-            string baseUrl = null,
-            bool useNetHttp = false,
-            bool log = false)
+        public z3nmail(IZennoPosterProjectModel project, string apikey = null, string baseUrl = null, bool useNetHttp = false, bool log = false)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _useNetHttp = useNetHttp;
@@ -72,7 +67,6 @@ namespace z3n7.Api
             string email = _project.Json.data.email.ToString();
 
             _project.Var("mailId", id);
-            _project.Var("bestMailId", id);
             _project.Var("email", email);
             _project.Profile.Email = email;
 
