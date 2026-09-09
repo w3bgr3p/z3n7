@@ -396,7 +396,7 @@ namespace z3n7
         }
         
         
-        public static void HeSet(this Instance instance, object obj, string value, string method = "id", int deadline = 10, double delay = 1, string comment = "", bool thrw = true, bool thr0w = true, string pathToScript = null)
+        public static void HeSet(this Instance instance, object obj, string value, string method = "id", int deadline = 10, double delay = 1, string comment = "", bool thrw = true, bool thr0w = true,int emu = 0, string pathToScript = null)
         {
             DateTime functionStart = DateTime.Now;
             string lastExceptionMessage = "";
@@ -417,7 +417,13 @@ namespace z3n7
                     _inputSleep.Sleep(delay);
                     he.WriteToScript(pathToScript, "set");
                     instance.WaitFieldEmulationDelay();
-                    he.SetValue(value, "Full", false);
+                    if (emu == 0) 
+                        he.SetValue(value, "Full", false);
+                    else if (emu > 0)
+                    {
+                        instance.HeClick(he, emu:emu);
+                        instance.SendText(value, 15);
+                    }
                     break;
                 }
                 catch (Exception ex)
@@ -458,7 +464,7 @@ namespace z3n7
             }
         }
         
-        public static Point DrugAndDrop(this Instance instance, HtmlElement element, int offsetX, int offsetY = 0)
+        public static Point HeDragAndDrop(this Instance instance, HtmlElement element, int offsetX, int offsetY = 0)
         {
             var tab = instance.ActiveTab;
             var p0 = element.Center(element.DisplacementInTabWindow);

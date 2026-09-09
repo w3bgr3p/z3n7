@@ -8,6 +8,7 @@ using z3n7.Utilities;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.Enums.Browser;
 using ZennoLab.InterfacesLibrary.ProjectModel;
+using ZennoLab.InterfacesLibrary.ProjectModel.Collections;
 
 namespace z3n7
 {
@@ -597,6 +598,81 @@ namespace z3n7 //ProjectExtensions
             }
             throw new Exception($"proxy check failed: proxyString=[{proxyString}]");
         }
+
+        // ======================================================================================
+        // ZennoPoster C# Snippet: Экспорт полного отпечатка профиля в JSON (без БД)
+        // ======================================================================================
+        // 1. Сбор всех простых свойств IProfile (UserAgent, Concurrency, Resolution, etc.)
+        public static void SaveProfile(this IZennoPosterProjectModel project, Instance instance)
+        {
+            
+            var profileData = new Dictionary<string, object>();
+            foreach (var prop in typeof(IProfile).GetProperties())
+            {
+                if (!prop.CanRead || prop.GetMethod?.IsPublic != true) continue;
+                var t = prop.PropertyType;
+                bool isSimple = t.IsPrimitive || t == typeof(string) || t == typeof(decimal) || t == typeof(DateTime) || t.IsEnum;
+                if (isSimple)
+                {
+                    try {
+                        var val = prop.GetValue(project.Profile, null);
+                        if (val != null) profileData[prop.Name] = val;
+                    } catch { }
+                }
+            }
+
+            // 2. Сбор свойств Instance (CanvasNoise, AudioNoise, etc.)
+            var instanceData = new Dictionary<string, object>();
+            foreach (var prop in typeof(Instance).GetProperties())
+            {
+                if (!prop.CanRead || prop.GetMethod?.IsPublic != true) continue;
+                var t = prop.PropertyType;
+                bool isSimple = t.IsPrimitive || t == typeof(string) || t == typeof(decimal) || t == typeof(DateTime) || t.IsEnum;
+                if (isSimple)
+                {
+                    try {
+                        var val = prop.GetValue(instance, null);
+                        if (val != null) instanceData[prop.Name] = val;
+                    } catch { }
+                }
+            }
+
+            // 3. Сбор WebGL (точный JSON из WebGLPreferences)
+            string webglData = "";
+            try {
+                webglData = instance.WebGLPreferences.Save();
+            } catch { }
+
+            // 4. Сбор Cookies (Base64 строка)
+            string cookiesBase64 = "";
+            try {
+                cookiesBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(instance.GetCookie() ?? ""));
+            } catch { }
+
+            // 5. Формирование бандла
+            var exportBundle = new Dictionary<string, object>
+            {
+                { "timestamp", DateTime.UtcNow.ToString("o") },
+                { "profile", profileData },
+                { "instance", instanceData },
+                { "_preferences", webglData },
+                { "cookies", cookiesBase64 }
+            };
+
+            // 6. Сохранение в JSON файл на диск
+            string profilesDir = Path.Combine(project.Directory, "profiles");
+            Directory.CreateDirectory(profilesDir);
+
+            string fileName = $"zenno_profile_{DateTime.UtcNow:yyyyMMdd_HHmmss}_{Guid.NewGuid().ToString("N").Substring(0, 6)}.json";
+            string fullPath = Path.Combine(profilesDir, fileName);
+
+            string jsonOutput = Newtonsoft.Json.JsonConvert.SerializeObject(exportBundle, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(fullPath, jsonOutput, System.Text.Encoding.UTF8);
+
+            project.SendInfoToLog($"[Fingerprint] Профиль успешно сохранен: {fullPath}");
+
+        }
+
 
     }
 }
