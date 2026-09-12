@@ -15,7 +15,7 @@ namespace z3n7
     /// <summary>
     /// Standalone HAR exporter for a ZennoPoster C# action.
     /// </summary>
-    public static class HarTraffic
+    public static partial class HarTraffic
     {
         public static int Save(Instance instance, string path,string filter = null)
         {
@@ -472,7 +472,7 @@ namespace z3n7
         {
             var domain = instance.ActiveTab.MainDomain;
             filter = filter ?? domain;
-            var filename = Path.Combine(project.Path,"har",DateTime.Today.ToString("yyyy-MM-dd"), result, domain, $"{((long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds)).ToString()}.har");
+            var filename = Path.Combine(project.Path,"har",DateTime.Today.ToString("yyyy-MM-dd"), result, project.Name, $"{((long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds)).ToString()}.har");
             var count = z3n7.HarTraffic.Save(instance,filename, filter);
             project.SendInfoToLog($"{count} elements saved to {filename} by filter {filter}");
             

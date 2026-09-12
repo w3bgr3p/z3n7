@@ -521,8 +521,7 @@ namespace z3n7.Captcha
                             ballY,
                             sliderX);
                         _project.SendInfoToLog(
-                            "Hunt football calibration:\n" + diagnostics,
-                            true);
+                            "Hunt football calibration:\n" + diagnostics);
                         return result;
                     }
 
@@ -598,8 +597,7 @@ namespace z3n7.Captcha
                 }
 
                 _project.SendWarningToLog(
-                    "Hunt football calibration failed:\n" + diagnostics,
-                    true);
+                    "Hunt football calibration failed:\n" + diagnostics);
                 throw new InvalidOperationException(
                     "Hunt football target was not reached. Ball: " +
                     (result?.Ball == null
@@ -961,7 +959,7 @@ namespace z3n7.Captcha
             string state,
             string current)
         {
-            project.SendInfoToLog(Format(type, state, current), true);
+            project.SendInfoToLog(Format(type, state, current));
         }
 
         internal static string Format(string type, string state, string current)
@@ -1030,8 +1028,7 @@ namespace z3n7.Captcha
                     {
                         lastError = ex;
                         project.SendErrorToLog(
-                            $"hunt {type} attempt failed:{Environment.NewLine}{ex}",
-                            true);
+                            $"hunt {type} attempt failed:{Environment.NewLine}{ex}");
 
                         var folder = instance.ActiveTab.Domain;
                         var timestamp = DateTimeOffset.UtcNow
@@ -1057,7 +1054,9 @@ namespace z3n7.Captcha
 
                     if (solved)
                     {
-                        HuntStateLog.Write(project, type, "solved", "verification passed");
+                        project.SendInfoToLog(
+                            HuntStateLog.Format(type, "solved", "verification passed"),
+                            true);
                         return ;
                     }
 
@@ -1065,6 +1064,9 @@ namespace z3n7.Captcha
                         HuntStateLog.Write(project, type, "retrying", "starting next attempt");
                 }
 
+                project.SendErrorToLog(
+                    HuntStateLog.Format(type, "failed", "too many attempts"),
+                    true);
                 throw new Exception("too many attempts", lastError);
             }
 
