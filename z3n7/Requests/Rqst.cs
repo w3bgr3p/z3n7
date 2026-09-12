@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ZennoLab.CommandCenter;
@@ -18,8 +16,6 @@ namespace z3n7
         private readonly Logger _logger;
         private readonly Request _rqst;
         private readonly bool _mask;
-        private readonly string _logHost;
-        private static readonly HttpClient _httpLogClient = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
         private static readonly object LockObject = new object();
 
         public Rqst(IZennoPosterProjectModel project, bool log = false, bool mask = false)
@@ -29,9 +25,6 @@ namespace z3n7
 
             _logger =  new Logger(project,null,classEmoji: "↑↓", logLevel: (log) ? LogLevel.Info : LogLevel.Off);
             _rqst = new Request();
-            _logHost = !string.IsNullOrEmpty(_project.GVar("logHost")) 
-                ? _project.GVar("logHost").Replace("/log", "/http-log")
-                : "http://localhost:10993/http-log";
             _mask = mask;
         }
 
@@ -158,6 +151,7 @@ namespace z3n7
             string[] headers, string cookies, int deadline, bool bodyOnly)
         {
             _rqst.Method = method;
+            _rqst.Response = null;
             _rqst.Url = url;
             _rqst.Body = body; // Используем Body, как в вашем классе
             _rqst.Deadline = deadline;
@@ -580,27 +574,25 @@ namespace z3n7
         #endregion
 
         #region Logging
-        private void LogHttpTransaction(Request req)
+        private static string ResponseHeaders(Request req)
         {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await SendLogAsync(req);
-                }
-                catch { }
-            });
+            var raw = req.Response ?? "";
+            if (req.ResponceType == ResponceType.BodyOnly || !raw.StartsWith("HTTP/", StringComparison.OrdinalIgnoreCase)) return "";
+            var end = raw.IndexOf("\r\n\r\n", StringComparison.Ordinal);
+            return end < 0 ? "" : raw.Substring(0, end);
         }
 
-        private async Task SendLogAsync(Request req)
+        private void LogHttpTransaction(Request req)
         {
             try
             {
+                var timestamp = DateTime.UtcNow.AddHours(-5);
                 int durationMs = (int)(req.EndTime - req.StartTime).TotalMilliseconds;
 
                 var httpLog = new
                 {
-                    timestamp = DateTime.UtcNow.AddHours(-5).ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                    timestamp = timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                    startedDateTime = req.StartTime.ToString("o"),
                     method = req.Method,
                     url = req.Url,
                     statusCode = req.StatusCode,
@@ -609,12 +601,15 @@ namespace z3n7
                     request = new
                     {
                         headers = req.Headers,
+                        contentType = req.ContentType,
+                        userAgent = req.UserAgent,
                         cookies = req.Cookies,
                         cookiesSource = req.CookieSource,
                         body = req.Body,
                     },
                     response = new
                     {
+                        headers = ResponseHeaders(req),
                         body = req.ResponseBody
                     },
                     machine = Environment.MachineName,
@@ -627,17 +622,14 @@ namespace z3n7
                     source = req.Source
                 };
 
-                string json = JsonConvert.SerializeObject(httpLog);
-                using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
-                {
-                    await _httpLogClient.PostAsync(_logHost, content);
-                    
-                    string trafficHost = _logHost.Replace("/http-log", "/traffic");
-                    if (trafficHost != _logHost)
-                        await _httpLogClient.PostAsync(trafficHost, content);
-                }
+                string json = JsonConvert.SerializeObject(httpLog, Formatting.None);
+                ZpTraffic.Append(_project, json);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                try { _project.SendWarningToLog($"[Rqst] Traffic JSONL write failed: {ex.Message}"); }
+                catch { }
+            }
         }
 
         

@@ -33,4 +33,8 @@
               CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Hunt.cs" />
+    </ItemGroup>
+
 </Project>

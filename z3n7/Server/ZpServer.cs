@@ -23,6 +23,7 @@ namespace z3n7
     /// 
     /// Endpoints:
     ///   GET  /state         — tasks + processes текущей машины
+    ///   GET  /traffic       — JSONL traffic, paged by byte offset
     ///   POST /command       — { action, task_id, payload } → исполняет немедленно
     /// </summary>
     public static class ZpServer
@@ -144,6 +145,8 @@ namespace z3n7
                 if (path == "/task/xml"    && method == "POST") { await ReceiveTaskXml(ctx, log);     return; }
                 if (path == "/task/settings" && method == "GET") { await ServeTaskSettings(ctx); return; }
                 if (path == "/log"     && method == "GET")  { await ServeLog(ctx, project);     return; }
+                if (path == "/traffic" && method == "GET")  { await ServeTraffic(ctx, project); return; }
+                if (path == "/traffic/har" && method == "GET") { await ServeTrafficHar(ctx, project); return; }
                 if (path == "/debug/assemblies" && method == "GET") { await ServeDebugAssemblies(ctx); return; }
 
                 ctx.Response.StatusCode = 404;
@@ -367,6 +370,43 @@ namespace z3n7
                 count   = entries.Count,
                 entries = entries.Select(e => e.ToJson()),
             });
+        }
+
+        // GET /traffic?offset=0&n=200&project=Simroute.uber&task_id=...
+        // Continue with next_offset, retaining the same filters. When has_more
+        // is false, retain next_offset for the next poll to collect new traffic.
+        private static async Task ServeTraffic(HttpListenerContext ctx, IZennoPosterProjectModel project)
+        {
+            var q = ctx.Request.QueryString;
+            long offset = 0;
+            if (q["offset"] != null && (!long.TryParse(q["offset"], out offset) || offset < 0))
+            {
+                await WriteError(ctx.Response, 400, "offset must be a non-negative byte offset");
+                return;
+            }
+            int n;
+            if (!int.TryParse(q["n"], out n) || n <= 0) n = 200;
+            n = Math.Min(n, 2000);
+            try
+            {
+                var page = ZpTraffic.Read(ZpTraffic.FilePath(project), offset, n, q["project"], q["task_id"]);
+                await WriteJson(ctx.Response, page);
+            }
+            catch (ArgumentException ex) { await WriteError(ctx.Response, 400, ex.Message); }
+            catch (Exception ex) { await WriteError(ctx.Response, 500, ex.Message); }
+        }
+
+        // GET /traffic/har?project=Simroute.uber&task_id=... — complete HAR 1.2, no pagination envelope.
+        private static async Task ServeTrafficHar(HttpListenerContext ctx, IZennoPosterProjectModel project)
+        {
+            var q = ctx.Request.QueryString;
+            var har = HarTraffic.ExportRqst(project, q["project"], q["task_id"]);
+            var bytes = Encoding.UTF8.GetBytes(har);
+            ctx.Response.ContentType = "application/json; charset=utf-8";
+            ctx.Response.Headers["Content-Disposition"] = "attachment; filename=traffic.har";
+            ctx.Response.ContentLength64 = bytes.Length;
+            await ctx.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length);
+            ctx.Response.Close();
         }
 
         // GET /debug/assemblies — список загруженных сборок

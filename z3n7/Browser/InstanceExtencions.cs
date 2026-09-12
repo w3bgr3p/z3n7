@@ -197,9 +197,10 @@ namespace z3n7
         
         public static string HeCatch(this Instance instance, object obj, string method = "", int deadline = 10, string atr = "innertext", int delay = 1, string pathToScript = null)
         {
+            Thread.Sleep(1000 * delay);
             DateTime functionStart = DateTime.Now;
             string lastExceptionMessage = "";
-
+            
             while (true)
             {
                 if ((DateTime.Now - functionStart).TotalSeconds > deadline)
