@@ -23,7 +23,7 @@ namespace z3n7
     /// 
     /// Endpoints:
     ///   GET  /state         — tasks + processes текущей машины
-    ///   GET  /traffic       — JSONL traffic, paged by byte offset
+    ///   GET  /traffic       — JSONL traffic: tail=N либо страницы по байтовому оффсету
     ///   POST /command       — { action, task_id, payload } → исполняет немедленно
     /// </summary>
     public static class ZpServer
@@ -375,9 +375,28 @@ namespace z3n7
         // GET /traffic?offset=0&n=200&project=Simroute.uber&task_id=...
         // Continue with next_offset, retaining the same filters. When has_more
         // is false, retain next_offset for the next poll to collect new traffic.
+        //
+        // GET /traffic?tail=200&... — last N records instead, read backwards from
+        // the end of the file. next_offset then points at the end of the current
+        // file, so forward polling can continue from there.
         private static async Task ServeTraffic(HttpListenerContext ctx, IZennoPosterProjectModel project)
         {
             var q = ctx.Request.QueryString;
+
+            if (q["tail"] != null)
+            {
+                int tail;
+                if (!int.TryParse(q["tail"], out tail) || tail <= 0) tail = 200;
+                tail = Math.Min(tail, 2000);
+                try
+                {
+                    var last = ZpTraffic.Tail(ZpTraffic.FilePath(project), tail, q["project"], q["task_id"]);
+                    await WriteJson(ctx.Response, last);
+                }
+                catch (Exception ex) { await WriteError(ctx.Response, 500, ex.Message); }
+                return;
+            }
+
             long offset = 0;
             if (q["offset"] != null && (!long.TryParse(q["offset"], out offset) || offset < 0))
             {

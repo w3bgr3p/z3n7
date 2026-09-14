@@ -2,12 +2,16 @@
 using System.Text;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace z3n7.Tools
 {
     public static class Extractor
     {
         private const string InputSettingsHtmlEntry = "InputSettings/inputSettings.html";
+        private static readonly Regex RxXmlDecl = new Regex(@"<\?xml[^?]*\?>", RegexOptions.Compiled);
         
         public static string ExtractXml(string zpPath)
         {
@@ -178,6 +182,78 @@ namespace z3n7.Tools
                 break;
             }
         }
+
+
+        // ── Search ────────────────────────────────────────────────────────────
+
+        public class SearchHit
+        {
+            public string ZpPath;
+            public string StepId;
+            public override string ToString() => $"{ZpPath}\t{StepId}";
+        }
+
+        public static List<SearchHit> Search(string folder, string text, bool recursive = true)
+        {
+            var hits = new List<SearchHit>();
+            if (string.IsNullOrEmpty(text) || !Directory.Exists(folder)) return hits;
+
+            var option = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            foreach (var zpPath in Directory.GetFiles(folder, "*.zp", option))
+                hits.AddRange(SearchInZp(zpPath, text));
+
+            return hits;
+        }
+
+        static List<SearchHit> SearchInZp(string zpPath, string text)
+        {
+            var hits = new List<SearchHit>();
+
+            XDocument doc;
+            try
+            {
+                var xml = ExtractXml(zpPath);
+                if (string.IsNullOrEmpty(xml)) return hits;
+                doc = XDocument.Parse(RxXmlDecl.Replace(xml, ""));
+            }
+            catch
+            {
+                return hits;
+            }
+
+            foreach (var step in doc.Descendants("Step"))
+            {
+                var stepId = step.Attribute("ID")?.Value;
+                if (string.IsNullOrEmpty(stepId)) continue;
+                if (!StepContains(step, text)) continue;
+                hits.Add(new SearchHit { ZpPath = zpPath, StepId = stepId });
+            }
+
+            return hits;
+        }
+
+        static bool StepContains(XElement step, string text)
+        {
+            foreach (var el in step.DescendantsAndSelf())
+            {
+                foreach (var attr in el.Attributes())
+                    if (Contains(attr.Value, text)) return true;
+
+                if (!el.HasElements && Contains(el.Value, text)) return true;
+            }
+            return false;
+        }
+
+        static bool Contains(string haystack, string needle)
+        {
+            if (string.IsNullOrEmpty(haystack)) return false;
+            if (haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            return DecodeEntities(haystack).IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        static string DecodeEntities(string s) =>
+            s.Replace("&#xD;&#xA;", "\n").Replace("&#xD;", "\r").Replace("&#xA;", "\n")
+             .Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"");
 
     }
     
