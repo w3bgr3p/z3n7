@@ -35,6 +35,8 @@
 
     <ItemGroup>
       <Compile Remove="Hunt.cs" />
+      <Compile Remove="HuntTest.cs" />
+      
     </ItemGroup>
 
 </Project>

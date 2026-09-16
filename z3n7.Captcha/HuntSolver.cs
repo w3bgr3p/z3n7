@@ -20,7 +20,7 @@ namespace z3n7.Captcha
         private const string VerifyUrl = "/captcha-api/api/v4/captcha/verify";
         private readonly IZennoPosterProjectModel _project;
         private readonly Instance _instance;
-        private readonly HttpClient _http;
+        private readonly z3nCap _cap;
 
         public HuntSolver(
             IZennoPosterProjectModel project,
@@ -28,21 +28,8 @@ namespace z3n7.Captcha
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _instance = instance ?? throw new ArgumentNullException(nameof(instance));
-            var apiUrl = project.ReadEnv("HUNT_SOLVER_API_URL");
-            var apiKey = project.ReadEnv("HUNT_SOLVER_API_KEY");
-            if (string.IsNullOrWhiteSpace(apiUrl))
-                throw new ArgumentException("API URL is required", nameof(apiUrl));
-            if (string.IsNullOrWhiteSpace(apiKey))
-                throw new ArgumentException("API key is required", nameof(apiKey));
-
             _instance.UseTrafficMonitoring = true;
-            _http = new HttpClient
-            {
-                BaseAddress = new Uri(apiUrl.TrimEnd('/') + "/"),
-                Timeout = TimeSpan.FromSeconds(30)
-            };
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", apiKey);
+            _cap = new z3nCap(project);
         }
 
         public bool Solve(
@@ -104,27 +91,8 @@ namespace z3n7.Captcha
 
         private List<Detection> Detect(string type, string imageBase64, float confidence)
         {
-            var comma = imageBase64.IndexOf(',');
-            var raw = imageBase64.StartsWith("data:", StringComparison.OrdinalIgnoreCase) && comma >= 0
-                ? imageBase64.Substring(comma + 1)
-                : imageBase64;
-            using (var content = new ByteArrayContent(Convert.FromBase64String(raw)))
-            {
-                content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
-                var url = "v1/detect/" + type + "?confidence=" +
-                          confidence.ToString(CultureInfo.InvariantCulture);
-                using (var response = _http.PostAsync(url, content).GetAwaiter().GetResult())
-                {
-                    var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                    if (!response.IsSuccessStatusCode)
-                        throw new HttpRequestException(
-                            "Hunt API returned " + (int)response.StatusCode + ": " + json);
-
-                    return ((JArray)JObject.Parse(json)["detections"])
-                        .Select(item => new Detection(item))
-                        .ToList();
-                }
-            }
+            var array = _cap.Detect(type, imageBase64, confidence);
+            return array.Select(item => new Detection(item)).ToList();
         }
 
         private void SolveShapes(float confidence, int minimumDelayMs, int maximumDelayMs)
@@ -440,7 +408,7 @@ namespace z3n7.Captcha
 
         public void Dispose()
         {
-            _http.Dispose();
+            _cap.Dispose();
         }
 
         private sealed class Detection

@@ -1253,7 +1253,9 @@ namespace z3n7.Git
         public void SnapCoreDll()
         {
             var paths = GetCorePaths();
-            var (dllVersion, zpVersion) = GetVersions(paths.DllPath, paths.ProcessDir);
+            // dllVersion — из файла на диске: архивируется именно он, а не загруженная сборка.
+            string dllVersion = FileVersionInfo.GetVersionInfo(paths.DllPath).FileVersion;
+            string zpVersion  = Diagnostic.Info().zennoposter;
 
             _project.SendInfoToLog($"ZP: v{zpVersion}, z3n7: v{dllVersion}");
             _project.Var("vZP", zpVersion);
@@ -1274,7 +1276,6 @@ namespace z3n7.Git
 
             return new CorePaths
             {
-                ProcessDir = processDir,
                 ExternalAssemblies = externalAssemblies,
                 DllPath = Path.Combine(externalAssemblies, "z3n7.dll"),
                 z3n7Repo = @"w:\code_hard\.net\z3n7\ExternalAssemblies\",
@@ -1282,13 +1283,6 @@ namespace z3n7.Git
                 SnapsBase = @"w:\work_hard\zenoposter\CURRENT_JOBS\.snaps\",
                 VersionsBase = @"w:\code_hard\.net\z3n7\verions\"
             };
-        }
-
-        private (string dllVersion, string zpVersion) GetVersions(string dllPath, string processDir)
-        {
-            string dllVersion = FileVersionInfo.GetVersionInfo(dllPath).FileVersion;
-            string zpVersion = processDir.Split('\\')[5];
-            return (dllVersion, zpVersion);
         }
 
         private void CopyAssemblies(CorePaths paths)
@@ -1368,7 +1362,6 @@ namespace z3n7.Git
 
         private class CorePaths
         {
-            public string ProcessDir { get; set; }
             public string ExternalAssemblies { get; set; }
             public string DllPath { get; set; }
             public string z3n7Repo { get; set; }
