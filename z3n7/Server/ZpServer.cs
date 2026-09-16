@@ -25,6 +25,10 @@ namespace z3n7
     ///   GET  /state         — tasks + processes текущей машины
     ///   GET  /traffic       — JSONL traffic: tail=N либо страницы по байтовому оффсету
     ///   POST /command       — { action, task_id, payload } → исполняет немедленно
+    ///   GET  /version       — версии z3n7, ZennoPoster, рантайма
+    ///
+    /// Все роуты требуют токен: заголовок Authorization: Bearer &lt;token&gt;
+    /// либо параметр ?token= (для ссылок на скачивание). См. ZpAuth.
     /// </summary>
     public static class ZpServer
     {
@@ -49,6 +53,8 @@ namespace z3n7
                 if (log) LogNode(project, _port);
                 return;
             }
+
+            ZpAuth.Load(project, log);
 
             if (!Bind(project, port)) return;
             if (openFirewall) EnsureFirewall(project, _port, log);
@@ -127,13 +133,27 @@ namespace z3n7
             // CORS headers
             ctx.Response.AddHeader("Access-Control-Allow-Origin", "*");
             ctx.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            ctx.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type");
+            ctx.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-            // Handle preflight
+            // Handle preflight. Токен здесь не спрашиваем: на preflight браузер
+            // заголовок Authorization не отправляет.
             if (method == "OPTIONS")
             {
                 ctx.Response.StatusCode = 200;
                 ctx.Response.Close();
+                return;
+            }
+
+            // Единственная точка проверки: закрывает и добавленные позже роуты.
+            if (!ZpAuth.Authorized(ctx.Request))
+            {
+                if (log) project.SendInfoToLog($"[ZpServer] 401 {method} {path} от {ctx.Request.RemoteEndPoint}", false);
+                try
+                {
+                    ctx.Response.AddHeader("WWW-Authenticate", "Bearer");
+                    await WriteError(ctx.Response, 401, "unauthorized");
+                }
+                catch { }
                 return;
             }
 
@@ -147,6 +167,7 @@ namespace z3n7
                 if (path == "/log"     && method == "GET")  { await ServeLog(ctx, project);     return; }
                 if (path == "/traffic" && method == "GET")  { await ServeTraffic(ctx, project); return; }
                 if (path == "/traffic/har" && method == "GET") { await ServeTrafficHar(ctx, project); return; }
+                if (path == "/version" && method == "GET") { await WriteJson(ctx.Response, Diagnostic.Info()); return; }
                 if (path == "/debug/assemblies" && method == "GET") { await ServeDebugAssemblies(ctx); return; }
 
                 ctx.Response.StatusCode = 404;
@@ -517,6 +538,7 @@ namespace z3n7
                 host     = GetLocalIp(),
                 external = external,
                 port     = port,
+                token    = ZpAuth.Token,
                 firewall = State(firewall, "on",  "off"),
                 portRule = State(portRule, "yes", "no"),
             });
@@ -533,6 +555,8 @@ namespace z3n7
             "https://ipv4.icanhazip.com",
             "https://checkip.amazonaws.com",
         };
+        
+        
 
         /// <summary>
         /// Внешний IPv4 узла. Пустая строка, если ни один сервис не ответил —

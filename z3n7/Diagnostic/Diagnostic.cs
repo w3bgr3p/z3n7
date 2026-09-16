@@ -4,7 +4,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using ZennoLab.CommandCenter;
@@ -12,11 +14,9 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
-    /// <summary>Отчёт SimRoute в PostgreSQL через DbQ. Весь SQL живёт здесь.</summary>
+    
     public static partial class projectExtencions
     {
-        
-
         public static void SaveDebugScreenshot(this IZennoPosterProjectModel project, Instance instance, string watermark = null)
         {
             watermark = watermark ?? string.Join(
@@ -142,4 +142,63 @@ namespace z3n7
         }
 
     }
+
+    /// <summary>Версии окружения узла. Пустая строка — значение не прочиталось.</summary>
+    public sealed class VersionInfo
+    {
+        public string z3n7        { get; set; } = "";
+        public string zennoposter { get; set; } = "";
+        public string product     { get; set; } = "";
+        public string process     { get; set; } = "";
+        public string framework   { get; set; } = "";
+        public string machine     { get; set; } = "";
+    }
+
+    public static class Diagnostic
+    {
+        /// <summary>
+        /// Версии сборки, ZennoPoster, рантайма и имя машины.
+        ///
+        /// Каждое поле добывается отдельно: сорвавшееся чтение одного
+        /// не должно уносить остальные. Наружу исключений не выпускает.
+        /// </summary>
+        public static VersionInfo Info()
+        {
+            var info = new VersionInfo();
+
+            info.z3n7 = Try(() => typeof(Diagnostic).Assembly.GetName().Version.ToString());
+
+            var exe = Try(() => Process.GetCurrentProcess().MainModule.FileName);
+            if (exe.Length > 0)
+            {
+                info.process     = Try(() => Path.GetFileName(exe));
+                info.zennoposter = Try(() => FileVersionInfo.GetVersionInfo(exe).ProductVersion ?? "");
+                info.product     = Try(() => FileVersionInfo.GetVersionInfo(exe).ProductName    ?? "");
+            }
+
+            info.framework = Try(() => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription);
+            info.machine   = Try(() => Environment.MachineName);
+
+            return info;
+        }
+
+        /// <summary>
+        /// Старая форма для Init.Logo: строго [z3n7, zennoposter, framework].
+        /// Порядок читается по индексам — менять нельзя.
+        /// </summary>
+        internal static string[] GetVersions()
+        {
+            var i = Info();
+            return new[] { i.z3n7, i.zennoposter, i.framework };
+        }
+
+        private static string Try(Func<string> read)
+        {
+            try   { return read() ?? ""; }
+            catch { return ""; }
+        }
+    }
+    
+    
+    
 }

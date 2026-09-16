@@ -49,12 +49,12 @@ namespace z3n7
         }
         private void Logo(string author, string dllTitle, string projectName)
         {
-            var v = GetVersions();
+            var v = Diagnostic.GetVersions();
             string dllVer = v[0];
             string zpVer = v[1];
             
             if (author != "") author = $" script author: @{author}";
-            string frameworkVersion = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+            string frameworkVersion =  v[2];
             
             string logo = $@"using ZennoPoster v{zpVer} && {frameworkVersion}; 
              using {dllTitle} v{dllVer}  
@@ -101,35 +101,7 @@ namespace z3n7
         }
         
         #endregion
-        
-        #region Utilities & Helpers
 
-        private string[] GetVersions()
-        {
-            var executingAssembly = Assembly.GetExecutingAssembly();
-            var referencedAssembly = typeof(Init).Assembly;
-            var executingVersion = executingAssembly.GetName().Version.ToString();
-            var referencedVersion = referencedAssembly.GetName().Version.ToString();
-
-            if (executingVersion != referencedVersion)
-            {
-                string errorMessage = $"Version mismatch detected! " +
-                                      $"Executing assembly ({executingAssembly.Location}) version: {executingVersion}, " +
-                                      $"Referenced assembly ({referencedAssembly.Location}) version: {referencedVersion}. " +
-                                      $"Ensure both assemblies are the same version.";
-                _logger.Warn(errorMessage);
-            }
-            
-            string currentProcessPath = Process.GetCurrentProcess().MainModule.FileName;
-            string processDir = Path.GetDirectoryName(currentProcessPath);
-            string DllVer = referencedVersion;
-            string ZpVer = processDir.Split('\\')[5];
-            
-            return new[] { DllVer, ZpVer };
-        }
-
-        
-        #endregion
     }
 
 

@@ -190,65 +190,198 @@ namespace z3n7.Tools
         {
             public string ZpPath;
             public string StepId;
-            public override string ToString() => $"{ZpPath}\t{StepId}";
+            public string Context;
+            public override string ToString() => $"{ZpPath}\t{StepId}\t{Context}";
         }
 
-        public static List<SearchHit> Search(string folder, string text, bool recursive = true)
+        public static List<SearchHit> SearchInZp(this IZennoPosterProjectModel project, string text, string folder = null, bool recursive = true, bool cache = true, int padding = 60)
         {
+            folder = folder ?? project.Path;
             var hits = new List<SearchHit>();
             if (string.IsNullOrEmpty(text) || !Directory.Exists(folder)) return hits;
 
+            var cacheDir = cache ? PrepareCacheDir(folder) : null;
             var option = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
             foreach (var zpPath in Directory.GetFiles(folder, "*.zp", option))
-                hits.AddRange(SearchInZp(zpPath, text));
+                SearchInZp(project, zpPath, text, hits, folder, cacheDir, padding);
 
             return hits;
         }
 
-        static List<SearchHit> SearchInZp(string zpPath, string text)
+        static void SearchInZp(IZennoPosterProjectModel project, string zpPath, string text, List<SearchHit> hits, string folder, string cacheDir, int padding)
         {
-            var hits = new List<SearchHit>();
-
             XDocument doc;
             try
             {
-                var xml = ExtractXml(zpPath);
-                if (string.IsNullOrEmpty(xml)) return hits;
+                var xml = cacheDir == null ? ExtractXml(zpPath) : CachedXml(zpPath, folder, cacheDir);
+                if (string.IsNullOrEmpty(xml)) return;
                 doc = XDocument.Parse(RxXmlDecl.Replace(xml, ""));
             }
             catch
             {
-                return hits;
+                return;
             }
 
             foreach (var step in doc.Descendants("Step"))
             {
                 var stepId = step.Attribute("ID")?.Value;
                 if (string.IsNullOrEmpty(stepId)) continue;
-                if (!StepContains(step, text)) continue;
-                hits.Add(new SearchHit { ZpPath = zpPath, StepId = stepId });
-            }
+                string context;
+                if (!StepContains(step, text, padding, out context)) continue;
 
-            return hits;
+                var hit = new SearchHit { ZpPath = zpPath, StepId = stepId, Context = context };
+                project.SendInfoToLog(hit.ToString());
+                hits.Add(hit);
+            }
         }
 
-        static bool StepContains(XElement step, string text)
+        // ── Кэш распакованного XML ────────────────────────────────────────────
+        //
+        // ExtractXml стоит ~1 секунду на файл (замерено: всё время внутри
+        // ZennoLab.LoadFromBytesArray, наш парсинг и поиск — ~2 мс), и эта секунда
+        // не параллелится. Поэтому распакованный XML кладём рядом с проектами.
+        //
+        // Валидность определяет само имя файла кэша: в него зашиты время модификации
+        // и размер .zp. Изменился проект — имя другое, файла нет, перечитываем только его.
+        // Отдельной инвалидации не требуется.
+
+        private const string CacheDirName = ".xml";
+
+        static string PrepareCacheDir(string folder)
+        {
+            try
+            {
+                var dir = Path.Combine(folder, CacheDirName);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                    File.SetAttributes(dir, File.GetAttributes(dir) | FileAttributes.Hidden);
+                }
+                return dir;
+            }
+            catch
+            {
+                return null;   // кэш — удобство, а не условие работы
+            }
+        }
+
+        static string CachedXml(string zpPath, string folder, string cacheDir)
+        {
+            string prefix = null, cachePath = null;
+            try
+            {
+                var fi = new FileInfo(zpPath);
+                prefix = CacheKeyPrefix(zpPath, folder);
+                cachePath = Path.Combine(cacheDir, $"{prefix}.{fi.LastWriteTimeUtc.Ticks}.{fi.Length}.xml");
+                if (File.Exists(cachePath)) return File.ReadAllText(cachePath, Encoding.UTF8);
+            }
+            catch
+            {
+                return ExtractXml(zpPath);
+            }
+
+            var xml = ExtractXml(zpPath);
+            if (string.IsNullOrEmpty(xml)) return xml;
+
+            try
+            {
+                foreach (var stale in Directory.GetFiles(cacheDir, prefix + ".*.xml"))
+                    File.Delete(stale);
+                File.WriteAllText(cachePath, xml, Encoding.UTF8);
+            }
+            catch
+            {
+                // не записалось — не беда, в следующий раз распакуем заново
+            }
+
+            return xml;
+        }
+
+        // Имя проекта + короткий хеш его папки: читаемо и не конфликтует между подпапками.
+        static string CacheKeyPrefix(string zpPath, string folder)
+        {
+            var dir = Path.GetDirectoryName(Path.GetFullPath(zpPath)) ?? "";
+            var hash = 2166136261u;
+            foreach (var c in dir.ToLowerInvariant())
+                hash = (hash ^ c) * 16777619u;
+
+            var name = Path.GetFileNameWithoutExtension(zpPath);
+            foreach (var bad in Path.GetInvalidFileNameChars())
+                name = name.Replace(bad, '_');
+
+            return $"{name}.{hash:x8}";
+        }
+
+        // Первое совпадение в шаге; context — найденное вместе с padding символов слева и справа.
+        static bool StepContains(XElement step, string text, int padding, out string context)
         {
             foreach (var el in step.DescendantsAndSelf())
             {
                 foreach (var attr in el.Attributes())
-                    if (Contains(attr.Value, text)) return true;
+                    if (Contains(attr.Value, text, padding, out context)) return true;
 
-                if (!el.HasElements && Contains(el.Value, text)) return true;
+                if (!el.HasElements && Contains(el.Value, text, padding, out context)) return true;
             }
+            context = null;
             return false;
         }
 
-        static bool Contains(string haystack, string needle)
+        static bool Contains(string haystack, string needle, int padding, out string context)
         {
+            context = null;
             if (string.IsNullOrEmpty(haystack)) return false;
-            if (haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0) return true;
-            return DecodeEntities(haystack).IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
+
+            // Контекст строим по раскодированному тексту: иначе вырезка приезжает
+            // засыпанной &#xD;&#xA; и &quot;, и читать её невозможно.
+            // Декодирование затрагивает только строки с '&' — остальные не трогаем.
+            if (haystack.IndexOf('&') >= 0)
+            {
+                var decoded = DecodeEntities(haystack);
+                var d = decoded.IndexOf(needle, StringComparison.OrdinalIgnoreCase);
+                if (d >= 0)
+                {
+                    context = Snippet(decoded, d, needle.Length, padding);
+                    return true;
+                }
+            }
+
+            // Откат на сырой текст: нужен, когда ищут сами сущности (&quot; и т.п.).
+            var i = haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase);
+            if (i < 0) return false;
+
+            context = Snippet(haystack, i, needle.Length, padding);
+            return true;
+        }
+
+        // Вырезка вокруг совпадения. Переводы строк и табы схлопываются в пробелы,
+        // иначе одна находка разъезжается на несколько строк лога.
+        static string Snippet(string haystack, int index, int length, int padding)
+        {
+            if (padding < 0) padding = 0;
+
+            var from = Math.Max(0, index - padding);
+            var to   = Math.Min(haystack.Length, index + length + padding);
+
+            var sb = new StringBuilder(to - from + 2);
+            if (from > 0) sb.Append('…');
+
+            var space = false;
+            for (var i = from; i < to; i++)
+            {
+                var c = haystack[i];
+                if (c == '\r' || c == '\n' || c == '\t' || c == ' ')
+                {
+                    if (!space && sb.Length > 0) sb.Append(' ');
+                    space = true;
+                    continue;
+                }
+                sb.Append(c);
+                space = false;
+            }
+
+            if (to < haystack.Length) sb.Append('…');
+            return sb.ToString();
         }
 
         static string DecodeEntities(string s) =>
