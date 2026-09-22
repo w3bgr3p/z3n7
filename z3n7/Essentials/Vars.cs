@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -80,7 +80,7 @@ namespace z3n7
 
         public static void MaxErr(this IZennoPosterProjectModel project, int maxAttempts, Exception ex = null)
         {
-            var errCounter = project.Int("ErrCounter");
+            var errCounter = project.Int("maxErr");
             var message =  ex != null  ? ex.Message : project.LastErrorComment;
             project.Var("err", message);    
             
@@ -92,10 +92,35 @@ namespace z3n7
             }
             else
             {
-                project.Int("ErrCounter", 1);
+                project.Int("maxErr", 1);
             }
         }
 
+        /// <summary>
+        /// Добавляет переменную в проект, открытый в ProjectMaker.
+        /// Работает только во время разработки: у ILocalVariables нет метода
+        /// добавления, поэтому правка идёт через PublicApi и касается копии
+        /// проекта в памяти ProjectMaker. Из задачи в раннере вызывать
+        /// бессмысленно — на себя это не подействует.
+        /// Чтобы правка попала на диск, проект надо сохранить.
+        /// Ключ берётся из ZENNO_API_KEY, тир ключа должен быть не ниже T1.
+        /// </summary>
+        public static bool VarAdd(this IZennoPosterProjectModel project, string name, string defaultValue = "", string comment = "")
+        {
+            var body = JsonConvert.SerializeObject(new { variables = new[] { new { name, defaultValue, comment } } });
+            var answer = ZennoLab.CommandCenter.ZennoPoster.HTTP.Request(
+                ZennoLab.InterfacesLibrary.Enums.Http.HttpMethod.POST,
+                "http://localhost:5299/api/v1/projects/current/variables",
+                body, "application/json", "", "UTF-8",
+                ZennoLab.InterfacesLibrary.Enums.Http.ResponceType.BodyOnly, 15000,
+                "", "", true, 5,
+                new[] { "Authorization: Bearer " + project.ReadEnv("ZENNO_API_KEY", true) });
+
+            var ok = answer != null && answer.Contains("RESULT_OK");
+            if (!ok) project.SendWarningToLog($"VarAdd({name}): {answer}", false);
+            return ok;
+        }
+        
 
         public static string VarRnd(this IZennoPosterProjectModel project, string var)
         {
@@ -420,7 +445,12 @@ namespace z3n7
             project.Var("projectTable", table);
             return table;
         }
-        
+
+        public static string FullPath(this IZennoPosterProjectModel project)
+        {
+            return Path.Combine(project.Path, project.Name);
+        }
+
 
         //pathes
         public static string PathProfiles(this IZennoPosterProjectModel project)
@@ -478,7 +508,9 @@ namespace z3n7
             var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(decrypted.FromBase64());
             return dict.TryGetValue(key, out var val) ? val : string.Empty;
         }
-        
+
+
+
     }
 
 

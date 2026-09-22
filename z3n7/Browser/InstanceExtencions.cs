@@ -195,7 +195,7 @@ namespace z3n7
             }
         }
         
-        public static string HeCatch(this Instance instance, object obj, string method = "", int deadline = 10, string atr = "innertext", int delay = 1, string pathToScript = null)
+        public static string HeCatch(this Instance instance, object obj,  string method = "", int deadline = 10, string atr = "innertext", int delay = 1, string pathToScript = null)
         {
             Thread.Sleep(1000 * delay);
             DateTime functionStart = DateTime.Now;
@@ -223,6 +223,42 @@ namespace z3n7
                     else
                     {
                         // Real error or "element detected" exception
+                        throw;
+                    }
+                }
+
+                Thread.Sleep(500);
+            }
+        }
+        public static string HeCatch(this Instance instance, IZennoPosterProjectModel project, object obj,  string method = "", int deadline = 10, string atr = "innertext", int delay = 1, string pathToScript = null)
+        {
+            Thread.Sleep(1000 * delay);
+            DateTime functionStart = DateTime.Now;
+            string lastExceptionMessage = "";
+            
+            while (true)
+            {
+                if ((DateTime.Now - functionStart).TotalSeconds > deadline)
+                {
+                    return null;
+                }
+
+                try
+                {
+                    HtmlElement he = instance.GetHe(obj, method);
+                    throw new Exception(he.GetAttribute(atr));
+                }
+                catch (Exception ex)
+                {
+                    lastExceptionMessage = ex.Message;
+                    if (ex.Message.Contains("no element by"))
+                    {
+                        // Element not found - good, continue waiting
+                    }
+                    else
+                    {
+                        // Real error or "element detected" exception
+                        project.Var("err", ex.Message);
                         throw;
                     }
                 }
@@ -515,7 +551,19 @@ namespace z3n7
             Thread.Sleep(_rnd.Next(100, 200));
             return new Point(targetX, targetY);
         }
-        
+
+        public static void HePeakRandom(this Instance instance, object obj, int min = 1, int max = 10)
+        {
+            
+            instance.HeLongClick(obj);
+            instance.WaitFieldEmulationDelay();
+            instance.HeLongClick(obj);
+            var keys = string.Concat(Enumerable.Repeat("{DOWN}", _rnd.Next(min, max)));
+            instance.SendText(keys, 15);
+
+        }
+
+
 
 
         #endregion

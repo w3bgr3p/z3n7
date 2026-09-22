@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -77,7 +78,7 @@ namespace z3n7.Api
         }
 
         /// <summary>Получить OTP (6 цифр) из письма.</summary>
-        public string Otp(int matchIndex = 0, bool second = false)
+        public string Otp(int matchIndex = 0)
         {
             var retries = 10;
             while (retries > 0)
@@ -87,32 +88,38 @@ namespace z3n7.Api
                 var body = Regex.Replace(html, "<.*?>", "");
                 var otp = "";
                 var matches = Regex.Matches(body, @"\b\d{6}\b");
+
+                if (matchIndex == -1)
+                {
+                    _project.SendInfoToLog(string.Join(Environment.NewLine, matches.Cast<Match>().Select(x => x.Value)));
+                    return "";
+                }
+                
                 if (matches.Count > matchIndex)
                 {
                     otp = matches[matchIndex].Value;
-
-                    if (second)
-                    {
-                        if (otp == _project.Var("mailOtp"))
-                        {
-                            Thread.Sleep(5000);
-                            continue;
-                        }
-                    }
                     _project.Var("mailOtp", otp);
                     return otp;
-
                 }
-                if (!second)
-                {
-                    throw new Exception("AnyMessage: OTP not found");
-                }
+                
             }
-            
+
             throw new Exception("AnyMessage: OTP not found");
         }
-        
-        public HashSet<string> GetHrefs(int deadline = 60)
+
+        public string Href(int hrefIndex = 0, int deadline = 60)
+        {
+            var hrefs = GetHrefs(deadline);
+            if (hrefIndex == -1)
+            {
+                _project.SendInfoToLog(string.Join(Environment.NewLine, hrefs));
+                return "";
+            }
+            return hrefs[hrefIndex];
+            
+        }
+
+        public List<string> GetHrefs(int deadline = 60)
         {
             var json = GetMail(deadline);
             _project.ToJson(json);
@@ -126,7 +133,7 @@ namespace z3n7.Api
             var nodes = document.DocumentNode.SelectNodes("//*[@href]");
 
             if (nodes == null)
-                return result;
+                return result.ToList();
 
             for (int i = 0; i < nodes.Count; i++)
             {
@@ -140,8 +147,12 @@ namespace z3n7.Api
 
                 result.Add(href);
             }
-
-            return result;
+            
+            var list = result.ToList();
+            
+            if (_log)
+                _project.SendInfoToLog(string.Join(Environment.NewLine, list));
+            return list;
         }
 
         private static string NormalizeHref(string href)
@@ -196,7 +207,7 @@ namespace z3n7.Api
         }
 
         /// <summary>Извлечь ссылку из письма по паттерну.</summary>
-        public string Link(string urlPattern)
+        public string LinkByRegex(string urlPattern)
         {
             var html  = GetMail();
             var match = Regex.Match(html, urlPattern);
@@ -215,7 +226,7 @@ namespace z3n7.Api
             string newId    = _project.Json.id.ToString();
             string newEmail = _project.Json.email.ToString();
             _project.Var("anyMailId",    newId);
-            _project.Var("anyMailEmail", newEmail);
+            _project.Var("email", newEmail);
             return new[] { newId, newEmail };
         }
 

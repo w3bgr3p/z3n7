@@ -8,28 +8,45 @@ namespace z3n7.Captcha
 {
     public static partial  class CaptchaExtensions
     {
-        public static void CFSolve(this Instance instance)
+        public static void CFSolve(this Instance instance, bool thrw = false)
         {
-            Random rnd = new Random(); string strX = ""; string strY = ""; Thread.Sleep(3000);
-            HtmlElement he1 = instance.ActiveTab.FindElementById("cf-turnstile");
-            HtmlElement he2 = instance.GetHe(("div", "outerhtml", "<div><input type=\"hidden\" name=\"cf-turnstile-response\"", "regexp", 0), "last");
-            // instance.ActiveTab.FindElementByAttribute("div", "outerhtml", "<div><input type=\"hidden\" name=\"cf-turnstile-response\"", "regexp", 4);
-            if (he1.IsVoid && he2.IsVoid) return;
-            else if (!he1.IsVoid)
+            try
             {
-                strX = he1.GetAttribute("leftInbrowser"); strY = he1.GetAttribute("topInbrowser");
-            }
-            else if (!he2.IsVoid)
-            {
-                strX = he2.GetAttribute("leftInbrowser"); strY = he2.GetAttribute("topInbrowser");
-            }
+                Random rnd = new Random();
+                string strX = "";
+                string strY = "";
+                Thread.Sleep(3000);
+                HtmlElement he1 = instance.ActiveTab.FindElementById("cf-turnstile");
+                HtmlElement he2 =
+                    instance.GetHe(
+                        ("div", "outerhtml", "<div><input type=\"hidden\" name=\"cf-turnstile-response\"", "regexp", 0),
+                        "last");
+                // instance.ActiveTab.FindElementByAttribute("div", "outerhtml", "<div><input type=\"hidden\" name=\"cf-turnstile-response\"", "regexp", 4);
+                if (he1.IsVoid && he2.IsVoid) return;
+                else if (!he1.IsVoid)
+                {
+                    strX = he1.GetAttribute("leftInbrowser");
+                    strY = he1.GetAttribute("topInbrowser");
+                }
+                else if (!he2.IsVoid)
+                {
+                    strX = he2.GetAttribute("leftInbrowser");
+                    strY = he2.GetAttribute("topInbrowser");
+                }
 
-            int rndX = rnd.Next(23, 26); int x = (int.Parse(strX) + rndX);
-            int rndY = rnd.Next(27, 31); int y = (int.Parse(strY) + rndY);
-            Thread.Sleep(rnd.Next(4, 5) * 1000);
-            instance.WaitFieldEmulationDelay();
-            instance.Click(x, x, y, y, "Left", "Normal");
-            Thread.Sleep(rnd.Next(3, 4) * 1000);
+                int rndX = rnd.Next(23, 26);
+                int x = (int.Parse(strX) + rndX);
+                int rndY = rnd.Next(27, 31);
+                int y = (int.Parse(strY) + rndY);
+                Thread.Sleep(rnd.Next(4, 5) * 1000);
+                instance.WaitFieldEmulationDelay();
+                instance.Click(x, x, y, y, "Left", "Normal");
+                Thread.Sleep(rnd.Next(3, 4) * 1000);
+            }
+            catch (Exception ex)
+            {
+                if (thrw) throw;
+            }
 
         }
         public static string CFToken(this Instance instance, int deadline = 60, bool strict = false)
@@ -97,7 +114,7 @@ namespace z3n7.Captcha
                     trustline = challenge.FirstChild.GetAttribute("value");
                 }
                 catch(Exception ex){
-		
+		            Console.WriteLine(ex.Message);
                 }
             }
             return trustline;
@@ -137,7 +154,7 @@ namespace z3n7.Captcha
                     trustline = challenge.FirstChild.GetAttribute("value");
                 }
                 catch(Exception ex){
-		
+                    Console.WriteLine(ex.Message);
                 }
             }
             return trustline;
@@ -219,7 +236,7 @@ namespace z3n7.Captcha
                     trustline = challenge.FirstChild.GetAttribute("value");
                 }
                 catch(Exception ex){
-		
+                    Console.WriteLine(ex.Message);
                 }
             }
             return trustline;
