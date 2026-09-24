@@ -470,11 +470,19 @@ namespace z3n7
     {
         public static void SaveSuccessHar(this IZennoPosterProjectModel project , Instance instance, string filter = null, string result = "success")
         {
-            var domain = instance.ActiveTab.MainDomain;
-            filter = filter ?? domain;
             var filename = Path.Combine(project.Path,"har",DateTime.Today.ToString("yyyy-MM-dd"), result, project.Name, $"{((long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds)).ToString()}.har");
+
+            var recorder = CdpHar.For(instance);
+            if (recorder != null)
+            {
+                var saved = recorder.Save(filename, filter);
+                project.SendInfoToLog($"{saved} elements saved to {filename} via CDP by filter {filter ?? "<all>"}");
+                return;
+            }
+
+            filter = filter ?? instance.ActiveTab.MainDomain;
             var count = z3n7.HarTraffic.Save(instance,filename, filter);
-            project.SendInfoToLog($"{count} elements saved to {filename} by filter {filter}");
+            project.SendWarningToLog($"{count} elements saved to {filename} via GetTraffic by filter {filter} (CDP recorder not started: instance.StartHar())");
             
         }
     }

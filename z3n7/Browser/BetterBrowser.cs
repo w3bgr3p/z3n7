@@ -19,7 +19,7 @@ namespace z3n7
             try{
                 
                 instance.GetCookies(project);
-                project.Profile.Email = project.Profile.NickName + "@mailflashx.online";
+                project.Profile.Email = project.Profile.NickName + "@outlook.com";
                 project.Profile.Password = Rnd.RndPass(12);
                 instance.UseTrafficMonitoring = true;
                 instance.SetWindowSize(1280, 720);
@@ -134,7 +134,7 @@ namespace z3n7
             try
             {
                 System.IO.File.AppendAllText(
-                    @"W:\work_hard\zenoposter\CURRENT_JOBS\simroute\z3n-diag.jsonl",
+                    Path.Combine(project.Path,"diag","z3n-diag.jsonl"),
                     System.Text.RegularExpressions.Regex.Replace(diag.ToString(), @"\s+", " ") + System.Environment.NewLine);
             }
             catch { }

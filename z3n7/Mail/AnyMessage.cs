@@ -5,6 +5,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using HtmlAgilityPack;
+using Newtonsoft.Json.Linq;
 
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
@@ -37,10 +38,54 @@ namespace z3n7.Api
 
         // ── short-term emails ─────────────────────────────────────────────────────
 
-        /// <summary>Заказать временный email. Возвращает [id, email].</summary>
-        /// <param name="site">Сайт, например "instagram.com"</param>
-        /// <param name="domain">Домен: "mailcom", "gmx", "hotmail", "outlook" (или через запятую)</param>
-        public string[] NewMail(string site, string domain = "outlook.com")
+        // Дословный ответ /email/order, когда на домене нет ящиков.
+        private const string NoEmails = "no emails";
+
+        /// <summary>Домен, на котором заказан последний email (может отличаться от запрошенного при откате).</summary>
+        public string LastDomain { get; private set; }
+
+        /// <summary>
+        /// Доступные домены для сайта: domain -> (count, price).
+        /// Ответ /email/quantity: {"status":"success","data":{"gmx.com":{"count":..,"price":..},...}}.
+        /// </summary>
+        public Dictionary<string, (int Count, double Price)> Quantity(string site)
+        {
+            var json = Get($"/email/quantity?token={_apikey}&site={site}");
+            _project.ToJson(json);
+            Check("quantity");
+
+            var result = new Dictionary<string, (int, double)>();
+            var data = JObject.Parse(json)["data"] as JObject;
+            if (data == null) return result;
+
+            foreach (var prop in data.Properties())
+            {
+                if (!(prop.Value is JObject info)) continue;
+                try
+                {
+                    int count = info["count"]?.ToObject<int?>() ?? 0;
+                    double? price = info["price"]?.ToObject<double?>();
+                    if (price == null) continue;
+                    result[prop.Name] = (count, price.Value);
+                }
+                catch { }
+            }
+            return result;
+        }
+
+        /// <summary>Домены с count > 0: по цене, при равной цене — у кого больше ящиков.</summary>
+        public List<string> CheapestDomains(string site, params string[] exclude)
+        {
+            var ex = new HashSet<string>(exclude ?? new string[0], StringComparer.OrdinalIgnoreCase);
+            return Quantity(site)
+                .Where(kv => kv.Value.Count > 0 && !ex.Contains(kv.Key))
+                .OrderBy(kv => kv.Value.Price)
+                .ThenByDescending(kv => kv.Value.Count)
+                .Select(kv => kv.Key)
+                .ToList();
+        }
+
+        private string[] Order(string site, string domain)
         {
             var json = Get($"/email/order?token={_apikey}&site={site}&domain={domain}");
             _project.ToJson(json);
@@ -51,7 +96,58 @@ namespace z3n7.Api
             _project.Var("anyMailId",    id);
             _project.Var("email", email);
             _project.Profile.Email =  email;
+            LastDomain = domain;
             return new[] { id, email };
+        }
+
+        private static bool IsNoEmails(Exception ex) =>
+            ex.Message.IndexOf(NoEmails, StringComparison.OrdinalIgnoreCase) >= 0;
+
+        /// <summary>Заказать временный email. Возвращает [id, email].</summary>
+        /// <param name="site">Сайт, например "instagram.com"</param>
+        /// <param name="domain">Домен: "mailcom", "gmx", "hotmail", "outlook" (или через запятую)</param>
+        /// <param name="fallback">На ответ "no emails" взять список доменов (/email/quantity)
+        /// и заказать на самом дешёвом из доступных (count > 0). Итоговый домен — LastDomain.</param>
+        /// <param name="maxFallback">Сколько доменов из списка пробовать.</param>
+        public string[] NewMail(string site, string domain = "outlook.com", bool fallback = true, int maxFallback = 5)
+        {
+            var errors = new List<string>();
+            try
+            {
+                return Order(site, domain);
+            }
+            catch (Exception ex) when (fallback && IsNoEmails(ex))
+            {
+                errors.Add($"{domain}: {ex.Message}");
+            }
+
+            List<string> candidates;
+            try
+            {
+                candidates = CheapestDomains(site, domain);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"quantity: {ex.GetType().Name}: {ex.Message}");
+                throw new Exception("AnyMessage order: " + string.Join(" | ", errors), ex);
+            }
+
+            foreach (var dom in candidates.Take(maxFallback))
+            {
+                if (_log) _project.SendInfoToLog($"[AnyMessage] {domain}: no emails -> {dom}");
+                try
+                {
+                    return Order(site, dom);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"{dom}: {ex.Message}");
+                    if (!IsNoEmails(ex)) break;
+                }
+            }
+            if (candidates.Count == 0)
+                errors.Add("quantity: нет доменов с count > 0");
+            throw new Exception("AnyMessage order: " + string.Join(" | ", errors));
         }
 
         /// <summary>Ждать письмо. Возвращает HTML тела.</summary>
