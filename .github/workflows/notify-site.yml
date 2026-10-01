@@ -1,0 +1,15 @@
+# Опубликован релиз → пересобрать z3n.pro, чтобы он сразу появился в ленте сайта.
+name: notify-site
+on:
+  release:
+    types: [published]
+jobs:
+  deploy-hook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger z3n.pro rebuild
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "секрет VERCEL_DEPLOY_HOOK не задан"; exit 1; fi
+          curl -fsS -X POST --max-time 30 "$HOOK"
