@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7", "z3n7\z3n7.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Web3", "..\z3n7.Web3\z3n7.Web3\z3n7.Web3.csproj", "{25FC26EC-377E-45DC-B7D7-BDAC526DCE08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Wallets", "z3n7.Wallets\z3n7.Wallets.csproj", "{C29349A9-4DF4-4B05-9166-FAF35AF38606}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Wallets", "..\z3n7.Wallets\z3n7.Wallets\z3n7.Wallets.csproj", "{C29349A9-4DF4-4B05-9166-FAF35AF38606}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "z3n7.Socials", "..\z3n7.Socials\z3n7.Socials\z3n7.Socials.csproj", "{13F4A4A3-3A3B-4A7C-9056-2B62367AFD3A}"
 EndProject
