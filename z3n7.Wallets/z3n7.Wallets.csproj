@@ -8,7 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="W:\code_hard\.net\z3n7\z3n7\z3n7.csproj" />
-        <ProjectReference Include="W:\code_hard\.net\z3n7\z3n7.Web3\z3n7.Web3.csproj" />
+        <ProjectReference Include="W:\code_hard\.net\z3n7.Web3\z3n7.Web3\z3n7.Web3.csproj" />
     </ItemGroup>
 
     <ItemGroup>
