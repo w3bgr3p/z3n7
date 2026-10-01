@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 using ZennoLab.CommandCenter;
-using System.Net.Http;
 using ZennoLab.InterfacesLibrary.Enums.Browser;
 using ZennoLab.BrowserProfiles;
 namespace z3n7
@@ -154,56 +150,3 @@ namespace z3n7
     }
 }
 
-namespace z3n7
-{
-    public static class SimrouteProxy
-    {
-        private static readonly object RandomLock = new object();
-        private static readonly Random Random = new Random();
-
-        private static string IsAvaliable(string iso, string pathToJson)
-        {
-            iso = iso.Trim();
-
-            var routes = Newtonsoft.Json.Linq.JArray.Parse(
-                System.IO.File.ReadAllText(pathToJson));
-
-            var node = routes.FirstOrDefault(x =>
-                string.Equals(((string)x["iso2"])?.Trim(), iso,
-                    StringComparison.OrdinalIgnoreCase));
-
-            if (node == null)
-                throw new Exception("ISO не найден: [" + iso + "]");
-
-            string proxy = ((string)node["proxy"])?.Trim();
-
-            return string.Equals(proxy, "true", StringComparison.OrdinalIgnoreCase)
-                ? iso
-                : proxy;
-        }
-
-        public static string Get(IZennoPosterProjectModel project,  string iso )
-        {
-            var host = project.ReadEnv("SIMROUTE_PROXY_HOST");
-            var port = project.ReadEnv("SIMROUTE_PROXY_PORT");
-            
-            iso = IsAvaliable(iso,  project.ReadEnv("SIMROUTE_ROUTES_PATH"));
-            
-            var login = $"{project.ReadEnv("SIMROUTE_PROXY_LOGIN")}-country-{iso}-session-1{Random.Next(10000, 100000)}";
-            var password = project.ReadEnv("SIMROUTE_PROXY_PASS");
-            var proxyString = $"socks5://{login}:{password}@{host}:{port}";
-            project.Var("proxy", proxyString);
-            return proxyString;
-        }
-        public static string Get(IZennoPosterProjectModel project)
-        {
-            var host = project.ReadEnv("SIMROUTE_PROXY_HOST");
-            var port = project.ReadEnv("SIMROUTE_PROXY_PORT");
-            var login = $"{project.ReadEnv("SIMROUTE_PROXY_LOGIN")}-session-1{Random.Next(10000, 100000)}";
-            var password = project.ReadEnv("SIMROUTE_PROXY_PASS");
-            var proxyString = $"socks5://{login}:{password}@{host}:{port}";
-            project.Var("proxy", proxyString);
-            return proxyString;
-        }
-    }
-}

@@ -20,6 +20,8 @@
         <Compile Remove="DbUtils\TaskManager_obsolete.cs" />
         <Compile Remove="Essentials\Log.cs" />
         <Compile Remove="Api\GMXMail.cs" />
+        <Compile Remove="Tools\SettingsConverter.cs" />
+        <Compile Remove="Tools\Rss.cs" />
     </ItemGroup>
 
     <ItemGroup>
