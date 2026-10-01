@@ -1,0 +1,44 @@
+<Project>
+    <!-- Переменные по умолчанию (можно переопределить) -->
+    <PropertyGroup>
+        <ReleasesFolder Condition="'$(ReleasesFolder)' == ''">$(MSBuildThisFileDirectory)dllReady\</ReleasesFolder>
+        <ExternalAssemblies Condition="'$(ExternalAssemblies)' == ''">$(MSBuildThisFileDirectory)ZennoLab\ExternalAssemblies\</ExternalAssemblies>
+        <ExternalAssembliesIgnore Condition="'$(ExternalAssembliesIgnore)' == ''">z3n7.Numlex.dll</ExternalAssembliesIgnore>
+    </PropertyGroup>
+
+    <!-- Автоматическое копирование для проектов z3n.* -->
+    <Target Name="CopyToReleases"
+            AfterTargets="Build"
+            Condition="'$(Configuration)' == 'Release' AND $(MSBuildProjectName.StartsWith('z3n7'))">
+
+        <MakeDir
+                Directories="$(ReleasesFolder);$(ExternalAssemblies);@(AdditionalCopyFolders)" />
+
+        <Copy
+                SourceFiles="$(TargetPath)"
+                DestinationFolder="$(ReleasesFolder)"
+                SkipUnchangedFiles="true" />
+
+        <Copy
+                SourceFiles="$(TargetPath)"
+                DestinationFolder="$(ExternalAssemblies)"
+                SkipUnchangedFiles="true"
+                Condition="$([System.String]::Copy(';$(ExternalAssembliesIgnore);').Contains(';$(TargetFileName);')) != 'True'" />
+
+        <Copy
+                SourceFiles="$(TargetPath)"
+                DestinationFolder="%(AdditionalCopyFolders.Identity)"
+                SkipUnchangedFiles="true"
+                Condition="'@(AdditionalCopyFolders)' != ''" />
+
+        <Message
+                Text="✓ Copied $(TargetFileName) → $(ReleasesFolder)"
+                Importance="high" />
+
+        <Message
+                Text="✓ Copied $(TargetFileName) → $(ExternalAssemblies)"
+                Importance="high"
+                Condition="$([System.String]::Copy(';$(ExternalAssembliesIgnore);').Contains(';$(TargetFileName);')) != 'True'" />
+    </Target>
+
+</Project>

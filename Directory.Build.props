@@ -1,0 +1,14 @@
+<Project>
+    <Import Project="$(MSBuildThisFileDirectory)ZennoLab.props" />
+    <PropertyGroup>
+        <Version>1.0.0930.0</Version>
+
+        <AssemblyTitle>$(MSBuildProjectName)</AssemblyTitle>
+        <Product>z3n7</Product>
+        <Copyright>Copyright © w3bgr3p 2026</Copyright>
+        <Company>w3bgr3p</Company>
+        <Authors>w3bgr3p</Authors>
+
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    </PropertyGroup>
+</Project>

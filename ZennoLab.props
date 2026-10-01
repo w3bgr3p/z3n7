@@ -1,0 +1,18 @@
+<Project>
+    <!--
+        Каталог Progs установленного ZennoPoster, против которого собирается проект.
+        Версия зафиксирована намеренно: ExternalAssemblies загружаются именно этой версией ZP,
+        и "последняя найденная" может молча сменить API.
+        Переопределение без правки файлов: переменная окружения ZennoProgs
+        или параметр сборки /p:ZennoProgs=...
+    -->
+    <PropertyGroup>
+        <ZennoProgs Condition="'$(ZennoProgs)' == ''">c:\Program Files\ZennoLab\RU\ZennoPoster Pro V7\7.9.2.0\Progs\</ZennoProgs>
+        <ZennoProgs>$([MSBuild]::EnsureTrailingSlash('$(ZennoProgs)'))</ZennoProgs>
+    </PropertyGroup>
+
+    <Target Name="CheckZennoProgs" BeforeTargets="ResolveAssemblyReferences"
+            Condition="!Exists('$(ZennoProgs)ZennoLab.CommandCenter.dll')">
+        <Error Text="ZennoLab.CommandCenter.dll не найден в '$(ZennoProgs)'. Задай переменную окружения ZennoProgs или /p:ZennoProgs=&lt;путь к Progs&gt;." />
+    </Target>
+</Project>
