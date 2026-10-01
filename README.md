@@ -7,7 +7,7 @@ methods on `IZennoPosterProjectModel` and `Instance`, so C# actions stay short.
 
 ## Requirements
 
-- ZennoPoster 7.9.2 (the version the library is built and tested against)
+- ZennoPoster 7.7.21 or later
 - .NET Framework 4.8
 
 ## Installation
