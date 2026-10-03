@@ -1,8 +1,10 @@
-# Опубликован релиз → пересобрать z3n.pro, чтобы он сразу появился в ленте сайта.
+# Опубликован релиз → пересобрать z3n.pro, чтобы он сразу появился на сайте.
+# workflow_dispatch — ручной запуск для проверки (Actions → notify-site → Run workflow).
 name: notify-site
 on:
   release:
     types: [published]
+  workflow_dispatch:
 jobs:
   deploy-hook:
     runs-on: ubuntu-latest
