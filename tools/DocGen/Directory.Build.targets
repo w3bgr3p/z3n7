@@ -1,0 +1,3 @@
+<Project>
+    <!-- Stops MSBuild from importing the repo-level props/targets: DocGen must build without ZennoPoster installed. -->
+</Project>
