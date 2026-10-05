@@ -12,18 +12,34 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Message severity. A logger drops messages below its minimum level; <c>Off</c> drops everything
+    /// except forced messages.
+    /// </summary>
     public enum LogLevel { Debug = 0, Info = 1, Warning = 2, Error = 3, Off = 99 }
 
+    /// <summary>
+    /// Writes messages to the ZennoPoster log and, optionally, as JSON to an HTTP log collector.
+    /// Header fields are switched on by substrings of the <c>cfgLog</c> project variable: <c>acc</c>
+    /// (account), <c>time</c> (project age), <c>port</c> (instance port), <c>caller</c> (calling member),
+    /// <c>wrap</c> (print the header at all), <c>http</c> (send to the collector), <c>force</c> (ignore the
+    /// level filter).
+    /// </summary>
     public class Logger
     {
+        /// <summary>Creates a logger for the project with default settings.</summary>
         public static Logger Get(IZennoPosterProjectModel project, Instance instance = null)
             => new Logger(project, instance);
 
+        /// <summary>Does nothing. Kept for compatibility: the logger no longer caches instances.</summary>
         public static void ClearCache(IZennoPosterProjectModel project)
         {
             // Kept for compatibility. Logger no longer has a cache.
         }
 
+        /// <summary>
+        /// Returns a copy of this logger bound to <c>instance</c> (its port and PID are sent to the collector).
+        /// </summary>
         public Logger WithInstance(Instance instance)
             => new Logger(_project, instance, _minLevel, _logHost, _http, _timezone, Emoji);
 
@@ -36,6 +52,7 @@ namespace z3n7
         private readonly string    _port;
         private readonly string    _pid;
 
+        /// <summary>Prefix shown in brackets before every message, e.g. the class marker.</summary>
         public string Emoji { get; set; }
 
         // cfgLog flags
@@ -44,6 +61,24 @@ namespace z3n7
         private static readonly HttpClient _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
 
         // ── Constructor ───────────────────────────────────────────────────────
+        /// <summary>
+        /// Creates a logger bound to a ZennoPoster project.
+        /// The minimum level is taken from the <c>logLevel</c> project variable when it parses as
+        /// <c>LogLevel</c>; otherwise <c>Debug</c> when <c>debug</c> is <c>True</c>; otherwise the
+        /// <c>logLevel</c> argument. The collector address is <c>logHost</c>, then the <c>logHost</c> global
+        /// variable, then <c>http://localhost:10993/log</c>.
+        /// </summary>
+        /// <param name="instance">
+        /// Optional browser instance; its port and PID are read from the window title and sent to the
+        /// collector.
+        /// </param>
+        /// <param name="logLevel">Minimum level when the project variables do not set one.</param>
+        /// <param name="logHost">URL of the HTTP log collector.</param>
+        /// <param name="http">
+        /// Allow sending to the collector. It is sent only when <c>cfgLog</c> also contains <c>http</c>.
+        /// </param>
+        /// <param name="timezoneOffset">Hours added to UTC for the collector timestamp.</param>
+        /// <param name="classEmoji">Value of <c>Emoji</c>.</param>
         public Logger(
             IZennoPosterProjectModel project,
             Instance  instance       = null,
@@ -83,7 +118,15 @@ namespace z3n7
             }
         }
 
-        /// <summary>Standalone — без ZennoPoster контекста.</summary>
+        /// <summary>
+        /// Creates a logger without a ZennoPoster project: messages go only to the HTTP collector. The caller
+        /// name is always included.
+        /// </summary>
+        /// <param name="logLevel">Minimum level.</param>
+        /// <param name="logHost">URL of the HTTP log collector; default <c>http://localhost:10993/log</c>.</param>
+        /// <param name="http">Send messages to the collector.</param>
+        /// <param name="timezoneOffset">Hours added to UTC for the collector timestamp.</param>
+        /// <param name="classEmoji">Value of <c>Emoji</c>.</param>
         public Logger(
             LogLevel logLevel       = LogLevel.Info,
             string   logHost        = null,
@@ -101,6 +144,29 @@ namespace z3n7
         }
 
         // ── Public API ────────────────────────────────────────────────────────
+        /// <summary>
+        /// Writes a message. Messages below the minimum level are dropped unless <c>show</c> is true or
+        /// <c>cfgLog</c> contains <c>force</c>.
+        /// The ZennoPoster log type follows the level; text containing <c>!W</c> or <c>!E</c> is logged as a
+        /// warning or an error.
+        /// </summary>
+        /// <param name="toLog">Message; <c>ToString()</c> is used, <c>null</c> is written as "null".</param>
+        /// <param name="caller">Filled in by the compiler with the calling member name.</param>
+        /// <param name="show">Write even if below the minimum level.</param>
+        /// <param name="thrw">
+        /// After writing to the ZennoPoster log, throw an <c>Exception</c> with the message. Only when the
+        /// logger has a project and <c>toZp</c> is true.
+        /// </param>
+        /// <param name="toZp">Write to the ZennoPoster log.</param>
+        /// <param name="cut">
+        /// When the message has more than this many line breaks, join it into one line. 0 keeps it as is.
+        /// </param>
+        /// <param name="level">Severity used for filtering and for the collector.</param>
+        /// <param name="type">
+        /// ZennoPoster log type; overridden by <c>level</c> Warning/Error and by the <c>!W</c>/<c>!E</c>
+        /// markers.
+        /// </param>
+        /// <param name="color">ZennoPoster log color.</param>
         public void Send(
             object   toLog,
             [CallerMemberName] string caller = "",
@@ -133,15 +199,22 @@ namespace z3n7
             if (_http) SendHttp(body, type, caller, level);
         }
 
+        /// <summary>Writes a message at <c>Debug</c> level.</summary>
         public void Debug(object msg, [CallerMemberName] string caller = "")
             => Send(msg, caller, level: LogLevel.Debug);
 
+        /// <summary>Writes a message at <c>Info</c> level.</summary>
         public void Info(object msg, [CallerMemberName] string caller = "")
             => Send(msg, caller, level: LogLevel.Info);
 
+        /// <summary>Writes a warning.</summary>
+        /// <param name="show">Write even if below the minimum level.</param>
+        /// <param name="thrw">Throw an <c>Exception</c> with the message after writing.</param>
         public void Warn(object msg, [CallerMemberName] string caller = "", bool show = false, bool thrw = false)
             => Send(msg, caller, show, thrw, level: LogLevel.Warning, type: LogType.Warning);
 
+        /// <summary>Writes an error. Errors are always written regardless of the minimum level.</summary>
+        /// <param name="thrw">Throw an <c>Exception</c> with the message after writing.</param>
         public void Error(object msg, [CallerMemberName] string caller = "", bool thrw = false)
             => Send(msg, caller, show: true, thrw: thrw, level: LogLevel.Error, type: LogType.Error);
 
@@ -212,6 +285,13 @@ namespace z3n7
 {
     public static partial class ProjectExtensions
     {
+        /// <summary>
+        /// Writes a message to the project log through a default <c>Logger</c>. When called directly from a C#
+        /// action, the generated action name is replaced by the project name.
+        /// </summary>
+        /// <param name="toLog">Message.</param>
+        /// <param name="show">Write even if below the minimum level.</param>
+        /// <param name="toZp">Write to the ZennoPoster log.</param>
         public static void log(
             this IZennoPosterProjectModel project,
             object toLog,
@@ -224,6 +304,10 @@ namespace z3n7
             Logger.Get(project).Send(toLog, caller, show: show,  toZp: toZp);
         }
 
+        /// <summary>Writes a warning to the project log.</summary>
+        /// <param name="msg">Message.</param>
+        /// <param name="thrw">Also store the message in the <c>err</c> variable and throw an <c>Exception</c>.</param>
+        /// <param name="show">Write even if below the minimum level.</param>
         public static void warn(
             this IZennoPosterProjectModel project,
             string msg,
@@ -238,6 +322,11 @@ namespace z3n7
         }
         
 
+        /// <summary>Writes an exception message as a warning and stores it in the <c>err</c> variable.</summary>
+        /// <param name="ex">Exception to report.</param>
+        /// <param name="thrw">Throw an <c>Exception</c> with the message after writing.</param>
+        /// <param name="withStack">Append the stack trace.</param>
+        /// <param name="toZp">Not used.</param>
         public static void warn(
             this IZennoPosterProjectModel project,
             Exception ex,

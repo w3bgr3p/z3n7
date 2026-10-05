@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # ISAFU
 
-`interface` · namespace `z3n7` · source [Essentials/Safu8.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L17)
+`interface` · namespace `z3n7` · source [Essentials/Safu8.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L23)
 
 ```csharp
 public interface ISAFU
 ```
 
-*No description yet.*
+Encryption used by SAFU (secure storage of account secrets).
 
 ## Methods
 
@@ -22,7 +22,9 @@ public interface ISAFU
 string Decode(IZennoPosterProjectModel project, string toDecrypt, string pin, string acc)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L20)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L28)
+
+Decrypts text produced by `Encode` with the same machine, PIN and account.
 
 ### DecodeHWID
 
@@ -30,7 +32,9 @@ string Decode(IZennoPosterProjectModel project, string toDecrypt, string pin, st
 string DecodeHWID(IZennoPosterProjectModel project, string toDecrypt)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L23)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L37)
+
+Decrypts text produced by `EncodeHWID` on the same machine.
 
 ### Encode
 
@@ -38,7 +42,9 @@ string DecodeHWID(IZennoPosterProjectModel project, string toDecrypt)
 string Encode(IZennoPosterProjectModel project, string toEncrypt, string pin, string acc)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L19)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L26)
+
+Encrypts text with a key bound to the machine, the PIN and the account.
 
 ### EncodeHWID
 
@@ -46,7 +52,9 @@ string Encode(IZennoPosterProjectModel project, string toEncrypt, string pin, st
 string EncodeHWID(IZennoPosterProjectModel project, string toEncrypt)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L22)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L35)
+
+Encrypts text with a key bound to the machine only.
 
 ### HWPass
 
@@ -54,6 +62,8 @@ string EncodeHWID(IZennoPosterProjectModel project, string toEncrypt)
 string HWPass(IZennoPosterProjectModel project, string pin, string acc)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L21)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L33)
+
+Returns a password derived from the machine, the PIN and the account. The same inputs always give the same password.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

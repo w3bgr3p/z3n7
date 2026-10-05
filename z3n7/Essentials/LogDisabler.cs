@@ -3,11 +3,23 @@ using System.Diagnostics;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Stops ZennoPoster from writing its own log files to the <c>Logs</c> folder next to the running
+    /// executable.
+    /// </summary>
     public class LogDisabler
     {
         
         private static readonly object _disableLogsLock = new object();
 
+        /// <summary>
+        /// Replaces the <c>Logs</c> folder with a directory link to <c>NUL</c>. Does nothing if the folder is
+        /// already a link, a file, or has a <c>Logs.lock</c> marker next to it.
+        /// If that fails, the folder is replaced with a hidden read-only file named <c>Logs</c> and a
+        /// <c>Logs.lock</c> marker is written.
+        /// </summary>
+        /// <param name="aggressive">Use <c>rd /s /q</c> to remove the folder and retry up to 3 times.</param>
+        /// <remarks>Deletes the existing <c>Logs</c> folder with its contents.</remarks>
         public static void DisableLogs(bool aggressive = false)
         {
             string currentProcessPath = Process.GetCurrentProcess().MainModule.FileName;

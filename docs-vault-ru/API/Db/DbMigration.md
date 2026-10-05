@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # DbMigration
 
-`static class` · пространство имён `z3n7` · исходник [Db/DbExtencions.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1351)
+`static class` · пространство имён `z3n7` · исходник [Db/DbExtencions.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1689)
 
 ```csharp
 public static class DbMigration
 ```
 
-*Описания пока нет.*
+Copying tables inside the project database and between PostgreSQL and SQLite.
 
 ## Методы
 
@@ -22,7 +22,11 @@ public static class DbMigration
 public static void MigrateAllTables(this IZennoPosterProjectModel project)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1362)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1719)
+
+Copies every user table from the current database to the other kind: PostgreSQL → SQLite or SQLite → PostgreSQL (see `Sql.MigrateAllTablesAsync`). Errors are written to the log as a warning.
+
+**Примечания:** PostgreSQL is reached at localhost:5432, database and user `postgres`, password from the `DBpstgrPass` variable; SQLite at the `DBsqltPath` variable.
 
 ### MigrateTable
 
@@ -30,6 +34,15 @@ public static void MigrateAllTables(this IZennoPosterProjectModel project)
 public static void MigrateTable(this IZennoPosterProjectModel project, string source, string dest)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1353)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1702)
+
+Copies `source` to a new table `dest` in the same database, then renames a column `acc0` or `key` to `id` if there is one.
+
+| Параметр | Описание |
+|---|---|
+| `source` | Existing table. |
+| `dest` | Table to create. |
+
+**Примечания:** The database kind follows `dbSource`. PostgreSQL is reached at localhost:5432, database and user `postgres`, password from the `DBpstgrPass` variable; SQLite at the `DBsqltPath` variable.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

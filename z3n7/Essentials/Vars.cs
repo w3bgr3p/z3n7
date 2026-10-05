@@ -9,10 +9,16 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>Short accessors for project variables: read, write, parse, count.</summary>
     public static class Vars
     {
         private static readonly object LockObject = new object();
         
+        /// <summary>
+        /// Returns the value of a project variable. A missing variable is reported to the log and an empty
+        /// string is returned.
+        /// </summary>
+        /// <param name="var">Variable name.</param>
         public static string Var(this IZennoPosterProjectModel project, string var)
         {
             string value = string.Empty;
@@ -29,6 +35,13 @@ namespace z3n7
 
             return value;
         }
+        /// <summary>
+        /// Sets a project variable to <c>value.ToString()</c>. <c>null</c> is ignored. A missing variable is
+        /// reported to the log, nothing is thrown.
+        /// </summary>
+        /// <param name="var">Variable name.</param>
+        /// <param name="value">New value.</param>
+        /// <returns>Always an empty string.</returns>
         public static string Var(this IZennoPosterProjectModel project, string var, object value)
         {
             if (value == null ) return string.Empty;
@@ -42,6 +55,7 @@ namespace z3n7
             }
             return string.Empty;
         }
+        /// <summary>Returns a project variable parsed as <c>int</c>, or 0 when it is empty or not a number.</summary>
         public static int Int(this IZennoPosterProjectModel project, string var)
         {
             int value = 0;
@@ -54,12 +68,18 @@ namespace z3n7
             }
             return value;
         }
+        /// <summary>Adds <c>input</c> to an integer project variable and stores the result.</summary>
+        /// <returns>The new value.</returns>
         public static int Int(this IZennoPosterProjectModel project, string varName, int input)
         {
             var counter = project.Int(varName) + input;
             project.Var(varName, counter);
             return counter;
         }
+        /// <summary>
+        /// Returns a project variable parsed as <c>decimal</c> (current culture), or 0 when it cannot be
+        /// parsed.
+        /// </summary>
         public static decimal Decimal(this IZennoPosterProjectModel project, string var)
         {
             decimal value = 0;
@@ -72,12 +92,19 @@ namespace z3n7
             }
             return value;
         }
+        /// <summary>Returns <c>true</c> when the project variable equals <c>True</c> exactly.</summary>
         public static bool Bool(this IZennoPosterProjectModel project, string var)
         {
             bool value = project.Var(var) == "True";
             return value;
         }
 
+        /// <summary>
+        /// Error counter for retry loops. Stores the error text in <c>err</c> and increments <c>maxErr</c>;
+        /// once <c>maxErr</c> exceeds <c>maxAttempts</c>, writes a warning and throws.
+        /// </summary>
+        /// <param name="maxAttempts">Number of errors tolerated.</param>
+        /// <param name="ex">The error; when null, <c>project.LastErrorComment</c> is used.</param>
         public static void MaxErr(this IZennoPosterProjectModel project, int maxAttempts, Exception ex = null)
         {
             var errCounter = project.Int("maxErr");
@@ -97,14 +124,19 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Добавляет переменную в проект, открытый в ProjectMaker.
-        /// Работает только во время разработки: у ILocalVariables нет метода
-        /// добавления, поэтому правка идёт через PublicApi и касается копии
-        /// проекта в памяти ProjectMaker. Из задачи в раннере вызывать
-        /// бессмысленно — на себя это не подействует.
-        /// Чтобы правка попала на диск, проект надо сохранить.
-        /// Ключ берётся из ZENNO_API_KEY, тир ключа должен быть не ниже T1.
+        /// Adds a variable to the project open in ProjectMaker through the local ZennoPoster API
+        /// (<c>http://localhost:5299</c>).
+        /// Development-time only: it edits ProjectMaker's in-memory copy of the project, so a task running in
+        /// the runner is not affected. Save the project to keep the change. The API key is read from
+        /// <c>ZENNO_API_KEY</c> in the <c>.env</c> next to <c>z3n7.dll</c>; the key tier must be T1 or higher.
         /// </summary>
+        /// <param name="name">Variable name.</param>
+        /// <param name="defaultValue">Initial value.</param>
+        /// <param name="comment">Variable comment.</param>
+        /// <returns>
+        /// <c>true</c> when the API answered <c>RESULT_OK</c>; otherwise the answer is written to the log as a
+        /// warning.
+        /// </returns>
         public static bool VarAdd(this IZennoPosterProjectModel project, string name, string defaultValue = "", string comment = "")
         {
             var body = JsonConvert.SerializeObject(new { variables = new[] { new { name, defaultValue, comment } } });
@@ -122,6 +154,11 @@ namespace z3n7
         }
         
 
+        /// <summary>
+        /// Reads a project variable. A value like <c>10-20</c> returns a random integer from 10 (inclusive) to
+        /// 20 (exclusive); any other value is returned trimmed.
+        /// </summary>
+        /// <param name="var">Variable name.</param>
         public static string VarRnd(this IZennoPosterProjectModel project, string var)
         {
             string value = string.Empty;
@@ -143,12 +180,26 @@ namespace z3n7
             }
             return value.Trim();
         }
+        /// <summary>
+        /// Adds <c>input</c> to an integer project variable and stores the result. Same as <c>Int(varName,
+        /// input)</c>.
+        /// </summary>
+        /// <returns>The new value.</returns>
         public static int VarCounter(this IZennoPosterProjectModel project, string varName, int input)
         {
             var counter = project.Int(varName) + input;
             project.Var(varName, counter);
             return counter;
         }
+        /// <summary>
+        /// Applies <c>+</c>, <c>-</c>, <c>*</c> or <c>/</c> to two project variables parsed as <c>decimal</c>
+        /// (invariant culture). Other operations throw.
+        /// </summary>
+        /// <param name="varA">Left operand variable.</param>
+        /// <param name="operation">One of <c>+ - * /</c>.</param>
+        /// <param name="varB">Right operand variable.</param>
+        /// <param name="resultVar">Variable that receives the result; empty to skip.</param>
+        /// <returns>The result.</returns>
         public static decimal VarsMath(this IZennoPosterProjectModel project, string varA, string operation, string varB, string resultVar = null)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
@@ -177,6 +228,7 @@ namespace z3n7
             return result;
         }
 
+        /// <summary>Sets a project variable for every key of the dictionary.</summary>
         public static void VarsFromDict(this IZennoPosterProjectModel project, Dictionary<string, string> dict)
         {
             foreach (var pair in dict)
@@ -185,6 +237,8 @@ namespace z3n7
             }
         }
         
+        /// <summary>Sets project variables from a flat JSON object of string values.</summary>
+        /// <param name="json">JSON text, or the default <c>jVars</c> to read the JSON from the <c>jVars</c> variable.</param>
         public static void VarsFromJson(this IZennoPosterProjectModel project, string  json = "jVars")
         {
             if (json == "jVars") json = project.Var("jVars");
@@ -192,6 +246,15 @@ namespace z3n7
             project.VarsFromDict(jVar);
         }     
         
+        /// <summary>
+        /// Parses an account range and stores it in <c>rangeStart</c>, <c>rangeEnd</c> and <c>range</c>
+        /// (comma-separated list).
+        /// Accepted forms: <c>5</c>, <c>1-10</c>, <c>1,4,7</c>. Anything after <c>:</c> is ignored.
+        /// </summary>
+        /// <param name="accRange">Range text; when empty, the <c>cfgAccRange</c> variable is used.</param>
+        /// <param name="output">Not used.</param>
+        /// <param name="log">Not used.</param>
+        /// <returns>Account numbers as strings, or <c>null</c> (with a warning) when no range is given.</returns>
         public static List<string> Range(this IZennoPosterProjectModel project, string accRange = null,
             string output = null, bool log = false)
         {
@@ -240,9 +303,11 @@ namespace z3n7
         }
         
     }
+    /// <summary>Global ZennoPoster variables, kept in a namespace named after the current Windows user.</summary>
     public static class GVars
     {
         private static readonly object LockObject = new object();
+        /// <summary>Returns a global variable, or an empty string when it does not exist.</summary>
         public static string GVar(this IZennoPosterProjectModel project, string var)
         {
             string nameSpase = project.ExecuteMacro("{-Environment.CurrentUser-}");
@@ -257,6 +322,8 @@ namespace z3n7
             } 
             return value;
         }
+        /// <summary>Sets a global variable, creating it when it does not exist. Errors are swallowed.</summary>
+        /// <returns>Always an empty string.</returns>
         public static string GVar(this IZennoPosterProjectModel project, string var, object value)
         {
             string nameSpase = project.ExecuteMacro("{-Environment.CurrentUser-}");
@@ -278,6 +345,12 @@ namespace z3n7
             }
             return string.Empty;
         }
+        /// <summary>
+        /// Lists accounts taken by running threads: every non-empty global variable <c>acc1</c> …
+        /// <c>acc{rangeEnd}</c>.
+        /// </summary>
+        /// <param name="log">Write the list to the log.</param>
+        /// <returns>Entries in the form <c>number:value</c>.</returns>
         public static List<string> GGetBusyList(this IZennoPosterProjectModel project, bool log = false)
         {
             string nameSpase = project.ExecuteMacro("{-Environment.CurrentUser-}");
@@ -316,6 +389,14 @@ namespace z3n7
             }
         }
 
+        /// <summary>
+        /// Marks the current account (<c>acc0</c>) as taken by writing <c>input</c> to the global variable
+        /// <c>acc{acc0}</c>.
+        /// </summary>
+        /// <param name="input">Value to store; default is the <c>projectName</c> variable.</param>
+        /// <param name="force">Overwrite even if the account is already taken.</param>
+        /// <param name="log">Write the outcome to the log.</param>
+        /// <returns><c>false</c> when the account is already taken and <c>force</c> is false.</returns>
         public static bool GSetAcc(this IZennoPosterProjectModel project, string input = null, bool force = false, bool log = false)
         {
             string nameSpase = project.ExecuteMacro("{-Environment.CurrentUser-}");
@@ -364,6 +445,8 @@ namespace z3n7
                 }
             }
         }
+        /// <summary>Clears the global variables <c>acc1</c> … <c>acc{rangeEnd}</c>.</summary>
+        /// <returns>Numbers of the variables that were cleared.</returns>
         public static List<int> GClean(this IZennoPosterProjectModel project, bool log = false)
         {
             string nameSpase = project.ExecuteMacro("{-Environment.CurrentUser-}");
@@ -405,10 +488,12 @@ namespace z3n7
         
     }
     
+    /// <summary>Project name, its database table and the standard folders of the profile storage.</summary>
     public static class Constantes
     {
         private static readonly object LockObject = new object();
 
+        /// <summary>Returns the project file name up to the first dot and stores it in <c>projectName</c>.</summary>
         public static string ProjectName(this IZennoPosterProjectModel project)
         {
             var path = "";
@@ -439,6 +524,7 @@ namespace z3n7
             return System.IO.Path.GetFileName(projectPath).Split('.')[0];
         }
 
+        /// <summary>Returns <c>__</c> + project name and stores it in <c>projectTable</c>.</summary>
         public static string ProjectTable(this IZennoPosterProjectModel project)
         {
             string table = "__" + ProjectName(project);
@@ -446,6 +532,7 @@ namespace z3n7
             return table;
         }
 
+        /// <summary>Returns the full path of the project file.</summary>
         public static string FullPath(this IZennoPosterProjectModel project)
         {
             return Path.Combine(project.Path, project.Name);
@@ -453,6 +540,11 @@ namespace z3n7
 
 
         //pathes
+        /// <summary>
+        /// Returns the profile storage root: the <c>profiles_folder</c> variable, else the global variable of
+        /// the same name. Whichever is found is copied to the other one.
+        /// </summary>
+        /// <remarks>Throws when neither is set.</remarks>
         public static string PathProfiles(this IZennoPosterProjectModel project)
         {
             string pathLocal = project.Var("profiles_folder");
@@ -474,6 +566,10 @@ namespace z3n7
             throw new Exception("No profiles folder defined");
 
         }
+        /// <summary>
+        /// Returns <c>{profiles}/accounts/cookies/{acc0}.json</c>, or an empty string with a warning when
+        /// <c>acc0</c> is empty.
+        /// </summary>
         public static string PathCookies(this IZennoPosterProjectModel project)
         {
             string acc0 = project.Var("acc0");
@@ -484,6 +580,10 @@ namespace z3n7
             }
             return Path.Combine(project.PathProfiles(),"accounts","cookies",$"{acc0}.json");
         }
+        /// <summary>
+        /// Returns <c>{profiles}/accounts/profilesFolder/{acc0}</c>, or an empty string with a warning when
+        /// <c>acc0</c> is empty.
+        /// </summary>
         public static string PathProfileFolder(this IZennoPosterProjectModel project)
         {
             string acc0 = project.Var("acc0");
@@ -495,6 +595,13 @@ namespace z3n7
             return Path.Combine(project.PathProfiles(),"accounts","profilesFolder",acc0);
         }
 
+        /// <summary>
+        /// Reads a value from the encrypted <c>jVars</c> variable: decrypts it with <c>SAFU.DecryptHWID</c>,
+        /// decodes Base64 and looks the key up in the resulting JSON object.
+        /// </summary>
+        /// <returns>
+        /// The value, or an empty string when <c>jVars</c> is empty, cannot be decrypted, or has no such key.
+        /// </returns>
         public static string SecureVar(this IZennoPosterProjectModel project, string key)
         {
             

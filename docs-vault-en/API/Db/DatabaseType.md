@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # DatabaseType
 
-`enum` · namespace `z3n7` · source [Db/Sql.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L13)
+`enum` · namespace `z3n7` · source [Db/Sql.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L14)
 
 ```csharp
 public enum DatabaseType
 ```
 
-*No description yet.*
+Kind of database behind an `Sql` connection.
 
 ## Values
 

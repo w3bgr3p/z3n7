@@ -6,7 +6,7 @@ generated: z3n7-docgen
 
 # ProjectExtensions (Requests)
 
-`static class` · пространство имён `z3n7` · исходник [Requests/NetHttp.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L686)
+`static class` · пространство имён `z3n7` · исходник [Requests/NetHttp.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L786)
 
 ```csharp
 public static class ProjectExtensions
@@ -14,7 +14,7 @@ public static class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Accounts)]], [[ProjectExtensions (Browser)]], [[ProjectExtensions (Diagnostic)]], [[ProjectExtensions (Essentials)]], [[ProjectExtensions (Mail)]], [[ProjectExtensions (MethodExtensions)]], [[ProjectExtensions (Reports)]], [[ProjectExtensions (Traffic)]]
 
-Extension методы для удобного вызова из Project Остаются синхронными для совместимости с ZennoPoster
+Project shortcuts for `NetHttp` requests.
 
 ## Методы
 
@@ -24,9 +24,20 @@ Extension методы для удобного вызова из Project Ост�
 public static string NetGet(this IZennoPosterProjectModel project, string url, string proxyString = "", string[] headers = null, bool parse = false, int deadline = 15, bool thrw = false)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L723)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L834)
 
-Extension метод для GET из ZennoPoster Project
+Sends a GET request through `NetHttp` without logging.
+
+| Параметр | Описание |
+|---|---|
+| `url` | Request URL. |
+| `proxyString` | Empty for a direct request. `+` — the `proxy` column of the account's `_instance` row; otherwise `[scheme://][user:pass@]host:port`. The proxy is always used as an HTTP proxy. |
+| `headers` | `Name: value` lines. |
+| `parse` | Load the response body into `project.Json`. |
+| `deadline` | Timeout in seconds; the client itself never waits longer than 30 s. |
+| `thrw` | Throw on a non-2xx status or an error instead of returning a message. |
+
+**Возвращает:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
 
 ### NetPost
 
@@ -34,8 +45,20 @@ Extension метод для GET из ZennoPoster Project
 public static string NetPost(this IZennoPosterProjectModel project, string url, string body, string proxyString = "", string[] headers = null, bool parse = false, int deadline = 15, bool thrw = false)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L737)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L860)
 
-Extension метод для POST из ZennoPoster Project
+Sends a POST request with a JSON body through `NetHttp` without logging.
+
+| Параметр | Описание |
+|---|---|
+| `url` | Request URL. |
+| `body` | JSON body. |
+| `proxyString` | Empty for a direct request. `+` — the `proxy` column of the account's `_instance` row; otherwise `[scheme://][user:pass@]host:port`. The proxy is always used as an HTTP proxy. |
+| `headers` | `Name: value` lines. |
+| `parse` | Load the response body into `project.Json`. |
+| `deadline` | Timeout in seconds; the client itself never waits longer than 30 s. |
+| `thrw` | Throw on a non-2xx status or an error instead of returning a message. |
+
+**Возвращает:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

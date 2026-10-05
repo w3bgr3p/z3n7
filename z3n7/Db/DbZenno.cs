@@ -7,6 +7,14 @@ namespace z3n7
     public partial class Db
     {
         private readonly IZennoPosterProjectModel _project;
+        /// <summary>
+        /// Creates a database helper from project settings. Each argument left <c>null</c> is read from:
+        /// <c>dbMode</c> — variable <c>DBmode</c>; <c>sqLitePath</c> — variable <c>DBsqltPath</c>; PostgreSQL
+        /// host, port, database, user and password — global variables <c>sqlPgHost</c>, <c>sqlPgPort</c>,
+        /// <c>sqlPgName</c>, <c>sqlPgUser</c>, <c>sqlPgPass</c>; <c>defaultTable</c> —
+        /// <c>project.ProjectTable()</c> (<c>__</c> + project name).
+        /// </summary>
+        /// <param name="log">Log queries and results at <c>Info</c> level.</param>
         public Db(
             IZennoPosterProjectModel project,
             string dbMode = null,

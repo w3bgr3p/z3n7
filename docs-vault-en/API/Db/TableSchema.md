@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # TableSchema
 
-`class` · namespace `z3n7` · source [Db/DbSchema.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L11)
+`class` · namespace `z3n7` · source [Db/DbSchema.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L6)
 
 ```csharp
 public class TableSchema
 ```
 
-Централизованное хранилище имён таблиц с дефолтными значениями. Источники: DbExtencions.cs — _wlt (хардкод на строке 150, в SqlGet цепочки кошелька)
+Name and column definitions of a table.
 
 ## Properties
 
@@ -22,7 +22,9 @@ public class TableSchema
 public Dictionary<string, string> Columns { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L14)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L11)
+
+Column name → SQL type.
 
 ### Name
 
@@ -30,6 +32,8 @@ public Dictionary<string, string> Columns { get; set; }
 public string Name { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L13)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L9)
+
+Table name.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Vars
 
-`static class` · namespace `z3n7` · source [Essentials/Vars.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L12)
+`static class` · namespace `z3n7` · source [Essentials/Vars.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L13)
 
 ```csharp
 public static class Vars
 ```
 
-*No description yet.*
+Short accessors for project variables: read, write, parse, count.
 
 ## Methods
 
@@ -22,7 +22,9 @@ public static class Vars
 public static bool Bool(this IZennoPosterProjectModel project, string var)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L75)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L96)
+
+Returns `true` when the project variable equals `True` exactly.
 
 ### Decimal
 
@@ -30,7 +32,9 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static decimal Decimal(this IZennoPosterProjectModel project, string var)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L63)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L83)
+
+Returns a project variable parsed as `decimal` (current culture), or 0 when it cannot be parsed.
 
 ### Int
 
@@ -38,13 +42,19 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static int Int(this IZennoPosterProjectModel project, string var)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L45)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L59)
+
+Returns a project variable parsed as `int`, or 0 when it is empty or not a number.
 
 ```csharp
 public static int Int(this IZennoPosterProjectModel project, string varName, int input)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L57)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L73)
+
+Adds `input` to an integer project variable and stores the result.
+
+**Returns:** The new value.
 
 ### MaxErr
 
@@ -52,7 +62,14 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static void MaxErr(this IZennoPosterProjectModel project, int maxAttempts, Exception ex = null)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L81)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L108)
+
+Error counter for retry loops. Stores the error text in `err` and increments `maxErr`; once `maxErr` exceeds `maxAttempts`, writes a warning and throws.
+
+| Parameter | Description |
+|---|---|
+| `maxAttempts` | Number of errors tolerated. |
+| `ex` | The error; when null, `project.LastErrorComment` is used. |
 
 ### Range
 
@@ -60,7 +77,17 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static List<string> Range(this IZennoPosterProjectModel project, string accRange = null, string output = null, bool log = false)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L195)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L258)
+
+Parses an account range and stores it in `rangeStart`, `rangeEnd` and `range` (comma-separated list). Accepted forms: `5`, `1-10`, `1,4,7`. Anything after `:` is ignored.
+
+| Parameter | Description |
+|---|---|
+| `accRange` | Range text; when empty, the `cfgAccRange` variable is used. |
+| `output` | Not used. |
+| `log` | Not used. |
+
+**Returns:** Account numbers as strings, or `null` (with a warning) when no range is given.
 
 ### Var
 
@@ -68,13 +95,28 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static string Var(this IZennoPosterProjectModel project, string var)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L16)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L22)
+
+Returns the value of a project variable. A missing variable is reported to the log and an empty string is returned.
+
+| Parameter | Description |
+|---|---|
+| `var` | Variable name. |
 
 ```csharp
 public static string Var(this IZennoPosterProjectModel project, string var, object value)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L32)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L45)
+
+Sets a project variable to `value.ToString()`. `null` is ignored. A missing variable is reported to the log, nothing is thrown.
+
+| Parameter | Description |
+|---|---|
+| `var` | Variable name. |
+| `value` | New value. |
+
+**Returns:** Always an empty string.
 
 ### VarAdd
 
@@ -82,9 +124,17 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static bool VarAdd(this IZennoPosterProjectModel project, string name, string defaultValue = "", string comment = "")
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L108)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L140)
 
-Добавляет переменную в проект, открытый в ProjectMaker. Работает только во время разработки: у ILocalVariables нет метода добавления, поэтому правка идёт через PublicApi и касается копии проекта в памяти ProjectMaker. Из задачи в раннере вызывать бессмысленно — на себя это не подействует. Чтобы правка попала на диск, проект надо сохранить. Ключ берётся из ZENNO_API_KEY, тир ключа должен быть не ниже T1.
+Adds a variable to the project open in ProjectMaker through the local ZennoPoster API (`http://localhost:5299`). Development-time only: it edits ProjectMaker's in-memory copy of the project, so a task running in the runner is not affected. Save the project to keep the change. The API key is read from `ZENNO_API_KEY` in the `.env` next to `z3n7.dll`; the key tier must be T1 or higher.
+
+| Parameter | Description |
+|---|---|
+| `name` | Variable name. |
+| `defaultValue` | Initial value. |
+| `comment` | Variable comment. |
+
+**Returns:** `true` when the API answered `RESULT_OK`; otherwise the answer is written to the log as a warning.
 
 ### VarCounter
 
@@ -92,7 +142,11 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static int VarCounter(this IZennoPosterProjectModel project, string varName, int input)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L146)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L188)
+
+Adds `input` to an integer project variable and stores the result. Same as `Int(varName, input)`.
+
+**Returns:** The new value.
 
 ### VarRnd
 
@@ -100,7 +154,13 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static string VarRnd(this IZennoPosterProjectModel project, string var)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L125)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L162)
+
+Reads a project variable. A value like `10-20` returns a random integer from 10 (inclusive) to 20 (exclusive); any other value is returned trimmed.
+
+| Parameter | Description |
+|---|---|
+| `var` | Variable name. |
 
 ### VarsFromDict
 
@@ -108,7 +168,9 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static void VarsFromDict(this IZennoPosterProjectModel project, Dictionary<string, string> dict)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L180)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L232)
+
+Sets a project variable for every key of the dictionary.
 
 ### VarsFromJson
 
@@ -116,7 +178,13 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static void VarsFromJson(this IZennoPosterProjectModel project, string json = "jVars")
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L188)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L242)
+
+Sets project variables from a flat JSON object of string values.
+
+| Parameter | Description |
+|---|---|
+| `json` | JSON text, or the default `jVars` to read the JSON from the `jVars` variable. |
 
 ### VarsMath
 
@@ -124,6 +192,17 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static decimal VarsMath(this IZennoPosterProjectModel project, string varA, string operation, string varB, string resultVar = null)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L152)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L203)
+
+Applies `+`, `-`, `*` or `/` to two project variables parsed as `decimal` (invariant culture). Other operations throw.
+
+| Parameter | Description |
+|---|---|
+| `varA` | Left operand variable. |
+| `operation` | One of `+ - * /`. |
+| `varB` | Right operand variable. |
+| `resultVar` | Variable that receives the result; empty to skip. |
+
+**Returns:** The result.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

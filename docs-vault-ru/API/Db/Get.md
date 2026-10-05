@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Get
 
-`static class` · пространство имён `z3n7` · исходник [Db/DbExtencions.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L83)
+`static class` · пространство имён `z3n7` · исходник [Db/DbExtencions.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L84)
 
 ```csharp
 public static class Get
 ```
 
-*Описания пока нет.*
+Reading from the project database. The row defaults to the current account (`acc0`).
 
 ## Методы
 
@@ -22,7 +22,21 @@ public static class Get
 public static string DbGet(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", string acc = null, string where = "")
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L85)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L95)
+
+Reads columns of one row; same as `SqlGet`.
+
+| Параметр | Описание |
+|---|---|
+| `toGet` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the project table (`projectTable` variable). |
+| `log` | Write the query and its result to the project log. |
+| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `key` | Column matched against `id`. |
+| `acc` | Value of `key`; default `acc0`. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+
+**Возвращает:** Columns joined by `¦`; several rows are joined by `·`.
 
 ### DbGetColumns
 
@@ -30,7 +44,21 @@ public static string DbGet(this IZennoPosterProjectModel project, string toGet, 
 public static Dictionary<string, string> DbGetColumns(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L90)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L111)
+
+Reads columns of one row as column → value.
+
+| Параметр | Описание |
+|---|---|
+| `toGet` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the project table (`projectTable` variable). |
+| `log` | Write the query and its result to the project log. |
+| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+
+**Возвращает:** An empty dictionary when nothing was found.
 
 ### DbGetLine
 
@@ -38,7 +66,19 @@ public static Dictionary<string, string> DbGetColumns(this IZennoPosterProjectMo
 public static string[] DbGetLine(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L95)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L126)
+
+Reads columns of one row as an array.
+
+| Параметр | Описание |
+|---|---|
+| `toGet` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the project table (`projectTable` variable). |
+| `log` | Write the query and its result to the project log. |
+| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
 
 ### DbGetLines
 
@@ -46,7 +86,20 @@ public static string[] DbGetLine(this IZennoPosterProjectModel project, string t
 public static List<string> DbGetLines(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "", string toList = null)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L100)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L142)
+
+Reads several rows; each item keeps its columns joined by `¦`.
+
+| Параметр | Описание |
+|---|---|
+| `toGet` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the project table (`projectTable` variable). |
+| `log` | Write the query and its result to the project log. |
+| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `toList` | When set, the result is also written to this ZennoPoster list. |
 
 ### DbGetRandom
 
@@ -54,7 +107,20 @@ public static List<string> DbGetLines(this IZennoPosterProjectModel project, str
 public static string DbGetRandom(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool acc = false, bool thrw = false, int range = 0, bool single = true, bool invert = false)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L114)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L178)
+
+Reads `toGet` from random rows where it is not empty and `id` is below `range`.
+
+| Параметр | Описание |
+|---|---|
+| `toGet` | Column to read. |
+| `tableName` | Table; default is `project.ProjectTable()` (`__` + project name). |
+| `log` | Write the query and its result to the project log. |
+| `acc` | Prefix the result with the `id` column. |
+| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `range` | Upper id bound (exclusive); 0 uses the last account of `project.Range()`. |
+| `single` | One row instead of all matching rows. |
+| `invert` | Select rows where the column is empty instead. |
 
 ### DbKey
 
@@ -62,7 +128,13 @@ public static string DbGetRandom(this IZennoPosterProjectModel project, string t
 public static string DbKey(this IZennoPosterProjectModel project, string chainType = "evm")
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L138)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L210)
+
+Reads the current account's key from the wallet table (`DbSchema.Wlt`) and decrypts it with `SAFU.Decode`.
+
+| Параметр | Описание |
+|---|---|
+| `chainType` | `evm` (column `secp256k1`), `sol` (`base58`) or `seed` (`bip39`). Anything else throws. |
 
 ### DbToVars
 
@@ -70,7 +142,21 @@ public static string DbKey(this IZennoPosterProjectModel project, string chainTy
 public static Dictionary<string, string> DbToVars(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L107)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L160)
+
+Reads columns of one row and sets a project variable of the same name for each.
+
+| Параметр | Описание |
+|---|---|
+| `toGet` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the project table (`projectTable` variable). |
+| `log` | Write the query and its result to the project log. |
+| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+
+**Возвращает:** The values that were set.
 
 ### RndInvite
 
@@ -78,6 +164,14 @@ public static Dictionary<string, string> DbToVars(this IZennoPosterProjectModel 
 public static string RndInvite(this IZennoPosterProjectModel project, object limit = null, string inviteColumn = "refcode", bool log = false)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L161)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L243)
+
+Returns the `cfgRefCode` variable; when it is empty, picks a random non-empty `inviteColumn` from the project table and stores it in `cfgRefCode`.
+
+| Параметр | Описание |
+|---|---|
+| `limit` | When set, only rows with `id` up to this number. Must be a positive integer, otherwise it throws. |
+| `inviteColumn` | Column with invite codes. |
+| `log` | Write the query and its result to the project log. |
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

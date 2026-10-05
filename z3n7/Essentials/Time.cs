@@ -8,15 +8,20 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>Time helpers: timestamps, deadlines, random pauses.</summary>
     public class Time
     {
+        /// <summary>Stopwatch that throws once a time limit is exceeded.</summary>
         public class Deadline
         {
             private long Init { get; set; }
+            /// <summary>Starts the stopwatch.</summary>
             public Deadline()
             {
                 Reset();
             }
+            /// <summary>Returns the seconds elapsed since start or the last <c>Reset</c>.</summary>
+            /// <param name="limitSec">Limit in seconds; exceeding it throws <c>TimeoutException</c>.</param>
             public double Check(double limitSec)
             {
                 long currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -28,6 +33,7 @@ namespace z3n7
 
                 return differenceSec;
             }
+            /// <summary>Restarts the stopwatch.</summary>
             public void Reset()
             {
                 Init = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -35,6 +41,7 @@ namespace z3n7
 
         }
 
+        /// <summary>Random pause within a fixed range.</summary>
         public class Sleeper
         {
             private readonly int _min;
@@ -42,8 +49,11 @@ namespace z3n7
             private readonly Random _random;
 
 
-            /// <param name="min">Min ms</param>
-            /// <param name="max">Max ms</param>
+            /// <summary>
+            /// Creates a sleeper for pauses of <c>min</c> … <c>max</c> milliseconds, both inclusive.
+            /// </summary>
+            /// <param name="min">Minimum, ms. Must not be negative.</param>
+            /// <param name="max">Maximum, ms. Must not be less than <c>min</c>.</param>
             public Sleeper(int min, int max)
             {
                 if (min < 0)
@@ -59,7 +69,8 @@ namespace z3n7
                 _random = new Random(Guid.NewGuid().GetHashCode());
             }
             
-            /// <param name="multiplier">Множитель для задержки (например, 2.0 = в 2 раза дольше)</param>
+            /// <summary>Blocks the thread for a random time within the range.</summary>
+            /// <param name="multiplier">Scale factor for the pause, e.g. 2.0 waits twice as long.</param>
             public void Sleep(double multiplier = 1.0)
             {
                 int delay = _random.Next(_min, _max + 1);
@@ -68,6 +79,11 @@ namespace z3n7
 
         }
         
+        /// <summary>Current UTC time as text.</summary>
+        /// <param name="format">
+        /// <c>unix</c> — milliseconds since epoch; <c>iso</c> — <c>yyyy-MM-ddTHH:mm:ss.fffZ</c>; <c>short</c> —
+        /// <c>MM-ddTHH:mm</c>; <c>utcToId</c> — seconds since epoch. Anything else throws.
+        /// </param>
         public static string Now(string format = "unix") // unix|iso
         {
             if (format == "unix")
@@ -79,6 +95,13 @@ namespace z3n7
             throw new ArgumentException("Invalid format. Use: 'unix|iso|short|UtcNow'");
         }
 
+        /// <summary>Returns a point in time counted from now (UTC), for cooldowns stored in the database.</summary>
+        /// <param name="input">
+        /// <c>null</c> — today 23:59:59; <c>"nextH"</c> — one minute past the next hour;
+        /// <c>int</c>/<c>decimal</c> — that many minutes from now (0 means practically never); other text — a
+        /// <c>TimeSpan</c> such as <c>"02:30:00"</c> added to now.
+        /// </param>
+        /// <param name="o"><c>iso</c> (<c>yyyy-MM-ddTHH:mm:ss.fffZ</c>) or <c>unix</c> (seconds). Anything else throws.</param>
         public static string Cd(object input = null, string o = "iso")
         {
             DateTime t = DateTime.UtcNow;
@@ -111,6 +134,9 @@ namespace z3n7
                 throw new ArgumentException($"unexpected format {o}");
         }
 
+        /// <summary>Time since <c>startTime</c>, or the current Unix time when <c>startTime</c> is 0.</summary>
+        /// <param name="startTime">Start as Unix time in the same unit as <c>useMs</c> selects.</param>
+        /// <param name="useMs">Milliseconds instead of seconds.</param>
         public static long Elapsed(long startTime = 0, bool useMs = false)
         {
             if (startTime != 0)
@@ -128,6 +154,7 @@ namespace z3n7
             }
         }
 
+        /// <summary>Seconds left until the next full hour, local time.</summary>
         public static int TillNextHour()
         {
             var now = DateTime.Now;
@@ -146,6 +173,8 @@ namespace z3n7
 {
     public static partial class ProjectExtensions
     {
+        /// <summary>Seconds since the time stored (as Unix milliseconds) in a project variable.</summary>
+        /// <param name="varName">Variable with the start time; default is the session start, <c>varSessionId</c>.</param>
         public static int TimeElapsed(this IZennoPosterProjectModel project, string varName = "varSessionId")
         {
             var start = project.Variables[varName].Value;
@@ -155,6 +184,13 @@ namespace z3n7
             return difference;
         }
 
+        /// <summary>
+        /// Age of the session: time since the Unix milliseconds stored in <c>var</c>. When the variable does
+        /// not hold a number, it is set to now first.
+        /// <c>string</c> returns <c>TimeSpan.ToString()</c>, <c>TimeSpan</c> returns the span, any other type
+        /// receives whole seconds converted with <c>Convert.ChangeType</c>.
+        /// </summary>
+        /// <param name="var">Variable with the start time; default <c>varSessionId</c>.</param>
         public static T Age<T>(this IZennoPosterProjectModel project, string var = null)
         {
             var var0 =  var ?? "varSessionId";
@@ -189,6 +225,11 @@ namespace z3n7
             }
         }
 
+        /// <summary>
+        /// Throws once the session (<c>varSessionId</c>) is older than <c>min</c> minutes. The message names
+        /// the last executed action.
+        /// </summary>
+        /// <param name="min">Limit in minutes; 0 reads it from the <c>timeOut</c> variable.</param>
         public static void TimeOut(this IZennoPosterProjectModel project, int min = 0)
         {
             if (min == 0) 
@@ -201,6 +242,13 @@ namespace z3n7
                 throw new Exception($"GlobalTimeout {min}min, after {project.LastExecutedActionId}");
         }
 
+        /// <summary>
+        /// Two-call deadline based on the <c>t0</c> variable. With <c>sec</c> = 0 it stores the current time
+        /// and returns 0; with <c>sec</c> &gt; 0 it returns the seconds since then and throws when they exceed
+        /// <c>sec</c>.
+        /// </summary>
+        /// <param name="sec">Limit in seconds, or 0 to start.</param>
+        /// <param name="log">Write the elapsed seconds to the log.</param>
         public static int Deadline(this IZennoPosterProjectModel project, int sec = 0, bool log = false)
         {
 
@@ -221,6 +269,7 @@ namespace z3n7
                 return 0;
             }
         }
+        /// <summary>Waits a random 0–1 s and stores the current Unix milliseconds in <c>varSessionId</c>.</summary>
         public static void StartSession(this IZennoPosterProjectModel project) 
         {
             Thread.Sleep(new Random(Guid.NewGuid().GetHashCode()).Next(1000));

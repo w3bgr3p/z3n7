@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace z3n7
 {
+    /// <summary>Kind of database behind an <c>Sql</c> connection.</summary>
     public enum DatabaseType
     {
         Unknown,
@@ -17,11 +18,19 @@ namespace z3n7
         PostgreSQL
     }
 
+    /// <summary>
+    /// One open connection to SQLite (through the SQLite3 ODBC driver) or PostgreSQL (Npgsql). Dispose it
+    /// to close the connection.
+    /// </summary>
+    /// <remarks>The connection is opened in the constructor.</remarks>
     public class Sql : IDisposable
     {
         private readonly IDbConnection _connection;
         private bool _disposed = false;
 
+        /// <summary>Opens an SQLite database through the <c>SQLite3 ODBC Driver</c>.</summary>
+        /// <param name="dbPath">Database file.</param>
+        /// <param name="dbPass">Not used.</param>
         public Sql(string dbPath, string dbPass)
         {
             Debug.WriteLine(dbPath);
@@ -29,18 +38,21 @@ namespace z3n7
             _connection.Open();
         }
 
+        /// <summary>Opens a PostgreSQL connection with pooling.</summary>
         public Sql(string hostname, string port, string database, string user, string password)
         {
             _connection = new NpgsqlConnection($"Host={hostname};Port={port};Database={database};Username={user};Password={password};Pooling=true;Connection Idle Lifetime=100;");
             _connection.Open();
         }
 
+        /// <summary>Opens a PostgreSQL connection from an Npgsql connection string.</summary>
         public Sql(string connectionstring)
         {
             _connection = new NpgsqlConnection(connectionstring);
             _connection.Open();
         }
 
+        /// <summary>Wraps an existing connection and opens it if it is closed.</summary>
         public Sql(IDbConnection connection)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
@@ -50,6 +62,7 @@ namespace z3n7
             }
         }
 
+        /// <summary>SQLite for an ODBC connection, PostgreSQL for Npgsql, otherwise Unknown.</summary>
         public DatabaseType ConnectionType
         {
             get
@@ -73,6 +86,7 @@ namespace z3n7
             }
         }
 
+        /// <summary>Closes and disposes the connection.</summary>
         public void Dispose()
         {
             Dispose(true);
@@ -96,6 +110,9 @@ namespace z3n7
             }
         }
 
+        /// <summary>
+        /// Creates a command parameter of the right provider type; <c>null</c> becomes <c>DBNull</c>.
+        /// </summary>
         public IDbDataParameter CreateParameter(string name, object value)
         {
             if (_connection is OdbcConnection)
@@ -112,6 +129,7 @@ namespace z3n7
             }
         }
 
+        /// <summary>Creates several parameters, see <c>CreateParameter</c>.</summary>
         public IDbDataParameter[] CreateParameters(params (string name, object value)[] parameters)
         {
             var result = new IDbDataParameter[parameters.Length];
@@ -122,6 +140,10 @@ namespace z3n7
             return result;
         }
 
+        /// <summary>Runs a query and returns every row as text.</summary>
+        /// <param name="sql">Query.</param>
+        /// <param name="columnSeparator">Joins the columns of a row.</param>
+        /// <param name="rawSepararor">Joins the rows.</param>
         public async Task<string> DbReadAsync(string sql, string columnSeparator = "|", string rawSepararor = "\r\n")
         {
             EnsureConnection();
@@ -162,11 +184,14 @@ namespace z3n7
             return string.Join(rawSepararor, result);
         }
 
+        /// <summary>Synchronous <c>DbReadAsync</c> with the default row separator.</summary>
         public string DbRead(string sql, string separator = "|")
         {
             return DbReadAsync(sql, separator).GetAwaiter().GetResult();
         }
 
+        /// <summary>Executes a non-query statement.</summary>
+        /// <returns>The affected row count. Errors are rethrown with the SQL text appended.</returns>
         public async Task<int> DbWriteAsync(string sql, params IDbDataParameter[] parameters)
         {
             EnsureConnection();
@@ -220,11 +245,19 @@ namespace z3n7
             }
         }
 
+        /// <summary>Synchronous <c>DbWriteAsync</c>.</summary>
         public int DbWrite(string sql, params IDbDataParameter[] parameters)
         {
             return DbWriteAsync(sql, parameters).GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// Creates <c>destinationTable</c> with the columns and primary key of <c>sourceTable</c> and copies
+        /// all rows into it, within the same database.
+        /// </summary>
+        /// <param name="sourceTable">Source; on PostgreSQL may be <c>schema.table</c>.</param>
+        /// <param name="destinationTable">Table to create; must not exist.</param>
+        /// <returns>Number of copied rows.</returns>
         public async Task<int> CopyTableAsync(string sourceTable, string destinationTable)
         {
             if (string.IsNullOrEmpty(sourceTable)) throw new ArgumentNullException(nameof(sourceTable));
@@ -380,6 +413,12 @@ namespace z3n7
             }
             
         }
+        /// <summary>
+        /// Copies every user table from one database to another of the other kind (PostgreSQL ↔ SQLite). Tables
+        /// that already exist in the target are not recreated, rows are still inserted. A table that fails is
+        /// skipped; the error goes to the debug output only.
+        /// </summary>
+        /// <returns>Total number of copied rows.</returns>
         public static async Task<int> MigrateAllTablesAsync(Sql sourceDb, Sql destinationDb)
         {
             string columnSeparator = "|";
@@ -609,6 +648,13 @@ namespace z3n7
             return totalRows;
         }
         
+        /// <summary>Runs <c>UPDATE … SET toUpd</c> for the row <c>id</c> or the rows matching <c>where</c>.</summary>
+        /// <param name="toUpd">Assignments; column names are quoted.</param>
+        /// <param name="id">Row id, inserted as written.</param>
+        /// <param name="tableName">Table; required.</param>
+        /// <param name="where">Raw SQL condition; when set, <c>id</c> is ignored.</param>
+        /// <param name="last">Also set the <c>last</c> column to the UTC time <c>MM-ddTHH:mm</c>.</param>
+        /// <returns>Affected row count.</returns>
         public async Task<int> Upd(string toUpd, object id, string tableName = null, string where = null, bool last = false)
         {
             //var parameters = new DynamicParameters();
@@ -651,6 +697,7 @@ namespace z3n7
                 throw new Exception ($"{ex.Message} : [{formattedQuery}]");
             }
         }
+        /// <summary>Runs <c>Upd</c> for each item, with ids 0, 1, 2 … in list order.</summary>
         public async Task Upd(List<string> toWrite, string tableName = null, string where = null, bool last = false)
         {
             int id = 0;
@@ -662,6 +709,12 @@ namespace z3n7
         }
 
 
+        /// <summary>Reads the first column of the first matching row.</summary>
+        /// <param name="toGet">Column list.</param>
+        /// <param name="id">Row id, passed as a parameter.</param>
+        /// <param name="tableName">Table; required.</param>
+        /// <param name="where">Raw SQL condition; when set, <c>id</c> is ignored.</param>
+        /// <returns>The value as text, or <c>null</c>.</returns>
         public async Task<string> Get(string toGet, string id, string tableName = null, string where = null)
         {
             var parameters = new List<IDbDataParameter>();
@@ -717,6 +770,9 @@ namespace z3n7
                 throw;
             }
         }
+        /// <summary>
+        /// Inserts rows with ids from the current maximum + 1 up to <c>range</c>, one statement per row.
+        /// </summary>
         public async Task AddRange(int range, string tableName = null)
         {
             if (tableName == null) throw new Exception("TableName is null");

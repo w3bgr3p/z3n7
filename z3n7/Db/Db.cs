@@ -9,6 +9,16 @@ using Newtonsoft.Json.Linq;
 
 namespace z3n7
 {
+    /// <summary>
+    /// SQL helper over PostgreSQL or SQLite with one API for both.
+    /// Every statement opens its own connection. A <c>SELECT</c> returns rows joined by <c>·</c> and
+    /// columns joined by <c>¦</c>; other statements return the number of affected rows. On SQLite a
+    /// "database is locked" error is retried up to 10 times with a growing pause.
+    /// </summary>
+    /// <remarks>
+    /// SQLite is reached through the SQLite3 ODBC driver, which must be installed. Values passed as
+    /// <c>id</c> or <c>where</c> are inserted into SQL as written.
+    /// </remarks>
     public partial class Db
     {
         private readonly string _dbMode;
@@ -26,6 +36,16 @@ namespace z3n7
         private const char ColumnSeparator = '¦';
         private const string SchemaName = "public";
 
+        /// <summary>Creates a database helper with explicit connection settings.</summary>
+        /// <param name="dbMode"><c>pgSQL</c> for PostgreSQL; any other value uses SQLite.</param>
+        /// <param name="sqLitePath">SQLite database file.</param>
+        /// <param name="pgHost">PostgreSQL host.</param>
+        /// <param name="pgPort">PostgreSQL port.</param>
+        /// <param name="pgDbName">PostgreSQL database.</param>
+        /// <param name="pgUser">PostgreSQL user.</param>
+        /// <param name="pgPass">PostgreSQL password.</param>
+        /// <param name="defaultTable">Table used when a method gets no table name.</param>
+        /// <param name="logLevel">Level of the internal logger; queries and results are logged at <c>Info</c>.</param>
         public Db(string dbMode = "pgSQL", string sqLitePath = null,
             string pgHost = "localhost", string pgPort = "5432", string pgDbName = "postgres",
             string pgUser = "postgres", string pgPass = "",
@@ -43,6 +63,18 @@ namespace z3n7
         }
         
         #region Core Query
+        /// <summary>Executes one SQL statement.</summary>
+        /// <param name="query">SQL text.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="unSafe">Not used.</param>
+        /// <returns>
+        /// For <c>SELECT</c>: rows joined by <c>·</c>, columns by <c>¦</c>. Otherwise the affected row count as
+        /// text. An empty string after an error when <c>thrw</c> is false.
+        /// </returns>
         public string Query(string query, bool log = false, bool thrw = false, bool unSafe = false)
         {
             string result = string.Empty;
@@ -88,6 +120,20 @@ namespace z3n7
         #endregion
 
         #region Get Methods
+        /// <summary>
+        /// Selects columns from the row where <c>key</c> = <c>id</c>, or from the rows matching <c>where</c>.
+        /// </summary>
+        /// <param name="columns">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <returns>Raw result in the <c>Query</c> format.</returns>
         public string Get(string columns, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             if (string.IsNullOrWhiteSpace(columns))
@@ -113,6 +159,18 @@ namespace z3n7
             return Query(query, log, thrw);
         }
 
+        /// <summary>Like <c>Get</c>, but returns the first row as column → value.</summary>
+        /// <param name="columns">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <returns>An empty dictionary when nothing was found.</returns>
         public Dictionary<string, string> GetColumns(string columns, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             string result = Get(columns, tableName, log, thrw, key, id, where);
@@ -134,16 +192,50 @@ namespace z3n7
             return dictionary;
         }
 
+        /// <summary>Like <c>Get</c>, split into column values.</summary>
+        /// <param name="columns">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public string[] GetLine(string columns, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             return Get(columns, tableName, log, thrw, key, id, where).Split(ColumnSeparator);
         }
 
+        /// <summary>Like <c>Get</c>, split into rows. Each row still has its columns joined by <c>¦</c>.</summary>
+        /// <param name="columns">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public List<string> GetLines(string columns, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             return Get(columns, tableName, log, thrw, key, id, where).Split(RawSeparator).ToList();
         }
 
+        /// <summary>Selects <c>column</c> from random rows where it is not empty.</summary>
+        /// <param name="column">Column to read.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="maxId">When above 0, only rows with <c>id</c> below it.</param>
+        /// <param name="includeId">Prefix the result with the <c>id</c> column.</param>
+        /// <param name="single">Return one row instead of all matching rows in random order.</param>
+        /// <param name="invertEmpty">Select rows where the column is empty instead.</param>
         public string GetRandom(string column, string tableName = null, bool log = false, bool thrw = false, int maxId = 0, bool includeId = false, bool single = true, bool invertEmpty = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -173,6 +265,23 @@ namespace z3n7
         #endregion
 
         #region Update Methods
+        /// <summary>
+        /// Runs <c>UPDATE … SET setClause</c> for the row where <c>key</c> = <c>id</c>, or for the rows
+        /// matching <c>where</c>.
+        /// </summary>
+        /// <param name="setClause">
+        /// Assignments such as <c>status = 'ok', note = ''</c>; column names are quoted, values are taken as
+        /// written.
+        /// </param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public void Upd(string setClause, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             tableName = tableName ?? _defaultTable;
@@ -196,6 +305,18 @@ namespace z3n7
 
             Query(query, log, thrw);
         }
+        /// <summary>
+        /// Updates the rows matching <c>where</c> from a dictionary, adding missing columns first.
+        /// A key <c>id</c> is written to the column <c>_id</c>. Single quotes are removed from values.
+        /// </summary>
+        /// <param name="data">Column → value.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="where">Raw SQL condition; required.</param>
         public void UpdFromDict(Dictionary<string, string> data, string tableName = null, bool log = false, bool thrw = false, string where = "")
         {
             tableName = tableName ?? _defaultTable;
@@ -219,6 +340,17 @@ namespace z3n7
 
             Upd(updString.ToString().Trim(','), tableName, log, thrw, where: where);
         }
+        /// <summary>
+        /// Inserts one row from a dictionary. On PostgreSQL a conflicting row is skipped (<c>ON CONFLICT DO
+        /// NOTHING</c>).
+        /// </summary>
+        /// <param name="data">Column → value.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         public void InsertDic(Dictionary<string, string> data, string tableName = null, bool log = false, bool thrw = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -233,6 +365,21 @@ namespace z3n7
     
             Query(query, log, thrw);
         }
+        /// <summary>
+        /// Writes a local timestamp <c>yyyy-MM-dd HH:mm:ss</c> to <c>taskColumn</c>: now, or now plus
+        /// <c>cooldownMin</c>.
+        /// </summary>
+        /// <param name="taskColumn">Column to write.</param>
+        /// <param name="cooldownMin">Minutes to add; 0 writes the current time.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public void SetDone(string taskColumn = "daily", int cooldownMin = 0, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             string cooldown = cooldownMin == 0 ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") : DateTime.Now.AddMinutes(cooldownMin).ToString("yyyy-MM-dd HH:mm:ss");
@@ -242,6 +389,19 @@ namespace z3n7
         #endregion
 
         #region JSON Methods
+        /// <summary>
+        /// Flattens a JSON object into columns and writes it with <c>UpdFromDict</c>.
+        /// Nested keys are joined with <c>_</c> (<c>a_b_0</c>). The original shape is saved in the
+        /// <c>_json_structure</c> column so that <c>DbToJson</c> can rebuild it.
+        /// </summary>
+        /// <param name="json">JSON object.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="where">Raw SQL condition selecting the row.</param>
         public void JsonToDb(string json, string tableName = null, bool log = false, bool thrw = false, string where = "")
         {
             tableName = tableName ?? _defaultTable;
@@ -252,6 +412,21 @@ namespace z3n7
             UpdFromDict(dataDic, tableName, log, thrw, where);
         }
 
+        /// <summary>
+        /// Rebuilds the JSON stored by <c>JsonToDb</c> from the row with the given <c>id</c>. Columns starting
+        /// with <c>_</c> and <c>id</c> are left out.
+        /// </summary>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
+        /// <returns>
+        /// The JSON text, or <c>{}</c> when the table has no <c>_json_structure</c> column or it cannot be
+        /// parsed.
+        /// </returns>
         public string DbToJson(string tableName = null, bool log = false, bool thrw = false, object id = null)
         {
             tableName = tableName ?? _defaultTable;
@@ -497,6 +672,15 @@ namespace z3n7
         #endregion
         
         #region Table Preparation Methods
+        /// <summary>Creates the table if it does not exist and adds missing columns.</summary>
+        /// <param name="tableStructure">Column → SQL type, e.g. <c>{"id", "INTEGER PRIMARY KEY"}</c>.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="prune">Also drop columns that are not in <c>tableStructure</c> (<c>PruneColumns</c>).</param>
+        /// <param name="rearrange">Also reorder columns to match <c>tableStructure</c> (<c>RearrangeColumns</c>).</param>
         public void PrepareTable(Dictionary<string, string> tableStructure, string tableName = null, bool log = false, bool prune = false, bool rearrange = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -513,6 +697,22 @@ namespace z3n7
                 RearrangeColumns(tableStructure, tableName, log);
         }
 
+        /// <summary>
+        /// Same as the dictionary overload, with an <c>id</c> primary key and one type for every other column.
+        /// </summary>
+        /// <param name="columns">Column names; <c>id</c> and duplicates are skipped.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="defaultType">SQL type of every column.</param>
+        /// <param name="serial">
+        /// Type of <c>id</c>. <c>INTEGER</c> becomes <c>INTEGER PRIMARY KEY AUTOINCREMENT</c>
+        /// (<c>AUTOINCREMENT</c> is replaced by <c>SERIAL</c> on PostgreSQL).
+        /// </param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="prune">Drop columns not in the list.</param>
+        /// <param name="rearrange">Reorder columns to match the list.</param>
         public void PrepareTable(List<string> columns, string tableName = null, string defaultType = "TEXT DEFAULT ''", string serial = "INTEGER", bool log = false, bool prune = false, bool rearrange = false)
         {
             var tableStructure = new Dictionary<string, string>
@@ -532,6 +732,18 @@ namespace z3n7
         #endregion
 
         #region Column Rearrange Method
+        /// <summary>
+        /// Reorders the table's columns: <c>id</c> first, then the columns of <c>tableStructure</c> that exist,
+        /// then the rest.
+        /// Works by copying the data into a new table, dropping the old one and renaming the new one. On
+        /// failure the temporary table is dropped and an exception is thrown.
+        /// </summary>
+        /// <param name="tableStructure">Desired order (column → type).</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void RearrangeColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -729,6 +941,13 @@ namespace z3n7
         #endregion
 
         #region Prune Columns Method
+        /// <summary>Drops every column except <c>id</c> that is not a key of <c>tableStructure</c>.</summary>
+        /// <param name="tableStructure">Columns to keep.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void PruneColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -748,6 +967,16 @@ namespace z3n7
         #endregion
 
         #region Table Methods
+        /// <summary>
+        /// Creates the table unless it exists. On PostgreSQL <c>AUTOINCREMENT</c> in a type is replaced by
+        /// <c>SERIAL</c>.
+        /// </summary>
+        /// <param name="tableStructure">Column → SQL type.</param>
+        /// <param name="tableName">Table to create.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void CreateTable(Dictionary<string, string> tableStructure, string tableName, bool log = false)
         {
             if (TableExists(tableName, log))
@@ -767,6 +996,12 @@ namespace z3n7
 
             Query(query, log);
         }
+        /// <summary>Checks whether the table exists (in the <c>public</c> schema on PostgreSQL).</summary>
+        /// <param name="tableName">Table name; double quotes are ignored.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public bool TableExists(string tableName, bool log = false)
         {
             tableName = UnQuote(tableName);
@@ -784,6 +1019,11 @@ namespace z3n7
             string resp = Query(query, log);
             return resp != "0" && !string.IsNullOrEmpty(resp);
         }
+        /// <summary>Names of all tables, sorted (PostgreSQL: base tables of the <c>public</c> schema).</summary>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public List<string> GetTables(bool log = false)
         {
             string query = _dbMode == "pgSQL"
@@ -796,6 +1036,12 @@ namespace z3n7
                 .Where(s => !string.IsNullOrEmpty(s))
                 .ToList();
         }
+        /// <summary>Column names of a table.</summary>
+        /// <param name="tableName">Table name.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public List<string> GetTableColumns(string tableName, bool log = false)
         {
             string query = _dbMode == "pgSQL"
@@ -811,6 +1057,15 @@ namespace z3n7
         #endregion
 
         #region Column Methods
+        /// <summary>
+        /// Checks whether a column exists. Case-insensitive on PostgreSQL, case-sensitive on SQLite.
+        /// </summary>
+        /// <param name="columnName">Column name.</param>
+        /// <param name="tableName">Table name.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public bool ColumnExists(string columnName, string tableName, bool log = false)
         {
             string query;
@@ -828,6 +1083,14 @@ namespace z3n7
             return resp != "0" && !string.IsNullOrEmpty(resp);
         }
 
+        /// <summary>Adds a column if the table does not have it yet.</summary>
+        /// <param name="columnName">Column name.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="defaultValue">SQL type of the new column.</param>
         public void AddColumn(string columnName, string tableName = null, bool log = false, string defaultValue = "TEXT DEFAULT ''")
         {
             tableName = tableName ?? _defaultTable;
@@ -840,6 +1103,14 @@ namespace z3n7
                 Query($"ALTER TABLE {quotedTable} ADD COLUMN {quotedColumn} {defaultValue}", log);
             }
         }
+        /// <summary>Adds each listed column that the table does not have yet.</summary>
+        /// <param name="columns">Column names.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="defaultValue">SQL type of the new columns.</param>
         public void AddColumns(List<string> columns, string tableName = null, bool log = false, string defaultValue = "TEXT DEFAULT ''")
         {
             foreach (var column in columns)
@@ -848,6 +1119,15 @@ namespace z3n7
             }
         }
 
+        /// <summary>
+        /// Adds each column of <c>tableStructure</c> that the table does not have yet, with its type.
+        /// </summary>
+        /// <param name="tableStructure">Column → SQL type.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void AddColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -865,6 +1145,13 @@ namespace z3n7
             }
         }
 
+        /// <summary>Drops a column if it exists (<c>CASCADE</c> on PostgreSQL).</summary>
+        /// <param name="columnName">Column name.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void DropColumn(string columnName, string tableName = null, bool log = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -879,6 +1166,12 @@ namespace z3n7
             }
         }
 
+        /// <summary>Drops every column except <c>id</c> in which no row has a non-empty value.</summary>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void PruneEmptyColumns(string tableName = null, bool log = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -902,6 +1195,16 @@ namespace z3n7
         #endregion
 
         #region Range Methods
+        /// <summary>
+        /// Inserts rows with ids from the current maximum + 1 up to <c>range</c>, in batches of 500. Existing
+        /// ids are skipped.
+        /// </summary>
+        /// <param name="tableName">Table with an <c>id</c> column.</param>
+        /// <param name="range">Highest id to have.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void AddRange(string tableName, int range, bool log = false)
         {
             string quotedTable = Quote(tableName);
@@ -930,9 +1233,16 @@ namespace z3n7
         #endregion
         
         #region Delete Methods
-        /// <summary>
-        /// Delete rows from table
-        /// </summary>
+        /// <summary>Deletes the row where <c>key</c> = <c>id</c>, or the rows matching <c>where</c>.</summary>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public void Del(string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             tableName = tableName ?? _defaultTable;
@@ -957,8 +1267,15 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Delete all rows from table (truncate)
+        /// Deletes all rows and resets the id counter (<c>TRUNCATE … RESTART IDENTITY CASCADE</c> on
+        /// PostgreSQL, the <c>sqlite_sequence</c> entry on SQLite).
         /// </summary>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         public void Clear(string tableName = null, bool log = false, bool thrw = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -980,6 +1297,14 @@ namespace z3n7
         #endregion
 
         #region Line Operations
+        /// <summary>Sets every column except <c>id</c> to an empty string in one row.</summary>
+        /// <param name="id">Row id.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         public void ClearLine(int id, string tableName = null, bool log = false, bool thrw = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -1002,6 +1327,15 @@ namespace z3n7
             _log.Send($"Cleared {columnsToClean.Count} columns in row id={id}");
         }
 
+        /// <summary>Exchanges the values of all columns except <c>id</c> between two rows.</summary>
+        /// <param name="id1">First row id.</param>
+        /// <param name="id2">Second row id.</param>
+        /// <param name="tableName">Table; default is the table given to the constructor.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <param name="thrw">Throw when a row is not found; otherwise it is logged and nothing changes.</param>
         public void SwapLines(int id1, int id2, string tableName = null, bool log = false, bool thrw = false)
         {
             tableName = tableName ?? _defaultTable;
@@ -1169,13 +1503,18 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Transfer table from PostgreSQL to SQLite
+        /// Copies a PostgreSQL table into an SQLite file. The target table is dropped and recreated; PostgreSQL
+        /// types are mapped to INTEGER, REAL, TEXT or BLOB.
         /// </summary>
-        /// <param name="pgSchema">PostgreSQL schema (default: public)</param>
-        /// <param name="pgTable">PostgreSQL table name</param>
-        /// <param name="sqlitePath">Path to SQLite database file</param>
-        /// <param name="sqliteTable">SQLite table name</param>
-        /// <param name="log">Enable logging</param>
+        /// <param name="pgTable">Source table.</param>
+        /// <param name="sqlitePath">SQLite database file.</param>
+        /// <param name="sqliteTable">Target table.</param>
+        /// <param name="pgSchema">Source schema.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <remarks>This instance must be in <c>pgSQL</c> mode.</remarks>
         public void PgToSqlite(string pgTable, string sqlitePath, string sqliteTable, string pgSchema = "public", bool log = false)
         {
             if (_dbMode != "pgSQL")
@@ -1201,13 +1540,18 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Transfer table from SQLite to PostgreSQL
+        /// Copies an SQLite table into PostgreSQL. The target table is dropped and recreated; SQLite types are
+        /// mapped to bigint, double precision, text or bytea.
         /// </summary>
-        /// <param name="sqlitePath">Path to SQLite database file</param>
-        /// <param name="sqliteTable">SQLite table name</param>
-        /// <param name="pgTable">PostgreSQL table name</param>
-        /// <param name="pgSchema">PostgreSQL schema (default: public)</param>
-        /// <param name="log">Enable logging</param>
+        /// <param name="sqlitePath">SQLite database file.</param>
+        /// <param name="sqliteTable">Source table.</param>
+        /// <param name="pgTable">Target table.</param>
+        /// <param name="pgSchema">Target schema.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
+        /// <remarks>This instance must be in <c>pgSQL</c> mode; it is the target.</remarks>
         public void SqliteToPg(string sqlitePath, string sqliteTable, string pgTable, string pgSchema = "public", bool log = false)
         {
             if (_dbMode != "pgSQL")
@@ -1233,14 +1577,15 @@ namespace z3n7
             _log.Send($"Transferred {rows.Count} rows from SQLite {sqliteTable} to PostgreSQL {pgSchema}.{pgTable}");
         }
 
-        /// <summary>
-        /// Transfer table from one SQLite database to another SQLite database
-        /// </summary>
-        /// <param name="sourcePath">Source SQLite database path</param>
-        /// <param name="sourceTable">Source table name</param>
-        /// <param name="targetPath">Target SQLite database path</param>
-        /// <param name="targetTable">Target table name</param>
-        /// <param name="log">Enable logging</param>
+        /// <summary>Copies a table between two SQLite files. The target table is dropped and recreated.</summary>
+        /// <param name="sourcePath">Source database file.</param>
+        /// <param name="sourceTable">Source table.</param>
+        /// <param name="targetPath">Target database file.</param>
+        /// <param name="targetTable">Target table.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void SqliteToSqlite(string sourcePath, string sourceTable, string targetPath, string targetTable, bool log = false)
         {
             Dictionary<string, string> columns;
@@ -1262,14 +1607,18 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Transfer table between two databases (auto-detect direction)
+        /// Copies a table from this database to another one: PostgreSQL → SQLite, SQLite → PostgreSQL or SQLite
+        /// → SQLite. The target table is dropped and recreated.
         /// </summary>
-        /// <param name="sourceTable">Source table name</param>
-        /// <param name="targetDbPath">Target database path (for SQLite) or connection string</param>
-        /// <param name="targetTable">Target table name</param>
-        /// <param name="targetMode">Target database mode (PostgreSQL or SQLite)</param>
-        /// <param name="schema">Schema name for PostgreSQL</param>
-        /// <param name="log">Enable logging</param>
+        /// <param name="sourceTable">Table in this database.</param>
+        /// <param name="targetDbPath">Target SQLite file, or the Npgsql connection string of the target database for <c>pgSQL</c>.</param>
+        /// <param name="targetTable">Target table.</param>
+        /// <param name="targetMode"><c>SQLite</c> or <c>pgSQL</c>.</param>
+        /// <param name="schema">PostgreSQL schema.</param>
+        /// <param name="log">
+        /// Write the query and its result to the log even when the logger level given to the constructor is
+        /// <c>Off</c>.
+        /// </param>
         public void BridgeTable(string sourceTable, string targetDbPath, string targetTable, string targetMode = "SQLite", string schema = "public", bool log = false)
         {
             if (_dbMode == "pgSQL" && targetMode == "SQLite")

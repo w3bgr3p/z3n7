@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # LogLevel
 
-`enum` · пространство имён `z3n7` · исходник [Essentials/Logger.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L15)
+`enum` · пространство имён `z3n7` · исходник [Essentials/Logger.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L19)
 
 ```csharp
 public enum LogLevel
 ```
 
-*Описания пока нет.*
+Message severity. A logger drops messages below its minimum level; `Off` drops everything except forced messages.
 
 ## Значения
 

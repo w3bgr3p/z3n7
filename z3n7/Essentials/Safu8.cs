@@ -9,26 +9,52 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Process-wide registry of delegates by name. SAFU registers its implementation here so that other
+    /// assemblies can call it.
+    /// </summary>
     public static class FunctionStorage
     {
+        /// <summary>Registered delegates, keyed by name (e.g. <c>SAFU_Encode</c>).</summary>
         public static ConcurrentDictionary<string, object> Functions = new ConcurrentDictionary<string, object>();
     }
 
+    /// <summary>Encryption used by SAFU (secure storage of account secrets).</summary>
     public interface ISAFU
     {
+        /// <summary>Encrypts text with a key bound to the machine, the PIN and the account.</summary>
         string Encode(IZennoPosterProjectModel project, string toEncrypt, string pin, string acc);
+        /// <summary>Decrypts text produced by <c>Encode</c> with the same machine, PIN and account.</summary>
         string Decode(IZennoPosterProjectModel project, string toDecrypt, string pin, string acc);
+        /// <summary>
+        /// Returns a password derived from the machine, the PIN and the account. The same inputs always give
+        /// the same password.
+        /// </summary>
         string HWPass(IZennoPosterProjectModel project, string pin, string acc);
+        /// <summary>Encrypts text with a key bound to the machine only.</summary>
         string EncodeHWID(IZennoPosterProjectModel project, string toEncrypt);
+        /// <summary>Decrypts text produced by <c>EncodeHWID</c> on the same machine.</summary>
         string DecodeHWID(IZennoPosterProjectModel project, string toDecrypt);
     }
 
+    /// <summary>
+    /// SAFU implementation: AES-256-CBC with an HMAC-SHA256 tag, keys derived with PBKDF2-SHA256 (100 000
+    /// iterations).
+    /// The salt comes from a 32-byte key file. The machine ID is a SHA-256 of the processor ID, the
+    /// motherboard serial and the system disk serial (WMI). When the <c>jVars</c> blob contains
+    /// <c>serverHwid</c>, that value is used instead of the local machine ID for <c>Encode</c>,
+    /// <c>Decode</c> and <c>HWPass</c>.
+    /// </summary>
     public class Z3n8SAFU : ISAFU
     {
         private readonly string _keyFilePath;
         private byte[] _fileKey;
         private readonly object _lock = new object();
 
+        /// <summary>
+        /// Creates the implementation. The key file is read on first use and must be exactly 32 bytes.
+        /// </summary>
+        /// <param name="keyFilePath">Path to the key file.</param>
         public Z3n8SAFU(string keyFilePath)
         {
             _keyFilePath = keyFilePath;
@@ -245,6 +271,8 @@ namespace z3n7
 
         // ── ISAFU implementation ──────────────────────────────────────────────
 
+        /// <summary>Encrypts <c>toEncrypt</c>. An empty PIN is replaced by a fixed placeholder.</summary>
+        /// <returns>Base64 of IV + ciphertext + HMAC, or an empty string for empty input.</returns>
         public string Encode(IZennoPosterProjectModel project, string toEncrypt, string pin, string acc)
         {
             if (string.IsNullOrEmpty(toEncrypt)) return string.Empty;
@@ -253,6 +281,10 @@ namespace z3n7
             return AesEncrypt(toEncrypt, key);
         }
 
+        /// <summary>Decrypts <c>toDecrypt</c>.</summary>
+        /// <returns>
+        /// The plaintext, or an empty string when the input is empty, malformed, or the HMAC does not match.
+        /// </returns>
         public string Decode(IZennoPosterProjectModel project, string toDecrypt, string pin, string acc)
         {
             if (string.IsNullOrEmpty(toDecrypt)) return string.Empty;
@@ -261,6 +293,10 @@ namespace z3n7
             return AesDecrypt(toDecrypt, key);
         }
 
+        /// <summary>
+        /// Returns a deterministic 24-character password with at least one lowercase letter, uppercase letter,
+        /// digit and symbol.
+        /// </summary>
         public string HWPass(IZennoPosterProjectModel project, string pin, string acc)
         {
             var hwid = GetServerHwid(project) ?? GetStableHWId();
@@ -298,6 +334,8 @@ namespace z3n7
             }
         }
 
+        /// <summary>Encrypts with a key derived from the local machine ID only.</summary>
+        /// <returns>Base64 of IV + ciphertext + HMAC, or an empty string for empty input.</returns>
         public string EncodeHWID(IZennoPosterProjectModel project, string toEncrypt)
         {
             if (string.IsNullOrEmpty(toEncrypt)) return string.Empty;
@@ -305,6 +343,8 @@ namespace z3n7
             return AesEncrypt(toEncrypt, key);
         }
 
+        /// <summary>Decrypts with a key derived from the local machine ID only.</summary>
+        /// <returns>The plaintext, or an empty string when decryption fails.</returns>
         public string DecodeHWID(IZennoPosterProjectModel project, string toDecrypt)
         {
             if (string.IsNullOrEmpty(toDecrypt)) return string.Empty;
@@ -315,8 +355,14 @@ namespace z3n7
 
     // ── Точка входа ───────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Entry point to secure storage. Call <c>InitZ3n8</c> once (done by <c>InitVariables</c>) before the
+    /// other methods.
+    /// </summary>
     public static partial class SAFU
     {
+        /// <summary>Registers <c>Z3n8SAFU</c> in <c>FunctionStorage</c> and writes the key path to the log.</summary>
+        /// <param name="keyFilePath">Path to the 32-byte key file.</param>
         public static void InitZ3n8(IZennoPosterProjectModel project, string keyFilePath)
         {
             var impl = new Z3n8SAFU(keyFilePath);
@@ -335,6 +381,7 @@ namespace z3n7
             project.SendInfoToLog("[SAFU] Z3n8SAFU initialized, key=" + keyFilePath, true);
         }
 
+        /// <summary>Decrypts with the machine-bound key. Returns an empty string for empty input.</summary>
         public static string DecryptHWID(IZennoPosterProjectModel project, string toDecrypt)
         {
             if (string.IsNullOrEmpty(toDecrypt)) return string.Empty;
@@ -343,6 +390,7 @@ namespace z3n7
             return func(project, toDecrypt);
         }
 
+        /// <summary>Encrypts with the machine-bound key. Returns an empty string for empty input.</summary>
         public static string EncryptHWID(IZennoPosterProjectModel project, string toEncrypt)
         {
             if (string.IsNullOrEmpty(toEncrypt)) return string.Empty;
@@ -351,6 +399,10 @@ namespace z3n7
             return func(project, toEncrypt);
         }
 
+        /// <summary>
+        /// Decrypts with the key of the current account (<c>acc0</c>) and the PIN from the <c>cfgPin</c> secure
+        /// variable.
+        /// </summary>
         public static string Decode(IZennoPosterProjectModel project, string toDecrypt)
         {
             if (string.IsNullOrEmpty(toDecrypt)) return string.Empty;
@@ -361,6 +413,10 @@ namespace z3n7
             return func(project, toDecrypt, pin, acc);
         }
 
+        /// <summary>
+        /// Encrypts with the key of the current account (<c>acc0</c>) and the PIN from the <c>cfgPin</c> secure
+        /// variable.
+        /// </summary>
         public static string Encode(IZennoPosterProjectModel project, string toEncrypt)
         {
             if (string.IsNullOrEmpty(toEncrypt)) return string.Empty;
@@ -371,6 +427,10 @@ namespace z3n7
             return func(project, toEncrypt, pin, acc);
         }
 
+        /// <summary>
+        /// Returns the deterministic password of the current account (<c>acc0</c>), using the PIN from the
+        /// <c>cfgPin</c> secure variable.
+        /// </summary>
         public static string HWPass(this IZennoPosterProjectModel project)
         {
             string pin = project.SecureVar("cfgPin");

@@ -6,13 +6,15 @@ generated: z3n7-docgen
 
 # Db
 
-`class` · пространство имён `z3n7` · исходник [Db/Db.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L12), [Db/DbZenno.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbZenno.cs#L7)
+`class` · пространство имён `z3n7` · исходник [Db/Db.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L22), [Db/DbZenno.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbZenno.cs#L7)
 
 ```csharp
 public class Db
 ```
 
-*Описания пока нет.*
+SQL helper over PostgreSQL or SQLite with one API for both. Every statement opens its own connection. A `SELECT` returns rows joined by `·` and columns joined by `¦`; other statements return the number of affected rows. On SQLite a "database is locked" error is retried up to 10 times with a growing pause.
+
+**Примечания:** SQLite is reached through the SQLite3 ODBC driver, which must be installed. Values passed as `id` or `where` are inserted into SQL as written.
 
 ## Конструкторы
 
@@ -22,13 +24,33 @@ public class Db
 public Db(string dbMode = "pgSQL", string sqLitePath = null, string pgHost = "localhost", string pgPort = "5432", string pgDbName = "postgres", string pgUser = "postgres", string pgPass = "", string defaultTable = null, LogLevel logLevel = LogLevel.Off)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L29)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L49)
+
+Creates a database helper with explicit connection settings.
+
+| Параметр | Описание |
+|---|---|
+| `dbMode` | `pgSQL` for PostgreSQL; any other value uses SQLite. |
+| `sqLitePath` | SQLite database file. |
+| `pgHost` | PostgreSQL host. |
+| `pgPort` | PostgreSQL port. |
+| `pgDbName` | PostgreSQL database. |
+| `pgUser` | PostgreSQL user. |
+| `pgPass` | PostgreSQL password. |
+| `defaultTable` | Table used when a method gets no table name. |
+| `logLevel` | Level of the internal logger; queries and results are logged at `Info`. |
 
 ```csharp
 public Db(IZennoPosterProjectModel project, string dbMode = null, string sqLitePath = null, string pgHost = null, string pgPort = null, string pgDbName = null, string pgUser = null, string pgPass = null, string defaultTable = null, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbZenno.cs#L10)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbZenno.cs#L18)
+
+Creates a database helper from project settings. Each argument left `null` is read from: `dbMode` — variable `DBmode`; `sqLitePath` — variable `DBsqltPath`; PostgreSQL host, port, database, user and password — global variables `sqlPgHost`, `sqlPgPort`, `sqlPgName`, `sqlPgUser`, `sqlPgPass`; `defaultTable` — `project.ProjectTable()` (`__` + project name).
+
+| Параметр | Описание |
+|---|---|
+| `log` | Log queries and results at `Info` level. |
 
 ## Методы
 
@@ -38,7 +60,16 @@ public Db(IZennoPosterProjectModel project, string dbMode = null, string sqLiteP
 public void AddColumn(string columnName, string tableName = null, bool log = false, string defaultValue = "TEXT DEFAULT ''")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L831)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1094)
+
+Adds a column if the table does not have it yet.
+
+| Параметр | Описание |
+|---|---|
+| `columnName` | Column name. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `defaultValue` | SQL type of the new column. |
 
 ### AddColumns
 
@@ -46,13 +77,30 @@ public void AddColumn(string columnName, string tableName = null, bool log = fal
 public void AddColumns(List<string> columns, string tableName = null, bool log = false, string defaultValue = "TEXT DEFAULT ''")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L843)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1114)
+
+Adds each listed column that the table does not have yet.
+
+| Параметр | Описание |
+|---|---|
+| `columns` | Column names. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `defaultValue` | SQL type of the new columns. |
 
 ```csharp
 public void AddColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L851)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1131)
+
+Adds each column of `tableStructure` that the table does not have yet, with its type.
+
+| Параметр | Описание |
+|---|---|
+| `tableStructure` | Column → SQL type. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### AddRange
 
@@ -60,7 +108,15 @@ public void AddColumns(Dictionary<string, string> tableStructure, string tableNa
 public void AddRange(string tableName, int range, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L905)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1208)
+
+Inserts rows with ids from the current maximum + 1 up to `range`, in batches of 500. Existing ids are skipped.
+
+| Параметр | Описание |
+|---|---|
+| `tableName` | Table with an `id` column. |
+| `range` | Highest id to have. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### BridgeTable
 
@@ -68,18 +124,18 @@ public void AddRange(string tableName, int range, bool log = false)
 public void BridgeTable(string sourceTable, string targetDbPath, string targetTable, string targetMode = "SQLite", string schema = "public", bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1268)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1622)
 
-Transfer table between two databases (auto-detect direction)
+Copies a table from this database to another one: PostgreSQL → SQLite, SQLite → PostgreSQL or SQLite → SQLite. The target table is dropped and recreated.
 
 | Параметр | Описание |
 |---|---|
-| `sourceTable` | Source table name |
-| `targetDbPath` | Target database path (for SQLite) or connection string |
-| `targetTable` | Target table name |
-| `targetMode` | Target database mode (PostgreSQL or SQLite) |
-| `schema` | Schema name for PostgreSQL |
-| `log` | Enable logging |
+| `sourceTable` | Table in this database. |
+| `targetDbPath` | Target SQLite file, or the Npgsql connection string of the target database for `pgSQL`. |
+| `targetTable` | Target table. |
+| `targetMode` | `SQLite` or `pgSQL`. |
+| `schema` | PostgreSQL schema. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### Clear
 
@@ -87,9 +143,15 @@ Transfer table between two databases (auto-detect direction)
 public void Clear(string tableName = null, bool log = false, bool thrw = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L962)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1279)
 
-Delete all rows from table (truncate)
+Deletes all rows and resets the id counter (`TRUNCATE … RESTART IDENTITY CASCADE` on PostgreSQL, the `sqlite_sequence` entry on SQLite).
+
+| Параметр | Описание |
+|---|---|
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
 
 ### ClearLine
 
@@ -97,7 +159,16 @@ Delete all rows from table (truncate)
 public void ClearLine(int id, string tableName = null, bool log = false, bool thrw = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L983)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1308)
+
+Sets every column except `id` to an empty string in one row.
+
+| Параметр | Описание |
+|---|---|
+| `id` | Row id. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
 
 ### ColumnExists
 
@@ -105,7 +176,15 @@ public void ClearLine(int id, string tableName = null, bool log = false, bool th
 public bool ColumnExists(string columnName, string tableName, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L814)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1069)
+
+Checks whether a column exists. Case-insensitive on PostgreSQL, case-sensitive on SQLite.
+
+| Параметр | Описание |
+|---|---|
+| `columnName` | Column name. |
+| `tableName` | Table name. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### CreateTable
 
@@ -113,7 +192,15 @@ public bool ColumnExists(string columnName, string tableName, bool log = false)
 public void CreateTable(Dictionary<string, string> tableStructure, string tableName, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L751)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L980)
+
+Creates the table unless it exists. On PostgreSQL `AUTOINCREMENT` in a type is replaced by `SERIAL`.
+
+| Параметр | Описание |
+|---|---|
+| `tableStructure` | Column → SQL type. |
+| `tableName` | Table to create. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### DbToJson
 
@@ -121,7 +208,18 @@ public void CreateTable(Dictionary<string, string> tableStructure, string tableN
 public string DbToJson(string tableName = null, bool log = false, bool thrw = false, object id = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L255)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L430)
+
+Rebuilds the JSON stored by `JsonToDb` from the row with the given `id`. Columns starting with `_` and `id` are left out.
+
+| Параметр | Описание |
+|---|---|
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+
+**Возвращает:** The JSON text, or `{}` when the table has no `_json_structure` column or it cannot be parsed.
 
 ### Del
 
@@ -129,9 +227,18 @@ public string DbToJson(string tableName = null, bool log = false, bool thrw = fa
 public void Del(string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L936)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1246)
 
-Delete rows from table
+Deletes the row where `key` = `id`, or the rows matching `where`.
+
+| Параметр | Описание |
+|---|---|
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
 
 ### DropColumn
 
@@ -139,7 +246,15 @@ Delete rows from table
 public void DropColumn(string columnName, string tableName = null, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L868)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1155)
+
+Drops a column if it exists (`CASCADE` on PostgreSQL).
+
+| Параметр | Описание |
+|---|---|
+| `columnName` | Column name. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### Get
 
@@ -147,7 +262,21 @@ public void DropColumn(string columnName, string tableName = null, bool log = fa
 public string Get(string columns, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L91)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L137)
+
+Selects columns from the row where `key` = `id`, or from the rows matching `where`.
+
+| Параметр | Описание |
+|---|---|
+| `columns` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+
+**Возвращает:** Raw result in the `Query` format.
 
 ### GetColumns
 
@@ -155,7 +284,21 @@ public string Get(string columns, string tableName = null, bool log = false, boo
 public Dictionary<string, string> GetColumns(string columns, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L116)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L174)
+
+Like `Get`, but returns the first row as column → value.
+
+| Параметр | Описание |
+|---|---|
+| `columns` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+
+**Возвращает:** An empty dictionary when nothing was found.
 
 ### GetLine
 
@@ -163,7 +306,19 @@ public Dictionary<string, string> GetColumns(string columns, string tableName = 
 public string[] GetLine(string columns, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L137)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L206)
+
+Like `Get`, split into column values.
+
+| Параметр | Описание |
+|---|---|
+| `columns` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
 
 ### GetLines
 
@@ -171,7 +326,19 @@ public string[] GetLine(string columns, string tableName = null, bool log = fals
 public List<string> GetLines(string columns, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L142)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L222)
+
+Like `Get`, split into rows. Each row still has its columns joined by `¦`.
+
+| Параметр | Описание |
+|---|---|
+| `columns` | Comma-separated column names; each is quoted. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
 
 ### GetRandom
 
@@ -179,7 +346,20 @@ public List<string> GetLines(string columns, string tableName = null, bool log =
 public string GetRandom(string column, string tableName = null, bool log = false, bool thrw = false, int maxId = 0, bool includeId = false, bool single = true, bool invertEmpty = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L147)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L239)
+
+Selects `column` from random rows where it is not empty.
+
+| Параметр | Описание |
+|---|---|
+| `column` | Column to read. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `maxId` | When above 0, only rows with `id` below it. |
+| `includeId` | Prefix the result with the `id` column. |
+| `single` | Return one row instead of all matching rows in random order. |
+| `invertEmpty` | Select rows where the column is empty instead. |
 
 ### GetTableColumns
 
@@ -187,7 +367,14 @@ public string GetRandom(string column, string tableName = null, bool log = false
 public List<string> GetTableColumns(string tableName, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L799)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1045)
+
+Column names of a table.
+
+| Параметр | Описание |
+|---|---|
+| `tableName` | Table name. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### GetTables
 
@@ -195,7 +382,13 @@ public List<string> GetTableColumns(string tableName, bool log = false)
 public List<string> GetTables(bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L787)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1027)
+
+Names of all tables, sorted (PostgreSQL: base tables of the `public` schema).
+
+| Параметр | Описание |
+|---|---|
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### InsertDic
 
@@ -203,7 +396,16 @@ public List<string> GetTables(bool log = false)
 public void InsertDic(Dictionary<string, string> data, string tableName = null, bool log = false, bool thrw = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L222)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L354)
+
+Inserts one row from a dictionary. On PostgreSQL a conflicting row is skipped (`ON CONFLICT DO NOTHING`).
+
+| Параметр | Описание |
+|---|---|
+| `data` | Column → value. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
 
 ### JsonToDb
 
@@ -211,7 +413,17 @@ public void InsertDic(Dictionary<string, string> data, string tableName = null, 
 public void JsonToDb(string json, string tableName = null, bool log = false, bool thrw = false, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L245)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L405)
+
+Flattens a JSON object into columns and writes it with `UpdFromDict`. Nested keys are joined with `_` (`a_b_0`). The original shape is saved in the `_json_structure` column so that `DbToJson` can rebuild it.
+
+| Параметр | Описание |
+|---|---|
+| `json` | JSON object. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `where` | Raw SQL condition selecting the row. |
 
 ### PgToSqlite
 
@@ -219,17 +431,19 @@ public void JsonToDb(string json, string tableName = null, bool log = false, boo
 public void PgToSqlite(string pgTable, string sqlitePath, string sqliteTable, string pgSchema = "public", bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1179)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1518)
 
-Transfer table from PostgreSQL to SQLite
+Copies a PostgreSQL table into an SQLite file. The target table is dropped and recreated; PostgreSQL types are mapped to INTEGER, REAL, TEXT or BLOB.
 
 | Параметр | Описание |
 |---|---|
-| `pgSchema` | PostgreSQL schema (default: public) |
-| `pgTable` | PostgreSQL table name |
-| `sqlitePath` | Path to SQLite database file |
-| `sqliteTable` | SQLite table name |
-| `log` | Enable logging |
+| `pgTable` | Source table. |
+| `sqlitePath` | SQLite database file. |
+| `sqliteTable` | Target table. |
+| `pgSchema` | Source schema. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+
+**Примечания:** This instance must be in `pgSQL` mode.
 
 ### PrepareTable
 
@@ -237,13 +451,35 @@ Transfer table from PostgreSQL to SQLite
 public void PrepareTable(Dictionary<string, string> tableStructure, string tableName = null, bool log = false, bool prune = false, bool rearrange = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L500)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L684)
+
+Creates the table if it does not exist and adds missing columns.
+
+| Параметр | Описание |
+|---|---|
+| `tableStructure` | Column → SQL type, e.g. `{"id", "INTEGER PRIMARY KEY"}`. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `prune` | Also drop columns that are not in `tableStructure` (`PruneColumns`). |
+| `rearrange` | Also reorder columns to match `tableStructure` (`RearrangeColumns`). |
 
 ```csharp
 public void PrepareTable(List<string> columns, string tableName = null, string defaultType = "TEXT DEFAULT ''", string serial = "INTEGER", bool log = false, bool prune = false, bool rearrange = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L516)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L716)
+
+Same as the dictionary overload, with an `id` primary key and one type for every other column.
+
+| Параметр | Описание |
+|---|---|
+| `columns` | Column names; `id` and duplicates are skipped. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `defaultType` | SQL type of every column. |
+| `serial` | Type of `id`. `INTEGER` becomes `INTEGER PRIMARY KEY AUTOINCREMENT` (`AUTOINCREMENT` is replaced by `SERIAL` on PostgreSQL). |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `prune` | Drop columns not in the list. |
+| `rearrange` | Reorder columns to match the list. |
 
 ### PruneColumns
 
@@ -251,7 +487,15 @@ public void PrepareTable(List<string> columns, string tableName = null, string d
 public void PruneColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L732)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L951)
+
+Drops every column except `id` that is not a key of `tableStructure`.
+
+| Параметр | Описание |
+|---|---|
+| `tableStructure` | Columns to keep. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### PruneEmptyColumns
 
@@ -259,7 +503,14 @@ public void PruneColumns(Dictionary<string, string> tableStructure, string table
 public void PruneEmptyColumns(string tableName = null, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L882)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1175)
+
+Drops every column except `id` in which no row has a non-empty value.
+
+| Параметр | Описание |
+|---|---|
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### Query
 
@@ -267,7 +518,18 @@ public void PruneEmptyColumns(string tableName = null, bool log = false)
 public string Query(string query, bool log = false, bool thrw = false, bool unSafe = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L46)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L78)
+
+Executes one SQL statement.
+
+| Параметр | Описание |
+|---|---|
+| `query` | SQL text. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `unSafe` | Not used. |
+
+**Возвращает:** For `SELECT`: rows joined by `·`, columns by `¦`. Otherwise the affected row count as text. An empty string after an error when `thrw` is false.
 
 ### RearrangeColumns
 
@@ -275,7 +537,15 @@ public string Query(string query, bool log = false, bool thrw = false, bool unSa
 public void RearrangeColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L535)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L747)
+
+Reorders the table's columns: `id` first, then the columns of `tableStructure` that exist, then the rest. Works by copying the data into a new table, dropping the old one and renaming the new one. On failure the temporary table is dropped and an exception is thrown.
+
+| Параметр | Описание |
+|---|---|
+| `tableStructure` | Desired order (column → type). |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### SetDone
 
@@ -283,7 +553,20 @@ public void RearrangeColumns(Dictionary<string, string> tableStructure, string t
 public void SetDone(string taskColumn = "daily", int cooldownMin = 0, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L236)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L383)
+
+Writes a local timestamp `yyyy-MM-dd HH:mm:ss` to `taskColumn`: now, or now plus `cooldownMin`.
+
+| Параметр | Описание |
+|---|---|
+| `taskColumn` | Column to write. |
+| `cooldownMin` | Minutes to add; 0 writes the current time. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
 
 ### SqliteToPg
 
@@ -291,17 +574,19 @@ public void SetDone(string taskColumn = "daily", int cooldownMin = 0, string tab
 public void SqliteToPg(string sqlitePath, string sqliteTable, string pgTable, string pgSchema = "public", bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1211)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1555)
 
-Transfer table from SQLite to PostgreSQL
+Copies an SQLite table into PostgreSQL. The target table is dropped and recreated; SQLite types are mapped to bigint, double precision, text or bytea.
 
 | Параметр | Описание |
 |---|---|
-| `sqlitePath` | Path to SQLite database file |
-| `sqliteTable` | SQLite table name |
-| `pgTable` | PostgreSQL table name |
-| `pgSchema` | PostgreSQL schema (default: public) |
-| `log` | Enable logging |
+| `sqlitePath` | SQLite database file. |
+| `sqliteTable` | Source table. |
+| `pgTable` | Target table. |
+| `pgSchema` | Target schema. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+
+**Примечания:** This instance must be in `pgSQL` mode; it is the target.
 
 ### SqliteToSqlite
 
@@ -309,17 +594,17 @@ Transfer table from SQLite to PostgreSQL
 public void SqliteToSqlite(string sourcePath, string sourceTable, string targetPath, string targetTable, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1239)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1589)
 
-Transfer table from one SQLite database to another SQLite database
+Copies a table between two SQLite files. The target table is dropped and recreated.
 
 | Параметр | Описание |
 |---|---|
-| `sourcePath` | Source SQLite database path |
-| `sourceTable` | Source table name |
-| `targetPath` | Target SQLite database path |
-| `targetTable` | Target table name |
-| `log` | Enable logging |
+| `sourcePath` | Source database file. |
+| `sourceTable` | Source table. |
+| `targetPath` | Target database file. |
+| `targetTable` | Target table. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### SwapLines
 
@@ -327,7 +612,17 @@ Transfer table from one SQLite database to another SQLite database
 public void SwapLines(int id1, int id2, string tableName = null, bool log = false, bool thrw = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1005)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1339)
+
+Exchanges the values of all columns except `id` between two rows.
+
+| Параметр | Описание |
+|---|---|
+| `id1` | First row id. |
+| `id2` | Second row id. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Throw when a row is not found; otherwise it is logged and nothing changes. |
 
 ### TableExists
 
@@ -335,7 +630,14 @@ public void SwapLines(int id1, int id2, string tableName = null, bool log = fals
 public bool TableExists(string tableName, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L770)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1005)
+
+Checks whether the table exists (in the `public` schema on PostgreSQL).
+
+| Параметр | Описание |
+|---|---|
+| `tableName` | Table name; double quotes are ignored. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
 
 ### Upd
 
@@ -343,7 +645,19 @@ public bool TableExists(string tableName, bool log = false)
 public void Upd(string setClause, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L176)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L285)
+
+Runs `UPDATE … SET setClause` for the row where `key` = `id`, or for the rows matching `where`.
+
+| Параметр | Описание |
+|---|---|
+| `setClause` | Assignments such as `status = 'ok', note = ''`; column names are quoted, values are taken as written. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `key` | Column matched against `id`. |
+| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
 
 ### UpdFromDict
 
@@ -351,6 +665,16 @@ public void Upd(string setClause, string tableName = null, bool log = false, boo
 public void UpdFromDict(Dictionary<string, string> data, string tableName = null, bool log = false, bool thrw = false, string where = "")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L199)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L320)
+
+Updates the rows matching `where` from a dictionary, adding missing columns first. A key `id` is written to the column `_id`. Single quotes are removed from values.
+
+| Параметр | Описание |
+|---|---|
+| `data` | Column → value. |
+| `tableName` | Table; default is the table given to the constructor. |
+| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `where` | Raw SQL condition; required. |
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

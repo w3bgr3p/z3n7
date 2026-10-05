@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # GVars
 
-`static class` · namespace `z3n7` · source [Essentials/Vars.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L243)
+`static class` · namespace `z3n7` · source [Essentials/Vars.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L307)
 
 ```csharp
 public static class GVars
 ```
 
-*No description yet.*
+Global ZennoPoster variables, kept in a namespace named after the current Windows user.
 
 ## Methods
 
@@ -22,7 +22,11 @@ public static class GVars
 public static List<int> GClean(this IZennoPosterProjectModel project, bool log = false)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L367)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L450)
+
+Clears the global variables `acc1` … `acc{rangeEnd}`.
+
+**Returns:** Numbers of the variables that were cleared.
 
 ### GGetBusyList
 
@@ -30,7 +34,15 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static List<string> GGetBusyList(this IZennoPosterProjectModel project, bool log = false)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L281)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L354)
+
+Lists accounts taken by running threads: every non-empty global variable `acc1` … `acc{rangeEnd}`.
+
+| Parameter | Description |
+|---|---|
+| `log` | Write the list to the log. |
+
+**Returns:** Entries in the form `number:value`.
 
 ### GSetAcc
 
@@ -38,7 +50,17 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static bool GSetAcc(this IZennoPosterProjectModel project, string input = null, bool force = false, bool log = false)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L319)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L400)
+
+Marks the current account (`acc0`) as taken by writing `input` to the global variable `acc{acc0}`.
+
+| Parameter | Description |
+|---|---|
+| `input` | Value to store; default is the `projectName` variable. |
+| `force` | Overwrite even if the account is already taken. |
+| `log` | Write the outcome to the log. |
+
+**Returns:** `false` when the account is already taken and `force` is false.
 
 ### GVar
 
@@ -46,12 +68,18 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static string GVar(this IZennoPosterProjectModel project, string var)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L246)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L311)
+
+Returns a global variable, or an empty string when it does not exist.
 
 ```csharp
 public static string GVar(this IZennoPosterProjectModel project, string var, object value)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L260)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L327)
+
+Sets a global variable, creating it when it does not exist. Errors are swallowed.
+
+**Returns:** Always an empty string.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

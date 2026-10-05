@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # SAFU
 
-`static class` · namespace `z3n7` · source [Essentials/Safu8.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L318)
+`static class` · namespace `z3n7` · source [Essentials/Safu8.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L362)
 
 ```csharp
 public static class SAFU
 ```
 
-*No description yet.*
+Entry point to secure storage. Call `InitZ3n8` once (done by `InitVariables`) before the other methods.
 
 ## Methods
 
@@ -22,7 +22,9 @@ public static class SAFU
 public static string Decode(IZennoPosterProjectModel project, string toDecrypt)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L354)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L406)
+
+Decrypts with the key of the current account (`acc0`) and the PIN from the `cfgPin` secure variable.
 
 ### DecryptHWID
 
@@ -30,7 +32,9 @@ public static string Decode(IZennoPosterProjectModel project, string toDecrypt)
 public static string DecryptHWID(IZennoPosterProjectModel project, string toDecrypt)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L338)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L385)
+
+Decrypts with the machine-bound key. Returns an empty string for empty input.
 
 ### Encode
 
@@ -38,7 +42,9 @@ public static string DecryptHWID(IZennoPosterProjectModel project, string toDecr
 public static string Encode(IZennoPosterProjectModel project, string toEncrypt)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L364)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L420)
+
+Encrypts with the key of the current account (`acc0`) and the PIN from the `cfgPin` secure variable.
 
 ### EncryptHWID
 
@@ -46,7 +52,9 @@ public static string Encode(IZennoPosterProjectModel project, string toEncrypt)
 public static string EncryptHWID(IZennoPosterProjectModel project, string toEncrypt)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L346)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L394)
+
+Encrypts with the machine-bound key. Returns an empty string for empty input.
 
 ### HWPass
 
@@ -54,7 +62,9 @@ public static string EncryptHWID(IZennoPosterProjectModel project, string toEncr
 public static string HWPass(this IZennoPosterProjectModel project)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L374)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L434)
+
+Returns the deterministic password of the current account (`acc0`), using the PIN from the `cfgPin` secure variable.
 
 ### InitZ3n8
 
@@ -62,6 +72,12 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 public static void InitZ3n8(IZennoPosterProjectModel project, string keyFilePath)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L320)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L366)
+
+Registers `Z3n8SAFU` in `FunctionStorage` and writes the key path to the log.
+
+| Parameter | Description |
+|---|---|
+| `keyFilePath` | Path to the 32-byte key file. |
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

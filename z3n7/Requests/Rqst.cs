@@ -10,6 +10,13 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// HTTP client for ZennoPoster projects: proxy, headers and cookies are taken from the project when not
+    /// given.
+    /// Requests go through ZennoPoster's HTTP client by default, serialised by a lock shared by all
+    /// <c>Rqst</c> instances. Every request is appended as a JSON line to the traffic file
+    /// (<c>ZpTraffic</c>).
+    /// </summary>
     public class Rqst
     {
         private readonly IZennoPosterProjectModel _project;
@@ -18,6 +25,9 @@ namespace z3n7
         private readonly bool _mask;
         private static readonly object LockObject = new object();
 
+        /// <summary>Creates a client for the project.</summary>
+        /// <param name="log">Log responses and request errors. Without it, nothing is written to the log.</param>
+        /// <param name="mask">Not used.</param>
         public Rqst(IZennoPosterProjectModel project, bool log = false, bool mask = false)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
@@ -54,6 +64,39 @@ namespace z3n7
         #endregion
 
         #region Public API Methods
+        /// <summary>Sends a GET request.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="proxy">
+        /// Empty for none. <c>+</c> — the <c>proxy</c> variable, else the <c>proxy</c> column of the account's
+        /// <c>_instance</c> row; <c>z</c> — the <c>z_proxy</c> column of that row; otherwise
+        /// <c>[scheme://][user:pass@]host:port</c> (scheme defaults to http).
+        /// </param>
+        /// <param name="headers">
+        /// <c>Name: value</c> lines. When empty, the lines of the <c>headers</c> variable are used. User-Agent
+        /// and Content-Type lines set those values (defaults: the profile user agent and
+        /// <c>application/json</c>); Host, Connection, Content-Length and similar transport headers are
+        /// dropped.
+        /// </param>
+        /// <param name="cookies">
+        /// <c>-</c> — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's
+        /// domain from the <c>cookies</c> variable (JSON array); when it is empty and <c>acc0</c> and
+        /// <c>dbSource</c> are set, from the Base64 <c>cookies</c> column of the <c>_instance</c> row (also
+        /// stored into the variable); when nothing is found, the profile cookie container.
+        /// </param>
+        /// <param name="log">
+        /// Write the response body to the log. Effective only when the <c>Rqst</c> was created with <c>log:
+        /// true</c>.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds.</param>
+        /// <param name="thrw">Throw on a non-2xx status or a transport error.</param>
+        /// <param name="useNetHttp">Send through <c>NetHttp</c> (.NET HttpClient) instead of ZennoPoster's HTTP client.</param>
+        /// <param name="returnSuccessWithStatus">Return <c>{status}\r\n\r\n{body}</c> for any status, without the non-2xx handling.</param>
+        /// <param name="bodyOnly">Ask ZennoPoster for the body only; response headers are then not recorded.</param>
+        /// <returns>
+        /// The trimmed response body. For a non-2xx status: the body (or an exception with <c>thrw</c>). For a
+        /// transport error: <c>Error: {message}</c> (or the exception with <c>thrw</c>).
+        /// </returns>
         public string GET(string url, string proxy = "", string[] headers = null, string cookies = null,
             bool log = false, bool parse = false, int deadline = 30, bool thrw = false, 
             bool useNetHttp = false, bool returnSuccessWithStatus = false, bool bodyOnly = false)
@@ -62,6 +105,40 @@ namespace z3n7
                 thrw, useNetHttp, returnSuccessWithStatus, bodyOnly);
         }
 
+        /// <summary>Sends a POST request.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">Request body.</param>
+        /// <param name="proxy">
+        /// Empty for none. <c>+</c> — the <c>proxy</c> variable, else the <c>proxy</c> column of the account's
+        /// <c>_instance</c> row; <c>z</c> — the <c>z_proxy</c> column of that row; otherwise
+        /// <c>[scheme://][user:pass@]host:port</c> (scheme defaults to http).
+        /// </param>
+        /// <param name="headers">
+        /// <c>Name: value</c> lines. When empty, the lines of the <c>headers</c> variable are used. User-Agent
+        /// and Content-Type lines set those values (defaults: the profile user agent and
+        /// <c>application/json</c>); Host, Connection, Content-Length and similar transport headers are
+        /// dropped.
+        /// </param>
+        /// <param name="cookies">
+        /// <c>-</c> — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's
+        /// domain from the <c>cookies</c> variable (JSON array); when it is empty and <c>acc0</c> and
+        /// <c>dbSource</c> are set, from the Base64 <c>cookies</c> column of the <c>_instance</c> row (also
+        /// stored into the variable); when nothing is found, the profile cookie container.
+        /// </param>
+        /// <param name="log">
+        /// Write the response body to the log. Effective only when the <c>Rqst</c> was created with <c>log:
+        /// true</c>.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds.</param>
+        /// <param name="thrw">Throw on a non-2xx status or a transport error.</param>
+        /// <param name="useNetHttp">Send through <c>NetHttp</c> (.NET HttpClient) instead of ZennoPoster's HTTP client.</param>
+        /// <param name="returnSuccessWithStatus">Return <c>{status}\r\n\r\n{body}</c> for any status, without the non-2xx handling.</param>
+        /// <param name="bodyOnly">Ask ZennoPoster for the body only; response headers are then not recorded.</param>
+        /// <returns>
+        /// The trimmed response body. For a non-2xx status: the body (or an exception with <c>thrw</c>). For a
+        /// transport error: <c>Error: {message}</c> (or the exception with <c>thrw</c>).
+        /// </returns>
         public string POST(string url, string body, string proxy = "", string[] headers = null, 
             string cookies = null, bool log = false, bool parse = false, int deadline = 30, 
             bool thrw = false, bool useNetHttp = false, bool returnSuccessWithStatus = false, 
@@ -71,6 +148,40 @@ namespace z3n7
                 thrw, useNetHttp, returnSuccessWithStatus, bodyOnly);
         }
 
+        /// <summary>Sends a PUT request.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">Request body.</param>
+        /// <param name="proxy">
+        /// Empty for none. <c>+</c> — the <c>proxy</c> variable, else the <c>proxy</c> column of the account's
+        /// <c>_instance</c> row; <c>z</c> — the <c>z_proxy</c> column of that row; otherwise
+        /// <c>[scheme://][user:pass@]host:port</c> (scheme defaults to http).
+        /// </param>
+        /// <param name="headers">
+        /// <c>Name: value</c> lines. When empty, the lines of the <c>headers</c> variable are used. User-Agent
+        /// and Content-Type lines set those values (defaults: the profile user agent and
+        /// <c>application/json</c>); Host, Connection, Content-Length and similar transport headers are
+        /// dropped.
+        /// </param>
+        /// <param name="cookies">
+        /// <c>-</c> — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's
+        /// domain from the <c>cookies</c> variable (JSON array); when it is empty and <c>acc0</c> and
+        /// <c>dbSource</c> are set, from the Base64 <c>cookies</c> column of the <c>_instance</c> row (also
+        /// stored into the variable); when nothing is found, the profile cookie container.
+        /// </param>
+        /// <param name="log">
+        /// Write the response body to the log. Effective only when the <c>Rqst</c> was created with <c>log:
+        /// true</c>.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds.</param>
+        /// <param name="thrw">Throw on a non-2xx status or a transport error.</param>
+        /// <param name="useNetHttp">Send through <c>NetHttp</c> (.NET HttpClient) instead of ZennoPoster's HTTP client.</param>
+        /// <param name="returnSuccessWithStatus">Return <c>{status}\r\n\r\n{body}</c> for any status, without the non-2xx handling.</param>
+        /// <param name="bodyOnly">Ask ZennoPoster for the body only; response headers are then not recorded.</param>
+        /// <returns>
+        /// The trimmed response body. For a non-2xx status: the body (or an exception with <c>thrw</c>). For a
+        /// transport error: <c>Error: {message}</c> (or the exception with <c>thrw</c>).
+        /// </returns>
         public string PUT(string url, string body, string proxy = "", string[] headers = null, 
             string cookies = null, bool log = false, bool parse = false, int deadline = 30, 
             bool thrw = false, bool useNetHttp = false, bool returnSuccessWithStatus = false, 
@@ -80,6 +191,38 @@ namespace z3n7
                 thrw, useNetHttp, returnSuccessWithStatus, bodyOnly);
         }
 
+        /// <summary>Sends a DELETE request.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="proxy">
+        /// Empty for none. <c>+</c> — the <c>proxy</c> variable, else the <c>proxy</c> column of the account's
+        /// <c>_instance</c> row; <c>z</c> — the <c>z_proxy</c> column of that row; otherwise
+        /// <c>[scheme://][user:pass@]host:port</c> (scheme defaults to http).
+        /// </param>
+        /// <param name="headers">
+        /// <c>Name: value</c> lines. When empty, the lines of the <c>headers</c> variable are used. User-Agent
+        /// and Content-Type lines set those values (defaults: the profile user agent and
+        /// <c>application/json</c>); Host, Connection, Content-Length and similar transport headers are
+        /// dropped.
+        /// </param>
+        /// <param name="cookies">
+        /// <c>-</c> — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's
+        /// domain from the <c>cookies</c> variable (JSON array); when it is empty and <c>acc0</c> and
+        /// <c>dbSource</c> are set, from the Base64 <c>cookies</c> column of the <c>_instance</c> row (also
+        /// stored into the variable); when nothing is found, the profile cookie container.
+        /// </param>
+        /// <param name="log">
+        /// Write the response body to the log. Effective only when the <c>Rqst</c> was created with <c>log:
+        /// true</c>.
+        /// </param>
+        /// <param name="deadline">Timeout in seconds.</param>
+        /// <param name="thrw">Throw on a non-2xx status or a transport error.</param>
+        /// <param name="useNetHttp">Send through <c>NetHttp</c> (.NET HttpClient) instead of ZennoPoster's HTTP client.</param>
+        /// <param name="returnSuccessWithStatus">Return <c>{status}\r\n\r\n{body}</c> for any status, without the non-2xx handling.</param>
+        /// <param name="bodyOnly">Ask ZennoPoster for the body only; response headers are then not recorded.</param>
+        /// <returns>
+        /// The trimmed response body. For a non-2xx status: the body (or an exception with <c>thrw</c>). For a
+        /// transport error: <c>Error: {message}</c> (or the exception with <c>thrw</c>).
+        /// </returns>
         public string DELETE(string url, string proxy = "", string[] headers = null, 
             string cookies = null, bool log = false, int deadline = 30, bool thrw = false, 
             bool useNetHttp = false, bool returnSuccessWithStatus = false, bool bodyOnly = false)
@@ -652,8 +795,42 @@ namespace z3n7
     }
 
     #region Extension Methods for Backward Compatibility
+    /// <summary>Shortcuts that create an <c>Rqst</c> for one request.</summary>
     public static class RqstExtensions
     {
+        /// <summary>Sends a GET request with a new <c>Rqst</c>; <c>log</c> also enables its logging.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="proxy">
+        /// Empty for none. <c>+</c> — the <c>proxy</c> variable, else the <c>proxy</c> column of the account's
+        /// <c>_instance</c> row; <c>z</c> — the <c>z_proxy</c> column of that row; otherwise
+        /// <c>[scheme://][user:pass@]host:port</c> (scheme defaults to http).
+        /// </param>
+        /// <param name="headers">
+        /// <c>Name: value</c> lines. When empty, the lines of the <c>headers</c> variable are used. User-Agent
+        /// and Content-Type lines set those values (defaults: the profile user agent and
+        /// <c>application/json</c>); Host, Connection, Content-Length and similar transport headers are
+        /// dropped.
+        /// </param>
+        /// <param name="cookies">
+        /// <c>-</c> — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's
+        /// domain from the <c>cookies</c> variable (JSON array); when it is empty and <c>acc0</c> and
+        /// <c>dbSource</c> are set, from the Base64 <c>cookies</c> column of the <c>_instance</c> row (also
+        /// stored into the variable); when nothing is found, the profile cookie container.
+        /// </param>
+        /// <param name="log">
+        /// Write the response body to the log. Effective only when the <c>Rqst</c> was created with <c>log:
+        /// true</c>.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds.</param>
+        /// <param name="thrw">Throw on a non-2xx status or a transport error.</param>
+        /// <param name="useNetHttp">Send through <c>NetHttp</c> (.NET HttpClient) instead of ZennoPoster's HTTP client.</param>
+        /// <param name="returnSuccessWithStatus">Return <c>{status}\r\n\r\n{body}</c> for any status, without the non-2xx handling.</param>
+        /// <param name="bodyOnly">Ask ZennoPoster for the body only; response headers are then not recorded.</param>
+        /// <returns>
+        /// The trimmed response body. For a non-2xx status: the body (or an exception with <c>thrw</c>). For a
+        /// transport error: <c>Error: {message}</c> (or the exception with <c>thrw</c>).
+        /// </returns>
         public static string GET(this IZennoPosterProjectModel project, string url, 
             string proxy = "", string[] headers = null, string cookies = null,
             bool log = false, bool parse = false, int deadline = 30, bool thrw = false,
@@ -664,6 +841,40 @@ namespace z3n7
                 thrw, useNetHttp, returnSuccessWithStatus, bodyOnly);
         }
 
+        /// <summary>Sends a POST request with a new <c>Rqst</c>; <c>log</c> also enables its logging.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">Request body.</param>
+        /// <param name="proxy">
+        /// Empty for none. <c>+</c> — the <c>proxy</c> variable, else the <c>proxy</c> column of the account's
+        /// <c>_instance</c> row; <c>z</c> — the <c>z_proxy</c> column of that row; otherwise
+        /// <c>[scheme://][user:pass@]host:port</c> (scheme defaults to http).
+        /// </param>
+        /// <param name="headers">
+        /// <c>Name: value</c> lines. When empty, the lines of the <c>headers</c> variable are used. User-Agent
+        /// and Content-Type lines set those values (defaults: the profile user agent and
+        /// <c>application/json</c>); Host, Connection, Content-Length and similar transport headers are
+        /// dropped.
+        /// </param>
+        /// <param name="cookies">
+        /// <c>-</c> — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's
+        /// domain from the <c>cookies</c> variable (JSON array); when it is empty and <c>acc0</c> and
+        /// <c>dbSource</c> are set, from the Base64 <c>cookies</c> column of the <c>_instance</c> row (also
+        /// stored into the variable); when nothing is found, the profile cookie container.
+        /// </param>
+        /// <param name="log">
+        /// Write the response body to the log. Effective only when the <c>Rqst</c> was created with <c>log:
+        /// true</c>.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds.</param>
+        /// <param name="thrw">Throw on a non-2xx status or a transport error.</param>
+        /// <param name="useNetHttp">Send through <c>NetHttp</c> (.NET HttpClient) instead of ZennoPoster's HTTP client.</param>
+        /// <param name="returnSuccessWithStatus">Return <c>{status}\r\n\r\n{body}</c> for any status, without the non-2xx handling.</param>
+        /// <param name="bodyOnly">Ask ZennoPoster for the body only; response headers are then not recorded.</param>
+        /// <returns>
+        /// The trimmed response body. For a non-2xx status: the body (or an exception with <c>thrw</c>). For a
+        /// transport error: <c>Error: {message}</c> (or the exception with <c>thrw</c>).
+        /// </returns>
         public static string POST(this IZennoPosterProjectModel project, string url, string body,
             string proxy = "", string[] headers = null, string cookies = null,
             bool log = false, bool parse = false, int deadline = 30, bool thrw = false,
@@ -674,6 +885,39 @@ namespace z3n7
                 thrw, useNetHttp, returnSuccessWithStatus, bodyOnly);
         }
 
+        /// <summary>Sends a PUT request with a new <c>Rqst</c>; <c>log</c> also enables its logging.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">Request body.</param>
+        /// <param name="proxy">
+        /// Empty for none. <c>+</c> — the <c>proxy</c> variable, else the <c>proxy</c> column of the account's
+        /// <c>_instance</c> row; <c>z</c> — the <c>z_proxy</c> column of that row; otherwise
+        /// <c>[scheme://][user:pass@]host:port</c> (scheme defaults to http).
+        /// </param>
+        /// <param name="headers">
+        /// <c>Name: value</c> lines. When empty, the lines of the <c>headers</c> variable are used. User-Agent
+        /// and Content-Type lines set those values (defaults: the profile user agent and
+        /// <c>application/json</c>); Host, Connection, Content-Length and similar transport headers are
+        /// dropped.
+        /// </param>
+        /// <param name="cookies">
+        /// <c>-</c> — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's
+        /// domain from the <c>cookies</c> variable (JSON array); when it is empty and <c>acc0</c> and
+        /// <c>dbSource</c> are set, from the Base64 <c>cookies</c> column of the <c>_instance</c> row (also
+        /// stored into the variable); when nothing is found, the profile cookie container.
+        /// </param>
+        /// <param name="log">
+        /// Write the response body to the log. Effective only when the <c>Rqst</c> was created with <c>log:
+        /// true</c>.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds.</param>
+        /// <param name="thrw">Throw on a non-2xx status or a transport error.</param>
+        /// <param name="useNetHttp">Send through <c>NetHttp</c> (.NET HttpClient) instead of ZennoPoster's HTTP client.</param>
+        /// <param name="returnSuccessWithStatus">Return <c>{status}\r\n\r\n{body}</c> for any status, without the non-2xx handling.</param>
+        /// <returns>
+        /// The trimmed response body. For a non-2xx status: the body (or an exception with <c>thrw</c>). For a
+        /// transport error: <c>Error: {message}</c> (or the exception with <c>thrw</c>).
+        /// </returns>
         public static string PUT(this IZennoPosterProjectModel project, string url, string body,
             string proxy = "", string[] headers = null, string cookies = null,
             bool log = false, bool parse = false, int deadline = 30, bool thrw = false,
@@ -684,6 +928,37 @@ namespace z3n7
                 thrw, useNetHttp, returnSuccessWithStatus);
         }
 
+        /// <summary>Sends a DELETE request with a new <c>Rqst</c>; <c>log</c> also enables its logging.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="proxy">
+        /// Empty for none. <c>+</c> — the <c>proxy</c> variable, else the <c>proxy</c> column of the account's
+        /// <c>_instance</c> row; <c>z</c> — the <c>z_proxy</c> column of that row; otherwise
+        /// <c>[scheme://][user:pass@]host:port</c> (scheme defaults to http).
+        /// </param>
+        /// <param name="headers">
+        /// <c>Name: value</c> lines. When empty, the lines of the <c>headers</c> variable are used. User-Agent
+        /// and Content-Type lines set those values (defaults: the profile user agent and
+        /// <c>application/json</c>); Host, Connection, Content-Length and similar transport headers are
+        /// dropped.
+        /// </param>
+        /// <param name="cookies">
+        /// <c>-</c> — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's
+        /// domain from the <c>cookies</c> variable (JSON array); when it is empty and <c>acc0</c> and
+        /// <c>dbSource</c> are set, from the Base64 <c>cookies</c> column of the <c>_instance</c> row (also
+        /// stored into the variable); when nothing is found, the profile cookie container.
+        /// </param>
+        /// <param name="log">
+        /// Write the response body to the log. Effective only when the <c>Rqst</c> was created with <c>log:
+        /// true</c>.
+        /// </param>
+        /// <param name="deadline">Timeout in seconds.</param>
+        /// <param name="thrw">Throw on a non-2xx status or a transport error.</param>
+        /// <param name="useNetHttp">Send through <c>NetHttp</c> (.NET HttpClient) instead of ZennoPoster's HTTP client.</param>
+        /// <param name="returnSuccessWithStatus">Return <c>{status}\r\n\r\n{body}</c> for any status, without the non-2xx handling.</param>
+        /// <returns>
+        /// The trimmed response body. For a non-2xx status: the body (or an exception with <c>thrw</c>). For a
+        /// transport error: <c>Error: {message}</c> (or the exception with <c>thrw</c>).
+        /// </returns>
         public static string DELETE(this IZennoPosterProjectModel project, string url,
             string proxy = "", string[] headers = null, string cookies = null,
             bool log = false, int deadline = 30, bool thrw = false,

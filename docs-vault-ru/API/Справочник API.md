@@ -56,23 +56,23 @@ generated: z3n7-docgen
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[DatabaseType]] | enum |  |
-| [[Db]] | class |  |
-| [[DbColumn]] | static class |  |
-| [[DbCore]] | static class |  |
-| [[DbJson]] | static class |  |
-| [[DbLine]] | static class |  |
-| [[DbLock]] | static class |  |
-| [[DbMigration]] | static class |  |
-| [[DbRange]] | static class |  |
-| [[DbSchema]] | static class |  |
-| [[DbSql]] | static class |  |
-| [[DbTable]] | static class |  |
-| [[DbUpdate]] | static class |  |
-| [[FastDb]] | class |  |
-| [[Get]] | static class |  |
-| [[Sql]] | class |  |
-| [[TableSchema]] | class | Централизованное хранилище имён таблиц с дефолтными значениями. |
+| [[DatabaseType]] | enum | Kind of database behind an `Sql` connection. |
+| [[Db]] | class | SQL helper over PostgreSQL or SQLite with one API for both. |
+| [[DbColumn]] | static class | Adding, dropping and reordering columns. |
+| [[DbCore]] | static class | Single entry point that runs SQL against the project database. |
+| [[DbJson]] | static class | Storing a JSON object as table columns and rebuilding it. |
+| [[DbLine]] | static class | Operations on whole rows. |
+| [[DbLock]] | static class | Shared lock object for code that must not access the database concurrently. |
+| [[DbMigration]] | static class | Copying tables inside the project database and between PostgreSQL and SQLite. |
+| [[DbRange]] | static class | Filling a table with account rows. |
+| [[DbSchema]] | static class | Names and layouts of the library's own tables. |
+| [[DbSql]] | static class | Lower-level SELECT and UPDATE helpers behind the `Db*` methods. |
+| [[DbTable]] | static class | Creating and inspecting tables of the project database. |
+| [[DbUpdate]] | static class | Writing to the project database. |
+| [[FastDb]] | class | SQLite access through ZennoPoster's built-in ODBC query runner, without opening own connections. |
+| [[Get]] | static class | Reading from the project database. |
+| [[Sql]] | class | One open connection to SQLite (through the SQLite3 ODBC driver) or PostgreSQL (Npgsql). |
+| [[TableSchema]] | class | Name and column definitions of a table. |
 
 ## DbUtils
 
@@ -93,22 +93,22 @@ generated: z3n7-docgen
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[Constantes]] | static class |  |
-| [[Env]] | static class |  |
-| [[FunctionStorage]] | static class |  |
-| [[GVars]] | static class |  |
-| [[Init]] | class |  |
-| [[ISAFU]] | interface |  |
-| [[LogDisabler]] | class |  |
-| [[Logger]] | class |  |
-| [[LogLevel]] | enum |  |
-| [[ProjectExtensions (Essentials)]] | static class |  |
-| [[SAFU]] | static class |  |
-| [[Time]] | class |  |
-| [[Time.Deadline]] | class |  |
-| [[Time.Sleeper]] | class |  |
-| [[Vars]] | static class |  |
-| [[Z3n8SAFU]] | class |  |
+| [[Constantes]] | static class | Project name, its database table and the standard folders of the profile storage. |
+| [[Env]] | static class | Reads settings from a `.env` file. |
+| [[FunctionStorage]] | static class | Process-wide registry of delegates by name. |
+| [[GVars]] | static class | Global ZennoPoster variables, kept in a namespace named after the current Windows user. |
+| [[Init]] | class | Project start-up: session, account range, encrypted storage and the start banner in the log. |
+| [[ISAFU]] | interface | Encryption used by SAFU (secure storage of account secrets). |
+| [[LogDisabler]] | class | Stops ZennoPoster from writing its own log files to the `Logs` folder next to the running executable. |
+| [[Logger]] | class | Writes messages to the ZennoPoster log and, optionally, as JSON to an HTTP log collector. |
+| [[LogLevel]] | enum | Message severity. |
+| [[ProjectExtensions (Essentials)]] | static class | Extension methods on `IZennoPosterProjectModel`: start-up, logging, timing and running other projects. |
+| [[SAFU]] | static class | Entry point to secure storage. |
+| [[Time]] | class | Time helpers: timestamps, deadlines, random pauses. |
+| [[Time.Deadline]] | class | Stopwatch that throws once a time limit is exceeded. |
+| [[Time.Sleeper]] | class | Random pause within a fixed range. |
+| [[Vars]] | static class | Short accessors for project variables: read, write, parse, count. |
+| [[Z3n8SAFU]] | class | SAFU implementation: AES-256-CBC with an HMAC-SHA256 tag, keys derived with PBKDF2-SHA256 (100 000 iterations). |
 
 ## Mail
 
@@ -145,11 +145,11 @@ generated: z3n7-docgen
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[NetHttp]] | class | СИНХРОННЫЕ ОБЕРТКИ для ZennoPoster Project (не поддерживает async) ⚠️ ВНИМАНИЕ: Используй NetHttpAsync если можешь работать с async/await Этот класс - только адаптер для legacy кода |
-| [[NetHttpAsync]] | class | ИСПРАВЛЕНО: Основной класс для HTTP запросов с ASYNC методами ✅ Использует singleton HttpClient для предотвращения socket exhaustion ✅ Кеширует клиенты с proxy для переиспользования |
-| [[ProjectExtensions (Requests)]] | static class | Extension методы для удобного вызова из Project Остаются синхронными для совместимости с ZennoPoster |
-| [[Rqst]] | class |  |
-| [[RqstExtensions]] | static class |  |
+| [[NetHttp]] | class | Blocking wrapper over `NetHttpAsync` for C# actions that cannot await. |
+| [[NetHttpAsync]] | class | HTTP client on .NET `HttpClient` with async methods. |
+| [[ProjectExtensions (Requests)]] | static class | Project shortcuts for `NetHttp` requests. |
+| [[Rqst]] | class | HTTP client for ZennoPoster projects: proxy, headers and cookies are taken from the project when not given. |
+| [[RqstExtensions]] | static class | Shortcuts that create an `Rqst` for one request. |
 
 ## Server
 

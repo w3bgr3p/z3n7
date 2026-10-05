@@ -9,6 +9,10 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Project start-up: session, account range, encrypted storage and the start banner in the log.
+    /// Usually called through <c>project.InitVariables(instance)</c>.
+    /// </summary>
     public class Init
     {
         #region Fields & Constructor
@@ -18,6 +22,8 @@ namespace z3n7
         private readonly Logger _logger;
         private readonly bool _log;
 
+        /// <summary>Creates the initializer for a project and its browser instance.</summary>
+        /// <param name="log">Write the initializer's own messages to the log.</param>
         public Init(IZennoPosterProjectModel project, Instance instance, bool log = false)
         {
             _project = project;
@@ -30,6 +36,17 @@ namespace z3n7
         
         #region Project Initialization
 
+        /// <summary>
+        /// Runs the start-up sequence: disables ZennoPoster file logs (<c>LogDisabler.DisableLogs</c>),
+        /// replaces the <c>jVars</c> variable (a file path) with that file's content, starts the session, fills
+        /// <c>rangeStart</c>, <c>rangeEnd</c> and <c>range</c> from <c>cfgAccRange</c>, initialises SAFU with
+        /// the key at <c>.internal/safu.key</c> under the project folder and writes the start banner with
+        /// ZennoPoster, .NET and library versions.
+        /// </summary>
+        /// <param name="author">Script author shown in the banner; empty to omit.</param>
+        /// <remarks>
+        /// Reads <c>jVars</c> with <c>File.ReadAllText</c>: the variable must hold a path to an existing file.
+        /// </remarks>
         public void InitVariables(string author = "")
         {
             LogDisabler.DisableLogs();
@@ -110,10 +127,20 @@ namespace z3n7
 namespace z3n7//ProjectExtensions
 {
     
+    /// <summary>
+    /// Extension methods on <c>IZennoPosterProjectModel</c>: start-up, logging, timing and running other
+    /// projects.
+    /// </summary>
     public static partial class ProjectExtensions
     {
         
         
+        /// <summary>
+        /// Runs <c>Init.InitVariables</c> and then starts the embedded server (<c>StartZpServer</c>). A server
+        /// start failure is written to the log as a warning and does not stop the project.
+        /// </summary>
+        /// <param name="instance">Browser instance of the project.</param>
+        /// <param name="author">Script author shown in the start banner.</param>
         public static void InitVariables(this IZennoPosterProjectModel project, Instance instance, string author = "w3bgr3p")
         {
             new Init(project, instance).InitVariables(author);

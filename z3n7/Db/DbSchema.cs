@@ -2,22 +2,23 @@
 
 namespace z3n7
 {
-    /// <summary>
-    /// Централизованное хранилище имён таблиц с дефолтными значениями.
-    ///
-    /// Источники:
-    ///   DbExtencions.cs — _wlt (хардкод на строке 150, в SqlGet цепочки кошелька)
-    /// </summary>
+    /// <summary>Name and column definitions of a table.</summary>
     public class TableSchema
     {
+        /// <summary>Table name.</summary>
         public string Name   { get; set; }
+        /// <summary>Column name → SQL type.</summary>
         public Dictionary<string, string> Columns { get; set; }
     }
     
     
     
+    /// <summary>Names and layouts of the library's own tables.</summary>
     public static partial class DbSchema
     {
+        /// <summary>
+        /// Table <c>_processes</c>: one row per process with machine, name, RAM, uptime and command line.
+        /// </summary>
         public static readonly TableSchema Process = new()
         {
             Name = "_processes",
@@ -34,12 +35,10 @@ namespace z3n7
         };
         // ── DbExtencions ──────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Таблица кошельков — используется в SqlGet при chainType-запросах.
-        /// DbExtencions.cs:150 — хардкод "_wlt"
-        /// </summary>
+        /// <summary>Wallet table, default <c>_wlt</c>.</summary>
         public static string Wlt { get; set; } = "_wlt";
         
+        /// <summary>Instance table, default <c>_instance</c>.</summary>
         public static string Instance  { get; set; } = "_instance";
         
       

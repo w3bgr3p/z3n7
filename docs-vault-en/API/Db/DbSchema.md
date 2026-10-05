@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # DbSchema
 
-`static class` · namespace `z3n7` · source [Db/DbSchema.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L19)
+`static class` · namespace `z3n7` · source [Db/DbSchema.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L17)
 
 ```csharp
 public static class DbSchema
 ```
 
-*No description yet.*
+Names and layouts of the library's own tables.
 
 ## Properties
 
@@ -22,7 +22,9 @@ public static class DbSchema
 public static string Instance { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L43)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L42)
+
+Instance table, default `_instance`.
 
 ### Wlt
 
@@ -30,9 +32,9 @@ public static string Instance { get; set; }
 public static string Wlt { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L41)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L39)
 
-Таблица кошельков — используется в SqlGet при chainType-запросах. DbExtencions.cs:150 — хардкод "_wlt"
+Wallet table, default `_wlt`.
 
 ## Fields
 
@@ -42,6 +44,8 @@ public static string Wlt { get; set; }
 public static readonly TableSchema Process;
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L21)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L22)
+
+Table `_processes`: one row per process with machine, name, RAM, uptime and command line.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

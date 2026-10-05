@@ -12,94 +12,94 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 
 | | Summary |
 |---|---|
-| [[DbRange#AddRange\|AddRange]] |  |
-| [[ProjectExtensions (Essentials)#Age\|Age]] |  |
+| [[DbRange#AddRange\|AddRange]] | Inserts rows with ids from the current maximum + 1 up to `range`, in batches of 500. |
+| [[ProjectExtensions (Essentials)#Age\|Age]] | Age of the session: time since the Unix milliseconds stored in `var`. |
 | [[Cookies#AnalyzeCookies\|AnalyzeCookies]] |  |
-| [[Vars#Bool\|Bool]] |  |
+| [[Vars#Bool\|Bool]] | Returns `true` when the project variable equals `True` exactly. |
 | [[Extractor#BuildZpFromXml\|BuildZpFromXml]] |  |
 | [[ProjectExtensions (Diagnostic)#CatchErrorFromTraffic\|CatchErrorFromTraffic]] |  |
 | [[AccountRunner#ChooseAccountByCondition\|ChooseAccountByCondition]] |  |
 | [[AccountRunner#ChooseAndRunByCondition\|ChooseAndRunByCondition]] |  |
 | [[Cookies#CleanDomainInDb\|CleanDomainInDb]] | Очистить cookies для конкретного домена в БД |
-| [[DbColumn#ClmnAdd\|ClmnAdd]] |  |
-| [[DbColumn#ClmnDrop\|ClmnDrop]] |  |
-| [[DbColumn#ClmnExist\|ClmnExist]] |  |
-| [[DbColumn#ClmnList\|ClmnList]] |  |
-| [[DbColumn#ClmnPrune\|ClmnPrune]] |  |
-| [[DbColumn#ClmnRearrange\|ClmnRearrange]] |  |
+| [[DbColumn#ClmnAdd\|ClmnAdd]] | Adds a column if the table does not have it. |
+| [[DbColumn#ClmnDrop\|ClmnDrop]] | Drops a column if it exists (`CASCADE` on PostgreSQL). |
+| [[DbColumn#ClmnExist\|ClmnExist]] | Checks whether a column exists. |
+| [[DbColumn#ClmnList\|ClmnList]] | Column names of a table. |
+| [[DbColumn#ClmnPrune\|ClmnPrune]] | Drops every column except `id` in which no row has a non-empty value. |
+| [[DbColumn#ClmnRearrange\|ClmnRearrange]] | Reorders columns: `id` first, then the columns of `tableStructure` that exist, then the rest. |
 | [[ProcessManager#CollectAndSave\|CollectAndSave]] |  |
-| [[DbLine#DbClearLine\|DbClearLine]] |  |
-| [[DbUpdate#DbDone\|DbDone]] |  |
-| [[Get#DbGet\|DbGet]] |  |
-| [[Get#DbGetColumns\|DbGetColumns]] |  |
-| [[Get#DbGetLine\|DbGetLine]] |  |
-| [[Get#DbGetLines\|DbGetLines]] |  |
-| [[Get#DbGetRandom\|DbGetRandom]] |  |
-| [[DbUpdate#DbInsert\|DbInsert]] |  |
-| [[Get#DbKey\|DbKey]] |  |
-| [[DbCore#DbQ\|DbQ]] |  |
-| [[DbLine#DbSwapLines\|DbSwapLines]] |  |
-| [[DbJson#DbToJson\|DbToJson]] |  |
-| [[Get#DbToVars\|DbToVars]] |  |
-| [[DbUpdate#DbUpd\|DbUpd]] |  |
-| [[ProjectExtensions (Essentials)#Deadline\|Deadline]] |  |
-| [[Vars#Decimal\|Decimal]] |  |
-| [[RqstExtensions#DELETE\|DELETE]] |  |
-| [[DbUpdate#DicToDb\|DicToDb]] |  |
+| [[DbLine#DbClearLine\|DbClearLine]] | Sets every column except `id` to an empty string in one row. |
+| [[DbUpdate#DbDone\|DbDone]] | Writes a cooldown timestamp (`Time.Cd`, ISO UTC) to the `task` column of the current account's row (or the row selected by `key`/`acc`, or the rows matching `where`): end of today, or now plus `cooldownMin`. |
+| [[Get#DbGet\|DbGet]] | Reads columns of one row; same as `SqlGet`. |
+| [[Get#DbGetColumns\|DbGetColumns]] | Reads columns of one row as column → value. |
+| [[Get#DbGetLine\|DbGetLine]] | Reads columns of one row as an array. |
+| [[Get#DbGetLines\|DbGetLines]] | Reads several rows; each item keeps its columns joined by `¦`. |
+| [[Get#DbGetRandom\|DbGetRandom]] | Reads `toGet` from random rows where it is not empty and `id` is below `range`. |
+| [[DbUpdate#DbInsert\|DbInsert]] | Inserts one row. |
+| [[Get#DbKey\|DbKey]] | Reads the current account's key from the wallet table (`DbSchema.Wlt`) and decrypts it with `SAFU.Decode`. |
+| [[DbCore#DbQ\|DbQ]] | Executes one SQL statement against the database named by `dbSource` (project variable, else global variable). |
+| [[DbLine#DbSwapLines\|DbSwapLines]] | Exchanges the values of all columns except `id` between two rows. |
+| [[DbJson#DbToJson\|DbToJson]] | Rebuilds the JSON saved by `JsonToDb` with `saveStructure` from the current account's row. |
+| [[Get#DbToVars\|DbToVars]] | Reads columns of one row and sets a project variable of the same name for each. |
+| [[DbUpdate#DbUpd\|DbUpd]] | Runs `UPDATE … SET toUpd` for the current account's row, or for the rows matching `where`. |
+| [[ProjectExtensions (Essentials)#Deadline\|Deadline]] | Two-call deadline based on the `t0` variable. |
+| [[Vars#Decimal\|Decimal]] | Returns a project variable parsed as `decimal` (current culture), or 0 when it cannot be parsed. |
+| [[RqstExtensions#DELETE\|DELETE]] | Sends a DELETE request with a new `Rqst`; `log` also enables its logging. |
+| [[DbUpdate#DicToDb\|DicToDb]] | Writes a dictionary to the current account's row (or the rows matching `where`), adding missing columns first. |
 | [[ProcessManager#EnsureProcessTable\|EnsureProcessTable]] |  |
-| [[DbTable#EnsureTable\|EnsureTable]] |  |
+| [[DbTable#EnsureTable\|EnsureTable]] | Creates the table described by `schema` if it does not exist. |
 | [[ProjectExtensions (Accounts)#Finish\|Finish]] |  |
 | [[ProjectExtensions (Browser)#FixTime\|FixTime]] |  |
-| [[Constantes#FullPath\|FullPath]] |  |
-| [[GVars#GClean\|GClean]] |  |
+| [[Constantes#FullPath\|FullPath]] | Returns the full path of the project file. |
+| [[GVars#GClean\|GClean]] | Clears the global variables `acc1` … `acc{rangeEnd}`. |
 | [[ProjectExtensions (Reports)#GenerateNative\|GenerateNative]] |  |
-| [[RqstExtensions#GET\|GET]] |  |
+| [[RqstExtensions#GET\|GET]] | Sends a GET request with a new `Rqst`; `log` also enables its logging. |
 | [[ProcessManager#GetAllMachines\|GetAllMachines]] |  |
 | [[PropertyManager#GetValuesByProperty\|GetValuesByProperty]] |  |
-| [[GVars#GGetBusyList\|GGetBusyList]] |  |
-| [[GVars#GSetAcc\|GSetAcc]] |  |
-| [[GVars#GVar\|GVar]] |  |
+| [[GVars#GGetBusyList\|GGetBusyList]] | Lists accounts taken by running threads: every non-empty global variable `acc1` … `acc{rangeEnd}`. |
+| [[GVars#GSetAcc\|GSetAcc]] | Marks the current account (`acc0`) as taken by writing `input` to the global variable `acc{acc0}`. |
+| [[GVars#GVar\|GVar]] | Returns a global variable, or an empty string when it does not exist. |
 | [[Helper#Help\|Help]] |  |
-| [[SAFU#HWPass\|HWPass]] |  |
+| [[SAFU#HWPass\|HWPass]] | Returns the deterministic password of the current account (`acc0`), using the PIN from the `cfgPin` secure variable. |
 | [[BetterBrowser#ImproveBrowser\|ImproveBrowser]] |  |
-| [[ProjectExtensions (Essentials)#InitVariables\|InitVariables]] |  |
-| [[Vars#Int\|Int]] |  |
-| [[DbJson#JsonToDb\|JsonToDb]] |  |
+| [[ProjectExtensions (Essentials)#InitVariables\|InitVariables]] | Runs `Init.InitVariables` and then starts the embedded server (`StartZpServer`). |
+| [[Vars#Int\|Int]] | Returns a project variable parsed as `int`, or 0 when it is empty or not a number. |
+| [[DbJson#JsonToDb\|JsonToDb]] | Flattens a JSON object into columns (nested keys joined with `_`) and writes them with `DicToDb`. |
 | [[ProcessManager#KillByUptime\|KillByUptime]] |  |
 | [[ProjectExtensions (MethodExtensions)#ListFromFile\|ListFromFile]] |  |
 | [[ProjectExtensions (MethodExtensions)#ListSync\|ListSync]] |  |
-| [[ProjectExtensions (Essentials)#log\|log]] |  |
-| [[Vars#MaxErr\|MaxErr]] |  |
-| [[DbMigration#MigrateAllTables\|MigrateAllTables]] |  |
-| [[DbMigration#MigrateTable\|MigrateTable]] |  |
-| [[ProjectExtensions (Requests)#NetGet\|NetGet]] | Extension метод для GET из ZennoPoster Project |
-| [[ProjectExtensions (Requests)#NetPost\|NetPost]] | Extension метод для POST из ZennoPoster Project |
+| [[ProjectExtensions (Essentials)#log\|log]] | Writes a message to the project log through a default `Logger`. |
+| [[Vars#MaxErr\|MaxErr]] | Error counter for retry loops. |
+| [[DbMigration#MigrateAllTables\|MigrateAllTables]] | Copies every user table from the current database to the other kind: PostgreSQL → SQLite or SQLite → PostgreSQL (see `Sql.MigrateAllTablesAsync`). |
+| [[DbMigration#MigrateTable\|MigrateTable]] | Copies `source` to a new table `dest` in the same database, then renames a column `acc0` or `key` to `id` if there is one. |
+| [[ProjectExtensions (Requests)#NetGet\|NetGet]] | Sends a GET request through `NetHttp` without logging. |
+| [[ProjectExtensions (Requests)#NetPost\|NetPost]] | Sends a POST request with a JSON body through `NetHttp` without logging. |
 | [[ProjectExtensions (Mail)#OtpCode\|OtpCode]] |  |
-| [[Constantes#PathCookies\|PathCookies]] |  |
-| [[Constantes#PathProfileFolder\|PathProfileFolder]] |  |
-| [[Constantes#PathProfiles\|PathProfiles]] |  |
-| [[RqstExtensions#POST\|POST]] |  |
-| [[DbTable#PrepareProjectTable\|PrepareProjectTable]] |  |
+| [[Constantes#PathCookies\|PathCookies]] | Returns `{profiles}/accounts/cookies/{acc0}.json`, or an empty string with a warning when `acc0` is empty. |
+| [[Constantes#PathProfileFolder\|PathProfileFolder]] | Returns `{profiles}/accounts/profilesFolder/{acc0}`, or an empty string with a warning when `acc0` is empty. |
+| [[Constantes#PathProfiles\|PathProfiles]] | Returns the profile storage root: the `profiles_folder` variable, else the global variable of the same name. |
+| [[RqstExtensions#POST\|POST]] | Sends a POST request with a new `Rqst`; `log` also enables its logging. |
+| [[DbTable#PrepareProjectTable\|PrepareProjectTable]] | Array form of `PrepareProjectTable(List<string>, …)`. |
 | [[BetterBrowser#PrepareSession\|PrepareSession]] |  |
 | [[Cookies#PrintCookieReport\|PrintCookieReport]] |  |
-| [[Constantes#ProjectName\|ProjectName]] |  |
-| [[Constantes#ProjectTable\|ProjectTable]] |  |
+| [[Constantes#ProjectName\|ProjectName]] | Returns the project file name up to the first dot and stores it in `projectName`. |
+| [[Constantes#ProjectTable\|ProjectTable]] | Returns `__` + project name and stores it in `projectTable`. |
 | [[ProjectExtensions (Accounts)#ProxySet\|ProxySet]] |  |
 | [[Cookies#PruneAllCookies\|PruneAllCookies]] |  |
 | [[Cookies#PruneCookies\|PruneCookies]] |  |
-| [[RqstExtensions#PUT\|PUT]] |  |
+| [[RqstExtensions#PUT\|PUT]] | Sends a PUT request with a new `Rqst`; `log` also enables its logging. |
 | [[AccountRunner#QuantityByCondition\|QuantityByCondition]] |  |
-| [[Vars#Range\|Range]] |  |
-| [[Env#ReadEnv\|ReadEnv]] |  |
+| [[Vars#Range\|Range]] | Parses an account range and stores it in `rangeStart`, `rangeEnd` and `range` (comma-separated list). |
+| [[Env#ReadEnv\|ReadEnv]] | Returns the value of `key` from a `.env` file, or `null` when the file or the key is missing. |
 | [[ProjectExtensions (Accounts)#ReportError\|ReportError]] |  |
 | [[ProjectExtensions (Accounts)#ReportSuccess\|ReportSuccess]] |  |
 | [[Rnd#RndDecimal\|RndDecimal]] |  |
 | [[ProjectExtensions (MethodExtensions)#RndFromList\|RndFromList]] |  |
 | [[Rnd#RndInt\|RndInt]] |  |
-| [[Get#RndInvite\|RndInvite]] |  |
+| [[Get#RndInvite\|RndInvite]] | Returns the `cfgRefCode` variable; when it is empty, picks a random non-empty `inviteColumn` from the project table and stores it in `cfgRefCode`. |
 | [[Rnd#RndProfileData\|RndProfileData]] |  |
 | [[ProjectExtensions (Accounts)#RunBrowser\|RunBrowser]] |  |
-| [[ProjectExtensions (Essentials)#RunZp\|RunZp]] |  |
+| [[ProjectExtensions (Essentials)#RunZp\|RunZp]] | Runs the project whose path is stored in the `projectScript` variable, via `ExecuteProject`. |
 | [[Cookies#SaveAllCookies\|SaveAllCookies]] |  |
 | [[Extractor#SaveAsXml\|SaveAsXml]] |  |
 | [[ProjectExtensions (Diagnostic)#SaveDebugScreenshot\|SaveDebugScreenshot]] |  |
@@ -107,34 +107,34 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 | [[ProjectExtensions (Accounts)#SaveProfile\|SaveProfile]] |  |
 | [[ProjectExtensions (Traffic)#SaveSuccessHar\|SaveSuccessHar]] |  |
 | [[Extractor#SearchInZp\|SearchInZp]] |  |
-| [[Constantes#SecureVar\|SecureVar]] |  |
+| [[Constantes#SecureVar\|SecureVar]] | Reads a value from the encrypted `jVars` variable: decrypts it with `SAFU.DecryptHWID`, decodes Base64 and looks the key up in the resulting JSON object. |
 | [[PropertyManager#SetValuesFromDb\|SetValuesFromDb]] |  |
 | [[ProjectExtensions (Browser)#SpoofGpu\|SpoofGpu]] |  |
-| [[DbSql#SqlGet\|SqlGet]] |  |
-| [[DbSql#SqlGetArrFromLine\|SqlGetArrFromLine]] |  |
-| [[DbSql#SqlGetDicFromLine\|SqlGetDicFromLine]] |  |
-| [[DbSql#SqlGetListFromLines\|SqlGetListFromLines]] |  |
-| [[DbSql#SqlUpd\|SqlUpd]] |  |
-| [[ProjectExtensions (Essentials)#StartSession\|StartSession]] |  |
+| [[DbSql#SqlGet\|SqlGet]] | Selects columns from the row where `key` = `id`, or from the rows matching `where`. |
+| [[DbSql#SqlGetArrFromLine\|SqlGetArrFromLine]] | Like `SqlGet`, split into column values. |
+| [[DbSql#SqlGetDicFromLine\|SqlGetDicFromLine]] | Like `SqlGet`, returning the first row as column → value. |
+| [[DbSql#SqlGetListFromLines\|SqlGetListFromLines]] | Like `SqlGet`, split into rows. |
+| [[DbSql#SqlUpd\|SqlUpd]] | Runs `UPDATE … SET toUpd` for the row where `key` = `id`, or for the rows matching `where`. |
+| [[ProjectExtensions (Essentials)#StartSession\|StartSession]] | Waits a random 0–1 s and stores the current Unix milliseconds in `varSessionId`. |
 | [[ZpServer#StartZpServer\|StartZpServer]] |  |
 | [[ZpServer#StopZpServer\|StopZpServer]] |  |
-| [[DbTable#TblAdd\|TblAdd]] |  |
-| [[DbTable#TblColumns\|TblColumns]] |  |
-| [[DbTable#TblExist\|TblExist]] |  |
-| [[DbTable#TblForProject\|TblForProject]] |  |
-| [[DbTable#TblList\|TblList]] |  |
-| [[DbTable#TblPrepareDefault\|TblPrepareDefault]] |  |
-| [[ProjectExtensions (Essentials)#TimeElapsed\|TimeElapsed]] |  |
-| [[ProjectExtensions (Essentials)#TimeOut\|TimeOut]] |  |
+| [[DbTable#TblAdd\|TblAdd]] | Creates a table unless it exists. |
+| [[DbTable#TblColumns\|TblColumns]] | Column names of a table. |
+| [[DbTable#TblExist\|TblExist]] | Checks whether a table exists. |
+| [[DbTable#TblForProject\|TblForProject]] | Builds a table layout: `id INTEGER PRIMARY KEY AUTOINCREMENT`, the given columns, and one column per item of the comma-separated `cfgToDo` variable. |
+| [[DbTable#TblList\|TblList]] | Names of all tables, sorted. |
+| [[DbTable#TblPrepareDefault\|TblPrepareDefault]] | Creates the project table (`projectTable` variable) with the `TblForProject` layout and adds missing columns. |
+| [[ProjectExtensions (Essentials)#TimeElapsed\|TimeElapsed]] | Seconds since the time stored (as Unix milliseconds) in a project variable. |
+| [[ProjectExtensions (Essentials)#TimeOut\|TimeOut]] | Throws once the session (`varSessionId`) is older than `min` minutes. |
 | [[ProjectExtensions (MethodExtensions)#ToJson\|ToJson]] |  |
-| [[Vars#Var\|Var]] |  |
-| [[Vars#VarAdd\|VarAdd]] | Добавляет переменную в проект, открытый в ProjectMaker. |
-| [[Vars#VarCounter\|VarCounter]] |  |
-| [[Vars#VarRnd\|VarRnd]] |  |
-| [[Vars#VarsFromDict\|VarsFromDict]] |  |
-| [[Vars#VarsFromJson\|VarsFromJson]] |  |
-| [[Vars#VarsMath\|VarsMath]] |  |
-| [[ProjectExtensions (Essentials)#warn\|warn]] |  |
+| [[Vars#Var\|Var]] | Returns the value of a project variable. |
+| [[Vars#VarAdd\|VarAdd]] | Adds a variable to the project open in ProjectMaker through the local ZennoPoster API (`http://localhost:5299`). |
+| [[Vars#VarCounter\|VarCounter]] | Adds `input` to an integer project variable and stores the result. |
+| [[Vars#VarRnd\|VarRnd]] | Reads a project variable. |
+| [[Vars#VarsFromDict\|VarsFromDict]] | Sets a project variable for every key of the dictionary. |
+| [[Vars#VarsFromJson\|VarsFromJson]] | Sets project variables from a flat JSON object of string values. |
+| [[Vars#VarsMath\|VarsMath]] | Applies `+`, `-`, `*` or `/` to two project variables parsed as `decimal` (invariant culture). |
+| [[ProjectExtensions (Essentials)#warn\|warn]] | Writes a warning to the project log. |
 | [[ZennoBrowser#ZB\|ZB]] |  |
 | [[ZbDbManager#ZBDbGet\|ZBDbGet]] |  |
 | [[ZbDbManager#ZBIdDic\|ZBIdDic]] |  |

@@ -6,13 +6,15 @@ generated: z3n7-docgen
 
 # Sql
 
-`class` · namespace `z3n7` · source [Db/Sql.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L20)
+`class` · namespace `z3n7` · source [Db/Sql.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L26)
 
 ```csharp
 public class Sql : IDisposable
 ```
 
-*No description yet.*
+One open connection to SQLite (through the SQLite3 ODBC driver) or PostgreSQL (Npgsql). Dispose it to close the connection.
+
+**Remarks:** The connection is opened in the constructor.
 
 ## Constructors
 
@@ -22,25 +24,38 @@ public class Sql : IDisposable
 public Sql(string dbPath, string dbPass)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L25)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L34)
+
+Opens an SQLite database through the `SQLite3 ODBC Driver`.
+
+| Parameter | Description |
+|---|---|
+| `dbPath` | Database file. |
+| `dbPass` | Not used. |
 
 ```csharp
 public Sql(string hostname, string port, string database, string user, string password)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L32)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L42)
+
+Opens a PostgreSQL connection with pooling.
 
 ```csharp
 public Sql(string connectionstring)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L38)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L49)
+
+Opens a PostgreSQL connection from an Npgsql connection string.
 
 ```csharp
 public Sql(IDbConnection connection)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L44)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L56)
+
+Wraps an existing connection and opens it if it is closed.
 
 ## Properties
 
@@ -50,7 +65,9 @@ public Sql(IDbConnection connection)
 public DatabaseType ConnectionType { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L53)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L66)
+
+SQLite for an ODBC connection, PostgreSQL for Npgsql, otherwise Unknown.
 
 ## Methods
 
@@ -60,7 +77,9 @@ public DatabaseType ConnectionType { get; }
 public async Task AddRange(int range, string tableName = null)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L720)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L776)
+
+Inserts rows with ids from the current maximum + 1 up to `range`, one statement per row.
 
 ### CopyTableAsync
 
@@ -68,7 +87,16 @@ public async Task AddRange(int range, string tableName = null)
 public async Task<int> CopyTableAsync(string sourceTable, string destinationTable)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L228)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L261)
+
+Creates `destinationTable` with the columns and primary key of `sourceTable` and copies all rows into it, within the same database.
+
+| Parameter | Description |
+|---|---|
+| `sourceTable` | Source; on PostgreSQL may be `schema.table`. |
+| `destinationTable` | Table to create; must not exist. |
+
+**Returns:** Number of copied rows.
 
 ### CreateParameter
 
@@ -76,7 +104,9 @@ public async Task<int> CopyTableAsync(string sourceTable, string destinationTabl
 public IDbDataParameter CreateParameter(string name, object value)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L99)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L116)
+
+Creates a command parameter of the right provider type; `null` becomes `DBNull`.
 
 ### CreateParameters
 
@@ -84,7 +114,9 @@ public IDbDataParameter CreateParameter(string name, object value)
 public IDbDataParameter[] CreateParameters(params (string name, object value)[] parameters)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L115)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L133)
+
+Creates several parameters, see `CreateParameter`.
 
 ### DbRead
 
@@ -92,7 +124,9 @@ public IDbDataParameter[] CreateParameters(params (string name, object value)[] 
 public string DbRead(string sql, string separator = "|")
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L165)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L188)
+
+Synchronous `DbReadAsync` with the default row separator.
 
 ### DbReadAsync
 
@@ -100,7 +134,15 @@ public string DbRead(string sql, string separator = "|")
 public async Task<string> DbReadAsync(string sql, string columnSeparator = "|", string rawSepararor = "\r\n")
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L125)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L147)
+
+Runs a query and returns every row as text.
+
+| Parameter | Description |
+|---|---|
+| `sql` | Query. |
+| `columnSeparator` | Joins the columns of a row. |
+| `rawSepararor` | Joins the rows. |
 
 ### DbWrite
 
@@ -108,7 +150,9 @@ public async Task<string> DbReadAsync(string sql, string columnSeparator = "|", 
 public int DbWrite(string sql, params IDbDataParameter[] parameters)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L223)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L249)
+
+Synchronous `DbWriteAsync`.
 
 ### DbWriteAsync
 
@@ -116,7 +160,11 @@ public int DbWrite(string sql, params IDbDataParameter[] parameters)
 public async Task<int> DbWriteAsync(string sql, params IDbDataParameter[] parameters)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L170)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L195)
+
+Executes a non-query statement.
+
+**Returns:** The affected row count. Errors are rethrown with the SQL text appended.
 
 ### Dispose
 
@@ -124,7 +172,9 @@ public async Task<int> DbWriteAsync(string sql, params IDbDataParameter[] parame
 public void Dispose()
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L76)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L90)
+
+Closes and disposes the connection.
 
 ### Get
 
@@ -132,7 +182,18 @@ public void Dispose()
 public async Task<string> Get(string toGet, string id, string tableName = null, string where = null)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L665)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L718)
+
+Reads the first column of the first matching row.
+
+| Parameter | Description |
+|---|---|
+| `toGet` | Column list. |
+| `id` | Row id, passed as a parameter. |
+| `tableName` | Table; required. |
+| `where` | Raw SQL condition; when set, `id` is ignored. |
+
+**Returns:** The value as text, or `null`.
 
 ### MigrateAllTablesAsync
 
@@ -140,7 +201,11 @@ public async Task<string> Get(string toGet, string id, string tableName = null, 
 public static async Task<int> MigrateAllTablesAsync(Sql sourceDb, Sql destinationDb)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L383)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L422)
+
+Copies every user table from one database to another of the other kind (PostgreSQL ↔ SQLite). Tables that already exist in the target are not recreated, rows are still inserted. A table that fails is skipped; the error goes to the debug output only.
+
+**Returns:** Total number of copied rows.
 
 ### Upd
 
@@ -148,12 +213,26 @@ public static async Task<int> MigrateAllTablesAsync(Sql sourceDb, Sql destinatio
 public async Task<int> Upd(string toUpd, object id, string tableName = null, string where = null, bool last = false)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L612)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L658)
+
+Runs `UPDATE … SET toUpd` for the row `id` or the rows matching `where`.
+
+| Parameter | Description |
+|---|---|
+| `toUpd` | Assignments; column names are quoted. |
+| `id` | Row id, inserted as written. |
+| `tableName` | Table; required. |
+| `where` | Raw SQL condition; when set, `id` is ignored. |
+| `last` | Also set the `last` column to the UTC time `MM-ddTHH:mm`. |
+
+**Returns:** Affected row count.
 
 ```csharp
 public async Task Upd(List<string> toWrite, string tableName = null, string where = null, bool last = false)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L654)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L701)
+
+Runs `Upd` for each item, with ids 0, 1, 2 … in list order.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

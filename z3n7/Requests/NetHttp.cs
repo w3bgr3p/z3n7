@@ -15,9 +15,9 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7
 {
     /// <summary>
-    /// ИСПРАВЛЕНО: Основной класс для HTTP запросов с ASYNC методами
-    /// ✅ Использует singleton HttpClient для предотвращения socket exhaustion
-    /// ✅ Кеширует клиенты с proxy для переиспользования
+    /// HTTP client on .NET <c>HttpClient</c> with async methods.
+    /// Clients are shared: one for direct requests and one per proxy string (up to 100 are cached).
+    /// Set-Cookie values of the response are written to the <c>debugCookies</c> variable.
     /// </summary>
     public class NetHttpAsync
     {
@@ -38,6 +38,8 @@ namespace z3n7
             _defaultClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0");
         }
 
+        /// <summary>Creates a client. Sets the current thread culture to invariant.</summary>
+        /// <param name="log">Logger for requests, responses and errors; <c>null</c> logs nothing.</param>
         public NetHttpAsync(IZennoPosterProjectModel project, Logger log = null)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
@@ -152,6 +154,23 @@ namespace z3n7
         }
 
 
+        /// <summary>Sends a GET request.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers">
+        /// Extra headers, sent together with the profile user agent; transport headers such as Host and
+        /// Content-Length are skipped.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds; the client itself never waits longer than 30 s.</param>
+        /// <param name="throwOnFail">Throw on a non-2xx status or an error instead of returning a message.</param>
+        /// <returns>
+        /// The trimmed body. For a non-2xx status: <c>{code} !!! {reason}</c>; on timeout <c>Timeout: …</c>; on
+        /// other errors <c>Error: …</c>.
+        /// </returns>
         public async Task<string> GetAsync(
             string url,
             string proxyString = "",
@@ -270,6 +289,24 @@ namespace z3n7
         }
 
 
+        /// <summary>Sends a POST request with a JSON body (<c>application/json; charset=UTF-8</c>).</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">JSON body.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers">
+        /// Extra headers, sent together with the profile user agent; transport headers such as Host and
+        /// Content-Length are skipped.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds; the client itself never waits longer than 30 s.</param>
+        /// <param name="throwOnFail">Throw on a non-2xx status or an error instead of returning a message.</param>
+        /// <returns>
+        /// The trimmed body. For a non-2xx status: <c>{code} !!! {reason}</c>; on timeout <c>Timeout: …</c>; on
+        /// other errors <c>Error: …</c>.
+        /// </returns>
         public async Task<string> PostAsync(
             string url,
             string body,
@@ -365,6 +402,24 @@ namespace z3n7
         }
 
 
+        /// <summary>Sends a PUT request; a non-empty body is sent as JSON.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">JSON body; may be empty.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers">
+        /// Extra headers, sent together with the profile user agent; transport headers such as Host and
+        /// Content-Length are skipped.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds; the client itself never waits longer than 30 s.</param>
+        /// <param name="throwOnFail">Throw on a non-2xx status or an error instead of returning a message.</param>
+        /// <returns>
+        /// The trimmed body. For a non-2xx status: <c>{code} !!! {reason}</c>; on timeout <c>Timeout: …</c>; on
+        /// other errors <c>Error: …</c>.
+        /// </returns>
         public async Task<string> PutAsync(
             string url,
             string body = "",
@@ -469,6 +524,14 @@ namespace z3n7
         }
 
 
+        /// <summary>Sends a DELETE request with a 30-second timeout.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers">Extra headers; the profile user agent is sent unless <c>User-Agent</c> is given.</param>
+        /// <returns>The trimmed body, or the error message. Never throws.</returns>
         public async Task<string> DeleteAsync(
             string url,
             string proxyString = "",
@@ -572,6 +635,7 @@ namespace z3n7
         }
 
 
+        /// <summary>Disposes and forgets all cached proxy clients.</summary>
         public static void ClearProxyCache()
         {
             var oldClients = _proxyClients.ToArray();
@@ -589,24 +653,35 @@ namespace z3n7
         }
     }
 
-    /// <summary>
-    /// СИНХРОННЫЕ ОБЕРТКИ для ZennoPoster Project (не поддерживает async)
-    /// ⚠️ ВНИМАНИЕ: Используй NetHttpAsync если можешь работать с async/await
-    /// Этот класс - только адаптер для legacy кода
-    /// </summary>
+    /// <summary>Blocking wrapper over <c>NetHttpAsync</c> for C# actions that cannot await.</summary>
     public class NetHttp
     {
         private readonly NetHttpAsync _asyncClient;
 
+        /// <summary>Creates a client.</summary>
+        /// <param name="log">Logger for requests, responses and errors; <c>null</c> logs nothing.</param>
         public NetHttp(IZennoPosterProjectModel project, Logger log = null)
         {
             _asyncClient = new NetHttpAsync(project, log);
         }
 
-        /// <summary>
-        /// Синхронная обертка для GET (для ZennoPoster)
-        /// ⚠️ Блокирует поток! Используй NetHttpAsync.GetAsync() если возможно
-        /// </summary>
+        /// <summary>Sends a GET request and waits for it. See <c>NetHttpAsync.GetAsync</c>.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers">
+        /// Extra headers, sent together with the profile user agent; transport headers such as Host and
+        /// Content-Length are skipped.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds; the client itself never waits longer than 30 s.</param>
+        /// <param name="throwOnFail">Throw on a non-2xx status or an error instead of returning a message.</param>
+        /// <returns>
+        /// The trimmed body. For a non-2xx status: <c>{code} !!! {reason}</c>; on timeout <c>Timeout: …</c>; on
+        /// other errors <c>Error: …</c>.
+        /// </returns>
         public string GET(
             string url,
             string proxyString = "",
@@ -623,9 +698,25 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Синхронная обертка для POST (для ZennoPoster)
-        /// ⚠️ Блокирует поток! Используй NetHttpAsync.PostAsync() если возможно
+        /// Sends a POST request with a JSON body and waits for it. See <c>NetHttpAsync.PostAsync</c>.
         /// </summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">JSON body.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers">
+        /// Extra headers, sent together with the profile user agent; transport headers such as Host and
+        /// Content-Length are skipped.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds; the client itself never waits longer than 30 s.</param>
+        /// <param name="throwOnFail">Throw on a non-2xx status or an error instead of returning a message.</param>
+        /// <returns>
+        /// The trimmed body. For a non-2xx status: <c>{code} !!! {reason}</c>; on timeout <c>Timeout: …</c>; on
+        /// other errors <c>Error: …</c>.
+        /// </returns>
         public string POST(
             string url,
             string body,
@@ -642,10 +733,24 @@ namespace z3n7
             ).GetAwaiter().GetResult();
         }
 
-        /// <summary>
-        /// Синхронная обертка для PUT (для ZennoPoster)
-        /// ⚠️ Блокирует поток! Используй NetHttpAsync.PutAsync() если возможно
-        /// </summary>
+        /// <summary>Sends a PUT request and waits for it. See <c>NetHttpAsync.PutAsync</c>.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">JSON body; may be empty.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers">
+        /// Extra headers, sent together with the profile user agent; transport headers such as Host and
+        /// Content-Length are skipped.
+        /// </param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds; the client itself never waits longer than 30 s.</param>
+        /// <param name="throwOnFail">Throw on a non-2xx status or an error instead of returning a message.</param>
+        /// <returns>
+        /// The trimmed body. For a non-2xx status: <c>{code} !!! {reason}</c>; on timeout <c>Timeout: …</c>; on
+        /// other errors <c>Error: …</c>.
+        /// </returns>
         public string PUT(
             string url,
             string body = "",
@@ -662,10 +767,8 @@ namespace z3n7
             ).GetAwaiter().GetResult();
         }
 
-        /// <summary>
-        /// Синхронная обертка для DELETE (для ZennoPoster)
-        /// ⚠️ Блокирует поток! Используй NetHttpAsync.DeleteAsync() если возможно
-        /// </summary>
+        /// <summary>Sends a DELETE request and waits for it. See <c>NetHttpAsync.DeleteAsync</c>.</summary>
+        /// <returns>The trimmed body, or the error message.</returns>
         public string DELETE(
             string url,
             string proxyString = "",
@@ -679,10 +782,7 @@ namespace z3n7
         }
     }
 
-    /// <summary>
-    /// Extension методы для удобного вызова из Project
-    /// Остаются синхронными для совместимости с ZennoPoster
-    /// </summary>
+    /// <summary>Project shortcuts for <c>NetHttp</c> requests.</summary>
     public static partial class ProjectExtensions
     {
         private static Dictionary<string, string> HeadersConvert(string[] headersArray)
@@ -717,9 +817,20 @@ namespace z3n7
             return adaptedHeaders;
         }
 
-        /// <summary>
-        /// Extension метод для GET из ZennoPoster Project
-        /// </summary>
+        /// <summary>Sends a GET request through <c>NetHttp</c> without logging.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers"><c>Name: value</c> lines.</param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds; the client itself never waits longer than 30 s.</param>
+        /// <param name="thrw">Throw on a non-2xx status or an error instead of returning a message.</param>
+        /// <returns>
+        /// The trimmed body. For a non-2xx status: <c>{code} !!! {reason}</c>; on timeout <c>Timeout: …</c>; on
+        /// other errors <c>Error: …</c>.
+        /// </returns>
         public static string NetGet(this IZennoPosterProjectModel project, string url,
             string proxyString = "",
             string[] headers = null,
@@ -731,9 +842,21 @@ namespace z3n7
             return new NetHttp(project).GET(url, proxyString, headersDic, parse, deadline, thrw);
         }
 
-        /// <summary>
-        /// Extension метод для POST из ZennoPoster Project
-        /// </summary>
+        /// <summary>Sends a POST request with a JSON body through <c>NetHttp</c> without logging.</summary>
+        /// <param name="url">Request URL.</param>
+        /// <param name="body">JSON body.</param>
+        /// <param name="proxyString">
+        /// Empty for a direct request. <c>+</c> — the <c>proxy</c> column of the account's <c>_instance</c>
+        /// row; otherwise <c>[scheme://][user:pass@]host:port</c>. The proxy is always used as an HTTP proxy.
+        /// </param>
+        /// <param name="headers"><c>Name: value</c> lines.</param>
+        /// <param name="parse">Load the response body into <c>project.Json</c>.</param>
+        /// <param name="deadline">Timeout in seconds; the client itself never waits longer than 30 s.</param>
+        /// <param name="thrw">Throw on a non-2xx status or an error instead of returning a message.</param>
+        /// <returns>
+        /// The trimmed body. For a non-2xx status: <c>{code} !!! {reason}</c>; on timeout <c>Timeout: …</c>; on
+        /// other errors <c>Error: …</c>.
+        /// </returns>
         public static string NetPost(this IZennoPosterProjectModel project, string url,
             string body,
             string proxyString = "",

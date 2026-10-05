@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Constantes
 
-`static class` · пространство имён `z3n7` · исходник [Essentials/Vars.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L408)
+`static class` · пространство имён `z3n7` · исходник [Essentials/Vars.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L492)
 
 ```csharp
 public static class Constantes
 ```
 
-*Описания пока нет.*
+Project name, its database table and the standard folders of the profile storage.
 
 ## Методы
 
@@ -22,7 +22,9 @@ public static class Constantes
 public static string FullPath(this IZennoPosterProjectModel project)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L449)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L536)
+
+Returns the full path of the project file.
 
 ### PathCookies
 
@@ -30,7 +32,9 @@ public static string FullPath(this IZennoPosterProjectModel project)
 public static string PathCookies(this IZennoPosterProjectModel project)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L477)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L573)
+
+Returns `{profiles}/accounts/cookies/{acc0}.json`, or an empty string with a warning when `acc0` is empty.
 
 ### PathProfileFolder
 
@@ -38,7 +42,9 @@ public static string PathCookies(this IZennoPosterProjectModel project)
 public static string PathProfileFolder(this IZennoPosterProjectModel project)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L487)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L587)
+
+Returns `{profiles}/accounts/profilesFolder/{acc0}`, or an empty string with a warning when `acc0` is empty.
 
 ### PathProfiles
 
@@ -46,7 +52,11 @@ public static string PathProfileFolder(this IZennoPosterProjectModel project)
 public static string PathProfiles(this IZennoPosterProjectModel project)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L456)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L548)
+
+Returns the profile storage root: the `profiles_folder` variable, else the global variable of the same name. Whichever is found is copied to the other one.
+
+**Примечания:** Throws when neither is set.
 
 ### ProjectName
 
@@ -54,7 +64,9 @@ public static string PathProfiles(this IZennoPosterProjectModel project)
 public static string ProjectName(this IZennoPosterProjectModel project)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L412)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L497)
+
+Returns the project file name up to the first dot and stores it in `projectName`.
 
 ### ProjectTable
 
@@ -62,7 +74,9 @@ public static string ProjectName(this IZennoPosterProjectModel project)
 public static string ProjectTable(this IZennoPosterProjectModel project)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L442)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L528)
+
+Returns `__` + project name and stores it in `projectTable`.
 
 ### SecureVar
 
@@ -70,6 +84,10 @@ public static string ProjectTable(this IZennoPosterProjectModel project)
 public static string SecureVar(this IZennoPosterProjectModel project, string key)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L498)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L605)
+
+Reads a value from the encrypted `jVars` variable: decrypts it with `SAFU.DecryptHWID`, decodes Base64 and looks the key up in the resulting JSON object.
+
+**Возвращает:** The value, or an empty string when `jVars` is empty, cannot be decrypted, or has no such key.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

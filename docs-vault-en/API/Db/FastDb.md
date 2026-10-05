@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # FastDb
 
-`class` · namespace `z3n7` · source [Db/FastDb.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L18)
+`class` · namespace `z3n7` · source [Db/FastDb.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L23)
 
 ```csharp
 public class FastDb
 ```
 
-*No description yet.*
+SQLite access through ZennoPoster's built-in ODBC query runner, without opening own connections.
 
 ## Constructors
 
@@ -22,7 +22,14 @@ public class FastDb
 public FastDb(IZennoPosterProjectModel project, string dbName = null, bool log = false)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L24)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L32)
+
+Uses the file `{project.Path}{dbName}.sql`.
+
+| Parameter | Description |
+|---|---|
+| `dbName` | File name without extension; default is the `dbName` variable, or `db`. |
+| `log` | Write queries and `SELECT` answers to the log. |
 
 ## Methods
 
@@ -32,7 +39,9 @@ public FastDb(IZennoPosterProjectModel project, string dbName = null, bool log =
 public List<string> dbList(string query)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L53)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L64)
+
+Executes a query and returns its rows.
 
 ### dbString
 
@@ -40,7 +49,11 @@ public List<string> dbList(string query)
 public string dbString(string query)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L43)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L53)
+
+Executes a query.
+
+**Returns:** Rows joined by line breaks, columns by `|`.
 
 ### ExportToCsv
 
@@ -48,12 +61,20 @@ public string dbString(string query)
 public void ExportToCsv(string tableName, string fileName)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L60)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L74)
+
+Writes the whole table to `{project.Path}{fileName}` as CSV with a header row (UTF-8).
 
 ```csharp
 public void ExportToCsv(string tableName, string fileName, string columns = "*")
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L79)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L98)
+
+Writes the selected columns to `{project.Path}{fileName}` as CSV, UTF-8 with BOM so that Excel opens it correctly.
+
+| Parameter | Description |
+|---|---|
+| `columns` | `*` for all columns, or a comma-separated list that is also used as the header. |
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

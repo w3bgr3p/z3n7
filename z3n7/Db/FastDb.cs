@@ -10,17 +10,25 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>Shared lock object for code that must not access the database concurrently.</summary>
     public static class DbLock
     {
+        /// <summary>The lock object.</summary>
         public static readonly object lockObj = new object();
     }
     
+    /// <summary>
+    /// SQLite access through ZennoPoster's built-in ODBC query runner, without opening own connections.
+    /// </summary>
     public class FastDb
     {
         private readonly IZennoPosterProjectModel _project;
         private readonly string _connection;
 		private readonly bool _log;
         
+        /// <summary>Uses the file <c>{project.Path}{dbName}.sql</c>.</summary>
+        /// <param name="dbName">File name without extension; default is the <c>dbName</c> variable, or <c>db</c>.</param>
+        /// <param name="log">Write queries and <c>SELECT</c> answers to the log.</param>
         public FastDb(IZennoPosterProjectModel project,string dbName = null, bool log =  false)
         {
             _project = project;
@@ -40,6 +48,8 @@ namespace z3n7
             return ZennoPoster.Db.ExecuteQuery(query, null,    ZennoLab.InterfacesLibrary.Enums.Db.DbProvider.Odbc,  _connection, "|", "\n", false);
         }
 
+        /// <summary>Executes a query.</summary>
+        /// <returns>Rows joined by line breaks, columns by <c>|</c>.</returns>
         public string dbString(string query)
         {
 			
@@ -50,6 +60,7 @@ namespace z3n7
         }
 		
 
+        /// <summary>Executes a query and returns its rows.</summary>
         public List<string> dbList(string query)
         {
             var resp = rawQ(query);
@@ -57,6 +68,9 @@ namespace z3n7
             return respList;
         }
         
+        /// <summary>
+        /// Writes the whole table to <c>{project.Path}{fileName}</c> as CSV with a header row (UTF-8).
+        /// </summary>
         public void ExportToCsv(string tableName, string fileName)
         {
             // Получаем заголовки столбцов через PRAGMA (специфично для SQLite)
@@ -76,6 +90,11 @@ namespace z3n7
             File.WriteAllText(_project.Path + fileName, fullContent, System.Text.Encoding.UTF8);
         }
         
+        /// <summary>
+        /// Writes the selected columns to <c>{project.Path}{fileName}</c> as CSV, UTF-8 with BOM so that Excel
+        /// opens it correctly.
+        /// </summary>
+        /// <param name="columns"><c>*</c> for all columns, or a comma-separated list that is also used as the header.</param>
         public void ExportToCsv(string tableName, string fileName, string columns = "*")
         {
             // 1. Определяем заголовки для CSV

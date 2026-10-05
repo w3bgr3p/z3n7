@@ -80,23 +80,65 @@ namespace z3n7
         }
     }
     #endregion
+    /// <summary>Reading from the project database. The row defaults to the current account (<c>acc0</c>).</summary>
     public static class Get
     {
+        /// <summary>Reads columns of one row; same as <c>SqlGet</c>.</summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="acc">Value of <c>key</c>; default <c>acc0</c>.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <returns>Columns joined by <c>¦</c>; several rows are joined by <c>·</c>.</returns>
         public static string DbGet(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", string acc = null, string where = "")
         {
             return project.SqlGet(toGet, tableName, log, thrw, key, acc, where);
         }
         
+        /// <summary>Reads columns of one row as column → value.</summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <returns>An empty dictionary when nothing was found.</returns>
         public static Dictionary<string, string> DbGetColumns(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             return  project.SqlGetDicFromLine(toGet, tableName, log, thrw, key, id, where);
         }
         
+        /// <summary>Reads columns of one row as an array.</summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public static string[] DbGetLine(this IZennoPosterProjectModel project, string toGet, string tableName = null,  bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             return project.SqlGetArrFromLine(toGet, tableName, log, thrw, key, id, where);
         }
         
+        /// <summary>Reads several rows; each item keeps its columns joined by <c>¦</c>.</summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <param name="toList">When set, the result is also written to this ZennoPoster list.</param>
         public static List<string> DbGetLines(this IZennoPosterProjectModel project, string toGet, string tableName = null,  bool log = false, bool thrw = false, string key = "id", object id = null, string where = "", string toList = null)
         {
             var list =  project.SqlGetListFromLines(toGet, tableName, log, thrw, key, id, where);
@@ -104,6 +146,17 @@ namespace z3n7
             return list;
         }
         
+        /// <summary>Reads columns of one row and sets a project variable of the same name for each.</summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <returns>The values that were set.</returns>
         public static Dictionary<string, string> DbToVars(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             var data = project.SqlGetDicFromLine(toGet, tableName, log, thrw, key, id, where);
@@ -111,6 +164,17 @@ namespace z3n7
             return data;
         }
         
+        /// <summary>
+        /// Reads <c>toGet</c> from random rows where it is not empty and <c>id</c> is below <c>range</c>.
+        /// </summary>
+        /// <param name="toGet">Column to read.</param>
+        /// <param name="tableName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="acc">Prefix the result with the <c>id</c> column.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="range">Upper id bound (exclusive); 0 uses the last account of <c>project.Range()</c>.</param>
+        /// <param name="single">One row instead of all matching rows.</param>
+        /// <param name="invert">Select rows where the column is empty instead.</param>
         public static string DbGetRandom(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool acc = false, bool thrw = false, int range = 0, bool single = true, bool invert = false)
         {
             if (range == 0)
@@ -135,6 +199,14 @@ namespace z3n7
             return project.DbQ(query, log: log, thrw: thrw);
         }
         
+        /// <summary>
+        /// Reads the current account's key from the wallet table (<c>DbSchema.Wlt</c>) and decrypts it with
+        /// <c>SAFU.Decode</c>.
+        /// </summary>
+        /// <param name="chainType">
+        /// <c>evm</c> (column <c>secp256k1</c>), <c>sol</c> (<c>base58</c>) or <c>seed</c> (<c>bip39</c>).
+        /// Anything else throws.
+        /// </param>
         public static string DbKey(this IZennoPosterProjectModel project, string chainType = "evm")
         {
             chainType = chainType.ToLower().Trim();
@@ -158,6 +230,16 @@ namespace z3n7
             string decoded = SAFU.Decode(project,resp) ;
             return decoded;
         }
+        /// <summary>
+        /// Returns the <c>cfgRefCode</c> variable; when it is empty, picks a random non-empty
+        /// <c>inviteColumn</c> from the project table and stores it in <c>cfgRefCode</c>.
+        /// </summary>
+        /// <param name="limit">
+        /// When set, only rows with <c>id</c> up to this number. Must be a positive integer, otherwise it
+        /// throws.
+        /// </param>
+        /// <param name="inviteColumn">Column with invite codes.</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static string RndInvite(this IZennoPosterProjectModel project, object limit = null, string inviteColumn = "refcode", bool log = false)
         {
             string refCode = project.Variables["cfgRefCode"].Value;
@@ -192,8 +274,17 @@ namespace z3n7
         
     }
     
+    /// <summary>Writing to the project database.</summary>
     public static class DbUpdate
     {
+        /// <summary>
+        /// Inserts one row. The <c>id</c> key is skipped; an empty dictionary inserts a row of defaults.
+        /// </summary>
+        /// <param name="dataDic">Column → value.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <returns>Affected row count as text.</returns>
         public static string DbInsert(this IZennoPosterProjectModel project, Dictionary<string, string> dataDic, string tableName = null, bool log = false, bool thrw = false)
         {
             tableName = project.TableName(tableName);
@@ -208,6 +299,16 @@ namespace z3n7
             return project.DbQ($"INSERT INTO {table} ({columns}) VALUES ({values});", log, thrw: thrw);
         }
 
+        /// <summary>
+        /// Writes a dictionary to the current account's row (or the rows matching <c>where</c>), adding missing
+        /// columns first.
+        /// A key <c>id</c> is written to the column <c>_id</c>.
+        /// </summary>
+        /// <param name="dataDic">Column → value. Modified in place when it has an <c>id</c> key.</param>
+        /// <param name="tableName">Table; default is the <c>projectTable</c> variable.</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public static void DicToDb(this IZennoPosterProjectModel project, Dictionary<string,string> dataDic, string tableName = null, bool log = false, bool thrw = false, string where = "")
         {
             if (string.IsNullOrWhiteSpace(tableName)) tableName = project.Var("projectTable");
@@ -235,12 +336,42 @@ namespace z3n7
             project.DbUpd(updString.ToString().Trim(','), tableName, log, thrw, where:where, saveToVar : "");
         }
     
+        /// <summary>
+        /// Runs <c>UPDATE … SET toUpd</c> for the current account's row, or for the rows matching <c>where</c>.
+        /// </summary>
+        /// <param name="toUpd">
+        /// Assignments such as <c>status = 'ok'</c>; column names are quoted, values are taken as written.
+        /// </param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="acc">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <param name="saveToVar">Variable that receives <c>toUpd</c> before the update; empty to skip.</param>
         public static void DbUpd(this IZennoPosterProjectModel project, string toUpd, string tableName = null, bool log = false, bool thrw = false, string key = "id", object acc = null, string where = "", string saveToVar = "lastQuery")
         {
             if (!string.IsNullOrEmpty(saveToVar))
                 project.Var(saveToVar, toUpd);
             project.SqlUpd(toUpd, tableName, log, thrw, key, acc, where);
         }
+        /// <summary>
+        /// Writes a cooldown timestamp (<c>Time.Cd</c>, ISO UTC) to the <c>task</c> column of the current
+        /// account's row (or the row selected by <c>key</c>/<c>acc</c>, or the rows matching <c>where</c>): end
+        /// of today, or now plus <c>cooldownMin</c>.
+        /// </summary>
+        /// <param name="task">Column to write.</param>
+        /// <param name="cooldownMin">Minutes from now; 0 means today 23:59:59 UTC.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="acc">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public static void DbDone(this IZennoPosterProjectModel project, string task = "daily", int cooldownMin = 0, string tableName = null, bool log = false, bool thrw = false, string key = "id", object acc = null, string where = "")
         {
             var cd = (cooldownMin == 0) ? Time.Cd() : Time.Cd(cooldownMin);
@@ -249,8 +380,21 @@ namespace z3n7
         
     }
 
+    /// <summary>Storing a JSON object as table columns and rebuilding it.</summary>
     public static class DbJson
     {
+        /// <summary>
+        /// Flattens a JSON object into columns (nested keys joined with <c>_</c>) and writes them with
+        /// <c>DicToDb</c>.
+        /// </summary>
+        /// <param name="json">JSON object.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <param name="saveStructure">
+        /// Also save the shape in <c>_json_structure</c> so that <c>DbToJson</c> can rebuild the object.
+        /// </param>
         public static void JsonToDb(this IZennoPosterProjectModel project, string json, string tableName = null, bool log = false, bool thrw = false, string where = "",bool saveStructure = false)
         {
             tableName = project.TableName(tableName);
@@ -300,6 +444,16 @@ namespace z3n7
                 }
             }
         }     
+        /// <summary>
+        /// Rebuilds the JSON saved by <c>JsonToDb</c> with <c>saveStructure</c> from the current account's row.
+        /// Writes detailed progress to the project log.
+        /// </summary>
+        /// <param name="tableName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <returns>
+        /// The JSON text, or <c>{}</c> when there is no <c>_json_structure</c> or it cannot be parsed.
+        /// </returns>
         public static string DbToJson(this IZennoPosterProjectModel project, string tableName = null, bool log = false, bool thrw = false)
         {
             if (string.IsNullOrEmpty(tableName)) 
@@ -644,8 +798,14 @@ namespace z3n7
         
     }
 
+    /// <summary>Operations on whole rows.</summary>
     public static class DbLine
     {
+        /// <summary>Sets every column except <c>id</c> to an empty string in one row.</summary>
+        /// <param name="id">Row id.</param>
+        /// <param name="tableName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
         public static void DbClearLine(this IZennoPosterProjectModel project, int id, string tableName = null, bool log = false, bool thrw = false)
         {
             tableName = project.TableName(tableName);
@@ -668,6 +828,12 @@ namespace z3n7
             if (log) project.SendInfoToLog($"Cleared {columnsToClean.Count} columns in row with id={id} in table {tableName}", true);
         }
         
+        /// <summary>Exchanges the values of all columns except <c>id</c> between two rows.</summary>
+        /// <param name="id1">First row id.</param>
+        /// <param name="id2">Second row id.</param>
+        /// <param name="tableName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw when a row is not found; otherwise nothing changes.</param>
         public static void DbSwapLines(this IZennoPosterProjectModel project, int id1, int id2, string tableName = null, bool log = false, bool thrw = false)
         {
             tableName = project.TableName(tableName);
@@ -715,8 +881,22 @@ namespace z3n7
         }
     }
     
+    /// <summary>Lower-level SELECT and UPDATE helpers behind the <c>Db*</c> methods.</summary>
     public static class DbSql
     {
+        /// <summary>
+        /// Selects columns from the row where <c>key</c> = <c>id</c>, or from the rows matching <c>where</c>.
+        /// </summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <returns>Columns joined by <c>¦</c>, rows by <c>·</c>.</returns>
         public static string SqlGet(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             if (string.IsNullOrWhiteSpace(toGet))
@@ -743,6 +923,17 @@ namespace z3n7
             return project.DbQ(query, log: log, thrw: thrw);
         }
         
+        /// <summary>Like <c>SqlGet</c>, returning the first row as column → value.</summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <param name="set">Also set project variables named after the columns.</param>
         public static Dictionary<string, string> SqlGetDicFromLine(this IZennoPosterProjectModel project, string toGet, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "", bool set = false)
         {
             string result = project.SqlGet(toGet, tableName, log, thrw, key, id, where);
@@ -764,16 +955,50 @@ namespace z3n7
             return dictionary;
         }
         
+        /// <summary>Like <c>SqlGet</c>, split into column values.</summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public static string[] SqlGetArrFromLine(this IZennoPosterProjectModel project, string toGet, string tableName = null,  bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             return project.SqlGet(toGet, tableName, log, thrw, key, id, where).Split(DbHelpers.ColumnSeparator);
         }
         
+        /// <summary>Like <c>SqlGet</c>, split into rows.</summary>
+        /// <param name="toGet">Comma-separated column names; each is quoted.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
         public static List<string> SqlGetListFromLines(this IZennoPosterProjectModel project, string toGet, string tableName = null,  bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {
             return project.SqlGet(toGet, tableName, log, thrw, key, id, where).Split(DbHelpers.RawSeparator).ToList();
         }
         
+        /// <summary>
+        /// Runs <c>UPDATE … SET toUpd</c> for the row where <c>key</c> = <c>id</c>, or for the rows matching
+        /// <c>where</c>.
+        /// </summary>
+        /// <param name="toUpd">Assignments; column names are quoted, values are taken as written.</param>
+        /// <param name="tableName">Table; default is the project table (<c>projectTable</c> variable).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="key">Column matched against <c>id</c>.</param>
+        /// <param name="id">
+        /// Value of <c>key</c>; default is the current account, <c>acc0</c>. Inserted into the SQL as written.
+        /// </param>
+        /// <param name="where">Raw SQL condition. When set, <c>key</c> and <c>id</c> are ignored.</param>
+        /// <returns>Affected row count as text.</returns>
         public static string SqlUpd(this IZennoPosterProjectModel project, string toUpd, string tableName = null, bool log = false, bool thrw = false, string key = "id", object id = null, string where = "")
         {          
             if (string.IsNullOrEmpty(tableName)) tableName = project.Var("projectTable");
@@ -800,14 +1025,24 @@ namespace z3n7
         }
     }
     
+    /// <summary>Creating and inspecting tables of the project database.</summary>
     public static class DbTable
     {
         
+        /// <summary>Creates the table described by <c>schema</c> if it does not exist.</summary>
+        /// <param name="schema">Table name and columns, e.g. <c>DbSchema.Process</c>.</param>
         public static void EnsureTable(this IZennoPosterProjectModel project, TableSchema schema)
         {
             project.TblAdd(schema.Columns, schema.Name);
         }
         
+        /// <summary>
+        /// Creates a table unless it exists. On PostgreSQL <c>INTEGER PRIMARY KEY AUTOINCREMENT</c> becomes
+        /// <c>SERIAL PRIMARY KEY</c>.
+        /// </summary>
+        /// <param name="tableStructure">Column → SQL type.</param>
+        /// <param name="tblName">Table; may be <c>schema.table</c>.</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void TblAdd(this IZennoPosterProjectModel project,  Dictionary<string, string> tableStructure, string tblName, bool log = false)
         {
             if (project.TblExist(tblName, log:log)) return;
@@ -823,6 +1058,9 @@ namespace z3n7
             project.DbQ(query, log: log);
         }
         
+        /// <summary>Checks whether a table exists.</summary>
+        /// <param name="tblName">Table; on PostgreSQL may be <c>schema.table</c> (default schema <c>public</c>).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static bool TblExist(this IZennoPosterProjectModel project, string tblName, bool log = false)
         {
             var schema = DbHelpers.Schema(tblName);
@@ -840,6 +1078,9 @@ namespace z3n7
             else return true;
         }
 
+        /// <summary>Names of all tables, sorted.</summary>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="schema">PostgreSQL schema.</param>
         public static List<string> TblList(this IZennoPosterProjectModel project, bool log = false, string schema = "public")
         {
             string query = (project.DbMode() == "pgSQL")
@@ -853,6 +1094,9 @@ namespace z3n7
             return result;
         }
         
+        /// <summary>Column names of a table.</summary>
+        /// <param name="tblName">Table; on PostgreSQL may be <c>schema.table</c>.</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static List<string> TblColumns(this IZennoPosterProjectModel project, string tblName, bool log = false)
         {
             var result = new List<string>();
@@ -868,6 +1112,12 @@ namespace z3n7
             return result;
         }
         
+        /// <summary>
+        /// Builds a table layout: <c>id INTEGER PRIMARY KEY AUTOINCREMENT</c>, the given columns, and one
+        /// column per item of the comma-separated <c>cfgToDo</c> variable.
+        /// </summary>
+        /// <param name="projectColumns">Extra columns.</param>
+        /// <param name="defaultType">SQL type of every column except <c>id</c>.</param>
         public static Dictionary<string, string> TblForProject(this IZennoPosterProjectModel project, List<string> projectColumns = null,  string defaultType = "TEXT DEFAULT ''")
         {
             string cfgToDo = project.Var("cfgToDo");
@@ -903,6 +1153,11 @@ namespace z3n7
             return tableStructure;
         }
         
+        /// <summary>
+        /// Creates the project table (<c>projectTable</c> variable) with the <c>TblForProject</c> layout and
+        /// adds missing columns.
+        /// </summary>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void TblPrepareDefault(this IZennoPosterProjectModel project, bool log = false)
         {
             var tableStructure = project.TblForProject();
@@ -913,12 +1168,21 @@ namespace z3n7
             
         }
         
+        /// <summary>Array form of <c>PrepareProjectTable(List&lt;string&gt;, …)</c>.</summary>
         public static void PrepareProjectTable(this IZennoPosterProjectModel project, string[] projectColumns, string tblName = null, bool log = false, bool prune = false, bool rearrange = false)
         {
             var projectColumnsList = projectColumns.ToList();
             project.PrepareProjectTable(projectColumnsList, tblName, log, prune, rearrange);
         }
 
+        /// <summary>
+        /// Creates the table with the <c>TblForProject</c> layout if needed and adds missing columns.
+        /// </summary>
+        /// <param name="projectColumns">Extra columns.</param>
+        /// <param name="tblName">Table; default is the <c>projectTable</c> variable.</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="prune">Also drop columns that are not in the layout.</param>
+        /// <param name="rearrange">Also reorder columns to match the layout.</param>
         public static void PrepareProjectTable(this IZennoPosterProjectModel project, List<string> projectColumns = null, string tblName = null, bool log = false, bool prune = false, bool rearrange = false)
         {
             var tableStructure = project.TblForProject(projectColumns);
@@ -929,6 +1193,12 @@ namespace z3n7
             if (rearrange) project.ClmnRearrange(tableStructure,tblName, log: log);
         }
         
+        /// <summary>Creates the table if needed and adds missing columns.</summary>
+        /// <param name="tableStructure">Column → SQL type.</param>
+        /// <param name="tblName">Table; default is the <c>projectTable</c> variable.</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="prune">Also drop columns that are not in <c>tableStructure</c>.</param>
+        /// <param name="rearrange">Also reorder columns to match <c>tableStructure</c>.</param>
         public static void PrepareProjectTable(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null, bool log = false, bool prune = false, bool rearrange = false)
         {
             if (string.IsNullOrEmpty(tblName))
@@ -976,8 +1246,15 @@ namespace z3n7
         
     }
     
+    /// <summary>Adding, dropping and reordering columns.</summary>
     public static class DbColumn
     {
+        /// <summary>
+        /// Checks whether a column exists. Case-insensitive on PostgreSQL, case-sensitive on SQLite.
+        /// </summary>
+        /// <param name="clmnName">Column.</param>
+        /// <param name="tblName">Table.</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static bool ClmnExist(this IZennoPosterProjectModel project, string clmnName, string tblName, bool log = false)
         {
             var schema = DbHelpers.Schema(tblName);
@@ -993,6 +1270,11 @@ namespace z3n7
             else return true;
         }
         
+        /// <summary>Adds a column if the table does not have it.</summary>
+        /// <param name="clmnName">Column.</param>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="defaultValue">SQL type of the new column.</param>
         public static void ClmnAdd(this IZennoPosterProjectModel project, string clmnName, string tblName = null,  bool log = false, string defaultValue = "TEXT DEFAULT ''")
         {
             tblName =  project.TableName(tblName);
@@ -1003,17 +1285,31 @@ namespace z3n7
                 project.DbQ($@"ALTER TABLE {DbHelpers.Quote(tblName)} ADD COLUMN {clmnName} {defaultValue};", log: log);
             }
         }
+        /// <summary>Adds each listed column that the table does not have.</summary>
+        /// <param name="columns">Columns.</param>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="defaultValue">SQL type of the new columns.</param>
         public static void ClmnAdd(this IZennoPosterProjectModel project, List<string> columns, string tblName,  bool log = false, string defaultValue = "TEXT DEFAULT ''")
         {
             foreach (var column in columns)
                 project.ClmnAdd(column, tblName, log:log, defaultValue: defaultValue);
         }      
+        /// <summary>Adds each listed column that the table does not have.</summary>
+        /// <param name="columns">Columns.</param>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="defaultValue">SQL type of the new columns.</param>
         public static void ClmnAdd(this IZennoPosterProjectModel project, string[] columns, string tblName,  bool log = false, string defaultValue = "TEXT DEFAULT ''")
         {
             foreach (var column in columns)
                 project.ClmnAdd(column, tblName, log:log, defaultValue: defaultValue);
         }
         
+        /// <summary>Adds each column of <c>tableStructure</c> that the table does not have, with its type.</summary>
+        /// <param name="tableStructure">Column → SQL type.</param>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void ClmnAdd(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null,  bool log = false)
         {
             tblName =  project.TableName(tblName);
@@ -1029,6 +1325,9 @@ namespace z3n7
             }
         }
         
+        /// <summary>Column names of a table.</summary>
+        /// <param name="tableName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static List<string> ClmnList(this IZennoPosterProjectModel project, string tableName = null, bool log = false)
         {
             tableName =  project.TableName(tableName);
@@ -1039,6 +1338,10 @@ namespace z3n7
             return project.DbQ(Q, log: log).Split(DbHelpers.RawSeparator).ToList();
         }
         
+        /// <summary>Drops a column if it exists (<c>CASCADE</c> on PostgreSQL).</summary>
+        /// <param name="clmnName">Column.</param>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void ClmnDrop(this IZennoPosterProjectModel project, string clmnName, string tblName = null,  bool log = false)
         {
             tblName =  project.TableName(tblName);
@@ -1053,6 +1356,10 @@ namespace z3n7
             }
         }
         
+        /// <summary>Drops each column named by a key of <c>tableStructure</c> that the table has.</summary>
+        /// <param name="tableStructure">Column → type; only the keys are used.</param>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void ClmnDrop(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null,  bool log = false)
         {
             tblName =  project.TableName(tblName);
@@ -1068,6 +1375,9 @@ namespace z3n7
             }
         }
         
+        /// <summary>Drops every column except <c>id</c> in which no row has a non-empty value.</summary>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void ClmnPrune(this IZennoPosterProjectModel project, string tblName = null, bool log = false)
         {
             tblName =  project.TableName(tblName);
@@ -1091,6 +1401,13 @@ namespace z3n7
             }
         }
         
+        /// <summary>
+        /// Drops every column that is not a key of <c>tableStructure</c> (including <c>id</c> if it is not
+        /// listed).
+        /// </summary>
+        /// <param name="tableStructure">Columns to keep.</param>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void ClmnPrune(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null,  bool log = false)
         {
             tblName =  project.TableName(tblName);
@@ -1104,6 +1421,15 @@ namespace z3n7
             }
         }
         
+        /// <summary>
+        /// Reorders columns: <c>id</c> first, then the columns of <c>tableStructure</c> that exist, then the
+        /// rest.
+        /// Copies the data into a new table, drops the old one and renames the new one. On failure the
+        /// temporary table is dropped and an exception is thrown.
+        /// </summary>
+        /// <param name="tableStructure">Desired order.</param>
+        /// <param name="tblName">Table; default is <c>project.ProjectTable()</c> (<c>__</c> + project name).</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void ClmnRearrange(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null, bool log = false)
         {
             tblName =  project.TableName(tblName);
@@ -1156,6 +1482,7 @@ namespace z3n7
             }
         }
         
+        /// <summary>Reorders columns to the <c>TblForProject(projectColumns)</c> layout.</summary>
         public static void ClmnRearrange(this IZennoPosterProjectModel project, List<string> projectColumns, string tblName = null, bool log = false)
         {
             var tableStructure = project.TblForProject(projectColumns);
@@ -1309,8 +1636,18 @@ namespace z3n7
     }
     
     
+    /// <summary>Filling a table with account rows.</summary>
     public static class DbRange
     {
+        /// <summary>
+        /// Inserts rows with ids from the current maximum + 1 up to <c>range</c>, in batches of 500. Existing
+        /// ids are skipped.
+        /// </summary>
+        /// <param name="tblName">Table with an <c>id</c> column.</param>
+        /// <param name="range">
+        /// Highest id; 0 reads <c>rangeEnd</c>, and 10 is used with a warning when that is not a number.
+        /// </param>
+        /// <param name="log">Write the query and its result to the project log.</param>
         public static void AddRange(this IZennoPosterProjectModel project, string tblName, int range = 0, bool log = false)
         {
             tblName = DbHelpers.Quote(tblName);
@@ -1348,8 +1685,20 @@ namespace z3n7
         }
     }
     
+    /// <summary>Copying tables inside the project database and between PostgreSQL and SQLite.</summary>
     public static class DbMigration
     {
+        /// <summary>
+        /// Copies <c>source</c> to a new table <c>dest</c> in the same database, then renames a column
+        /// <c>acc0</c> or <c>key</c> to <c>id</c> if there is one.
+        /// </summary>
+        /// <param name="source">Existing table.</param>
+        /// <param name="dest">Table to create.</param>
+        /// <remarks>
+        /// The database kind follows <c>dbSource</c>. PostgreSQL is reached at localhost:5432, database and
+        /// user <c>postgres</c>, password from the <c>DBpstgrPass</c> variable; SQLite at the <c>DBsqltPath</c>
+        /// variable.
+        /// </remarks>
         public static void MigrateTable(this IZennoPosterProjectModel project, string source, string dest)
         {
 
@@ -1359,6 +1708,14 @@ namespace z3n7
             try { project.DbQ($"ALTER TABLE {DbHelpers.Quote(dest)} RENAME COLUMN {DbHelpers.Quote("key")} to {DbHelpers.Quote("id")}"); } catch { }
         }
         
+        /// <summary>
+        /// Copies every user table from the current database to the other kind: PostgreSQL → SQLite or SQLite →
+        /// PostgreSQL (see <c>Sql.MigrateAllTablesAsync</c>). Errors are written to the log as a warning.
+        /// </summary>
+        /// <remarks>
+        /// PostgreSQL is reached at localhost:5432, database and user <c>postgres</c>, password from the
+        /// <c>DBpstgrPass</c> variable; SQLite at the <c>DBsqltPath</c> variable.
+        /// </remarks>
         public static void MigrateAllTables(this IZennoPosterProjectModel project)
         {
             string dbMode = project.DbMode() ;
@@ -1423,6 +1780,7 @@ namespace z3n7
     }
     
     
+    /// <summary>Single entry point that runs SQL against the project database.</summary>
     public static class DbCore
     {
         private static void Log(this IZennoPosterProjectModel project, string query)
@@ -1446,6 +1804,23 @@ namespace z3n7
         }
         
 
+        /// <summary>
+        /// Executes one SQL statement against the database named by <c>dbSource</c> (project variable, else
+        /// global variable).
+        /// A <c>dbSource</c> starting with <c>Host=</c> is a PostgreSQL connection string; anything else
+        /// selects SQLite. On SQLite a "database is locked" error is retried up to 10 times with a growing
+        /// pause.
+        /// </summary>
+        /// <param name="query">SQL text.</param>
+        /// <param name="log">Write the query and its result to the project log.</param>
+        /// <param name="sqLitePath">SQLite database file. Only this argument is used as the SQLite path.</param>
+        /// <param name="thrw">Throw on a database error instead of logging a warning and returning an empty result.</param>
+        /// <param name="unSafe">Not used.</param>
+        /// <returns>
+        /// For <c>SELECT</c>: rows joined by <c>·</c>, columns by <c>¦</c>. Otherwise the affected row count as
+        /// text. An empty string after an error when <c>thrw</c> is false.
+        /// </returns>
+        /// <remarks>Throws when <c>dbSource</c> is not set.</remarks>
         public static string DbQ(this IZennoPosterProjectModel project, string query, bool log = false, string sqLitePath = null,  bool thrw = false, bool unSafe = false)
         {
             
