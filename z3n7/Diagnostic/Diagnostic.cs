@@ -15,7 +15,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7
 {
     
-    public static partial class projectExtencions
+    public static partial class ProjectExtensions
     {
         public static void SaveDebugScreenshot(this IZennoPosterProjectModel project, Instance instance, string watermark = null)
         {

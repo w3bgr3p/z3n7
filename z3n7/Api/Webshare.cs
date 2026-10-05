@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace z3nCore.Api
+namespace z3n7.Api
 {
     public class Webshare : IDisposable
     {
