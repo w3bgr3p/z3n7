@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # VersionInfo
 
-`class` · namespace `z3n7` · source [Diagnostic/Diagnostic.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L148)
+`class` · namespace `z3n7` · source [Diagnostic/Diagnostic.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L165)
 
 ```csharp
 public sealed class VersionInfo
 ```
 
-Версии окружения узла. Пустая строка — значение не прочиталось.
+Versions of the node's environment. An empty string means the value could not be read.
 
 ## Properties
 
@@ -22,7 +22,9 @@ public sealed class VersionInfo
 public string framework { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L154)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L176)
+
+.NET runtime description.
 
 ### machine
 
@@ -30,7 +32,9 @@ public string framework { get; set; }
 public string machine { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L155)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L178)
+
+Machine name.
 
 ### process
 
@@ -38,7 +42,9 @@ public string machine { get; set; }
 public string process { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L153)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L174)
+
+File name of the host process.
 
 ### product
 
@@ -46,7 +52,9 @@ public string process { get; set; }
 public string product { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L152)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L172)
+
+Product name of the host process.
 
 ### z3n7
 
@@ -54,7 +62,9 @@ public string product { get; set; }
 public string z3n7 { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L150)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L168)
+
+Version of `z3n7.dll`.
 
 ### zennoposter
 
@@ -62,6 +72,8 @@ public string z3n7 { get; set; }
 public string zennoposter { get; set; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L151)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L170)
+
+Product version of the host process (ZennoPoster).
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

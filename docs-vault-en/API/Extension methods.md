@@ -16,10 +16,10 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 | [[ProjectExtensions (Essentials)#Age\|Age]] | Age of the session: time since the Unix milliseconds stored in `var`. |
 | [[Cookies#AnalyzeCookies\|AnalyzeCookies]] | Reads the current account's stored cookies and summarises them. |
 | [[Vars#Bool\|Bool]] | Returns `true` when the project variable equals `True` exactly. |
-| [[Extractor#BuildZpFromXml\|BuildZpFromXml]] |  |
-| [[ProjectExtensions (Diagnostic)#CatchErrorFromTraffic\|CatchErrorFromTraffic]] |  |
-| [[AccountRunner#ChooseAccountByCondition\|ChooseAccountByCondition]] |  |
-| [[AccountRunner#ChooseAndRunByCondition\|ChooseAndRunByCondition]] |  |
+| [[Extractor#BuildZpFromXml\|BuildZpFromXml]] | Builds a .zp file from project XML, using the current project file as the container. |
+| [[ProjectExtensions (Diagnostic)#CatchErrorFromTraffic\|CatchErrorFromTraffic]] | After a pause, finds the request to `url` in the traffic of the main domain and checks its JSON response. |
+| [[AccountRunner#ChooseAccountByCondition\|ChooseAccountByCondition]] | Picks an account and stores it in `acc0`; the candidates stay in the `accs` list and its row gets `status = 'working...'`. |
+| [[AccountRunner#ChooseAndRunByCondition\|ChooseAndRunByCondition]] | Picks an account (`ChooseAccountByCondition`) and starts the browser for it (`RunBrowser`). |
 | [[Cookies#CleanDomainInDb\|CleanDomainInDb]] | Removes cookies of a domain (and, for cookies stored with a leading dot, its subdomains) from the current account's stored set. |
 | [[DbColumn#ClmnAdd\|ClmnAdd]] | Adds a column if the table does not have it. |
 | [[DbColumn#ClmnDrop\|ClmnDrop]] | Drops a column if it exists (`CASCADE` on PostgreSQL). |
@@ -27,7 +27,7 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 | [[DbColumn#ClmnList\|ClmnList]] | Column names of a table. |
 | [[DbColumn#ClmnPrune\|ClmnPrune]] | Drops every column except `id` in which no row has a non-empty value. |
 | [[DbColumn#ClmnRearrange\|ClmnRearrange]] | Reorders columns: `id` first, then the columns of `tableStructure` that exist, then the rest. |
-| [[ProcessManager#CollectAndSave\|CollectAndSave]] |  |
+| [[ProcessManager#CollectAndSave\|CollectAndSave]] | Writes one row per running ZennoPoster and `zbe1` process of this machine (id `{pid}|{machine}`, name, RAM in MB, uptime in minutes, command line, time) and deletes this machine's rows of processes that no longer run. |
 | [[DbLine#DbClearLine\|DbClearLine]] | Sets every column except `id` to an empty string in one row. |
 | [[DbUpdate#DbDone\|DbDone]] | Writes a cooldown timestamp (`Time.Cd`, ISO UTC) to the `task` column of the current account's row (or the row selected by `key`/`acc`, or the rows matching `where`): end of today, or now plus `cooldownMin`. |
 | [[Get#DbGet\|DbGet]] | Reads columns of one row; same as `SqlGet`. |
@@ -46,28 +46,28 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 | [[Vars#Decimal\|Decimal]] | Returns a project variable parsed as `decimal` (current culture), or 0 when it cannot be parsed. |
 | [[RqstExtensions#DELETE\|DELETE]] | Sends a DELETE request with a new `Rqst`; `log` also enables its logging. |
 | [[DbUpdate#DicToDb\|DicToDb]] | Writes a dictionary to the current account's row (or the rows matching `where`), adding missing columns first. |
-| [[ProcessManager#EnsureProcessTable\|EnsureProcessTable]] |  |
+| [[ProcessManager#EnsureProcessTable\|EnsureProcessTable]] | Creates the `_processes` table if it does not exist. |
 | [[DbTable#EnsureTable\|EnsureTable]] | Creates the table described by `schema` if it does not exist. |
-| [[ProjectExtensions (Accounts)#Finish\|Finish]] |  |
+| [[ProjectExtensions (Accounts)#Finish\|Finish]] | Ends the account session: `Disposer.FinishSession`. |
 | [[ProjectExtensions (Browser)#FixTime\|FixTime]] | Runs `BrowserScan.FixTime`; an error is written to the log as a warning and does not stop the project. |
 | [[Constantes#FullPath\|FullPath]] | Returns the full path of the project file. |
 | [[GVars#GClean\|GClean]] | Clears the global variables `acc1` … `acc{rangeEnd}`. |
-| [[ProjectExtensions (Reports)#GenerateNative\|GenerateNative]] |  |
+| [[ProjectExtensions (Reports)#GenerateNative\|GenerateNative]] | Writes the balance table of the given chains (`Accountant.ShowBalanceTable` with `id` added). |
 | [[RqstExtensions#GET\|GET]] | Sends a GET request with a new `Rqst`; `log` also enables its logging. |
-| [[ProcessManager#GetAllMachines\|GetAllMachines]] |  |
-| [[PropertyManager#GetValuesByProperty\|GetValuesByProperty]] |  |
+| [[ProcessManager#GetAllMachines\|GetAllMachines]] | Distinct machine names in the `_processes` table. |
+| [[PropertyManager#GetValuesByProperty\|GetValuesByProperty]] | Reads property values as text, with single quotes doubled. |
 | [[GVars#GGetBusyList\|GGetBusyList]] | Lists accounts taken by running threads: every non-empty global variable `acc1` … `acc{rangeEnd}`. |
 | [[GVars#GSetAcc\|GSetAcc]] | Marks the current account (`acc0`) as taken by writing `input` to the global variable `acc{acc0}`. |
 | [[GVars#GVar\|GVar]] | Returns a global variable, or an empty string when it does not exist. |
-| [[Helper#Help\|Help]] |  |
+| [[Helper#Help\|Help]] | Opens a searchable API browser window. |
 | [[SAFU#HWPass\|HWPass]] | Returns the deterministic password of the current account (`acc0`), using the PIN from the `cfgPin` secure variable. |
 | [[BetterBrowser#ImproveBrowser\|ImproveBrowser]] | Applies a browser profile matching the proxy's exit point, then checks the result. |
 | [[ProjectExtensions (Essentials)#InitVariables\|InitVariables]] | Runs `Init.InitVariables` and then starts the embedded server (`StartZpServer`). |
 | [[Vars#Int\|Int]] | Returns a project variable parsed as `int`, or 0 when it is empty or not a number. |
 | [[DbJson#JsonToDb\|JsonToDb]] | Flattens a JSON object into columns (nested keys joined with `_`) and writes them with `DicToDb`. |
-| [[ProcessManager#KillByUptime\|KillByUptime]] |  |
-| [[ProjectExtensions (MethodExtensions)#ListFromFile\|ListFromFile]] |  |
-| [[ProjectExtensions (MethodExtensions)#ListSync\|ListSync]] |  |
+| [[ProcessManager#KillByUptime\|KillByUptime]] | Kills `zbe1` processes running longer than `maxUptimeMinutes` and, when any were killed, refreshes the table. |
+| [[ProjectExtensions (MethodExtensions)#ListFromFile\|ListFromFile]] | Replaces the content of a ZennoPoster list with the lines of a file. |
+| [[ProjectExtensions (MethodExtensions)#ListSync\|ListSync]] | Copies a ZennoPoster list into a new `List<string>`. |
 | [[ProjectExtensions (Essentials)#log\|log]] | Writes a message to the project log through a default `Logger`. |
 | [[Vars#MaxErr\|MaxErr]] | Error counter for retry loops. |
 | [[DbMigration#MigrateAllTables\|MigrateAllTables]] | Copies every user table from the current database to the other kind: PostgreSQL → SQLite or SQLite → PostgreSQL (see `Sql.MigrateAllTablesAsync`). |
@@ -84,31 +84,31 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 | [[Cookies#PrintCookieReport\|PrintCookieReport]] | Writes the `AnalyzeCookies` summary to the log (top 10 domains, top 5 largest cookies). |
 | [[Constantes#ProjectName\|ProjectName]] | Returns the project file name up to the first dot and stores it in `projectName`. |
 | [[Constantes#ProjectTable\|ProjectTable]] | Returns `__` + project name and stores it in `projectTable`. |
-| [[ProjectExtensions (Accounts)#ProxySet\|ProxySet]] |  |
+| [[ProjectExtensions (Accounts)#ProxySet\|ProxySet]] | Checks a proxy and applies it to the instance: compares the IP seen by public echo services directly and through the proxy, and sets the proxy only when they differ. |
 | [[Cookies#PruneAllCookies\|PruneAllCookies]] | Runs `PruneCookies` on the `_instance` and `folder_profile` tables for every account from `rangeStart` to `rangeEnd`, then clears `acc0`. |
 | [[Cookies#PruneCookies\|PruneCookies]] | Removes cookies from the current account's stored set and writes it back as Base64 JSON. |
 | [[RqstExtensions#PUT\|PUT]] | Sends a PUT request with a new `Rqst`; `log` also enables its logging. |
-| [[AccountRunner#QuantityByCondition\|QuantityByCondition]] |  |
+| [[AccountRunner#QuantityByCondition\|QuantityByCondition]] | Counts the accounts matching the condition over all range groups, after the social filters. |
 | [[Vars#Range\|Range]] | Parses an account range and stores it in `rangeStart`, `rangeEnd` and `range` (comma-separated list). |
 | [[Env#ReadEnv\|ReadEnv]] | Returns the value of `key` from a `.env` file, or `null` when the file or the key is missing. |
-| [[ProjectExtensions (Accounts)#ReportError\|ReportError]] |  |
-| [[ProjectExtensions (Accounts)#ReportSuccess\|ReportSuccess]] |  |
-| [[Rnd#RndDecimal\|RndDecimal]] |  |
-| [[ProjectExtensions (MethodExtensions)#RndFromList\|RndFromList]] |  |
-| [[Rnd#RndInt\|RndInt]] |  |
+| [[ProjectExtensions (Accounts)#ReportError\|ReportError]] | Writes an error report (`Reporter.ReportError`). |
+| [[ProjectExtensions (Accounts)#ReportSuccess\|ReportSuccess]] | Writes a success report (`Reporter.ReportSuccess`). |
+| [[Rnd#RndDecimal\|RndDecimal]] | Reads a project variable as a decimal; a value like `0.1-0.5` gives a random number in that range. |
+| [[ProjectExtensions (MethodExtensions)#RndFromList\|RndFromList]] | Returns a random line of a ZennoPoster list. |
+| [[Rnd#RndInt\|RndInt]] | Reads a project variable as an integer. |
 | [[Get#RndInvite\|RndInvite]] | Returns the `cfgRefCode` variable; when it is empty, picks a random non-empty `inviteColumn` from the project table and stores it in `cfgRefCode`. |
-| [[Rnd#RndProfileData\|RndProfileData]] |  |
-| [[ProjectExtensions (Accounts)#RunBrowser\|RunBrowser]] |  |
+| [[Rnd#RndProfileData\|RndProfileData]] | Sets random profile data. |
+| [[ProjectExtensions (Accounts)#RunBrowser\|RunBrowser]] | Starts the browser for the current account (`InstanceManager.Initialize`) and sets `state = 'busy'` in `_instance`. |
 | [[ProjectExtensions (Essentials)#RunZp\|RunZp]] | Runs the project whose path is stored in the `projectScript` variable, via `ExecuteProject`. |
 | [[Cookies#SaveAllCookies\|SaveAllCookies]] | Writes all instance cookies as Base64 to the `cookies` column of the current account's row. |
-| [[Extractor#SaveAsXml\|SaveAsXml]] |  |
-| [[ProjectExtensions (Diagnostic)#SaveDebugScreenshot\|SaveDebugScreenshot]] |  |
+| [[Extractor#SaveAsXml\|SaveAsXml]] | Unpacks the current project to XML (UTF-16). |
+| [[ProjectExtensions (Diagnostic)#SaveDebugScreenshot\|SaveDebugScreenshot]] | Saves a screenshot of the instance to `{project.Path}/debug_screens/{yyyy-MM-dd}/{project.Name}/{actionId} - {unix ms}.png` with a text box in the top-left corner (Iosevka 15 pt, white on dark). |
 | [[Cookies#SaveDomainCookies\|SaveDomainCookies]] | Writes the instance cookies of one domain as Base64 to the `cookies` column of the current account's row. |
-| [[ProjectExtensions (Accounts)#SaveProfile\|SaveProfile]] |  |
+| [[ProjectExtensions (Accounts)#SaveProfile\|SaveProfile]] | Exports the profile and instance properties, WebGL settings and cookies (Base64) to `{project.Directory}/profiles/zenno_profile_{yyyyMMdd_HHmmss}_{id}.json`. |
 | [[ProjectExtensions (Traffic)#SaveSuccessHar\|SaveSuccessHar]] | Saves the browser traffic to `{project.Path}/har/{yyyy-MM-dd}/{result}/{project.Name}/{unix ms}.har`. |
-| [[Extractor#SearchInZp\|SearchInZp]] |  |
+| [[Extractor#SearchInZp\|SearchInZp]] | Finds text in the actions of every .zp file in a folder (case-insensitive, in attributes and values; XML entities are decoded for matching). |
 | [[Constantes#SecureVar\|SecureVar]] | Reads a value from the encrypted `jVars` variable: decrypts it with `SAFU.DecryptHWID`, decodes Base64 and looks the key up in the resulting JSON object. |
-| [[PropertyManager#SetValuesFromDb\|SetValuesFromDb]] |  |
+| [[PropertyManager#SetValuesFromDb\|SetValuesFromDb]] | Sets the object's writable properties from a database row, converting text to the property type. |
 | [[ProjectExtensions (Browser)#SpoofGpu\|SpoofGpu]] | Takes a random WebGL profile (Base64 JSON per line) from `{project.Path}/resourses/webgl.txt`, replaces its unmasked vendor and renderer with `RandomAngleString` (GPU list cached in `resourses/gpu.json`), stores it in `webgl` and loads it into the instance. |
 | [[DbSql#SqlGet\|SqlGet]] | Selects columns from the row where `key` = `id`, or from the rows matching `where`. |
 | [[DbSql#SqlGetArrFromLine\|SqlGetArrFromLine]] | Like `SqlGet`, split into column values. |
@@ -116,8 +116,8 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 | [[DbSql#SqlGetListFromLines\|SqlGetListFromLines]] | Like `SqlGet`, split into rows. |
 | [[DbSql#SqlUpd\|SqlUpd]] | Runs `UPDATE … SET toUpd` for the row where `key` = `id`, or for the rows matching `where`. |
 | [[ProjectExtensions (Essentials)#StartSession\|StartSession]] | Waits a random 0–1 s and stores the current Unix milliseconds in `varSessionId`. |
-| [[ZpServer#StartZpServer\|StartZpServer]] |  |
-| [[ZpServer#StopZpServer\|StopZpServer]] |  |
+| [[ZpServer#StartZpServer\|StartZpServer]] | Loads the access token, takes the first free port from `port` (up to 20 tried) and starts serving on a background thread. |
+| [[ZpServer#StopZpServer\|StopZpServer]] | Stops the server. |
 | [[DbTable#TblAdd\|TblAdd]] | Creates a table unless it exists. |
 | [[DbTable#TblColumns\|TblColumns]] | Column names of a table. |
 | [[DbTable#TblExist\|TblExist]] | Checks whether a table exists. |
@@ -126,7 +126,7 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 | [[DbTable#TblPrepareDefault\|TblPrepareDefault]] | Creates the project table (`projectTable` variable) with the `TblForProject` layout and adds missing columns. |
 | [[ProjectExtensions (Essentials)#TimeElapsed\|TimeElapsed]] | Seconds since the time stored (as Unix milliseconds) in a project variable. |
 | [[ProjectExtensions (Essentials)#TimeOut\|TimeOut]] | Throws once the session (`varSessionId`) is older than `min` minutes. |
-| [[ProjectExtensions (MethodExtensions)#ToJson\|ToJson]] |  |
+| [[ProjectExtensions (MethodExtensions)#ToJson\|ToJson]] | Loads JSON into `project.Json`. |
 | [[Vars#Var\|Var]] | Returns the value of a project variable. |
 | [[Vars#VarAdd\|VarAdd]] | Adds a variable to the project open in ProjectMaker through the local ZennoPoster API (`http://localhost:5299`). |
 | [[Vars#VarCounter\|VarCounter]] | Adds `input` to an integer project variable and stores the result. |
@@ -135,11 +135,11 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 | [[Vars#VarsFromJson\|VarsFromJson]] | Sets project variables from a flat JSON object of string values. |
 | [[Vars#VarsMath\|VarsMath]] | Applies `+`, `-`, `*` or `/` to two project variables parsed as `decimal` (invariant culture). |
 | [[ProjectExtensions (Essentials)#warn\|warn]] | Writes a warning to the project log. |
-| [[ZennoBrowser#ZB\|ZB]] |  |
-| [[ZbDbManager#ZBDbGet\|ZBDbGet]] |  |
-| [[ZbDbManager#ZBIdDic\|ZBIdDic]] |  |
-| [[ZbDbManager#ZBIdList\|ZBIdList]] |  |
-| [[ZennoBrowser#ZBids\|ZBids]] |  |
+| [[ZennoBrowser#ZB\|ZB]] | Stores `toDo` in the `toDo` variable and runs `{project.Path}/.internal/ZB.zp`, passing `acc0`, `cfgLog`, `cfgPin`, `DBmode`, `DBpstgrPass`, `DBpstgrUser`, `DBsqltPath`, `instancePort`, `lastQuery`, `cookies`, `varSessionId` and `toDo` by name. |
+| [[ZbDbManager#ZBDbGet\|ZBDbGet]] | Reads `query` columns of the profile whose id is in the `zb_id` variable. |
+| [[ZbDbManager#ZBIdDic\|ZBIdDic]] | Maps profile names to ids from a JSON array of ZennoBrowser profiles (`Name`, `Id`, `FolderName`); for duplicate names the first wins. |
+| [[ZbDbManager#ZBIdList\|ZBIdList]] | Profile ids of a folder from a JSON array of profiles (see `ZBIdDic`). |
+| [[ZennoBrowser#ZBids\|ZBids]] | Reads `id` and `name` of every ZennoBrowser profile except `template` from the `ProfileInfos` table. |
 
 ## On Instance
 
@@ -200,16 +200,16 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 
 | | Summary |
 |---|---|
-| [[StringExtensions#CleanFilePath\|CleanFilePath]] |  |
-| [[StringExtensions#ConvertUrl\|ConvertUrl]] |  |
-| [[StringExtensions#EscapeMarkdown\|EscapeMarkdown]] |  |
-| [[StringExtensions#FromBase64\|FromBase64]] |  |
-| [[StringExtensions#HexToString\|HexToString]] |  |
-| [[StringExtensions#JsonToDic\|JsonToDic]] |  |
-| [[StringExtensions#ParseJwt\|ParseJwt]] |  |
-| [[StringExtensions#Range\|Range]] |  |
-| [[StringExtensions#StringToHex\|StringToHex]] |  |
-| [[StringExtensions#ToBase64\|ToBase64]] |  |
+| [[StringExtensions#CleanFilePath\|CleanFilePath]] | Removes characters that are not allowed in file names. |
+| [[StringExtensions#ConvertUrl\|ConvertUrl]] | Shows the query parameters of a URL, one per line. |
+| [[StringExtensions#EscapeMarkdown\|EscapeMarkdown]] | Escapes Telegram MarkdownV2 special characters with a backslash. |
+| [[StringExtensions#FromBase64\|FromBase64]] | Decodes UTF-8 Base64; empty for empty input; the input unchanged when it is not Base64. |
+| [[StringExtensions#HexToString\|HexToString]] | Converts a hex number (with or without `0x`) to decimal text, optionally scaling it down. |
+| [[StringExtensions#JsonToDic\|JsonToDic]] | Flattens a JSON object: nested keys are joined with `_`, array items get their index (`a_b_0`). |
+| [[StringExtensions#ParseJwt\|ParseJwt]] | Decodes a JWT without checking its signature. |
+| [[StringExtensions#Range\|Range]] | Expands an account range: `1,4,7` as is, `1-10` to every number, a single number `n` to `1…n`. |
+| [[StringExtensions#StringToHex\|StringToHex]] | Converts a decimal number to a `0x` hex string, optionally scaling it first. |
+| [[StringExtensions#ToBase64\|ToBase64]] | UTF-8 Base64 of the text; empty for empty input. |
 
 ## On HtmlElement
 
@@ -223,18 +223,18 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 
 | | Summary |
 |---|---|
-| [[ProjectExtensions (MethodExtensions)#DicToVars\|DicToVars]] |  |
+| [[ProjectExtensions (MethodExtensions)#DicToVars\|DicToVars]] | Sets a project variable for every key of the dictionary. |
 
 ## On IList<T>
 
 | | Summary |
 |---|---|
-| [[ListExtensions#Rnd\|Rnd]] |  |
+| [[ListExtensions#Rnd\|Rnd]] | Returns a random item. |
 
 ## On int
 
 | | Summary |
 |---|---|
-| [[Rnd#RndBool\|RndBool]] |  |
+| [[Rnd#RndBool\|RndBool]] | `true` with the given probability, in percent. |
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

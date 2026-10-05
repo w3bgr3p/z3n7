@@ -12,6 +12,10 @@ using ZennoLab.InterfacesLibrary.ProjectModel.Collections;
 
 namespace z3n7
 {
+   /// <summary>
+   /// Starts the browser for the current account with its profile, proxy and cookies, and saves and cleans
+   /// up at the end.
+   /// </summary>
    public class InstanceManager
     {
         #region Fields & Constructor
@@ -21,6 +25,8 @@ namespace z3n7
         private readonly Logger _logger;
 
 
+        /// <summary>Creates the manager.</summary>
+        /// <param name="log">Logger for progress; <c>null</c> logs nothing.</param>
         public InstanceManager(IZennoPosterProjectModel project, Instance instance, Logger log = null)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
@@ -34,6 +40,19 @@ namespace z3n7
         
 
 
+        /// <summary>
+        /// Launches the browser for <c>acc0</c> and prepares it. Stores the browser port and PID in
+        /// <c>port</c>, <c>pid</c> and <c>instancePort</c>.
+        /// Legacy path: for Chromium, applies WebGL from the database, the proxy and the cookies (database,
+        /// else the cookie file); otherwise only the proxy; up to 4 attempts, then the account's global
+        /// <c>acc{n}</c> is cleared and the error is thrown. Non-legacy path: restores the profile from the
+        /// <c>folder_*</c> tables (<c>ProfileSync</c>) and sets the proxy.
+        /// </summary>
+        /// <param name="browserToLaunch"><c>Chromium</c> or <c>WithoutBrowser</c>; default is the <c>cfgBrowser</c> variable.</param>
+        /// <param name="fixTimezone">Fix the timezone through browserscan.net when its score mentions time.</param>
+        /// <param name="useLegacy">Use the legacy setup path.</param>
+        /// <param name="useZpprofile">Load the ZennoPoster profile file <c>{profileFolder}.zpprofile</c> when it exists.</param>
+        /// <param name="useFolder">Launch Chromium with the account's profile folder.</param>
         public void Initialize(string browserToLaunch = null, bool fixTimezone = false, bool useLegacy = true, bool useZpprofile = false, bool useFolder = true)
         {
             _logger?.Debug($"Initialize START. Args: browserToLaunch='{browserToLaunch}', fixTimezone={fixTimezone}, useLegacy={useLegacy}");
@@ -362,6 +381,12 @@ namespace z3n7
             }
         }
 
+        /// <summary>
+        /// Checks a proxy and applies it to the instance: compares the IP seen by public echo services directly
+        /// and through the proxy, and sets the proxy only when they differ.
+        /// </summary>
+        /// <param name="proxyString">Proxy; default is the <c>proxy</c> column of the account's <c>_instance</c> row.</param>
+        /// <returns><c>true</c>. Throws when the proxy is empty, does not answer, or shows the local IP.</returns>
         public bool ProxySet(string proxyString = null)
         {
             if (string.IsNullOrWhiteSpace(proxyString)) 
@@ -425,6 +450,15 @@ namespace z3n7
 
         #region Dispose - Profile Cleanup
         
+        /// <summary>
+        /// Saves the account's browser data when the browser is Chromium, <c>acc0</c> is set and <c>accRnd</c>
+        /// is empty: profile, instance, cookies and WebGL to the tables of <c>saveTo</c> (<c>ProfileSync</c>),
+        /// and the ZennoPoster profile to the profile folder. Errors are logged, not thrown.
+        /// </summary>
+        /// <param name="saveCookies">Save cookies.</param>
+        /// <param name="saveProfile">Save profile, instance and WebGL.</param>
+        /// <param name="saveTo">Table prefix: <c>folder</c>, <c>zb</c> or <c>zpprofile</c>.</param>
+        /// <param name="saveZpProfile">Also save the ZennoPoster profile to the profile folder.</param>
         public void SaveProfile(bool saveCookies = true, bool saveProfile = true, string saveTo = "folder",bool saveZpProfile = true)
         {
             string acc0 = _project.Var("acc0");
@@ -466,6 +500,10 @@ namespace z3n7
                 _logger.Warn($"Profile save failed: {ex.GetType().Name} - {ex.Message}");
             }
         }
+        /// <summary>
+        /// Frees the account (clears its global <c>acc{n}</c>, sets <c>state = 'idle'</c> in <c>_instance</c>),
+        /// clears <c>acc0</c> and stops the instance.
+        /// </summary>
         public void Cleanup()
         {
             string acc0 = _project.Var("acc0");
@@ -515,8 +553,23 @@ namespace z3n7
 
 namespace z3n7 //ProjectExtensions
 {
+    /// <summary>
+    /// Extension methods on <c>IZennoPosterProjectModel</c>: browser start and finish for an account.
+    /// </summary>
     public static partial class ProjectExtensions
     {
+        /// <summary>
+        /// Starts the browser for the current account (<c>InstanceManager.Initialize</c>) and sets <c>state =
+        /// 'busy'</c> in <c>_instance</c>. Does nothing when a Chromium browser is already running in the
+        /// instance.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="browserToLaunch"><c>Chromium</c> or <c>WithoutBrowser</c>.</param>
+        /// <param name="debug">Log progress.</param>
+        /// <param name="fixTimezone">See <c>Initialize</c>.</param>
+        /// <param name="useLegacy">See <c>Initialize</c>.</param>
+        /// <param name="useZpprofile">See <c>Initialize</c>.</param>
+        /// <param name="useFolder">See <c>Initialize</c>.</param>
         public static void RunBrowser(this IZennoPosterProjectModel project, Instance instance, string browserToLaunch = "Chromium", bool debug = false, bool fixTimezone = false, bool useLegacy = true, bool useZpprofile = false, bool useFolder = true)
         {
             var browser = instance.BrowserType;
@@ -531,23 +584,43 @@ namespace z3n7 //ProjectExtensions
             }
         }
         
+        /// <summary>Ends the account session: <c>Disposer.FinishSession</c>.</summary>
         public static void Finish(this IZennoPosterProjectModel project, Instance instance)
         {
             new Disposer(project, instance).FinishSession();
         }
         
+        /// <summary>Writes an error report (<c>Reporter.ReportError</c>).</summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="toLog">Write it to the log.</param>
+        /// <param name="toTelegram">Send it to Telegram.</param>
+        /// <param name="toDb">Write it to the account's row.</param>
+        /// <param name="screenshot">Save a screenshot.</param>
         public static string ReportError(this IZennoPosterProjectModel project, Instance instance, 
             bool toLog = true, bool toTelegram = false, bool toDb = false, bool screenshot = false)
         {
             return new Disposer(project, instance).ErrorReport(toLog, toTelegram, toDb, screenshot);
         }
         
+        /// <summary>Writes a success report (<c>Reporter.ReportSuccess</c>).</summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="toLog">Write it to the log.</param>
+        /// <param name="toTelegram">Send it to Telegram.</param>
+        /// <param name="toDb">Write it to the account's row.</param>
+        /// <param name="customMessage">Extra line.</param>
         public static string ReportSuccess(this IZennoPosterProjectModel project, Instance instance,
             bool toLog = true, bool toTelegram = false, bool toDb = false, string customMessage = null)
         {
             return new Disposer(project, instance).SuccessReport(toLog, toTelegram, toDb, customMessage);
         }
         
+        /// <summary>
+        /// Checks a proxy and applies it to the instance: compares the IP seen by public echo services directly
+        /// and through the proxy, and sets the proxy only when they differ.
+        /// </summary>
+        /// <param name="proxyString">Proxy; default is the <c>proxy</c> column of the account's <c>_instance</c> row.</param>
+        /// <param name="instance">Browser instance.</param>
+        /// <returns><c>true</c>. Throws when the proxy is empty, does not answer, or shows the local IP.</returns>
         public static bool ProxySet(this IZennoPosterProjectModel project, Instance instance,string proxyString = null)
         {
             if (string.IsNullOrWhiteSpace(proxyString)) 
@@ -603,6 +676,11 @@ namespace z3n7 //ProjectExtensions
         // ZennoPoster C# Snippet: Экспорт полного отпечатка профиля в JSON (без БД)
         // ======================================================================================
         // 1. Сбор всех простых свойств IProfile (UserAgent, Concurrency, Resolution, etc.)
+        /// <summary>
+        /// Exports the profile and instance properties, WebGL settings and cookies (Base64) to
+        /// <c>{project.Directory}/profiles/zenno_profile_{yyyyMMdd_HHmmss}_{id}.json</c>.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
         public static void SaveProfile(this IZennoPosterProjectModel project, Instance instance)
         {
             

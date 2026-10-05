@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Img
 
-`class` · пространство имён `z3n7` · исходник [Tools/Img.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Img.cs#L7)
+`class` · пространство имён `z3n7` · исходник [Tools/Img.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Img.cs#L8)
 
 ```csharp
 public class Img
 ```
 
-*Описания пока нет.*
+SVG rendering.
 
 ## Методы
 
@@ -22,7 +22,15 @@ public class Img
 public static string DrawSvgAsBase64(string svgContent)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Img.cs#L19)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Img.cs#L26)
+
+Renders SVG markup to PNG.
+
+| Параметр | Описание |
+|---|---|
+| `svgContent` | SVG markup. |
+
+**Возвращает:** The PNG as Base64.
 
 ### ImgFromSvg
 
@@ -30,6 +38,13 @@ public static string DrawSvgAsBase64(string svgContent)
 public static void ImgFromSvg(string svgContent, string pathToScreen)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Img.cs#L10)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Img.cs#L14)
+
+Renders SVG markup to an image file; the format follows the file extension.
+
+| Параметр | Описание |
+|---|---|
+| `svgContent` | SVG markup. |
+| `pathToScreen` | Target file. |
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

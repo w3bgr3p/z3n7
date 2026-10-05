@@ -9,20 +9,27 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// The JSONL traffic file <c>trafficLog.jsonl</c> in ZennoPoster's log folder: one line per <c>Rqst</c>
+    /// request, with rotation and readers for the embedded server.
+    /// </summary>
     internal static class ZpTraffic
     {
-        /// <summary>Длина файла, после которой он уезжает в trafficLog_<дата>.jsonl.</summary>
+        /// <summary>File size after which it is moved to <c>trafficLog_{yyyyMMdd_HHmmss}.jsonl</c>.</summary>
         private const long RotateBytes = 50L * 1024 * 1024;
 
-        /// <summary>Сколько ротированных файлов держим; остальные удаляются.</summary>
+        /// <summary>How many rotated files are kept; older ones are deleted.</summary>
         private const int KeepRotated = 5;
 
-        /// <summary>Размер куска при чтении с конца. Записи длиннее не теряются.</summary>
+        /// <summary>Chunk size when reading from the end. Longer records are not lost.</summary>
         private const int ChunkBytes = 64 * 1024;
 
-        /// <summary>Потолок сканирования в Tail — иначе фильтр без совпадений читает файл целиком.</summary>
+        /// <summary>
+        /// Scan limit of <c>Tail</c>; without it a filter with no matches would read the whole file.
+        /// </summary>
         private const long MaxScanBytes = 64L * 1024 * 1024;
 
+        /// <summary>Full path of the traffic file. Throws when <c>LogOptions.LogFile</c> is empty.</summary>
         public static string FilePath(IZennoPosterProjectModel project)
         {
             var directory = ZpLog.Dir(project);
@@ -31,6 +38,10 @@ namespace z3n7
             return Path.GetFullPath(Path.Combine(directory, "trafficLog.jsonl"));
         }
 
+        /// <summary>
+        /// Appends one JSON line. Writers in different ZennoPoster processes and AppDomains are serialised by a
+        /// named mutex (5 s wait, then <c>IOException</c>); the file is rotated first when it is too large.
+        /// </summary>
         public static void Append(IZennoPosterProjectModel project, string json)
         {
             var path = FilePath(project);
@@ -61,9 +72,9 @@ namespace z3n7
         // ── Ротация ───────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Отправляет переросший файл в trafficLog_&lt;дата&gt;.jsonl. Вызывается
-        /// только под мьютексом Append. Сбой ротации не имеет права ронять запись
-        /// трафика — тогда просто продолжаем писать в текущий файл.
+        /// Moves an oversized file to <c>trafficLog_{yyyyMMdd_HHmmss}.jsonl</c>. Called only under the
+        /// <c>Append</c> mutex. A rotation failure must not break traffic writing: the current file is simply
+        /// written further.
         /// </summary>
         private static void Rotate(string path)
         {
@@ -88,7 +99,9 @@ namespace z3n7
             catch { }
         }
 
-        /// <summary>Ротированные файлы от новых к старым. Имя содержит дату, поэтому сортировка по имени = по времени.</summary>
+        /// <summary>
+        /// Rotated files from newest to oldest. The name holds the date, so sorting by name is sorting by time.
+        /// </summary>
         private static List<string> Rotated(string path)
         {
             try
@@ -105,6 +118,19 @@ namespace z3n7
 
         // Byte offsets refer to complete UTF-8 JSONL records; an unfinished last
         // line is left for the next poll. No tail window or response-body truncation.
+        /// <summary>
+        /// Reads complete records forward from a byte offset; an unfinished last line is left for the next
+        /// call.
+        /// </summary>
+        /// <param name="path">Traffic file.</param>
+        /// <param name="offset">Byte offset just after a complete line; 0 for the start.</param>
+        /// <param name="max">Most records to return.</param>
+        /// <param name="project">Keep only records of this project; empty for all.</param>
+        /// <param name="taskId">Keep only records of this task; empty for all.</param>
+        /// <returns>
+        /// The page; <c>next_offset</c> is where to continue. Throws when the offset does not follow a complete
+        /// line or the file is gone.
+        /// </returns>
         public static Page Read(string path, long offset, int max, string project, string taskId)
         {
             if (offset < 0 || max < 1) throw new ArgumentOutOfRangeException();
@@ -150,13 +176,16 @@ namespace z3n7
         // ── Tail ──────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Последние max записей, подходящих под фильтры. Файл читается с конца
-        /// кусками, границы строк ищутся назад — поэтому запись любого размера
-        /// (тело ответа бывает в мегабайт) приезжает целиком.
-        ///
-        /// next_offset ставится в длину текущего файла: после tail можно
-        /// продолжать обычным форвардным поллингом с этого места.
+        /// The last <c>max</c> records matching the filters. Files are read from the end in chunks and line
+        /// boundaries are searched backwards, so a record of any size (a response body can be megabytes)
+        /// arrives whole. Rotated files are read too.
+        /// <c>next_offset</c> is set to the length of the current file, so forward polling with <c>Read</c> can
+        /// continue from there.
         /// </summary>
+        /// <param name="path">Traffic file.</param>
+        /// <param name="max">Most records to return.</param>
+        /// <param name="project">Keep only records of this project; empty for all.</param>
+        /// <param name="taskId">Keep only records of this task; empty for all.</param>
         public static Page Tail(string path, int max, string project, string taskId)
         {
             if (max < 1) throw new ArgumentOutOfRangeException("max");
@@ -184,7 +213,10 @@ namespace z3n7
             return page;
         }
 
-        /// <summary>Один файл с конца. Дополняет found, пока не набрано max или не исчерпан бюджет.</summary>
+        /// <summary>
+        /// Reads one file from the end. Adds to <c>found</c> until <c>max</c> records are collected or the scan
+        /// budget is spent.
+        /// </summary>
         private static void ScanBackwards(string file, int max, string project, string taskId,
                                           List<JsonElement> found, ref long scanned)
         {
@@ -242,7 +274,10 @@ namespace z3n7
             return line;
         }
 
-        /// <summary>Битая строка — не повод ронять выдачу: пропускаем её молча, как это делает Read.</summary>
+        /// <summary>
+        /// A broken line is skipped silently instead of failing the whole result. (<c>Read</c> does not skip: a
+        /// broken line makes it throw.)
+        /// </summary>
         private static void Collect(byte[] line, string project, string taskId, List<JsonElement> found)
         {
             if (line.Length == 0) return;
@@ -275,15 +310,24 @@ namespace z3n7
                 && string.Equals(value.GetString(), filter, StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>A batch of traffic records.</summary>
         public sealed class Page
         {
+            /// <summary>File that was read.</summary>
             public string file { get; set; }
+            /// <summary>Number of records.</summary>
             public int count => entries.Count;
+            /// <summary>The records, oldest first.</summary>
             public List<JsonElement> entries { get; } = new List<JsonElement>();
+            /// <summary>Offset to continue reading from.</summary>
             public long next_offset { get; set; }
+            /// <summary>More complete records follow <c>next_offset</c>.</summary>
             public bool has_more { get; set; }
 
-            /// <summary>Tail упёрся в потолок сканирования: записей меньше запрошенного не потому, что их нет.</summary>
+            /// <summary>
+            /// <c>Tail</c> hit the scan limit: there are fewer records than requested, not because there are no
+            /// more.
+            /// </summary>
             public bool truncated { get; set; }
         }
     }

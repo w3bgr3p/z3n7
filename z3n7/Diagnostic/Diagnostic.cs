@@ -15,8 +15,16 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7
 {
     
+    /// <summary>Extension methods on <c>IZennoPosterProjectModel</c>: debugging aids.</summary>
     public static partial class ProjectExtensions
     {
+        /// <summary>
+        /// Saves a screenshot of the instance to
+        /// <c>{project.Path}/debug_screens/{yyyy-MM-dd}/{project.Name}/{actionId} - {unix ms}.png</c> with a
+        /// text box in the top-left corner (Iosevka 15 pt, white on dark).
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="watermark">Text of the box; default is the last error, the current URL and the last action id.</param>
         public static void SaveDebugScreenshot(this IZennoPosterProjectModel project, Instance instance, string watermark = null)
         {
             watermark = watermark ?? string.Join(
@@ -112,6 +120,15 @@ namespace z3n7
             }
         }
 
+        /// <summary>
+        /// After a pause, finds the request to <c>url</c> in the traffic of the main domain and checks its JSON
+        /// response. When <c>errField</c> is set, stores the body in <c>err</c> and throws through <c>warn</c>;
+        /// otherwise writes the body to the log. Does nothing when the request is not found.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="url">Exact request URL.</param>
+        /// <param name="errField">Top-level JSON field that signals an error.</param>
+        /// <param name="sleepBefore">Pause before reading, ms.</param>
         public static void CatchErrorFromTraffic(this IZennoPosterProjectModel project, Instance instance , string url, string errField, int sleepBefore = 5000)
         {
             Thread.Sleep(sleepBefore);
@@ -144,24 +161,29 @@ namespace z3n7
         
     }
 
-    /// <summary>Версии окружения узла. Пустая строка — значение не прочиталось.</summary>
+    /// <summary>Versions of the node's environment. An empty string means the value could not be read.</summary>
     public sealed class VersionInfo
     {
+        /// <summary>Version of <c>z3n7.dll</c>.</summary>
         public string z3n7        { get; set; } = "";
+        /// <summary>Product version of the host process (ZennoPoster).</summary>
         public string zennoposter { get; set; } = "";
+        /// <summary>Product name of the host process.</summary>
         public string product     { get; set; } = "";
+        /// <summary>File name of the host process.</summary>
         public string process     { get; set; } = "";
+        /// <summary>.NET runtime description.</summary>
         public string framework   { get; set; } = "";
+        /// <summary>Machine name.</summary>
         public string machine     { get; set; } = "";
     }
 
+    /// <summary>Environment information for logs and diagnostics.</summary>
     public static class Diagnostic
     {
         /// <summary>
-        /// Версии сборки, ZennoPoster, рантайма и имя машины.
-        ///
-        /// Каждое поле добывается отдельно: сорвавшееся чтение одного
-        /// не должно уносить остальные. Наружу исключений не выпускает.
+        /// Reads library, ZennoPoster and runtime versions and the machine name. Each field is read separately
+        /// and a failure leaves only that field empty; never throws.
         /// </summary>
         public static VersionInfo Info()
         {
@@ -184,8 +206,8 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Старая форма для Init.Logo: строго [z3n7, zennoposter, framework].
-        /// Порядок читается по индексам — менять нельзя.
+        /// Legacy form for the start banner: exactly <c>[z3n7, zennoposter, framework]</c>. Callers read it by
+        /// index, so the order must not change.
         /// </summary>
         internal static string[] GetVersions()
         {

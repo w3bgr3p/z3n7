@@ -7,12 +7,15 @@ using Newtonsoft.Json.Linq;
 
 namespace z3n7.Api
 {
+    /// <summary>Client of the Webshare proxy API. Dispose it to release the HTTP client.</summary>
     public class Webshare : IDisposable
     {
         private readonly string _apiKey;
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "https://proxy.webshare.io/api";
 
+        /// <summary>Creates a client.</summary>
+        /// <param name="apiKey">Value of the <c>Authorization</c> header; required.</param>
         public Webshare(string apiKey)
         {
             _apiKey = apiKey ?? throw new ArgumentNullException(nameof(apiKey));
@@ -21,6 +24,13 @@ namespace z3n7.Api
             _httpClient.DefaultRequestHeaders.Add("Authorization", _apiKey);
         }
 
+        /// <summary>
+        /// Downloads the proxy list of the account's first plan (direct connection, username authentication).
+        /// </summary>
+        /// <returns>
+        /// One proxy per item, as returned by Webshare. Throws when the plan or the download token cannot be
+        /// obtained.
+        /// </returns>
         public async Task<List<string>> GetProxyListAsync()
         {
             // Получаем plan_id
@@ -51,11 +61,13 @@ namespace z3n7.Api
                 .ToList();
         }
 
+        /// <summary>Blocking version of <c>GetProxyListAsync</c>.</summary>
         public List<string> GetProxyList()
         {
             return GetProxyListAsync().GetAwaiter().GetResult();
         }
 
+        /// <summary>Disposes the HTTP client.</summary>
         public void Dispose()
         {
             _httpClient?.Dispose();

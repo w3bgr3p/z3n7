@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Accountant.HtmlEncoder
 
-`static class` · namespace `z3n7.Utilities` · source [Reports/Accountant.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L195)
+`static class` · namespace `z3n7.Utilities` · source [Reports/Accountant.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L220)
 
 ```csharp
 public static class HtmlEncoder
 ```
 
-*No description yet.*
+HTML escaping helpers.
 
 ## Methods
 
@@ -22,7 +22,9 @@ public static class HtmlEncoder
 public static string HtmlAttributeEncode(string text)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L210)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L237)
+
+Escapes `& " ' < >` for HTML attribute values.
 
 ### HtmlEncode
 
@@ -30,6 +32,8 @@ public static string HtmlAttributeEncode(string text)
 public static string HtmlEncode(string text)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L197)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L223)
+
+Escapes `& < > " '` for HTML text.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

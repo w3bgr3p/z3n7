@@ -8,30 +8,29 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7
 {
     /// <summary>
-    /// Токен доступа к ZpServer: хранение, выдача, проверка запроса.
-    ///
-    /// Секрет один на машину и лежит в ключе ZP_TOKEN файла .env рядом со
-    /// сборкой (тот же файл, что читает Env.ReadEnv(global: true)). Токен
-    /// печатается в строке узла, чтобы её можно было целиком вставить в панель
-    /// DevDeck.
+    /// Access token of <c>ZpServer</c>: storing, issuing, checking requests.
+    /// There is one secret per machine, kept under <c>ZP_TOKEN</c> in the <c>.env</c> next to the assembly
+    /// (the same file <c>Env.ReadEnv(global: true)</c> reads). The token is printed in the node line so
+    /// that the line can be pasted into the DevDeck panel as a whole.
     /// </summary>
     public static class ZpAuth
     {
+        /// <summary>Key of the token in <c>.env</c>.</summary>
         public const string EnvKey = "ZP_TOKEN";
 
         private static volatile string _token;
 
-        /// <summary>Действующий токен. Пустая строка, пока не вызван Load.</summary>
+        /// <summary>The current token. An empty string until <c>Load</c> is called.</summary>
         public static string Token => _token ?? "";
 
         /// <summary>
-        /// Достаёт токен из .env, а при отсутствии — генерирует и пытается
-        /// сохранить. Вызывать до захвата порта: проверка конфигурации дешёвая,
-        /// и незачем занимать ресурс, если с ней что-то не так.
-        ///
-        /// Неудачная запись файла сервер не останавливает: узел остаётся
-        /// управляемым, но токен живёт только в памяти процесса.
+        /// Reads the token from <c>.env</c>; when there is none, generates one (32 random bytes as hex) and
+        /// tries to save it. Call it before taking the port: the configuration check is cheap, and there is no
+        /// point holding the resource if something is wrong with it.
+        /// A failed write does not stop the server: the node stays manageable, but the token lives only in the
+        /// process memory.
         /// </summary>
+        /// <param name="log">Write the path of the saved token to the log.</param>
         public static void Load(IZennoPosterProjectModel project, bool log)
         {
             var stored = SafeReadEnv(project);
@@ -55,10 +54,10 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Токен запроса: заголовок Authorization: Bearer, иначе параметр
-        /// ?token= — он нужен для ссылок на скачивание, куда заголовок
-        /// не подставить.
+        /// Checks the request token: the <c>Authorization: Bearer</c> header, otherwise the <c>?token=</c>
+        /// parameter, needed for download links where a header cannot be set.
         /// </summary>
+        /// <returns><c>false</c> when <c>Load</c> has not run or the token does not match.</returns>
         public static bool Authorized(HttpListenerRequest req)
         {
             var expected = _token;
@@ -84,9 +83,8 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Сравнение без раннего выхода: время не зависит от того, на каком
-        /// байте значения разошлись. Длину такое сравнение не скрывает — но
-        /// длина токена фиксированная и секретом не является.
+        /// Comparison without early exit: the time does not depend on where the values differ. It does not hide
+        /// the length, but the token length is fixed and not a secret.
         /// </summary>
         private static bool FixedTimeEquals(string a, string b)
         {
@@ -111,7 +109,7 @@ namespace z3n7
             return sb.ToString();
         }
 
-        /// <summary>Каталог сборки — тот же, что использует Env для global.</summary>
+        /// <summary>Folder of the assembly: the same one <c>Env</c> uses for <c>global</c>.</summary>
         private static string EnvPath() =>
             Path.Combine(Path.GetDirectoryName(typeof(ZpAuth).Assembly.Location) ?? "", ".env");
 

@@ -97,7 +97,7 @@ Reads `document.cookie` of the active page as JSON (path `/`, no expiry; HttpOnl
 public static Dictionary<string, object> ParseJwt(string jwt)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L592)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L593)
 
 Decodes a JWT without checking its signature.
 

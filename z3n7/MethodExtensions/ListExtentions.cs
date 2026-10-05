@@ -6,6 +6,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>Extension methods on lists.</summary>
     public static class ListExtensions
     {
         [ThreadStatic]
@@ -13,6 +14,9 @@ namespace z3n7
         
         private static Random Random => _random ?? (_random = new Random());
 
+        /// <summary>Returns a random item.</summary>
+        /// <param name="remove">Also remove it from the list.</param>
+        /// <returns>The item. Throws when the list is empty.</returns>
         public static T Rnd<T>(this IList<T> list, bool remove = false)
         {
             if (list.Count == 0) 
@@ -28,6 +32,9 @@ namespace z3n7
     public static partial class ProjectExtensions
     {
 
+        /// <summary>Returns a random line of a ZennoPoster list.</summary>
+        /// <param name="listName">Project list name.</param>
+        /// <param name="remove">Also remove it from the project list.</param>
         public static string RndFromList(this IZennoPosterProjectModel project, string listName, bool remove = false)
         {
             var localList = project.ListSync(listName);
@@ -38,6 +45,7 @@ namespace z3n7
             return item;
           
         }
+        /// <summary>Copies a ZennoPoster list into a new <c>List&lt;string&gt;</c>.</summary>
         public static List<string> ListSync(this IZennoPosterProjectModel project, string listName)
         {
             var projectList = project.Lists[listName];
@@ -49,6 +57,8 @@ namespace z3n7
             return localList;
             
         }
+        /// <summary>Replaces the content of a ZennoPoster list with <c>localList</c>.</summary>
+        /// <returns><c>localList</c>.</returns>
         public static List<string> ListSync(this IZennoPosterProjectModel project, string listName, List<string> localList)
         {
             var projectList = project.Lists[listName];
@@ -61,6 +71,10 @@ namespace z3n7
             return localList;
         }
         
+        /// <summary>Replaces the content of a ZennoPoster list with the lines of a file.</summary>
+        /// <param name="listName">Project list name.</param>
+        /// <param name="fileName">File to read.</param>
+        /// <returns>The lines.</returns>
         public static List<string> ListFromFile(this IZennoPosterProjectModel project, string listName, string fileName)
         {
             string web3prompts = $"{project.Path}.data\\web3prompts.txt";

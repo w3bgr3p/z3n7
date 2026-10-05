@@ -9,19 +9,16 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7
 {
     /// <summary>
-    /// Чтение файловых логов ZennoPoster.
-    ///
-    /// Каталог берётся из project.LogOptions.LogFile, но само имя оттуда брать
-    /// нельзя: свойство говорит "executionLog.txt", а на диске лежат
-    /// executionLog-ZennoPoster.txt и executionLog-ProjectMaker.txt — Зенка
-    /// дописывает имя процесса, и это отдельный механизм от SplitLogByThread.
-    ///
-    /// Благодаря этому лог ZennoPoster читается и из ProjectMaker, и наоборот.
-    /// Файлы в UTF-8 без BOM, ZennoPoster держит их открытыми на запись.
+    /// Reads ZennoPoster's log files.
+    /// The folder comes from <c>project.LogOptions.LogFile</c>, but the file name must not: the property
+    /// says <c>executionLog.txt</c>, while the files on disk are <c>executionLog-ZennoPoster.txt</c> and
+    /// <c>executionLog-ProjectMaker.txt</c> — ZennoPoster appends the process name, a mechanism separate
+    /// from <c>SplitLogByThread</c>. Thanks to that, the ZennoPoster log can be read from ProjectMaker and
+    /// vice versa. The files are UTF-8 without BOM and ZennoPoster keeps them open for writing.
     /// </summary>
     internal static class ZpLog
     {
-        /// <summary>Короткое имя вида → префикс файла.</summary>
+        /// <summary>Short kind name → file prefix.</summary>
         private static readonly Dictionary<string, string> Kinds =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -30,7 +27,7 @@ namespace z3n7
                 { "critical",  "criticalErrors"    },
             };
 
-        /// <summary>Сколько байт с конца файла читать. Записи длиннее просто обрежутся.</summary>
+        /// <summary>How many bytes to read from the end of a file. Longer records are cut.</summary>
         private const int TailBytes = 512 * 1024;
 
         private static readonly Regex RecordStart =
@@ -40,13 +37,13 @@ namespace z3n7
             new Regex("\"([^\"]*)\"\\s*$", RegexOptions.Compiled);
 
         /// <summary>
-        /// В executionLog шесть колонок — пятая это имя проекта. В остальных
-        /// пять, проекта нет. Проверено на живых файлах 7.9.1.0.
+        /// The execution log has six columns, the fifth being the project name; the others have five and no
+        /// project. Observed on 7.9.1.0 log files.
         /// </summary>
         public static bool HasProjectColumn(string kind) =>
             string.Equals(kind, "execution", StringComparison.OrdinalIgnoreCase);
 
-        /// <summary>Каталог логов, или null если LogOptions недоступен.</summary>
+        /// <summary>Log folder, or <c>null</c> when <c>LogOptions</c> is not available.</summary>
         public static string Dir(IZennoPosterProjectModel project)
         {
             try
@@ -58,7 +55,7 @@ namespace z3n7
             catch { return null; }
         }
 
-        /// <summary>Файлы логов, лежащие в каталоге — для подсказки, когда запрошенного нет.</summary>
+        /// <summary>Log files in the folder, as a hint when the requested one is missing.</summary>
         public static string[] Available(IZennoPosterProjectModel project)
         {
             var dir = Dir(project);
@@ -68,8 +65,8 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Полный путь к файлу лога. Возвращает null и заполняет error, если
-        /// вид неизвестен, каталог не определён или файла нет.
+        /// Full path of a log file. Returns <c>null</c> and sets <c>error</c> when the kind is unknown, the
+        /// folder is not known or the file does not exist.
         /// </summary>
         public static string Resolve(IZennoPosterProjectModel project, string kind, string process, out string error)
         {
@@ -91,17 +88,25 @@ namespace z3n7
             return path;
         }
 
+        /// <summary>One log record.</summary>
         public sealed class Entry
         {
+            /// <summary>Timestamp as written in the file.</summary>
             public string ts      { get; set; }
+            /// <summary>Level.</summary>
             public string level   { get; set; }
+            /// <summary>Thread.</summary>
             public string thread  { get; set; }
+            /// <summary>Logger name; empty for the execution log, where it carries nothing.</summary>
             public string logger  { get; set; }
+            /// <summary>Project name; execution log only.</summary>
             public string project { get; set; }
+            /// <summary>Action (module) name taken from the record header; execution log only.</summary>
             public string module  { get; set; }
+            /// <summary>Message text.</summary>
             public string text    { get; set; }
 
-            /// <summary>Пустые поля в JSON не выводим — они только шумят.</summary>
+            /// <summary>Fields for JSON; empty optional fields are left out because they only add noise.</summary>
             public Dictionary<string, object> ToJson()
             {
                 var d = new Dictionary<string, object>
@@ -119,10 +124,13 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Последние max записей. Читается только хвост файла, поэтому первая
-        /// запись в окне может оказаться обрезанной — её отбрасываем вместе с
-        /// куском строки, на котором начали.
+        /// The last <c>max</c> records. Only the tail of the file is read, so the first record in the window
+        /// may be cut; it is dropped together with the partial line the read started in.
         /// </summary>
+        /// <param name="path">Log file.</param>
+        /// <param name="max">Most records to return.</param>
+        /// <param name="projectFilter">Only records of this project; empty for all.</param>
+        /// <param name="hasProjectColumn">Whether the file has the project column (see <c>HasProjectColumn</c>).</param>
         public static List<Entry> Tail(string path, int max, string projectFilter, bool hasProjectColumn)
         {
             var entries = new List<Entry>();
@@ -223,7 +231,7 @@ namespace z3n7
             return entry;
         }
 
-        /// <summary>Имя модуля из хвоста заголовка: ... "Имя". Пустое, если его нет.</summary>
+        /// <summary>Module name from the end of the header: … <c>"Name"</c>. Empty when there is none.</summary>
         private static string ModuleName(string head)
         {
             var m = ModuleTail.Match(head);
@@ -231,8 +239,8 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Снимает обёртку «Сообщение: "…"». Кавычки берутся крайние: внутри
-        /// нередко лежит JSON со своими, и жадный захват их сохраняет.
+        /// Removes the <c>Message: "…"</c> wrapper. The outermost quotes are used: the text often holds JSON
+        /// with its own quotes, and a greedy match keeps them.
         /// </summary>
         private static string Unwrap(string s)
         {

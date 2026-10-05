@@ -7,12 +7,18 @@ using ZennoLab.InterfacesLibrary.ProjectModel.Collections;
 
 namespace z3n7.Utilities
 {
+    /// <summary>
+    /// Saves the ZennoPoster profile, instance settings, cookies and WebGL settings of the current account
+    /// to database tables and restores them.
+    /// </summary>
     public class ProfileSync
     {
         private readonly IZennoPosterProjectModel _project;
         private readonly Instance _instance;
         private readonly Logger _log;
 
+        /// <summary>Creates the helper.</summary>
+        /// <param name="log">Logger for progress; <c>null</c> logs nothing.</param>
         public ProfileSync(IZennoPosterProjectModel project, Instance instance, Logger log = null)
         {
             _project = project;
@@ -20,6 +26,22 @@ namespace z3n7.Utilities
             _log = log;
         }
 
+        /// <summary>
+        /// Restores the current account's data from the tables of <c>restoreFrom</c>. Throws for any other
+        /// source.
+        /// </summary>
+        /// <param name="restoreFrom">
+        /// <c>folder</c>, <c>zb</c> or <c>zpprofile</c>: the prefix of the tables <c>{prefix}_profile</c>,
+        /// <c>{prefix}_instance</c> and <c>{prefix}_webgl</c>.
+        /// </param>
+        /// <param name="restoreProfile">Profile properties.</param>
+        /// <param name="restoreCookies">Cookies (Base64 in the <c>cookies</c> column).</param>
+        /// <param name="restoreInstance">Instance properties.</param>
+        /// <param name="restoreWebgl">WebGL settings (<c>_preferences</c> column).</param>
+        /// <param name="rebuildWebgl">
+        /// Rebuild the WebGL settings from the flattened JSON columns (<c>DbToJson</c>) instead of
+        /// <c>_preferences</c>.
+        /// </param>
         public void RestoreProfile(
             string restoreFrom, 
             bool restoreProfile = true,
@@ -76,6 +98,17 @@ namespace z3n7.Utilities
             _log?.Send("[DIAG] RestoreProfile COMPLETED successfully");
         }
         
+        /// <summary>
+        /// Saves the current account's data to the tables of <c>saveTo</c>. Throws for any other target.
+        /// </summary>
+        /// <param name="saveTo">
+        /// <c>folder</c>, <c>zb</c> or <c>zpprofile</c>: the prefix of the tables <c>{prefix}_profile</c>,
+        /// <c>{prefix}_instance</c> and <c>{prefix}_webgl</c>.
+        /// </param>
+        /// <param name="saveProfile">Profile properties.</param>
+        /// <param name="saveInstance">Instance properties.</param>
+        /// <param name="saveCookies">All cookies (<c>SaveAllCookies</c>).</param>
+        /// <param name="saveWebgl">WebGL settings, both as <c>_preferences</c> and flattened into columns.</param>
         public void SaveProfile(
             string saveTo,
             bool saveProfile = true,
@@ -128,6 +161,11 @@ namespace z3n7.Utilities
         }
         
 
+        /// <summary>
+        /// Creates the <c>folder_*</c>, <c>zpprofile_*</c> and <c>zb_*</c> tables with account rows and the
+        /// profile and instance columns, unless <c>folder_profile</c> and <c>zb_profile</c> already exist.
+        /// </summary>
+        /// <param name="log">Not used.</param>
         public void AddStructureToDb(bool log = false)
         {
             _log?.Debug(" AddStructureToDb: Checking existing tables...");

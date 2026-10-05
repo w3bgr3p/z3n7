@@ -15,20 +15,16 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7
 {
     /// <summary>
-    /// HTTP-сервер внутри ZennoPoster.
-    /// Принимает команды от оркестратора напрямую, минуя БД.
-    /// 
-    /// Запуск: project.StartZpServer()
-    /// Остановка: project.StopZpServer()
-    /// 
-    /// Endpoints:
-    ///   GET  /state         — tasks + processes текущей машины
-    ///   GET  /traffic       — JSONL traffic: tail=N либо страницы по байтовому оффсету
-    ///   POST /command       — { action, task_id, payload } → исполняет немедленно
-    ///   GET  /version       — версии z3n7, ZennoPoster, рантайма
-    ///
-    /// Все роуты требуют токен: заголовок Authorization: Bearer &lt;token&gt;
-    /// либо параметр ?token= (для ссылок на скачивание). См. ZpAuth.
+    /// HTTP server inside ZennoPoster that takes commands from an orchestrator directly, without the
+    /// database.
+    /// Start: <c>project.StartZpServer()</c>; stop: <c>project.StopZpServer()</c>.
+    /// Endpoints: <c>GET /state</c> (tasks and processes of this machine), <c>POST /command</c> (<c>{
+    /// action, task_id, payload }</c>, executed immediately), <c>GET/POST /task/xml</c>, <c>GET
+    /// /task/settings</c>, <c>GET /log</c> (ZennoPoster log files), <c>GET /traffic</c> (JSONL traffic:
+    /// <c>tail=N</c> or pages by byte offset), <c>GET /traffic/har</c>, <c>GET /version</c> (z3n7,
+    /// ZennoPoster and runtime versions), <c>GET /debug/assemblies</c>.
+    /// Every route requires the token: header <c>Authorization: Bearer {token}</c> or parameter
+    /// <c>?token=</c> (for download links). See <c>ZpAuth</c>.
     /// </summary>
     public static class ZpServer
     {
@@ -39,11 +35,22 @@ namespace z3n7
         private static volatile bool _running;
         private static int           _port;
 
-        /// <summary>Сколько портов подряд перебрать, начиная с запрошенного.</summary>
+        /// <summary>How many consecutive ports to try, starting with the requested one.</summary>
         private const int PortRange = 20;
 
         // ── Start / Stop ──────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Loads the access token, takes the first free port from <c>port</c> (up to 20 tried) and starts
+        /// serving on a background thread. When the server is already running, only prints the node line again.
+        /// A taken port is not an error; a missing URL ACL (access denied) stops the attempt with a warning
+        /// that names the <c>netsh http add urlacl</c> command.
+        /// </summary>
+        /// <param name="port">First port to try.</param>
+        /// <param name="log">Print the node registration line (and its hints) to the log.</param>
+        /// <param name="openFirewall">
+        /// Create an inbound firewall rule for the port when none is found (needs administrator rights).
+        /// </param>
         public static void StartZpServer(this IZennoPosterProjectModel project, int port = 22222, bool log = false, bool openFirewall = false)
         {
             // Сервер переживает запуск проекта, поэтому строку узла печатаем
@@ -66,6 +73,8 @@ namespace z3n7
             if (log) LogNode(project, _port);
         }
 
+        /// <summary>Stops the server.</summary>
+        /// <param name="log">Write a line to the log.</param>
         public static void StopZpServer(this IZennoPosterProjectModel project, bool log = false)
         {
             if (!_running) return;
@@ -75,8 +84,8 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Занимает первый свободный порт начиная с <paramref name="port"/>.
-        /// Занятый порт — не ошибка: на машине может уже висеть чужой слушатель.
+        /// Takes the first free port starting with <c>port</c>. A taken port is not an error: another listener
+        /// may already be on the machine.
         /// </summary>
         private static bool Bind(IZennoPosterProjectModel project, int port)
         {
@@ -338,9 +347,9 @@ namespace z3n7
         }
 
         /// <summary>
-        /// payload — {"xml_b64":"...","json_b64":"..."}, те же два блоба, что лежали
-        /// в БД колонками _xml_b64 и _json_b64. Наложение делает TaskManager.PayloadToXml,
-        /// то есть ровно тот же код, что и путь через базу.
+        /// <c>payload</c> is <c>{"xml_b64":"...","json_b64":"..."}</c>: the same two blobs that the database
+        /// keeps in the <c>_xml_b64</c> and <c>_json_b64</c> columns. They are merged by
+        /// <c>TaskManager.PayloadToXml</c>, the same code as the database path.
         /// </summary>
         private static void SetInputSettings(Guid guid, string payload)
         {
@@ -495,8 +504,8 @@ namespace z3n7
         // ── Node info ──────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Печатает строку регистрации узла: сначала подсказку, затем сам JSON
-        /// отдельной строкой, чтобы её можно было скопировать целиком.
+        /// Prints the node registration line: first a hint, then the JSON on its own line so that it can be
+        /// copied whole.
         /// </summary>
         private static void LogNode(IZennoPosterProjectModel project, int port)
         {
@@ -512,9 +521,8 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Создаёт правило файрвола, если подходящего не нашлось. Неудача не мешает
-        /// серверу работать: HasPortRule не учитывает block-правила и привязку к
-        /// профилю, так что порт может оказаться открыт и без нашего правила.
+        /// Creates a firewall rule when no suitable one is found. A failure does not stop the server:
+        /// <c>HasPortRule</c> ignores block rules and profiles, so the port may be open without our rule.
         /// </summary>
         private static void EnsureFirewall(IZennoPosterProjectModel project, int port, bool log)
         {
@@ -544,10 +552,9 @@ namespace z3n7
             });
 
         /// <summary>
-        /// Сервисы-эхо, отдающие адрес, с которого к ним пришло соединение.
-        /// Хосты выбраны IPv4-only намеренно: универсальные (api.ipify.org,
-        /// icanhazip.com) на машине с IPv6-связностью возвращают v6-адрес,
-        /// и в строке узла оказывалась бы то одна семья, то другая.
+        /// Echo services that return the address the connection came from. IPv4-only hosts on purpose: general
+        /// ones (api.ipify.org, icanhazip.com) return an IPv6 address on a machine with IPv6, and the node line
+        /// would show one family or the other.
         /// </summary>
         private static readonly string[] IpEcho =
         {
@@ -559,8 +566,8 @@ namespace z3n7
         
 
         /// <summary>
-        /// Внешний IPv4 узла. Пустая строка, если ни один сервис не ответил —
-        /// пустое поле честнее выдуманного адреса.
+        /// External IPv4 of the node. An empty string when no service answered: an empty field is more honest
+        /// than a made-up address.
         /// </summary>
         private static string GetExternalIp(IZennoPosterProjectModel project)
         {
@@ -586,12 +593,10 @@ namespace z3n7
             value == null ? "unknown" : (value.Value ? yes : no);
 
         /// <summary>
-        /// Адрес адаптера, через который система реально ходит наружу.
-        ///
-        /// Dns.GetHostEntry отдаёт IPv4 в произвольном порядке, и на машине с
-        /// VirtualBox или WSL первым оказывается виртуальный адаптер, недостижимый
-        /// из сети. UDP-connect пакетов не шлёт — только заставляет ОС выбрать
-        /// маршрут и назначить сокету локальный адрес.
+        /// Address of the adapter the system actually uses to reach the outside.
+        /// <c>Dns.GetHostEntry</c> returns IPv4 addresses in arbitrary order, and on a machine with VirtualBox
+        /// or WSL a virtual adapter unreachable from the network comes first. A UDP connect sends no packets;
+        /// it only makes the OS pick a route and assign the socket a local address.
         /// </summary>
         private static string GetLocalIp()
         {

@@ -6,12 +6,10 @@ using System.Reflection;
 namespace z3n7
 {
     /// <summary>
-    /// Чтение состояния Windows Firewall и создание правила через COM
-    /// (HNetCfg.FwPolicy2), поздним связыванием — чтобы не тянуть ссылку
-    /// на NetFwTypeLib и Microsoft.CSharp.
-    ///
-    /// «Не знаю» возвращается как null, а не как false: отличать «правила нет»
-    /// от «не смогли посмотреть» здесь важнее, чем выдать ответ любой ценой.
+    /// Reads the Windows Firewall state and creates a rule through COM (<c>HNetCfg.FwPolicy2</c>) with late
+    /// binding, so that no reference to NetFwTypeLib or Microsoft.CSharp is needed.
+    /// "Don't know" is returned as <c>null</c>, not <c>false</c>: telling "no rule" from "could not check"
+    /// matters more here than giving an answer at any cost.
     /// </summary>
     internal static class Firewall
     {
@@ -34,7 +32,10 @@ namespace z3n7
             return t == null ? null : Activator.CreateInstance(t);
         }
 
-        /// <summary>true — включён хотя бы в одном профиле; null — узнать не удалось.</summary>
+        /// <summary>
+        /// <c>true</c> when the firewall is on in at least one profile; <c>null</c> when it could not be
+        /// determined.
+        /// </summary>
         public static bool? Enabled()
         {
             try
@@ -53,12 +54,12 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Есть ли включённое inbound-allow правило, накрывающее порт.
-        ///
-        /// Ответ приблизительный, и это намеренно: правила «по пути к exe» сюда
-        /// не попадают, block-правила не учитываются, привязка к профилю и
-        /// remote address игнорируется. Подсказка, а не вердикт о доступности.
+        /// Whether an enabled inbound allow rule for TCP covers the port.
+        /// The answer is approximate on purpose: rules bound to a service or to another program's path are
+        /// skipped, block rules are not considered, profiles and remote addresses are ignored. It is a hint,
+        /// not a verdict on reachability.
         /// </summary>
+        /// <returns><c>null</c> when the rules could not be read.</returns>
         public static bool? HasPortRule(int port)
         {
             try
@@ -99,7 +100,10 @@ namespace z3n7
             catch { return null; }
         }
 
-        /// <summary>Создаёт inbound-allow правило на TCP-порт. Требует прав администратора.</summary>
+        /// <summary>
+        /// Creates an inbound allow rule for the TCP port in all profiles. Needs administrator rights.
+        /// </summary>
+        /// <returns><c>false</c> with <c>error</c> set on failure.</returns>
         public static bool TryOpen(int port, out string error)
         {
             error = null;
@@ -133,14 +137,16 @@ namespace z3n7
             }
         }
 
-        /// <summary>Полный путь к текущему exe, или null если узнать не вышло.</summary>
+        /// <summary>Full path of the current executable, or <c>null</c> when it cannot be read.</summary>
         private static string SelfPath()
         {
             try   { return System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName; }
             catch { return null; }
         }
 
-        /// <summary>Понимает форматы LocalPorts: "*", "22222", "80,443", "22200-22300".</summary>
+        /// <summary>
+        /// Understands the <c>LocalPorts</c> formats <c>*</c>, <c>22222</c>, <c>80,443</c>, <c>22200-22300</c>.
+        /// </summary>
         private static bool Covers(string localPorts, int port)
         {
             if (string.IsNullOrEmpty(localPorts)) return false;

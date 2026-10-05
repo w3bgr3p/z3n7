@@ -9,6 +9,7 @@ using System;
 
 namespace z3n7
 {
+    /// <summary>Developer aids shown as Windows forms inside ZennoPoster.</summary>
     public static class Helper
     {
         private static readonly System.Drawing.Font defaultFont = new System.Drawing.Font("Cascadia Mono", 9F);
@@ -357,6 +358,13 @@ namespace z3n7
             return list;
         }
 
+        /// <summary>
+        /// Opens a searchable API browser window. The index is built once per process from the XML
+        /// documentation files next to the ZennoPoster executable and, by reflection, from the public members
+        /// of the loaded <c>ZennoLab*</c> assemblies. Every search term must match the member's name, type or
+        /// summary.
+        /// </summary>
+        /// <param name="toSearch">Initial search text.</param>
         public static void Help(this IZennoPosterProjectModel project, string toSearch = null)
         {
             if (_apiIndex == null) _apiIndex = BuildApiIndex();

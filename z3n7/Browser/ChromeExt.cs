@@ -19,7 +19,9 @@ namespace z3n7
     public class Extension
     {
 
+        /// <summary>The project.</summary>
         protected readonly IZennoPosterProjectModel _project;
+        /// <summary>The browser instance; <c>null</c> when created without one.</summary>
         protected readonly Instance _instance;
         private readonly Logger _logger;
         
@@ -277,8 +279,11 @@ namespace z3n7
     public class ChromeExt
     {
 
+        /// <summary>The project.</summary>
         protected readonly IZennoPosterProjectModel _project;
+        /// <summary>Set from the <c>debug</c> variable when <c>log</c> is false; not used otherwise.</summary>
         protected bool _logShow = false;
+        /// <summary>The browser instance; <c>null</c> when created without one.</summary>
         protected readonly Instance _instance;
         private readonly Logger _logger;
 

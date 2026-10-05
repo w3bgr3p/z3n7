@@ -8,6 +8,7 @@ using ZennoLab.InterfacesLibrary.Enums.Browser;
 namespace z3n7
 {
 
+    /// <summary>End of an account session: report, save the browser profile, clean up.</summary>
     public class Disposer
     {
         #region Fields & Constructor
@@ -18,6 +19,8 @@ namespace z3n7
         private readonly Logger _logger;
         private readonly InstanceManager _instanceMgr;
         
+        /// <summary>Creates the helper.</summary>
+        /// <param name="log">Logger for progress; <c>null</c> logs nothing.</param>
         public Disposer(IZennoPosterProjectModel project, Instance instance, Logger log = null)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
@@ -32,6 +35,12 @@ namespace z3n7
 
         #region Public API
 
+        /// <summary>
+        /// Finishes the session. When <c>acc0</c> is set, writes a success report (or, when <c>lastQuery</c>
+        /// contains <c>dropped</c>, an error report with a screenshot) to the log and the account's row; then
+        /// saves the profile (<c>InstanceManager.SaveProfile</c>), writes the final line to the log and cleans
+        /// up (<c>InstanceManager.Cleanup</c>).
+        /// </summary>
         public void FinishSession()
         {
             _logger?.Send("Starting session finish sequence");
@@ -55,11 +64,21 @@ namespace z3n7
             _logger?.Send("Session finish sequence completed");
         }
         
+        /// <summary>Same as <c>Reporter.ReportError</c>.</summary>
+        /// <param name="toLog">Write it to the log.</param>
+        /// <param name="toTelegram">Send it to Telegram.</param>
+        /// <param name="toDb">Write it to the account's row.</param>
+        /// <param name="screenshot">Save a screenshot.</param>
         public string ErrorReport(bool toLog = true, bool toTelegram = false, bool toDb = false, bool screenshot = false)
         {
             return _reporter.ReportError(toLog, toTelegram, toDb, screenshot);
         }
         
+        /// <summary>Same as <c>Reporter.ReportSuccess</c>.</summary>
+        /// <param name="toLog">Write it to the log.</param>
+        /// <param name="toTelegram">Send it to Telegram.</param>
+        /// <param name="toDb">Write it to the account's row.</param>
+        /// <param name="customMessage">Extra line.</param>
         public string SuccessReport(bool toLog = true, bool toTelegram = false, bool toDb = false, string customMessage = null)
         {
             return _reporter.ReportSuccess(toLog, toTelegram, toDb, customMessage);

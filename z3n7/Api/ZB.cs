@@ -8,9 +8,20 @@ using Newtonsoft.Json.Linq;
 
 namespace z3n7
 {
+    /// <summary>ZennoBrowser (ZP8) profiles: their ids and running the helper project <c>ZB.zp</c>.</summary>
     public static class ZennoBrowser
     {
         private static readonly object _dbLock = new object();
+        /// <summary>
+        /// Reads <c>id</c> and <c>name</c> of every ZennoBrowser profile except <c>template</c> from the
+        /// <c>ProfileInfos</c> table. While reading, the <c>DBmode</c> and <c>DBsqltPath</c> variables point at
+        /// <c>%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db</c>; they are restored afterwards.
+        /// </summary>
+        /// <returns>Profile id → profile name. Throws when the ZennoBrowser database file is missing.</returns>
+        /// <remarks>
+        /// The read goes through <c>DbGetLines</c>/<c>DbGet</c> → <c>DbQ</c>, which picks the database by
+        /// <c>dbSource</c> and does not consult <c>DBmode</c> or <c>DBsqltPath</c>.
+        /// </remarks>
         public static Dictionary<string, string> ZBids(this IZennoPosterProjectModel project)
         {
             lock (_dbLock)
@@ -55,6 +66,14 @@ namespace z3n7
             }
         }
         
+        /// <summary>
+        /// Stores <c>toDo</c> in the <c>toDo</c> variable and runs <c>{project.Path}/.internal/ZB.zp</c>,
+        /// passing <c>acc0</c>, <c>cfgLog</c>, <c>cfgPin</c>, <c>DBmode</c>, <c>DBpstgrPass</c>,
+        /// <c>DBpstgrUser</c>, <c>DBsqltPath</c>, <c>instancePort</c>, <c>lastQuery</c>, <c>cookies</c>,
+        /// <c>varSessionId</c> and <c>toDo</c> by name.
+        /// </summary>
+        /// <param name="toDo">Command for the helper project.</param>
+        /// <returns>The result of <c>ExecuteProject</c>.</returns>
         public static bool ZB(this IZennoPosterProjectModel project, string toDo)
         {
             var path = Path.Combine(project.Path,".internal","ZB.zp");
@@ -71,8 +90,21 @@ namespace z3n7
         }
     }
     
+        /// <summary>Reading the ZennoBrowser profile database and parsing its profile lists.</summary>
         public static class ZbDbManager
     {
+        /// <summary>
+        /// Reads <c>query</c> columns of the profile whose id is in the <c>zb_id</c> variable. While reading,
+        /// <c>DBmode</c>, <c>DBsqltPath</c> and <c>acc0</c> point at the ZennoBrowser database and profile;
+        /// they are restored afterwards.
+        /// </summary>
+        /// <param name="query">Comma-separated column names.</param>
+        /// <param name="tableName">Table.</param>
+        /// <param name="log">Write the query to the log.</param>
+        /// <remarks>
+        /// The read goes through <c>DbGetLines</c>/<c>DbGet</c> → <c>DbQ</c>, which picks the database by
+        /// <c>dbSource</c> and does not consult <c>DBmode</c> or <c>DBsqltPath</c>.
+        /// </remarks>
         public static string ZBDbGet(this IZennoPosterProjectModel project,string query, string tableName = "ProfileInfos", bool log = false)
         {
             var modeBkp = project.Var("DBmode");   
@@ -104,6 +136,12 @@ namespace z3n7
             return resp;
             
         }
+        /// <summary>
+        /// Maps profile names to ids from a JSON array of ZennoBrowser profiles (<c>Name</c>, <c>Id</c>,
+        /// <c>FolderName</c>); for duplicate names the first wins.
+        /// </summary>
+        /// <param name="json">JSON array of profiles.</param>
+        /// <param name="folder">Only profiles of this folder; empty for all.</param>
         public static Dictionary<string,string> ZBIdDic(this IZennoPosterProjectModel project, string json, string folder = null)
         {
             var array = JArray.Parse(json);
@@ -119,6 +157,9 @@ namespace z3n7
             return nameToId;
         }
         
+        /// <summary>Profile ids of a folder from a JSON array of profiles (see <c>ZBIdDic</c>).</summary>
+        /// <param name="json">JSON array of profiles.</param>
+        /// <param name="folder">Folder name.</param>
         public static List<string> ZBIdList(this IZennoPosterProjectModel project, string json, string folder = "Farm")
         {
             var dic = project.ZBIdDic(json, folder);

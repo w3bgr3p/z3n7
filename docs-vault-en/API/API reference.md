@@ -14,23 +14,23 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[AccountRunner]] | static class |  |
-| [[Disposer]] | class |  |
-| [[InstanceManager]] | class |  |
-| [[ProfileSync]] | class |  |
-| [[ProjectExtensions (Accounts)]] | static class |  |
-| [[PropertyManager]] | static class |  |
+| [[AccountRunner]] | static class | Picking the next account to work on from the database by condition, range priorities and social-account filters. |
+| [[Disposer]] | class | End of an account session: report, save the browser profile, clean up. |
+| [[InstanceManager]] | class | Starts the browser for the current account with its profile, proxy and cookies, and saves and cleans up at the end. |
+| [[ProfileSync]] | class | Saves the ZennoPoster profile, instance settings, cookies and WebGL settings of the current account to database tables and restores them. |
+| [[ProjectExtensions (Accounts)]] | static class | Extension methods on `IZennoPosterProjectModel`: browser start and finish for an account. |
+| [[PropertyManager]] | static class | Copies simple properties of objects to and from database rows (by reflection). |
 
 ## Api
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[Aiio]] | class |  |
-| [[OmniRoute]] | class |  |
-| [[Telegram]] | class |  |
-| [[Webshare]] | class |  |
-| [[ZbDbManager]] | static class |  |
-| [[ZennoBrowser]] | static class |  |
+| [[Aiio]] | class | Client of the io.net intelligence chat API (`api.intelligence.io.solutions`). |
+| [[OmniRoute]] | class | Client of a local OpenAI-compatible router at `http://localhost:20128` (no API key). |
+| [[Telegram]] | class | Sends messages to a Telegram chat topic through the Bot API (`sendMessage` over `NetHttp`). |
+| [[Webshare]] | class | Client of the Webshare proxy API. |
+| [[ZbDbManager]] | static class | Reading the ZennoBrowser profile database and parsing its profile lists. |
+| [[ZennoBrowser]] | static class | ZennoBrowser (ZP8) profiles: their ids and running the helper project `ZB.zp`. |
 
 ## Browser
 
@@ -78,16 +78,16 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[ProcessManager]] | static class |  |
-| [[TaskManager]] | static class |  |
+| [[ProcessManager]] | static class | Keeps the `_processes` table up to date with this machine's ZennoPoster and `zbe1` processes. |
+| [[TaskManager]] | static class | Conversion helpers for ZennoPoster task input settings (internal). |
 
 ## Diagnostic
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[Diagnostic]] | static class |  |
-| [[ProjectExtensions (Diagnostic)]] | static class |  |
-| [[VersionInfo]] | class | Версии окружения узла. |
+| [[Diagnostic]] | static class | Environment information for logs and diagnostics. |
+| [[ProjectExtensions (Diagnostic)]] | static class | Extension methods on `IZennoPosterProjectModel`: debugging aids. |
+| [[VersionInfo]] | class | Versions of the node's environment. |
 
 ## Essentials
 
@@ -127,18 +127,18 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[ListExtensions]] | static class |  |
-| [[ProjectExtensions (MethodExtensions)]] | static class |  |
-| [[StringExtensions]] | static class |  |
+| [[ListExtensions]] | static class | Extension methods on lists. |
+| [[ProjectExtensions (MethodExtensions)]] | static class | Extension methods: dictionaries and ZennoPoster lists. |
+| [[StringExtensions]] | static class | Extension methods on strings: hex, Base64, JSON, ranges, Markdown escaping, JWT, passwords. |
 
 ## Reports
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[Accountant]] | class |  |
-| [[Accountant.HtmlEncoder]] | static class |  |
-| [[ProjectExtensions (Reports)]] | static class |  |
-| [[Reporter]] | class | Отвечает за создание, форматирование и отправку отчетов |
+| [[Accountant]] | class | HTML reports of account balances from the `_native` table, colour-coded by amount. |
+| [[Accountant.HtmlEncoder]] | static class | HTML escaping helpers. |
+| [[ProjectExtensions (Reports)]] | static class | Extension methods on `IZennoPosterProjectModel`: balance reports. |
+| [[Reporter]] | class | Builds run reports (error or success) and sends them to the log, Telegram and the account's database row. |
 
 ## Requests
 
@@ -154,20 +154,20 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[ZpAuth]] | static class | Токен доступа к ZpServer: хранение, выдача, проверка запроса. |
-| [[ZpServer]] | static class | HTTP-сервер внутри ZennoPoster. |
+| [[ZpAuth]] | static class | Access token of `ZpServer`: storing, issuing, checking requests. |
+| [[ZpServer]] | static class | HTTP server inside ZennoPoster that takes commands from an orchestrator directly, without the database. |
 
 ## Tools
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[Extractor]] | static class |  |
-| [[Extractor.SearchHit]] | class |  |
-| [[Helper]] | static class |  |
-| [[Img]] | class |  |
-| [[Otp]] | static class |  |
-| [[Rnd]] | static class |  |
-| [[ZpToCsx]] | static class |  |
+| [[Extractor]] | static class | Reading and writing ZennoPoster project files (.zp) through ProjectMaker's own loader, and searching their actions. |
+| [[Extractor.SearchHit]] | class | One match of `SearchInZp`. |
+| [[Helper]] | static class | Developer aids shown as Windows forms inside ZennoPoster. |
+| [[Img]] | class | SVG rendering. |
+| [[Otp]] | static class | One-time codes. |
+| [[Rnd]] | static class | Random values: strings, nicknames, e-mail addresses, passwords, numbers from project variables, pauses. |
+| [[ZpToCsx]] | static class | Converts a ZennoPoster project (.zp) into a C# script (.csx) outline and builds .zp files from XML. |
 
 ## Traffic
 

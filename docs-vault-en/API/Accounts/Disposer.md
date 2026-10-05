@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Disposer
 
-`class` · namespace `z3n7` · source [Accounts/Disposer.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L11)
+`class` · namespace `z3n7` · source [Accounts/Disposer.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L12)
 
 ```csharp
 public class Disposer
 ```
 
-*No description yet.*
+End of an account session: report, save the browser profile, clean up.
 
 ## Constructors
 
@@ -22,7 +22,13 @@ public class Disposer
 public Disposer(IZennoPosterProjectModel project, Instance instance, Logger log = null)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L21)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L24)
+
+Creates the helper.
+
+| Parameter | Description |
+|---|---|
+| `log` | Logger for progress; `null` logs nothing. |
 
 ## Methods
 
@@ -32,7 +38,16 @@ public Disposer(IZennoPosterProjectModel project, Instance instance, Logger log 
 public string ErrorReport(bool toLog = true, bool toTelegram = false, bool toDb = false, bool screenshot = false)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L58)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L72)
+
+Same as `Reporter.ReportError`.
+
+| Parameter | Description |
+|---|---|
+| `toLog` | Write it to the log. |
+| `toTelegram` | Send it to Telegram. |
+| `toDb` | Write it to the account's row. |
+| `screenshot` | Save a screenshot. |
 
 ### FinishSession
 
@@ -40,7 +55,9 @@ public string ErrorReport(bool toLog = true, bool toTelegram = false, bool toDb 
 public void FinishSession()
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L35)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L44)
+
+Finishes the session. When `acc0` is set, writes a success report (or, when `lastQuery` contains `dropped`, an error report with a screenshot) to the log and the account's row; then saves the profile (`InstanceManager.SaveProfile`), writes the final line to the log and cleans up (`InstanceManager.Cleanup`).
 
 ### SuccessReport
 
@@ -48,6 +65,15 @@ public void FinishSession()
 public string SuccessReport(bool toLog = true, bool toTelegram = false, bool toDb = false, string customMessage = null)
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L63)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L82)
+
+Same as `Reporter.ReportSuccess`.
+
+| Parameter | Description |
+|---|---|
+| `toLog` | Write it to the log. |
+| `toTelegram` | Send it to Telegram. |
+| `toDb` | Write it to the account's row. |
+| `customMessage` | Extra line. |
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

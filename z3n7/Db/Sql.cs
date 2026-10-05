@@ -13,8 +13,11 @@ namespace z3n7
     /// <summary>Kind of database behind an <c>Sql</c> connection.</summary>
     public enum DatabaseType
     {
+        /// <summary>Not SQLite or PostgreSQL.</summary>
         Unknown,
+        /// <summary>SQLite through ODBC.</summary>
         SQLite,
+        /// <summary>PostgreSQL through Npgsql.</summary>
         PostgreSQL
     }
 
@@ -93,6 +96,7 @@ namespace z3n7
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>Closes and disposes the connection once, when <c>disposing</c> is true.</summary>
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed && disposing)

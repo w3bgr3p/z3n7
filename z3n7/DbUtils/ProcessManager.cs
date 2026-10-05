@@ -6,6 +6,10 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.DbUtils
 {
+    /// <summary>
+    /// Keeps the <c>_processes</c> table up to date with this machine's ZennoPoster and <c>zbe1</c>
+    /// processes.
+    /// </summary>
     public static class ProcessManager
     {
         //private static readonly string _processTable =  DbSchema.Process.TableName;
@@ -18,6 +22,8 @@ namespace z3n7.DbUtils
 
         
         
+        /// <summary>Creates the <c>_processes</c> table if it does not exist.</summary>
+        /// <param name="log">Not used.</param>
         public static void EnsureProcessTable(this IZennoPosterProjectModel project, bool log = false)
         {
             project.TblAdd(DbSchema.Process.Columns, DbSchema.Process.Name);
@@ -25,6 +31,14 @@ namespace z3n7.DbUtils
         
         // ── COLLECT ───────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Writes one row per running ZennoPoster and <c>zbe1</c> process of this machine (id
+        /// <c>{pid}|{machine}</c>, name, RAM in MB, uptime in minutes, command line, time) and deletes this
+        /// machine's rows of processes that no longer run.
+        /// PostgreSQL upsert syntax is used when the <c>DBmode</c> variable is <c>PostgreSQL</c>; otherwise
+        /// SQLite's <c>INSERT OR REPLACE</c>.
+        /// </summary>
+        /// <param name="log">Write the queries to the log.</param>
         public static void CollectAndSave(this IZennoPosterProjectModel project, bool log = false)
         {
             var isPg  = project.Var("DBmode") == "PostgreSQL";
@@ -70,6 +84,8 @@ namespace z3n7.DbUtils
 
         // ── READ ──────────────────────────────────────────────────────────────
 
+        /// <summary>Distinct machine names in the <c>_processes</c> table.</summary>
+        /// <param name="log">Write the queries to the log.</param>
         public static List<string> GetAllMachines(this IZennoPosterProjectModel project, bool log = false)
         {
             var db = new Db(project);
@@ -82,6 +98,12 @@ namespace z3n7.DbUtils
 
         // ── KILL BY UPTIME ────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Kills <c>zbe1</c> processes running longer than <c>maxUptimeMinutes</c> and, when any were killed,
+        /// refreshes the table.
+        /// </summary>
+        /// <param name="maxUptimeMinutes">Uptime limit, minutes.</param>
+        /// <param name="log">Write each kill to the log.</param>
         public static void KillByUptime(this IZennoPosterProjectModel project, int maxUptimeMinutes, bool log = false)
         {
             int killed = 0;
@@ -111,6 +133,8 @@ namespace z3n7.DbUtils
 
         // ── ZP PROCESSES ──────────────────────────────────────────────────────
 
+        /// <summary>Running ZennoPoster and <c>zbe1</c> processes of this machine.</summary>
+        /// <returns>Items <c>[name, ramMb, uptimeMinutes, pid]</c>.</returns>
         public static List<string[]> ZennoProcesses()
         {
             var result = new List<string[]>();

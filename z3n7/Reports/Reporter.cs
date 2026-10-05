@@ -11,7 +11,9 @@ using System.Net.Http;
 namespace z3n7
 {
     /// <summary>
-    /// Отвечает за создание, форматирование и отправку отчетов
+    /// Builds run reports (error or success) and sends them to the log, Telegram and the account's database
+    /// row. Telegram credentials come from the <c>_api</c> table, row <c>id = 'tg_logger'</c>
+    /// (<c>apikey</c>, <c>extra</c> = <c>{chat}/{topic}</c>).
     /// </summary>
     public class Reporter
     {
@@ -24,6 +26,7 @@ namespace z3n7
         private readonly int _completionTime;
 
 
+        /// <summary>Creates a reporter; remembers the current time and the session's elapsed seconds.</summary>
         public Reporter(IZennoPosterProjectModel project, Instance instance)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
@@ -37,8 +40,19 @@ namespace z3n7
         #region Public API
 
         /// <summary>
-        /// Создает и отправляет отчет об ошибке
+        /// Reports the project's last error: account, action id and comment, exception type, message, inner
+        /// message, first stack-trace frame and the current URL.
         /// </summary>
+        /// <param name="toLog">Write it to the log as a warning.</param>
+        /// <param name="toTelegram">Send it to Telegram (also stored in <c>failReport</c>).</param>
+        /// <param name="toDb">
+        /// Set <c>status = 'dropped'</c> and write the report to <c>last</c> in the current account's row.
+        /// </param>
+        /// <param name="screenshot">
+        /// Save a screenshot with the report as a watermark to <c>{project.Path}/.failed/{projectName}/</c>,
+        /// scaled to 50%.
+        /// </param>
+        /// <returns>The log text; empty when there is no last error.</returns>
         public string ReportError(bool toLog = true, bool toTelegram = false, bool toDb = true, bool screenshot = false)
         {
             var errorData = ExtractErrorData();
@@ -76,8 +90,14 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Создает и отправляет отчет об успехе
+        /// Reports a successful run: account, the <c>lastQuery</c> variable, an optional message and the
+        /// elapsed time.
         /// </summary>
+        /// <param name="toLog">Write it to the log.</param>
+        /// <param name="toTelegram">Send it to Telegram.</param>
+        /// <param name="toDb">Set <c>status = 'idle'</c> and write the report to <c>last</c> in the current account's row.</param>
+        /// <param name="customMessage">Extra line.</param>
+        /// <returns>The log text.</returns>
         public string ReportSuccess(bool toLog = true, bool toTelegram = false, bool toDb = true, string customMessage = null)
         {
             var successData = ExtractSuccessData(customMessage);
@@ -356,9 +376,7 @@ namespace z3n7
 
         #region Screenshot Processing
 
-        /// <summary>
-        /// Создает скриншот с опциональным watermark
-        /// </summary>
+        /// <summary>Saves a screenshot, optionally with a text watermark, and scales it to 50%.</summary>
         private void CreateScreenshot(string url, string watermark = null)
         {
             if (string.IsNullOrEmpty(url)) return;
@@ -448,9 +466,7 @@ namespace z3n7
             }
         }
 
-        /// <summary>
-        /// Переносит длинный текст на новые строки для watermark
-        /// </summary>
+        /// <summary>Breaks long watermark lines.</summary>
         private string WrapWatermark(string input, int limit)
         {
             if (string.IsNullOrEmpty(input) || limit <= 0) return input;

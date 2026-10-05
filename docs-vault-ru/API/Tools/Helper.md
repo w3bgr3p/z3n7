@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Helper
 
-`static class` · пространство имён `z3n7` · исходник [Tools/Helper.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Helper.cs#L12)
+`static class` · пространство имён `z3n7` · исходник [Tools/Helper.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Helper.cs#L13)
 
 ```csharp
 public static class Helper
 ```
 
-*Описания пока нет.*
+Developer aids shown as Windows forms inside ZennoPoster.
 
 ## Методы
 
@@ -22,6 +22,12 @@ public static class Helper
 public static void Help(this IZennoPosterProjectModel project, string toSearch = null)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Helper.cs#L360)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Helper.cs#L368)
+
+Opens a searchable API browser window. The index is built once per process from the XML documentation files next to the ZennoPoster executable and, by reflection, from the public members of the loaded `ZennoLab*` assemblies. Every search term must match the member's name, type or summary.
+
+| Параметр | Описание |
+|---|---|
+| `toSearch` | Initial search text. |
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

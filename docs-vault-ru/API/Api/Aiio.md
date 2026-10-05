@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Aiio
 
-`class` · пространство имён `z3n7.Api` · исходник [Api/Aiio.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L13)
+`class` · пространство имён `z3n7.Api` · исходник [Api/Aiio.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L18)
 
 ```csharp
 public sealed class Aiio
 ```
 
-*Описания пока нет.*
+Client of the io.net intelligence chat API (`api.intelligence.io.solutions`). API keys come from the `api` column of the `__aiio` table (rows whose `expire` is empty or in the future); a random one is used per request.
 
 ## Конструкторы
 
@@ -22,7 +22,9 @@ public sealed class Aiio
 public Aiio(IZennoPosterProjectModel project)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L23)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L29)
+
+Creates a client; the project gives access to the key table.
 
 ## Методы
 
@@ -32,7 +34,9 @@ public Aiio(IZennoPosterProjectModel project)
 public string Complete(string model, string systemPrompt, string userPrompt, double temperature = 0.8, int maxTokens = 800, int timeoutSec = 90)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L28)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L35)
+
+Blocking version of `CompleteAsync`.
 
 ### CompleteAsync
 
@@ -40,7 +44,20 @@ public string Complete(string model, string systemPrompt, string userPrompt, dou
 public async Task<string> CompleteAsync(string model, string systemPrompt, string userPrompt, double temperature = 0.8, int maxTokens = 800, int timeoutSec = 90)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L41)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L61)
+
+Sends one system and one user message and returns the reply (`top_p` 0.9, no streaming).
+
+| Параметр | Описание |
+|---|---|
+| `model` | Model id; required. |
+| `systemPrompt` | System message. |
+| `userPrompt` | User message. |
+| `temperature` | Sampling temperature. |
+| `maxTokens` | Reply length limit. |
+| `timeoutSec` | Request timeout, seconds. |
+
+**Возвращает:** The reply text. Throws on a non-2xx status or an unexpected answer; the message includes the raw answer.
 
 ### GetModels
 
@@ -48,7 +65,9 @@ public async Task<string> CompleteAsync(string model, string systemPrompt, strin
 public List<string> GetModels()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L80)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L101)
+
+Blocking version of `GetModelsAsync`.
 
 ### GetModelsAsync
 
@@ -56,7 +75,9 @@ public List<string> GetModels()
 public async Task<List<string>> GetModelsAsync()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L85)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L109)
+
+Available model ids, sorted. The list is cached for the process; see `InvalidateModelsCache`.
 
 ### HasKey
 
@@ -64,7 +85,9 @@ public async Task<List<string>> GetModelsAsync()
 public bool HasKey()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L119)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L144)
+
+Whether the key table has at least one valid key.
 
 ### InvalidateModelsCache
 
@@ -72,6 +95,8 @@ public bool HasKey()
 public static void InvalidateModelsCache()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L124)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L150)
+
+Forgets the cached model list.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -6,7 +6,7 @@ generated: z3n7-docgen
 
 # InstanceExtensions (Browser)
 
-`static class` · namespace `z3n7` · source [Browser/Canvas.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L18), [Browser/Cookies.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L675), [Browser/InstanceExtencions.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L14)
+`static class` · namespace `z3n7` · source [Browser/Canvas.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L18), [Browser/Cookies.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L676), [Browser/InstanceExtencions.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L14)
 
 ```csharp
 public static class InstanceExtensions
@@ -288,7 +288,7 @@ Centre `[x, y]` of the page viewport (`window.innerWidth/innerHeight`).
 public static string GetCookies(this Instance instance, IZennoPosterProjectModel project)
 ```
 
-Extension method for `Instance`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L683)
+Extension method for `Instance`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L684)
 
 Collects fresh cookies from 5–15 random popular sites with `CookieCollector` (the profile's user agent and languages, requests sent directly without the instance proxy) and loads them into the instance.
 

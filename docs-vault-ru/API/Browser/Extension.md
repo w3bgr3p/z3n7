@@ -22,7 +22,7 @@ Chrome extension management in a ZennoPoster instance: version, install, enable/
 public Extension(IZennoPosterProjectModel project, Logger log = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L33)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L35)
 
 Creates a helper without an instance; only `GetVer` works.
 
@@ -34,7 +34,7 @@ Creates a helper without an instance; only `GetVer` works.
 public Extension(IZennoPosterProjectModel project, Instance instance, Logger log = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L42)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L44)
 
 Creates a helper for an instance.
 
@@ -50,7 +50,7 @@ Creates a helper for an instance.
 public string GetVer(string extId)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L54)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L56)
 
 Reads an installed extension's version from `{pathProfileFolder}\Default\Secure Preferences`.
 
@@ -66,7 +66,7 @@ Reads an installed extension's version from `{pathProfileFolder}\Default\Secure 
 public bool InstallFromCrx(string extId, string fileName, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L144)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L146)
 
 Installs a CRX file unless an extension with this id is already installed.
 
@@ -84,7 +84,7 @@ Installs a CRX file unless an extension with this id is already installed.
 public bool InstallFromStore(string url, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L97)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L99)
 
 Opens the Chrome Web Store page and installs the extension, confirming the dialog with keystrokes. When it is already installed, clicks "Enable now" if shown.
 
@@ -101,7 +101,7 @@ Opens the Chrome Web Store page and installs the extension, confirming the dialo
 public void Rm(string[] ExtToRemove)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L250)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L252)
 
 Uninstalls the extensions; failures are logged and skipped.
 
@@ -115,7 +115,7 @@ Uninstalls the extensions; failures are logged and skipped.
 public bool Switch(string toUse = "", bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L178)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L180)
 
 Enables the listed extensions and disables all others through the One-Click Extensions Manager page (installed first if missing). Mouse emulation is restored afterwards. Works for Chromium (manager from CRX) and ChromiumFromZB (manager from the Web Store) instances.
 

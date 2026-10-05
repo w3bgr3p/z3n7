@@ -8,10 +8,15 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Random values: strings, nicknames, e-mail addresses, passwords, numbers from project variables,
+    /// pauses.
+    /// </summary>
     public static class Rnd
     {
         private static Random random = new Random();
         
+        /// <summary>Random lowercase hex string of <c>length</c> digits, prefixed with <c>0x</c>.</summary>
         public static string RndHexString(int length)
         {
             const string chars = "0123456789abcdef";
@@ -23,6 +28,7 @@ namespace z3n7
             }
             return "0x" + new string(result);
         }
+        /// <summary>Random string of Latin letters and digits.</summary>
         public static string RndString(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -30,6 +36,12 @@ namespace z3n7
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+        /// <summary>
+        /// Random nickname built from word lists (adjective, noun, suffix, numbers, separators), up to 100
+        /// tries to fit the length.
+        /// </summary>
+        /// <param name="min">Shortest length.</param>
+        /// <param name="max">Longest length.</param>
         public static string RndNickname(int min = 8, int max = 16)
         {
             string[] adjectives = {
@@ -175,6 +187,13 @@ namespace z3n7
             }
             return fallback.Substring(0, Math.Min(fallback.Length, max));
         }
+        /// <summary>
+        /// Takes <c>percent</c>% of <c>input</c> and reduces it by a random 0…<c>maxPercent</c>%. A result that
+        /// is not positive is replaced by a tiny positive value.
+        /// </summary>
+        /// <param name="input">Base amount.</param>
+        /// <param name="percent">Share to take, 0–100.</param>
+        /// <param name="maxPercent">Largest random reduction, 0–100.</param>
         public static double RndPercent(decimal input, double percent, double maxPercent)
         {
             if (percent < 0 || maxPercent < 0 || percent > 100 || maxPercent > 100)
@@ -198,6 +217,11 @@ namespace z3n7
 
             return result;
         }
+        /// <summary>
+        /// Reads a project variable as a decimal; a value like <c>0.1-0.5</c> gives a random number in that
+        /// range.
+        /// </summary>
+        /// <param name="Var">Variable name.</param>
         public static decimal RndDecimal(this IZennoPosterProjectModel project, string Var)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
@@ -221,6 +245,12 @@ namespace z3n7
             }
             return decimal.Parse(value.Trim());
         }
+        /// <summary>Reads a project variable as an integer.</summary>
+        /// <param name="Var">Variable name.</param>
+        /// <remarks>
+        /// A <c>min-max</c> value is not supported: the random result is discarded and parsing the text then
+        /// throws.
+        /// </remarks>
         public static int RndInt(this IZennoPosterProjectModel project, string Var)
         {
             string value = string.Empty;
@@ -242,10 +272,16 @@ namespace z3n7
             }
             return int.Parse(value.Trim());
         }
+        /// <summary><c>true</c> with the given probability, in percent.</summary>
         public static bool RndBool(this int truePercent)
         {
             return random.NextDouble() * 100 < truePercent;
         }
+        /// <summary>Random file from a folder and its subfolders.</summary>
+        /// <param name="directoryPath">Folder.</param>
+        /// <param name="extension">Only files with this extension; empty for all.</param>
+        /// <returns>The path, or <c>null</c> when there are no files.</returns>
+        /// <remarks>On an error (e.g. a missing folder) the search is retried without end.</remarks>
         public static string RndFile(string directoryPath, string extension = null)
         {
             readrandom:
@@ -300,6 +336,12 @@ namespace z3n7
             "rediffmail.com", "indiatimes.com", "mail.ee", "email.it"
         };
         
+        /// <summary>
+        /// Random e-mail address: a random local part of letters and digits at a popular mail domain.
+        /// </summary>
+        /// <param name="minLength">Shortest local part.</param>
+        /// <param name="maxLength">Longest local part.</param>
+        /// <param name="domain">Domain; random when <c>null</c>.</param>
         public static string RndMail(int minLength = 5, int maxLength = 10, string domain = null)
         {
             string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -314,6 +356,7 @@ namespace z3n7
             return mail + "@" + domain;
         }
         
+        /// <summary>Random English month name.</summary>
         public static string RndMonth()
         {
             var months = new[]
@@ -328,6 +371,14 @@ namespace z3n7
 
         }
         
+        /// <summary>
+        /// Random password with at least one lowercase letter and digit, plus the selected groups. Passwords
+        /// with three sequential characters (abc, 321, ZYX) are rejected and generated again.
+        /// </summary>
+        /// <param name="minLength">Shortest length.</param>
+        /// <param name="maxLength">Longest length.</param>
+        /// <param name="upperCase">Include uppercase letters.</param>
+        /// <param name="symbols">Include <c>!@#$%?&amp;</c>.</param>
         public static string RndPass(int minLength = 10, int maxLength = 14, bool upperCase = true, bool symbols = true)
         {
             string lower = "abcdefghijklmnopqrstuvwxyz";
@@ -416,6 +467,9 @@ namespace z3n7
             return false;
         }
 
+        /// <summary>Sets random profile data.</summary>
+        /// <param name="email">Set <c>project.Profile.Email</c> to <c>RndMail()</c>.</param>
+        /// <param name="password">Set <c>project.Profile.Password</c> to <c>RndPass()</c>.</param>
         public static void RndProfileData(this IZennoPosterProjectModel project, bool email = true, bool password = true)
         {
             if (password)
@@ -424,6 +478,9 @@ namespace z3n7
                 project.Profile.Email = RndMail();
         }
 
+        /// <summary>Sleeps for a random time.</summary>
+        /// <param name="min">Shortest pause, ms.</param>
+        /// <param name="max">Upper bound of the pause, ms (exclusive).</param>
         public static void Delay(int min = 1008, int max = 1337)
         {
             Thread.Sleep(random.Next(min, max));  

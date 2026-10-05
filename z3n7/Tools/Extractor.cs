@@ -8,11 +8,19 @@ using System.Xml.Linq;
 
 namespace z3n7.Tools
 {
+    /// <summary>
+    /// Reading and writing ZennoPoster project files (.zp) through ProjectMaker's own loader, and searching
+    /// their actions. Works only inside ProjectMaker: it uses the ProjectMaker assembly loaded in the
+    /// process and does nothing elsewhere.
+    /// </summary>
     public static class Extractor
     {
         private const string InputSettingsHtmlEntry = "InputSettings/inputSettings.html";
         private static readonly Regex RxXmlDecl = new Regex(@"<\?xml[^?]*\?>", RegexOptions.Compiled);
         
+        /// <summary>Unpacks the project XML of a .zp file.</summary>
+        /// <param name="zpPath">Project file.</param>
+        /// <returns>The XML; the loader's exception text when it fails; <c>null</c> outside ProjectMaker.</returns>
         public static string ExtractXml(string zpPath)
         {
             foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
@@ -35,6 +43,8 @@ namespace z3n7.Tools
             return null;
         }
 
+        /// <summary>Unpacks the current project to XML (UTF-16).</summary>
+        /// <param name="xmlPath">Target file; default is the project file name with <c>.xml</c>.</param>
         public static void SaveAsXml(this IZennoPosterProjectModel project, string xmlPath = null)
         {
             var xml = ExtractXml(project.Path + project.Name);
@@ -43,6 +53,8 @@ namespace z3n7.Tools
             File.WriteAllText(xmlPath, xml, Encoding.Unicode);
             project.SendInfoToLog($"saved as {xmlPath}");
         }
+        /// <summary>Reads the input settings HTML (<c>InputSettings/inputSettings.html</c>) of a .zp file.</summary>
+        /// <returns>The HTML without BOM; <c>null</c> outside ProjectMaker.</returns>
         public static string ExtractInputSettingsHtml(string zpPath)
         {
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
@@ -66,11 +78,19 @@ namespace z3n7.Tools
             return null;
         }
 
+        /// <summary>Replaces the input settings HTML inside the .zp file itself.</summary>
         public static void SaveInputSettingsHtml(string zpPath, string html)
         {
             SaveInputSettingsHtml(zpPath, html, zpPath);
         }
 
+        /// <summary>
+        /// Writes a copy of the .zp file with the input settings HTML replaced. When the output is the source
+        /// file, it is written through a temporary file.
+        /// </summary>
+        /// <param name="zpPath">Source project.</param>
+        /// <param name="html">New input settings HTML.</param>
+        /// <param name="outputZpPath">Target project file.</param>
         public static void SaveInputSettingsHtml(string zpPath, string html, string outputZpPath)
         {
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
@@ -118,6 +138,11 @@ namespace z3n7.Tools
             }
         }
 
+        /// <summary>Builds a .zp file from project XML, using the current project file as the container.</summary>
+        /// <param name="xml">Project XML; default is the current project's <c>.xml</c> next to it.</param>
+        /// <param name="zpPath">
+        /// Target file; default is the project name with a Unix-ms suffix, e.g. <c>name.1730000000000.zp</c>.
+        /// </param>
         public static void BuildZpFromXml(this IZennoPosterProjectModel project,string xml = null, string zpPath= null)
         {
             var sourceZpPath = Path.Combine(project.Path, project.Name);
@@ -186,14 +211,35 @@ namespace z3n7.Tools
 
         // ── Search ────────────────────────────────────────────────────────────
 
+        /// <summary>One match of <c>SearchInZp</c>.</summary>
         public class SearchHit
         {
+            /// <summary>Project file.</summary>
             public string ZpPath;
+            /// <summary>Id of the action (step) containing the match.</summary>
             public string StepId;
+            /// <summary>The match with surrounding text; line breaks collapsed to spaces.</summary>
             public string Context;
+            /// <summary><c>ZpPath</c>, <c>StepId</c> and <c>Context</c>, tab-separated.</summary>
             public override string ToString() => $"{ZpPath}\t{StepId}\t{Context}";
         }
 
+        /// <summary>
+        /// Finds text in the actions of every .zp file in a folder (case-insensitive, in attributes and values;
+        /// XML entities are decoded for matching). One hit per action; each hit is also written to the log.
+        /// Unpacking takes about a second per file, so unpacked XML can be cached in a hidden <c>.xml</c>
+        /// folder; the cache file name holds the project's modification time and size, so a changed project is
+        /// re-read automatically.
+        /// </summary>
+        /// <param name="text">Text to find.</param>
+        /// <param name="folder">Folder; default is the project folder.</param>
+        /// <param name="recursive">Include subfolders.</param>
+        /// <param name="cache">Use the XML cache.</param>
+        /// <param name="padding">Characters of context on each side.</param>
+        /// <remarks>
+        /// Works only inside ProjectMaker: it uses the ProjectMaker assembly loaded in the process and does
+        /// nothing elsewhere.
+        /// </remarks>
         public static List<SearchHit> SearchInZp(this IZennoPosterProjectModel project, string text, string folder = null, bool recursive = true, bool cache = true, int padding = 60)
         {
             folder = folder ?? project.Path;

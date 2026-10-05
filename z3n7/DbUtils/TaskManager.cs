@@ -12,6 +12,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.DbUtils
 {
+    /// <summary>Conversion helpers for ZennoPoster task input settings (internal).</summary>
     public static class TaskManager
     {
         internal static (string xmlB64, string jsonB64) XmlToPayload(string xml)

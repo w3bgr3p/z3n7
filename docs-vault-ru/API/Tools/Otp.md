@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Otp
 
-`static class` · пространство имён `z3n7.Tools` · исходник [Tools/Otp.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Otp.cs#L7)
+`static class` · пространство имён `z3n7.Tools` · исходник [Tools/Otp.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Otp.cs#L8)
 
 ```csharp
 public static class Otp
 ```
 
-*Описания пока нет.*
+One-time codes.
 
 ## Методы
 
@@ -22,7 +22,13 @@ public static class Otp
 public static string FirstMail(IZennoPosterProjectModel project, string email)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Otp.cs#L27)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Otp.cs#L39)
+
+Code from the latest FirstMail message sent to `email` (see `z3n7.FirstMail.GetOTP`).
+
+| Параметр | Описание |
+|---|---|
+| `email` | Original recipient the message was sent to. |
 
 ### Offline
 
@@ -30,6 +36,15 @@ public static string FirstMail(IZennoPosterProjectModel project, string email)
 public static string Offline(string keyString, int waitIfTimeLess = 5)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Otp.cs#L9)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Otp.cs#L17)
+
+Computes the current TOTP code from a Base32 secret. When the code expires within `waitIfTimeLess` seconds, waits for the next one.
+
+| Параметр | Описание |
+|---|---|
+| `keyString` | Base32 secret. |
+| `waitIfTimeLess` | Seconds of validity below which the next code is awaited. |
+
+**Возвращает:** The code. Throws for an empty secret.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

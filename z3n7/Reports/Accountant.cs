@@ -10,6 +10,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.Utilities
 {
+    /// <summary>HTML reports of account balances from the <c>_native</c> table, colour-coded by amount.</summary>
     public class Accountant
     {
         
@@ -40,6 +41,8 @@ namespace z3n7.Utilities
 
         #region Constructor
         
+        /// <summary>Creates the report builder.</summary>
+        /// <param name="log">Not used.</param>
         public Accountant(IZennoPosterProjectModel project, Logger log = null)
         {
             _project = project;
@@ -51,6 +54,14 @@ namespace z3n7.Utilities
         #region Public Methods
 
 
+        /// <summary>
+        /// Writes a balance table of accounts up to <c>rangeEnd</c> to
+        /// <c>{project.Path}/.data/balanceReport.html</c>. Up to 3 columns and 100+ rows are laid out as
+        /// several 50-row blocks side by side. The <c>{project.Path}/.data</c> folder must exist.
+        /// </summary>
+        /// <param name="chains">Comma-separated columns of <c>_native</c>; default all.</param>
+        /// <param name="single">Always use one table.</param>
+        /// <param name="call">Open the file with the default program afterwards.</param>
         public void ShowBalanceTable(string chains = null, bool single = false, bool call = false)
         {
             var columns = string.IsNullOrEmpty(chains) 
@@ -95,6 +106,12 @@ namespace z3n7.Utilities
             if (call) System.Diagnostics.Process.Start(tempPath);
         }
 
+        /// <summary>
+        /// Writes a heatmap of balances per account and chain to
+        /// <c>{project.Path}/.data/balanceHeatmap.html</c>. The <c>{project.Path}/.data</c> folder must exist.
+        /// </summary>
+        /// <param name="chains">Comma-separated columns of <c>_native</c>; default all except <c>id</c>.</param>
+        /// <param name="call">Open the file with the default program afterwards.</param>
         public void ShowBalanceTableHeatmap(string chains = null, bool call = false)
         {
             var columns = string.IsNullOrEmpty(chains) 
@@ -179,6 +196,13 @@ namespace z3n7.Utilities
         }
 
 
+        /// <summary>
+        /// Writes a balance table from <c>account:balance</c> lines to
+        /// <c>{project.Path}/.data/balanceListReport.html</c>; other lines are skipped. The
+        /// <c>{project.Path}/.data</c> folder must exist.
+        /// </summary>
+        /// <param name="data">Lines <c>account:balance</c>.</param>
+        /// <param name="call">Open the file with the default program afterwards.</param>
         public void ShowBalanceTableFromList(List<string> data, bool call = false)
         {
             string html = GenerateBalanceHtmlFromList(data);
@@ -192,8 +216,10 @@ namespace z3n7.Utilities
 
         #region Private Methods - HTML Generation
 
+        /// <summary>HTML escaping helpers.</summary>
         public static class HtmlEncoder
         {
+            /// <summary>Escapes <c>&amp; &lt; &gt; " '</c> for HTML text.</summary>
             public static string HtmlEncode(string text)
             {
                 if (string.IsNullOrEmpty(text))
@@ -207,6 +233,7 @@ namespace z3n7.Utilities
                     .Replace("'", "&#39;");
             }
 
+            /// <summary>Escapes <c>&amp; " ' &lt; &gt;</c> for HTML attribute values.</summary>
             public static string HtmlAttributeEncode(string text)
             {
                 if (string.IsNullOrEmpty(text))
@@ -1457,8 +1484,15 @@ namespace z3n7.Utilities
   }
   namespace z3n7
   {
+      /// <summary>Extension methods on <c>IZennoPosterProjectModel</c>: balance reports.</summary>
       public static partial class ProjectExtensions
       {
+          /// <summary>
+          /// Writes the balance table of the given chains (<c>Accountant.ShowBalanceTable</c> with <c>id</c>
+          /// added).
+          /// </summary>
+          /// <param name="chains">Comma-separated columns of <c>_native</c>.</param>
+          /// <param name="call">Open the file with the default program afterwards.</param>
           public static void GenerateNative(this IZennoPosterProjectModel project, string chains, bool call = false)
           {
               new Utilities.Accountant(project).ShowBalanceTable("id," + chains, call:call);

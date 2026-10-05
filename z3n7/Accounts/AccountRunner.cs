@@ -9,6 +9,10 @@ using ZennoLab.InterfacesLibrary.Enums.Log;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Picking the next account to work on from the database by condition, range priorities and
+    /// social-account filters.
+    /// </summary>
     public static class AccountRunner
     {
         private static List<string> ParseRangeGroups(IZennoPosterProjectModel project, string cfgAccRange)
@@ -173,6 +177,30 @@ namespace z3n7
             project.warn($"No accounts found by condition\n{condition.Replace("\n", " ")} in range {project.Var("cfgAccRange")}");
         }
 
+        /// <summary>
+        /// Picks an account and stores it in <c>acc0</c>; the candidates stay in the <c>accs</c> list and its
+        /// row gets <c>status = 'working...'</c>.
+        /// When <c>acc0Forced</c> is set, it is used as is. When <c>acc0</c> is already set, the candidate
+        /// search is skipped. Throws when no account matches.
+        /// </summary>
+        /// <param name="condition">
+        /// SQL condition on the account table. The word <c>NOW</c> is replaced by the current time as
+        /// <c>yyyy-MM-ddTHH:mm:ss</c> when <c>sqlNow</c> is true.
+        /// </param>
+        /// <param name="useRange">
+        /// Limit to <c>cfgAccRange</c>. Groups separated by <c>:</c> are priorities: the first group with
+        /// matching accounts is used.
+        /// </param>
+        /// <param name="filterTwitter">Keep only accounts whose row in the <c>_twitter</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="filterDiscord">Keep only accounts whose row in the <c>_discord</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="filterGithub">Keep only accounts whose row in the <c>_github</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="tableName">Account table; default <c>__</c> + project name.</param>
+        /// <param name="debugLog">Write the queries to the log.</param>
+        /// <param name="sqlNow">Replace <c>NOW</c> in the condition.</param>
+        /// <param name="sortByTaskAge">
+        /// Column with ISO timestamps: take the account with the oldest value (empty first). When empty, a
+        /// random account is taken.
+        /// </param>
         public static void ChooseAccountByCondition(this IZennoPosterProjectModel project,
             string condition,
             string sortByTaskAge = null,
@@ -215,6 +243,21 @@ namespace z3n7
             project.SendToLog($"Account selected: acc={acc0}, remaining={left}, condition={condition}, range={project.Var("cfgAccRange")}", LogType.Info, true, LogColor.Gray);
         }
 
+        /// <summary>
+        /// Like the single-condition overload, but takes the accounts that match every condition in its own
+        /// table (intersection).
+        /// </summary>
+        /// <param name="conditionsByTable">Condition → table.</param>
+        /// <param name="sortByTaskAge">When set, the first remaining account is taken instead of a random one; no sorting is done.</param>
+        /// <param name="useRange">
+        /// Limit to <c>cfgAccRange</c>. Groups separated by <c>:</c> are priorities: the first group with
+        /// matching accounts is used.
+        /// </param>
+        /// <param name="filterTwitter">Keep only accounts whose row in the <c>_twitter</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="filterDiscord">Keep only accounts whose row in the <c>_discord</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="filterGithub">Keep only accounts whose row in the <c>_github</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="debugLog">Write the queries to the log; also makes an empty intersection throw.</param>
+        /// <param name="sqlNow">Replace <c>NOW</c> in the conditions.</param>
         public static void ChooseAccountByCondition(this IZennoPosterProjectModel project,
             Dictionary<string, string> conditionsByTable,
             string sortByTaskAge = null,
@@ -355,6 +398,34 @@ namespace z3n7
             project.SendToLog($"Account selected: acc={acc0}, remaining={left}, conditions={conditionsLog}, range={project.Var("cfgAccRange")}", LogType.Info, true, LogColor.Gray);
         }
 
+        /// <summary>
+        /// Picks an account (<c>ChooseAccountByCondition</c>) and starts the browser for it
+        /// (<c>RunBrowser</c>). When the browser cannot be started in the profile folder, the next account is
+        /// tried; any other error is thrown.
+        /// </summary>
+        /// <param name="condition">
+        /// SQL condition on the account table. The word <c>NOW</c> is replaced by the current time as
+        /// <c>yyyy-MM-ddTHH:mm:ss</c> when <c>sqlNow</c> is true.
+        /// </param>
+        /// <param name="useRange">
+        /// Limit to <c>cfgAccRange</c>. Groups separated by <c>:</c> are priorities: the first group with
+        /// matching accounts is used.
+        /// </param>
+        /// <param name="filterTwitter">Keep only accounts whose row in the <c>_twitter</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="filterDiscord">Keep only accounts whose row in the <c>_discord</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="filterGithub">Keep only accounts whose row in the <c>_github</c> table has <c>status = 'ok'</c>.</param>
+        /// <param name="tableName">Account table; default <c>__</c> + project name.</param>
+        /// <param name="debugLog">Write the queries to the log.</param>
+        /// <param name="sqlNow">Replace <c>NOW</c> in the condition.</param>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="browser">Start Chromium; otherwise run without a browser.</param>
+        /// <param name="sortByTaskAge">
+        /// Column with ISO timestamps: take the account with the oldest value (empty first). When empty, a
+        /// random account is taken.
+        /// </param>
+        /// <param name="useLegacy">Passed to <c>RunBrowser</c>.</param>
+        /// <param name="useZpprofile">Passed to <c>RunBrowser</c>.</param>
+        /// <param name="useFolder">Passed to <c>RunBrowser</c>.</param>
         public static void ChooseAndRunByCondition(this IZennoPosterProjectModel project,Instance instance, 
             string condition, 
             bool browser = false,
@@ -399,6 +470,23 @@ namespace z3n7
 
         }
         
+       /// <summary>
+       /// Counts the accounts matching the condition over all range groups, after the social filters.
+       /// </summary>
+       /// <param name="condition">
+       /// SQL condition on the account table. The word <c>NOW</c> is replaced by the current time as
+       /// <c>yyyy-MM-ddTHH:mm:ss</c> when <c>sqlNow</c> is true.
+       /// </param>
+       /// <param name="useRange">
+       /// Limit to <c>cfgAccRange</c>. Groups separated by <c>:</c> are priorities: the first group with
+       /// matching accounts is used.
+       /// </param>
+       /// <param name="filterTwitter">Keep only accounts whose row in the <c>_twitter</c> table has <c>status = 'ok'</c>.</param>
+       /// <param name="filterDiscord">Keep only accounts whose row in the <c>_discord</c> table has <c>status = 'ok'</c>.</param>
+       /// <param name="filterGithub">Keep only accounts whose row in the <c>_github</c> table has <c>status = 'ok'</c>.</param>
+       /// <param name="tableName">Account table; default <c>__</c> + project name.</param>
+       /// <param name="debugLog">Write the queries to the log.</param>
+       /// <param name="sqlNow">Replace <c>NOW</c> in the condition.</param>
        public static int QuantityByCondition(this IZennoPosterProjectModel project,
             string condition,
             bool useRange = true,

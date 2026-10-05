@@ -556,7 +556,8 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Проверка соответствия домена
+        /// Whether a cookie domain matches the target domain: equal ignoring a leading dot, or, for a cookie
+        /// domain with a leading dot, the target is its subdomain.
         /// </summary>
         private static bool IsDomainMatch(string cookieDomain, string targetDomain)
         {

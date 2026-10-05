@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # VersionInfo
 
-`class` · пространство имён `z3n7` · исходник [Diagnostic/Diagnostic.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L148)
+`class` · пространство имён `z3n7` · исходник [Diagnostic/Diagnostic.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L165)
 
 ```csharp
 public sealed class VersionInfo
 ```
 
-Версии окружения узла. Пустая строка — значение не прочиталось.
+Versions of the node's environment. An empty string means the value could not be read.
 
 ## Свойства
 
@@ -22,7 +22,9 @@ public sealed class VersionInfo
 public string framework { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L154)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L176)
+
+.NET runtime description.
 
 ### machine
 
@@ -30,7 +32,9 @@ public string framework { get; set; }
 public string machine { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L155)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L178)
+
+Machine name.
 
 ### process
 
@@ -38,7 +42,9 @@ public string machine { get; set; }
 public string process { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L153)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L174)
+
+File name of the host process.
 
 ### product
 
@@ -46,7 +52,9 @@ public string process { get; set; }
 public string product { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L152)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L172)
+
+Product name of the host process.
 
 ### z3n7
 
@@ -54,7 +62,9 @@ public string product { get; set; }
 public string z3n7 { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L150)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L168)
+
+Version of `z3n7.dll`.
 
 ### zennoposter
 
@@ -62,6 +72,8 @@ public string z3n7 { get; set; }
 public string zennoposter { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L151)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L170)
+
+Product version of the host process (ZennoPoster).
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

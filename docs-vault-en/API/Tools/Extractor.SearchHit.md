@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Extractor.SearchHit
 
-`class` · namespace `z3n7.Tools` · source [Tools/Extractor.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L189)
+`class` · namespace `z3n7.Tools` · source [Tools/Extractor.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L215)
 
 ```csharp
 public class SearchHit
 ```
 
-*No description yet.*
+One match of `SearchInZp`.
 
 ## Methods
 
@@ -22,7 +22,9 @@ public class SearchHit
 public override string ToString()
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L194)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L224)
+
+`ZpPath`, `StepId` and `Context`, tab-separated.
 
 ## Fields
 
@@ -32,7 +34,9 @@ public override string ToString()
 public string Context;
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L193)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L222)
+
+The match with surrounding text; line breaks collapsed to spaces.
 
 ### StepId
 
@@ -40,7 +44,9 @@ public string Context;
 public string StepId;
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L192)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L220)
+
+Id of the action (step) containing the match.
 
 ### ZpPath
 
@@ -48,6 +54,8 @@ public string StepId;
 public string ZpPath;
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L191)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L218)
+
+Project file.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

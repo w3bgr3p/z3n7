@@ -7,6 +7,12 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Sends messages to a Telegram chat topic through the Bot API (<c>sendMessage</c> over
+    /// <c>NetHttp</c>).
+    /// Missing token, chat and topic are read from the <c>_api</c> table, row <c>id = 'tg_logger'</c>:
+    /// <c>apikey</c> and <c>extra</c> = <c>{chat}/{topic}</c>.
+    /// </summary>
     public class Telegram
     {
         private readonly IZennoPosterProjectModel _project;
@@ -16,6 +22,14 @@ namespace z3n7
         private string _topic;
         private readonly NetHttp _http;
 
+        /// <summary>Creates a client.</summary>
+        /// <param name="log">
+        /// Logger for progress. <c>SendMarkdown</c>, <c>SendCommitsSummary</c> and splitting in
+        /// <c>SendLongMessage</c> call it without a null check.
+        /// </param>
+        /// <param name="token">Bot token.</param>
+        /// <param name="group">Chat id.</param>
+        /// <param name="topic">Message id of the topic to reply to.</param>
         public Telegram(IZennoPosterProjectModel project, Logger log = null, string token = null, string group = null, string topic = null)
         {
             _project = project;
@@ -56,6 +70,10 @@ namespace z3n7
             return null;
         }
 
+        /// <summary>
+        /// Sends the <c>failReport</c> variable as a MarkdownV2 message when it is set; otherwise a success
+        /// line with the project name and <c>acc0</c> as hashtags.
+        /// </summary>
         public void Report()
         {
             string time = _project.ExecuteMacro(DateTime.Now.ToString("MM-dd HH:mm"));
@@ -78,6 +96,16 @@ namespace z3n7
             string toLog = $"✔️ All jobs done. Elapsed: {_project.TimeElapsed()}s \n███ ██ ██  ██ █  █  █  ▓▓▓ ▓▓ ▓▓  ▓  ▓  ▓  ▒▒▒ ▒▒ ▒▒ ▒  ▒  ░░░ ░░  ░░ ░ ░ ░ ░ ░ ░  ░  ░  ░   ░   ░   ░    ░    ░    ░     ░        ░          ░";
         }
 
+        /// <summary>Sends a message with Markdown parsing.</summary>
+        /// <param name="message">Text.</param>
+        /// <param name="useMarkdownV2">Use MarkdownV2 instead of Markdown.</param>
+        /// <param name="disableWebPagePreview">Disable link previews.</param>
+        /// <param name="replyToTopic">Post into the topic.</param>
+        /// <param name="log">Not used.</param>
+        /// <returns>
+        /// The link <c>https://t.me/c/{chat}/{messageId}</c> on success; otherwise the Telegram answer or <c>❌
+        /// Exception: …</c>.
+        /// </returns>
         public string SendMarkdown(string message, bool useMarkdownV2 = false, bool disableWebPagePreview = true, bool replyToTopic = true, bool log = false)
         {
             _log.Send($"Sending markdown message (length: {message.Length})");
@@ -120,6 +148,12 @@ namespace z3n7
             }
         }
 
+        /// <summary>
+        /// Sends a text summary as plain text: drops a leading <c>---</c> block and replaces <c>## </c> and
+        /// <c># </c> headings with emoji markers.
+        /// </summary>
+        /// <param name="summary">Text.</param>
+        /// <param name="log">Not used.</param>
         public string SendCommitsSummary(string summary, bool log = false)
         {
             _log.Send("Sending commits summary");
@@ -146,6 +180,14 @@ namespace z3n7
             return summary;
         }
 
+        /// <summary>
+        /// Sends a message, split into parts of up to 4000 characters at paragraph or line boundaries; stops at
+        /// the first failed part.
+        /// </summary>
+        /// <param name="message">Text.</param>
+        /// <param name="useMarkdown">Send with Markdown parsing.</param>
+        /// <param name="log">Not used.</param>
+        /// <returns>Comma-separated links of the parts, or the error of the failed part.</returns>
         public string SendLongMessage(string message, bool useMarkdown = false, bool log = false)
         {
             const int maxLength = 4000;

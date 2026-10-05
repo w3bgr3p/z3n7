@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # ProcessManager
 
-`static class` · пространство имён `z3n7.DbUtils` · исходник [DbUtils/ProcessManager.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L9)
+`static class` · пространство имён `z3n7.DbUtils` · исходник [DbUtils/ProcessManager.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L13)
 
 ```csharp
 public static class ProcessManager
 ```
 
-*Описания пока нет.*
+Keeps the `_processes` table up to date with this machine's ZennoPoster and `zbe1` processes.
 
 ## Методы
 
@@ -22,7 +22,13 @@ public static class ProcessManager
 public static void CollectAndSave(this IZennoPosterProjectModel project, bool log = false)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L28)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L42)
+
+Writes one row per running ZennoPoster and `zbe1` process of this machine (id `{pid}|{machine}`, name, RAM in MB, uptime in minutes, command line, time) and deletes this machine's rows of processes that no longer run. PostgreSQL upsert syntax is used when the `DBmode` variable is `PostgreSQL`; otherwise SQLite's `INSERT OR REPLACE`.
+
+| Параметр | Описание |
+|---|---|
+| `log` | Write the queries to the log. |
 
 ### EnsureProcessTable
 
@@ -30,7 +36,13 @@ public static void CollectAndSave(this IZennoPosterProjectModel project, bool lo
 public static void EnsureProcessTable(this IZennoPosterProjectModel project, bool log = false)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L21)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L27)
+
+Creates the `_processes` table if it does not exist.
+
+| Параметр | Описание |
+|---|---|
+| `log` | Not used. |
 
 ### GetAllMachines
 
@@ -38,7 +50,13 @@ public static void EnsureProcessTable(this IZennoPosterProjectModel project, boo
 public static List<string> GetAllMachines(this IZennoPosterProjectModel project, bool log = false)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L73)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L89)
+
+Distinct machine names in the `_processes` table.
+
+| Параметр | Описание |
+|---|---|
+| `log` | Write the queries to the log. |
 
 ### KillByUptime
 
@@ -46,7 +64,14 @@ public static List<string> GetAllMachines(this IZennoPosterProjectModel project,
 public static void KillByUptime(this IZennoPosterProjectModel project, int maxUptimeMinutes, bool log = false)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L85)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L107)
+
+Kills `zbe1` processes running longer than `maxUptimeMinutes` and, when any were killed, refreshes the table.
+
+| Параметр | Описание |
+|---|---|
+| `maxUptimeMinutes` | Uptime limit, minutes. |
+| `log` | Write each kill to the log. |
 
 ### ZennoProcesses
 
@@ -54,6 +79,10 @@ public static void KillByUptime(this IZennoPosterProjectModel project, int maxUp
 public static List<string[]> ZennoProcesses()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L114)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L138)
+
+Running ZennoPoster and `zbe1` processes of this machine.
+
+**Возвращает:** Items `[name, ramMb, uptimeMinutes, pid]`.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

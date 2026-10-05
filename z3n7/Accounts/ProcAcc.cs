@@ -15,8 +15,9 @@ using System.Text.RegularExpressions;
 
 namespace z3n7.Utilities
 {
-/// <summary>
-    /// Управление связями между процессами (PID) и аккаунтами (ACC)
+    /// <summary>
+    /// Links <c>zbe1</c> browser processes (PID) to accounts. The account is the last folder of the
+    /// process's <c>--user-data-dir</c>; <c>acc</c>/<c>ACC</c> prefixes are ignored when comparing.
     /// </summary>
     internal static class ProcAcc
     {
@@ -28,9 +29,7 @@ namespace z3n7.Utilities
         
         // ============== ОСНОВНЫЕ МЕТОДЫ ==============
         
-        /// <summary>
-        /// Получить все связи PID → ACC (с кешированием)
-        /// </summary>
+        /// <summary>All PID → account links, cached for 2 seconds.</summary>
         private static Dictionary<int, string> GetAllPidAcc(bool forceRefresh = false)
         {
             lock (_cacheLock)
@@ -48,9 +47,7 @@ namespace z3n7.Utilities
             }
         }
         
-        /// <summary>
-        /// Получить все PID для аккаунта
-        /// </summary>
+        /// <summary>All PIDs of an account.</summary>
         private static List<int> GetPids(string acc)
         {
             if (string.IsNullOrEmpty(acc)) return new List<int>();
@@ -64,9 +61,7 @@ namespace z3n7.Utilities
         }
         
 
-        /// <summary>
-        /// Сбросить кеш (вызывать после Kill)
-        /// </summary>
+        /// <summary>Drops the cache (call after killing a process).</summary>
         private static void ClearCache()
         {
             lock (_cacheLock)
@@ -78,8 +73,8 @@ namespace z3n7.Utilities
         // ============== FAST API ==============
 
         /// <summary>
-        /// Быстрый поиск нового PID для только что запущенного браузера
-        /// Ищет только среди процессов, которых не было до запуска
+        /// Finds the PID of a browser just started for the account, looking only at <c>zbe1</c> processes that
+        /// did not exist before the launch; returns 0 when not found.
         /// </summary>
         internal static int GetNewlyLaunchedPid(string acc, HashSet<int> pidsBeforeLaunch, int maxAttempts = 10, int delayMs = 100)
         {
@@ -122,9 +117,7 @@ namespace z3n7.Utilities
             return 0;
         }
 
-        /// <summary>
-        /// Получить снимок всех PID процессов zbe1 (быстрый метод)
-        /// </summary>
+        /// <summary>PIDs of all current <c>zbe1</c> processes.</summary>
         internal static HashSet<int> GetPidSnapshot()
         {
             return new HashSet<int>(zbe1());
@@ -135,9 +128,7 @@ namespace z3n7.Utilities
         
         // ============== ВЫБОР ПО КРИТЕРИЯМ ==============
         
-        /// <summary>
-        /// Получить самый новый (молодой) PID
-        /// </summary>
+        /// <summary>The most recently started PID of the account; 0 when there is none.</summary>
         internal static int GetNewest(string acc)
         {
             return GetBySelector(acc, (proc) => proc.StartTime, selectMax: true);
@@ -148,10 +139,7 @@ namespace z3n7.Utilities
         
         // ============== СЛУЖЕБНЫЕ МЕТОДЫ ==============
         
-        /// <summary>
-        /// ЕДИНСТВЕННОЕ место где происходит полное сканирование
-        /// Все остальные методы используют результат этого метода
-        /// </summary>
+        /// <summary>The only place that scans all processes; every other method uses its result.</summary>
         private static Dictionary<int, string> ScanAll()
         {
             var result = new Dictionary<int, string>();
@@ -202,9 +190,7 @@ namespace z3n7.Utilities
             }
         }
         
-        /// <summary>
-        /// Универсальный селектор процесса по критерию
-        /// </summary>
+        /// <summary>Picks one of the account's PIDs by a process property (largest or smallest).</summary>
         private static int GetBySelector<T>(string acc, Func<Process, T> selector, bool selectMax) 
             where T : IComparable<T>
         {

@@ -6,7 +6,7 @@ generated: z3n7-docgen
 
 # Sql
 
-`class` · пространство имён `z3n7` · исходник [Db/Sql.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L26)
+`class` · пространство имён `z3n7` · исходник [Db/Sql.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L29)
 
 ```csharp
 public class Sql : IDisposable
@@ -24,7 +24,7 @@ One open connection to SQLite (through the SQLite3 ODBC driver) or PostgreSQL (N
 public Sql(string dbPath, string dbPass)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L34)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L37)
 
 Opens an SQLite database through the `SQLite3 ODBC Driver`.
 
@@ -37,7 +37,7 @@ Opens an SQLite database through the `SQLite3 ODBC Driver`.
 public Sql(string hostname, string port, string database, string user, string password)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L42)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L45)
 
 Opens a PostgreSQL connection with pooling.
 
@@ -45,7 +45,7 @@ Opens a PostgreSQL connection with pooling.
 public Sql(string connectionstring)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L49)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L52)
 
 Opens a PostgreSQL connection from an Npgsql connection string.
 
@@ -53,7 +53,7 @@ Opens a PostgreSQL connection from an Npgsql connection string.
 public Sql(IDbConnection connection)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L56)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L59)
 
 Wraps an existing connection and opens it if it is closed.
 
@@ -65,7 +65,7 @@ Wraps an existing connection and opens it if it is closed.
 public DatabaseType ConnectionType { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L66)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L69)
 
 SQLite for an ODBC connection, PostgreSQL for Npgsql, otherwise Unknown.
 
@@ -77,7 +77,7 @@ SQLite for an ODBC connection, PostgreSQL for Npgsql, otherwise Unknown.
 public async Task AddRange(int range, string tableName = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L776)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L780)
 
 Inserts rows with ids from the current maximum + 1 up to `range`, one statement per row.
 
@@ -87,7 +87,7 @@ Inserts rows with ids from the current maximum + 1 up to `range`, one statement 
 public async Task<int> CopyTableAsync(string sourceTable, string destinationTable)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L261)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L265)
 
 Creates `destinationTable` with the columns and primary key of `sourceTable` and copies all rows into it, within the same database.
 
@@ -104,7 +104,7 @@ Creates `destinationTable` with the columns and primary key of `sourceTable` and
 public IDbDataParameter CreateParameter(string name, object value)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L116)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L120)
 
 Creates a command parameter of the right provider type; `null` becomes `DBNull`.
 
@@ -114,7 +114,7 @@ Creates a command parameter of the right provider type; `null` becomes `DBNull`.
 public IDbDataParameter[] CreateParameters(params (string name, object value)[] parameters)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L133)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L137)
 
 Creates several parameters, see `CreateParameter`.
 
@@ -124,7 +124,7 @@ Creates several parameters, see `CreateParameter`.
 public string DbRead(string sql, string separator = "|")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L188)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L192)
 
 Synchronous `DbReadAsync` with the default row separator.
 
@@ -134,7 +134,7 @@ Synchronous `DbReadAsync` with the default row separator.
 public async Task<string> DbReadAsync(string sql, string columnSeparator = "|", string rawSepararor = "\r\n")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L147)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L151)
 
 Runs a query and returns every row as text.
 
@@ -150,7 +150,7 @@ Runs a query and returns every row as text.
 public int DbWrite(string sql, params IDbDataParameter[] parameters)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L249)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L253)
 
 Synchronous `DbWriteAsync`.
 
@@ -160,7 +160,7 @@ Synchronous `DbWriteAsync`.
 public async Task<int> DbWriteAsync(string sql, params IDbDataParameter[] parameters)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L195)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L199)
 
 Executes a non-query statement.
 
@@ -172,7 +172,7 @@ Executes a non-query statement.
 public void Dispose()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L90)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L93)
 
 Closes and disposes the connection.
 
@@ -182,7 +182,7 @@ Closes and disposes the connection.
 public async Task<string> Get(string toGet, string id, string tableName = null, string where = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L718)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L722)
 
 Reads the first column of the first matching row.
 
@@ -201,7 +201,7 @@ Reads the first column of the first matching row.
 public static async Task<int> MigrateAllTablesAsync(Sql sourceDb, Sql destinationDb)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L422)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L426)
 
 Copies every user table from one database to another of the other kind (PostgreSQL ↔ SQLite). Tables that already exist in the target are not recreated, rows are still inserted. A table that fails is skipped; the error goes to the debug output only.
 
@@ -213,7 +213,7 @@ Copies every user table from one database to another of the other kind (PostgreS
 public async Task<int> Upd(string toUpd, object id, string tableName = null, string where = null, bool last = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L658)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L662)
 
 Runs `UPDATE … SET toUpd` for the row `id` or the rows matching `where`.
 
@@ -231,7 +231,7 @@ Runs `UPDATE … SET toUpd` for the row `id` or the rows matching `where`.
 public async Task Upd(List<string> toWrite, string tableName = null, string where = null, bool last = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L701)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L705)
 
 Runs `Upd` for each item, with ids 0, 1, 2 … in list order.
 

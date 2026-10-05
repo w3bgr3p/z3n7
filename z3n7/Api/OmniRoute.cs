@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace z3n7.Api
 {
+    /// <summary>Client of a local OpenAI-compatible router at <c>http://localhost:20128</c> (no API key).</summary>
     public sealed class OmniRoute
     {
         private const string BaseUrl = "http://localhost:20128";
@@ -19,10 +20,12 @@ namespace z3n7.Api
 
         private static List<string> _modelsCache;
 
+        /// <summary>Creates a client.</summary>
         public OmniRoute()
         {
         }
 
+        /// <summary>Blocking version of <c>CompleteAsync</c>.</summary>
         public string Complete(
             string model,
             string systemPrompt,
@@ -36,6 +39,19 @@ namespace z3n7.Api
                 .GetResult();
         }
 
+        /// <summary>
+        /// Sends one system and one user message and returns the reply (<c>top_p</c> 0.9, no streaming).
+        /// </summary>
+        /// <param name="model">Model id; required.</param>
+        /// <param name="systemPrompt">System message.</param>
+        /// <param name="userPrompt">User message.</param>
+        /// <param name="temperature">Sampling temperature.</param>
+        /// <param name="maxTokens">Reply length limit.</param>
+        /// <param name="timeoutSec">Request timeout, seconds.</param>
+        /// <returns>
+        /// The reply text. Throws on a non-2xx status or an unexpected answer; the message includes the raw
+        /// answer.
+        /// </returns>
         public async Task<string> CompleteAsync(
             string model,
             string systemPrompt,
@@ -74,6 +90,7 @@ namespace z3n7.Api
             }
         }
 
+        /// <summary>Blocking version of <c>CompleteVisionAsync</c>.</summary>
         public string CompleteVision(
             string model,
             string systemPrompt,
@@ -95,6 +112,22 @@ namespace z3n7.Api
                 .GetResult();
         }
 
+        /// <summary>
+        /// Sends a prompt with images. The prompt is extended with the pixel size of the first image; a reply
+        /// wrapped in a code fence is unwrapped, and when it is JSON with
+        /// <c>canvas_width</c>/<c>canvas_height</c>, those are set to the first image's size.
+        /// </summary>
+        /// <param name="model">Model id; required.</param>
+        /// <param name="systemPrompt">System message.</param>
+        /// <param name="userPrompt">User message.</param>
+        /// <param name="temperature">Sampling temperature.</param>
+        /// <param name="maxTokens">Reply length limit.</param>
+        /// <param name="timeoutSec">Request timeout, seconds.</param>
+        /// <param name="imagesBase64">Images as Base64 (optionally as data URLs); at least one.</param>
+        /// <returns>
+        /// The reply text. Throws on a non-2xx status or an unexpected answer; the message includes the raw
+        /// answer.
+        /// </returns>
         public async Task<string> CompleteVisionAsync(
             string model,
             string systemPrompt,
@@ -129,11 +162,15 @@ namespace z3n7.Api
             }
         }
 
+        /// <summary>Blocking version of <c>GetModelsAsync</c>.</summary>
         public List<string> GetModels()
         {
             return GetModelsAsync().GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// Available model ids, sorted. The list is cached for the process; see <c>InvalidateModelsCache</c>.
+        /// </summary>
         public async Task<List<string>> GetModelsAsync()
         {
             if (_modelsCache != null)
@@ -163,11 +200,13 @@ namespace z3n7.Api
             }
         }
 
+        /// <summary>Blocking version of <c>CheckAsync</c>.</summary>
         public bool Check()
         {
             return CheckAsync().GetAwaiter().GetResult();
         }
 
+        /// <summary>Whether the router answers the model list with 2xx within 3 seconds.</summary>
         public async Task<bool> CheckAsync()
         {
             try
@@ -182,6 +221,7 @@ namespace z3n7.Api
             }
         }
 
+        /// <summary>Forgets the cached model list.</summary>
         public static void InvalidateModelsCache()
         {
             _modelsCache = null;

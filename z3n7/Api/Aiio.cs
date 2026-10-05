@@ -10,6 +10,11 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.Api
 {
+    /// <summary>
+    /// Client of the io.net intelligence chat API (<c>api.intelligence.io.solutions</c>).
+    /// API keys come from the <c>api</c> column of the <c>__aiio</c> table (rows whose <c>expire</c> is
+    /// empty or in the future); a random one is used per request.
+    /// </summary>
     public sealed class Aiio
     {
         private const string CompletionsUrl =
@@ -20,11 +25,13 @@ namespace z3n7.Api
         private readonly IZennoPosterProjectModel _project;
         private static List<string> _modelsCache;
 
+        /// <summary>Creates a client; the project gives access to the key table.</summary>
         public Aiio(IZennoPosterProjectModel project)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
         }
 
+        /// <summary>Blocking version of <c>CompleteAsync</c>.</summary>
         public string Complete(
             string model,
             string systemPrompt,
@@ -38,6 +45,19 @@ namespace z3n7.Api
                 .GetResult();
         }
 
+        /// <summary>
+        /// Sends one system and one user message and returns the reply (<c>top_p</c> 0.9, no streaming).
+        /// </summary>
+        /// <param name="model">Model id; required.</param>
+        /// <param name="systemPrompt">System message.</param>
+        /// <param name="userPrompt">User message.</param>
+        /// <param name="temperature">Sampling temperature.</param>
+        /// <param name="maxTokens">Reply length limit.</param>
+        /// <param name="timeoutSec">Request timeout, seconds.</param>
+        /// <returns>
+        /// The reply text. Throws on a non-2xx status or an unexpected answer; the message includes the raw
+        /// answer.
+        /// </returns>
         public async Task<string> CompleteAsync(
             string model,
             string systemPrompt,
@@ -77,11 +97,15 @@ namespace z3n7.Api
             }
         }
 
+        /// <summary>Blocking version of <c>GetModelsAsync</c>.</summary>
         public List<string> GetModels()
         {
             return GetModelsAsync().GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// Available model ids, sorted. The list is cached for the process; see <c>InvalidateModelsCache</c>.
+        /// </summary>
         public async Task<List<string>> GetModelsAsync()
         {
             if (_modelsCache != null)
@@ -116,11 +140,13 @@ namespace z3n7.Api
             }
         }
 
+        /// <summary>Whether the key table has at least one valid key.</summary>
         public bool HasKey()
         {
             return GetKeyOrNull() != null;
         }
 
+        /// <summary>Forgets the cached model list.</summary>
         public static void InvalidateModelsCache()
         {
             _modelsCache = null;
