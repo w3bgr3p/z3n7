@@ -3,9 +3,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using ZennoLab.CommandCenter;
 using ZennoLab.InterfacesLibrary.Enums.Log;
 using ZennoLab.InterfacesLibrary.ProjectModel;
@@ -19,11 +16,10 @@ namespace z3n7
     public enum LogLevel { Debug = 0, Info = 1, Warning = 2, Error = 3, Off = 99 }
 
     /// <summary>
-    /// Writes messages to the ZennoPoster log and, optionally, as JSON to an HTTP log collector.
+    /// Writes messages to the ZennoPoster log.
     /// Header fields are switched on by substrings of the <c>cfgLog</c> project variable: <c>acc</c>
     /// (account), <c>time</c> (project age), <c>port</c> (instance port), <c>caller</c> (calling member),
-    /// <c>wrap</c> (print the header at all), <c>http</c> (send to the collector), <c>force</c> (ignore the
-    /// level filter).
+    /// <c>wrap</c> (print the header at all), <c>force</c> (ignore the level filter).
     /// </summary>
     public class Logger
     {
@@ -37,20 +33,13 @@ namespace z3n7
             // Kept for compatibility. Logger no longer has a cache.
         }
 
-        /// <summary>
-        /// Returns a copy of this logger bound to <c>instance</c> (its port and PID are sent to the collector).
-        /// </summary>
+        /// <summary>Returns a copy of this logger. Kept for compatibility: the instance is not used.</summary>
         public Logger WithInstance(Instance instance)
-            => new Logger(_project, instance, _minLevel, _logHost, _http, _timezone, Emoji);
+            => new Logger(_project, instance, _minLevel, Emoji);
 
         // ── Config ────────────────────────────────────────────────────────────
         private readonly IZennoPosterProjectModel _project;
         private readonly LogLevel  _minLevel;
-        private readonly string    _logHost;
-        private readonly bool      _http;
-        private readonly int       _timezone;
-        private readonly string    _port;
-        private readonly string    _pid;
 
         /// <summary>Prefix shown in brackets before every message, e.g. the class marker.</summary>
         public string Emoji { get; set; }
@@ -58,38 +47,23 @@ namespace z3n7
         // cfgLog flags
         private readonly bool _fAcc, _fPort, _fTime, _fCaller, _fWrap, _fForce;
 
-        private static readonly HttpClient _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-
         // ── Constructor ───────────────────────────────────────────────────────
         /// <summary>
         /// Creates a logger bound to a ZennoPoster project.
         /// The minimum level is taken from the <c>logLevel</c> project variable when it parses as
         /// <c>LogLevel</c>; otherwise <c>Debug</c> when <c>debug</c> is <c>True</c>; otherwise the
-        /// <c>logLevel</c> argument. The collector address is <c>logHost</c>, then the <c>logHost</c> global
-        /// variable, then <c>http://localhost:10993/log</c>.
+        /// <c>logLevel</c> argument.
         /// </summary>
-        /// <param name="instance">
-        /// Optional browser instance; its port and PID are read from the window title and sent to the
-        /// collector.
-        /// </param>
+        /// <param name="instance">Not used; kept for compatibility.</param>
         /// <param name="logLevel">Minimum level when the project variables do not set one.</param>
-        /// <param name="logHost">URL of the HTTP log collector.</param>
-        /// <param name="http">
-        /// Allow sending to the collector. It is sent only when <c>cfgLog</c> also contains <c>http</c>.
-        /// </param>
-        /// <param name="timezoneOffset">Hours added to UTC for the collector timestamp.</param>
         /// <param name="classEmoji">Value of <c>Emoji</c>.</param>
         public Logger(
             IZennoPosterProjectModel project,
             Instance  instance       = null,
             LogLevel  logLevel       = LogLevel.Info,
-            string    logHost        = null,
-            bool      http           = true,
-            int       timezoneOffset = -5,
             string    classEmoji     = null)
         {
             _project  = project;
-            _timezone = timezoneOffset;
             Emoji     = classEmoji;
 
             string levelVar = _project?.Var("logLevel");
@@ -97,47 +71,26 @@ namespace z3n7
                 ? parsed
                 : (_project?.Var("debug") == "True" ? LogLevel.Debug : logLevel);
 
-            _logHost = !string.IsNullOrEmpty(logHost)                   ? logHost
-                     : !string.IsNullOrEmpty(_project?.GVar("logHost")) ? _project.GVar("logHost")
-                     : "http://localhost:10993/log";
-
             string cfg = _project?.Var("cfgLog") ?? "";
-            _http    = http && cfg.Contains("http");
             _fAcc    = cfg.Contains("acc");
             _fPort   = cfg.Contains("port");
             _fTime   = cfg.Contains("time");
             _fCaller = cfg.Contains("caller");
             _fWrap   = cfg.Contains("wrap");
             _fForce  = cfg.Contains("force");
-
-            if (instance != null)
-            {
-                var m = Regex.Match(instance.FormTitle ?? "", @"Port:(\d+); Pid:(\d+)");
-                _port = m.Groups[1].Value;
-                _pid  = m.Groups[2].Value;
-            }
         }
 
         /// <summary>
-        /// Creates a logger without a ZennoPoster project: messages go only to the HTTP collector. The caller
-        /// name is always included.
+        /// Creates a logger without a ZennoPoster project. It has nowhere to write, so every message is
+        /// dropped; <c>thrw</c> does not throw either.
         /// </summary>
         /// <param name="logLevel">Minimum level.</param>
-        /// <param name="logHost">URL of the HTTP log collector; default <c>http://localhost:10993/log</c>.</param>
-        /// <param name="http">Send messages to the collector.</param>
-        /// <param name="timezoneOffset">Hours added to UTC for the collector timestamp.</param>
         /// <param name="classEmoji">Value of <c>Emoji</c>.</param>
         public Logger(
             LogLevel logLevel       = LogLevel.Info,
-            string   logHost        = null,
-            bool     http           = true,
-            int      timezoneOffset = -5,
             string   classEmoji     = null)
         {
             _minLevel = logLevel;
-            _logHost  = logHost ?? "http://localhost:10993/log";
-            _http     = http;
-            _timezone = timezoneOffset;
             Emoji     = classEmoji;
             _fCaller  = true;
             _fWrap    = true;
@@ -161,7 +114,7 @@ namespace z3n7
         /// <param name="cut">
         /// When the message has more than this many line breaks, join it into one line. 0 keeps it as is.
         /// </param>
-        /// <param name="level">Severity used for filtering and for the collector.</param>
+        /// <param name="level">Severity used for filtering.</param>
         /// <param name="type">
         /// ZennoPoster log type; overridden by <c>level</c> Warning/Error and by the <c>!W</c>/<c>!E</c>
         /// markers.
@@ -195,8 +148,6 @@ namespace z3n7
                 _project.SendToLog(full, type, toZp, color);
                 if (thrw) throw new Exception(full);
             }
-
-            if (_http) SendHttp(body, type, caller, level);
         }
 
         /// <summary>Writes a message at <c>Debug</c> level.</summary>
@@ -239,43 +190,6 @@ namespace z3n7
 
             string prefix = !string.IsNullOrEmpty(Emoji) ? $"[ {Emoji} ] " : "";
             return $"\n          {prefix}{text.Trim()}";
-        }
-
-        private void SendHttp(string body, LogType type, string caller, LogLevel level)
-        {
-            string prj     = _project?.Name.Replace(".zp", "") ?? "";
-            string acc     = _project?.Var("acc0")             ?? "";
-            string session = _project?.Var("varSessionId")     ?? "";
-            string taskId  = _project?.TaskId                  ?? "";
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    var payload = new
-                    {
-                        machine    = Environment.MachineName,
-                        project    = prj,
-                        timestamp  = DateTime.UtcNow.AddHours(_timezone).ToString("yyyy-MM-dd HH:mm:ss"),
-                        level      = level.ToString().ToUpper(),
-                        account    = acc,
-                        session    = session,
-                        port       = _port,
-                        pid        = _pid,
-                        task_id    = taskId,
-                        caller     = caller,
-                        message    = body.Trim(),
-                        origin     = "z3n7",
-                        elapsed_ms = _project.Age<long>(),
-                    };
-
-                    string json = JsonConvert.SerializeObject(payload);
-                    using var cts     = new System.Threading.CancellationTokenSource(1000);
-                    using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    await _httpClient.PostAsync(_logHost, content, cts.Token);
-                }
-                catch { }
-            });
         }
     }
 }

@@ -296,7 +296,7 @@ namespace z3n7
         {
             if (string.IsNullOrEmpty(domain))
                 domain = instance.ActiveTab.MainDomain;
-            var netscapeCookies = instance.GetCookie();
+            var netscapeCookies = instance.GetCookie(domain);
             string jsonCookies = NetscapeToJson(netscapeCookies);
             string base64Cookies = (saveJsonToDb) ? jsonCookies.ToBase64() : netscapeCookies.ToBase64();
             project.DbUpd($"cookies = '{base64Cookies}'", tableName);

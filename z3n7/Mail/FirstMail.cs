@@ -44,7 +44,7 @@ namespace z3n7
             LoadKeys();
             _login = Uri.EscapeDataString(mail);
             _pass = Uri.EscapeDataString(password);
-            _auth = $"?username={_login} &password={_pass}";
+            _auth = $"?username={_login}&password={_pass}";
         }
 
         private void LoadKeys()
@@ -56,13 +56,13 @@ namespace z3n7
             _pass = Uri.EscapeDataString(creds["passphrase"]);
             _proxy = creds["proxy"];
             _headers = new [] { $"accept: application/json", $"X-API-KEY: {_key}" };
-            _auth = $"?username={_login} &password={_pass}";
+            _auth = $"?username={_login}&password={_pass}";
         }
         
         public string Delete(string email, bool seen = false)
         {
             string url = _commands["delete"] + _auth;//$"https://api.firstmail.ltd/v1/mail/delete?username={_login} &password={_pass}";
-            string additional = seen ? "seen=true" : null;
+            string additional = seen ? "&seen=true" : null;
             url += additional;
             string result = _project.GET(url,_proxy, _headers, parse:true);
             return result;

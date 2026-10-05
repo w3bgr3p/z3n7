@@ -11,7 +11,8 @@ namespace z3n7.Api
 {
     public class z3nmail
     {
-        private readonly string _baseUrl= "https://mail.autoz3n.xyz";
+        private const string DefaultBaseUrl = "https://mail.autoz3n.xyz";
+        private readonly string _baseUrl;
         private readonly string _apikey;
         private readonly IZennoPosterProjectModel _project;
         private readonly bool _useNetHttp;
@@ -22,8 +23,8 @@ namespace z3n7.Api
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _useNetHttp = useNetHttp;
             _log = log;
-            _apikey = project.ReadEnv("Z3NMAIL_API_KEY"); 
-            
+            _apikey = !string.IsNullOrWhiteSpace(apikey) ? apikey : project.ReadEnv("Z3NMAIL_API_KEY");
+            _baseUrl = (!string.IsNullOrWhiteSpace(baseUrl) ? baseUrl : DefaultBaseUrl).TrimEnd('/');
         }
 
         // ── HTTP helpers ──
