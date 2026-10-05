@@ -23,10 +23,7 @@ namespace z3n7
         private readonly NetHttp _http;
 
         /// <summary>Creates a client.</summary>
-        /// <param name="log">
-        /// Logger for progress. <c>SendMarkdown</c>, <c>SendCommitsSummary</c> and splitting in
-        /// <c>SendLongMessage</c> call it without a null check.
-        /// </param>
+        /// <param name="log">Logger for progress; <c>null</c> logs nothing.</param>
         /// <param name="token">Bot token.</param>
         /// <param name="group">Chat id.</param>
         /// <param name="topic">Message id of the topic to reply to.</param>
@@ -108,7 +105,7 @@ namespace z3n7
         /// </returns>
         public string SendMarkdown(string message, bool useMarkdownV2 = false, bool disableWebPagePreview = true, bool replyToTopic = true, bool log = false)
         {
-            _log.Send($"Sending markdown message (length: {message.Length})");
+            _log?.Send($"Sending markdown message (length: {message.Length})");
 
             try
             {
@@ -131,19 +128,19 @@ namespace z3n7
                 if (response.Contains("\"ok\":true"))
                 {
                     string messageLink = GetMessageLink(response);
-                    _log.Send($"✅ Message sent: {messageLink}");
+                    _log?.Send($"✅ Message sent: {messageLink}");
                     return messageLink;
                 }
                 else
                 {
-                    _log.Send($"⚠️ Telegram API error: {response}");
+                    _log?.Send($"⚠️ Telegram API error: {response}");
                     return response;
                 }
             }
             catch (Exception ex)
             {
                 string error = $"❌ Exception: {ex.Message}";
-                _log.Send(error);
+                _log?.Send(error);
                 return error;
             }
         }
@@ -156,7 +153,7 @@ namespace z3n7
         /// <param name="log">Not used.</param>
         public string SendCommitsSummary(string summary, bool log = false)
         {
-            _log.Send("Sending commits summary");
+            _log?.Send("Sending commits summary");
             string formatted = PrepareCommitsSummary(summary);
             return SendLongMessage(formatted, useMarkdown: false, log: log);
         }
@@ -199,14 +196,14 @@ namespace z3n7
                     : SendPlainText(message, log: log);
             }
 
-            _log.Send($"Message too long ({message.Length} chars), splitting...");
+            _log?.Send($"Message too long ({message.Length} chars), splitting...");
 
             string[] parts = SplitMessage(message, maxLength);
             var results = new System.Collections.Generic.List<string>();
             
             for (int i = 0; i < parts.Length; i++)
             {
-                _log.Send($"Sending part {i + 1}/{parts.Length}");
+                _log?.Send($"Sending part {i + 1}/{parts.Length}");
                 
                 string result = useMarkdown 
                     ? SendMarkdown(parts[i], useMarkdownV2: false, log: log)
@@ -217,7 +214,7 @@ namespace z3n7
                 // Если это ошибка (не ссылка), прерываем отправку
                 if (!result.StartsWith("https://"))
                 {
-                    _log.Send($"Failed to send part {i + 1}, stopping");
+                    _log?.Send($"Failed to send part {i + 1}, stopping");
                     break;
                 }
 

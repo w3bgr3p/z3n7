@@ -22,7 +22,7 @@ ZennoBrowser (ZP8) profiles: their ids and running the helper project `ZB.zp`.
 public static bool ZB(this IZennoPosterProjectModel project, string toDo)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L77)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L67)
 
 Stores `toDo` in the `toDo` variable and runs `{project.Path}/.internal/ZB.zp`, passing `acc0`, `cfgLog`, `cfgPin`, `DBmode`, `DBpstgrPass`, `DBpstgrUser`, `DBsqltPath`, `instancePort`, `lastQuery`, `cookies`, `varSessionId` and `toDo` by name.
 
@@ -38,12 +38,10 @@ Stores `toDo` in the `toDo` variable and runs `{project.Path}/.internal/ZB.zp`, 
 public static Dictionary<string, string> ZBids(this IZennoPosterProjectModel project)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L25)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L21)
 
-Reads `id` and `name` of every ZennoBrowser profile except `template` from the `ProfileInfos` table. While reading, the `DBmode` and `DBsqltPath` variables point at `%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db`; they are restored afterwards.
+Reads `id` and `name` of every ZennoBrowser profile except `template` from the `ProfileInfos` table of `%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db`. The file is read directly; project variables are not touched.
 
 **Возвращает:** Profile id → profile name. Throws when the ZennoBrowser database file is missing.
-
-**Примечания:** The read goes through `DbGetLines`/`DbGet` → `DbQ`, which picks the database by `dbSource` and does not consult `DBmode` or `DBsqltPath`.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

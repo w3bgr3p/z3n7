@@ -24,7 +24,7 @@ public static void CollectAndSave(this IZennoPosterProjectModel project, bool lo
 
 Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/DbUtils/ProcessManager.cs#L42)
 
-Writes one row per running ZennoPoster and `zbe1` process of this machine (id `{pid}|{machine}`, name, RAM in MB, uptime in minutes, command line, time) and deletes this machine's rows of processes that no longer run. PostgreSQL upsert syntax is used when the `DBmode` variable is `PostgreSQL`; otherwise SQLite's `INSERT OR REPLACE`.
+Writes one row per running ZennoPoster and `zbe1` process of this machine (id `{pid}|{machine}`, name, RAM in MB, uptime in minutes, command line, time) and deletes this machine's rows of processes that no longer run. PostgreSQL upsert syntax is used when `dbSource` is a PostgreSQL connection string (the same rule as `DbQ`); otherwise SQLite's `INSERT OR REPLACE`.
 
 | Parameter | Description |
 |---|---|

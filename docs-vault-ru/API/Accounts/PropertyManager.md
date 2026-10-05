@@ -6,7 +6,7 @@ generated: z3n7-docgen
 
 # PropertyManager
 
-`static class` · пространство имён `z3n7.Utilities` · исходник [Accounts/PropertyManager.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L8)
+`static class` · пространство имён `z3n7.Utilities` · исходник [Accounts/PropertyManager.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L9)
 
 ```csharp
 public static class PropertyManager
@@ -22,7 +22,7 @@ Copies simple properties of objects to and from database rows (by reflection).
 public static List<string> GetTypeProperties(Type type, bool requireSetter = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L17)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L18)
 
 Names of public readable properties of simple types: primitives, `string`, `decimal`, `DateTime`, enums.
 
@@ -35,7 +35,7 @@ Names of public readable properties of simple types: primitives, `string`, `deci
 public static List<string> GetTypeProperties(object obj)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L41)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L42)
 
 Same as `GetTypeProperties(obj.GetType())`.
 
@@ -45,7 +45,7 @@ Same as `GetTypeProperties(obj.GetType())`.
 public static Dictionary<string, string> GetValuesByProperty(this IZennoPosterProjectModel project, object obj, List<string> propertyList = null, string tableToUpd = null)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L54)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L55)
 
 Reads property values as text, with single quotes doubled. Properties that fail to read are skipped.
 
@@ -63,7 +63,7 @@ Reads property values as text, with single quotes doubled. Properties that fail 
 public static void SetValuesFromDb(this IZennoPosterProjectModel project, object obj, string table = "profile", List<string> propertyList = null, string key = "id", object id = null, string where = "")
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L96)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L97)
 
 Sets the object's writable properties from a database row, converting text to the property type. Empty values and failed conversions are skipped; other errors are logged as warnings.
 

@@ -35,13 +35,13 @@ namespace z3n7.DbUtils
         /// Writes one row per running ZennoPoster and <c>zbe1</c> process of this machine (id
         /// <c>{pid}|{machine}</c>, name, RAM in MB, uptime in minutes, command line, time) and deletes this
         /// machine's rows of processes that no longer run.
-        /// PostgreSQL upsert syntax is used when the <c>DBmode</c> variable is <c>PostgreSQL</c>; otherwise
-        /// SQLite's <c>INSERT OR REPLACE</c>.
+        /// PostgreSQL upsert syntax is used when <c>dbSource</c> is a PostgreSQL connection string (the same
+        /// rule as <c>DbQ</c>); otherwise SQLite's <c>INSERT OR REPLACE</c>.
         /// </summary>
         /// <param name="log">Write the queries to the log.</param>
         public static void CollectAndSave(this IZennoPosterProjectModel project, bool log = false)
         {
-            var isPg  = project.Var("DBmode") == "PostgreSQL";
+            var isPg  = project.DbMode() == "pgSQL";
             var now   = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             var procs = ZennoProcesses();
             if (procs.Count == 0) return;

@@ -245,12 +245,11 @@ namespace z3n7
             }
             return decimal.Parse(value.Trim());
         }
-        /// <summary>Reads a project variable as an integer.</summary>
+        /// <summary>
+        /// Reads a project variable as an integer; a value like <c>10-20</c> gives a random integer from 10
+        /// (inclusive) to 20 (exclusive).
+        /// </summary>
         /// <param name="Var">Variable name.</param>
-        /// <remarks>
-        /// A <c>min-max</c> value is not supported: the random result is discarded and parsing the text then
-        /// throws.
-        /// </remarks>
         public static int RndInt(this IZennoPosterProjectModel project, string Var)
         {
             string value = string.Empty;
@@ -268,7 +267,7 @@ namespace z3n7
             {
                 var min = int.Parse(value.Split('-')[0].Trim());
                 var max = int.Parse(value.Split('-')[1].Trim());
-                random.Next(min, max);
+                return random.Next(min, max);
             }
             return int.Parse(value.Trim());
         }
@@ -280,24 +279,29 @@ namespace z3n7
         /// <summary>Random file from a folder and its subfolders.</summary>
         /// <param name="directoryPath">Folder.</param>
         /// <param name="extension">Only files with this extension; empty for all.</param>
-        /// <returns>The path, or <c>null</c> when there are no files.</returns>
-        /// <remarks>On an error (e.g. a missing folder) the search is retried without end.</remarks>
+        /// <returns>
+        /// The path, or <c>null</c> when there are no files. An I/O error (e.g. a missing folder) is retried
+        /// twice and then thrown.
+        /// </returns>
         public static string RndFile(string directoryPath, string extension = null)
         {
-            readrandom:
-            try
+            string searchPattern = extension != null && !string.IsNullOrEmpty(extension) 
+                ? "*." + extension.TrimStart('.') 
+                : "*";
+
+            // A listing can fail transiently while files are being written; retry a few times, then report it.
+            for (int attempt = 1; ; attempt++)
             {
-                string searchPattern = extension != null && !string.IsNullOrEmpty(extension) 
-                    ? "*." + extension.TrimStart('.') 
-                    : "*";
-                var files = Directory.GetFiles(directoryPath, searchPattern, SearchOption.AllDirectories);
-                if (files.Length == 0) return null;
-                var random = new Random();
-                return files[random.Next(files.Length)];
-            }
-            catch 
-            {
-                goto readrandom;
+                try
+                {
+                    var files = Directory.GetFiles(directoryPath, searchPattern, SearchOption.AllDirectories);
+                    if (files.Length == 0) return null;
+                    return files[random.Next(files.Length)];
+                }
+                catch (IOException) when (attempt < 3)
+                {
+                    Thread.Sleep(100);
+                }
             }
         }
         

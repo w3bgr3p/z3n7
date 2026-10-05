@@ -22,7 +22,7 @@ Random values: strings, nicknames, e-mail addresses, passwords, numbers from pro
 public static void Delay(int min = 1008, int max = 1337)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L484)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L488)
 
 Sleeps for a random time.
 
@@ -37,7 +37,7 @@ Sleeps for a random time.
 public static bool RndBool(this int truePercent)
 ```
 
-Метод расширения для `int`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L276)
+Метод расширения для `int`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L275)
 
 `true` with the given probability, in percent.
 
@@ -61,7 +61,7 @@ Reads a project variable as a decimal; a value like `0.1-0.5` gives a random num
 public static string RndFile(string directoryPath, string extension = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L285)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L286)
 
 Random file from a folder and its subfolders.
 
@@ -70,9 +70,7 @@ Random file from a folder and its subfolders.
 | `directoryPath` | Folder. |
 | `extension` | Only files with this extension; empty for all. |
 
-**Возвращает:** The path, or `null` when there are no files.
-
-**Примечания:** On an error (e.g. a missing folder) the search is retried without end.
+**Возвращает:** The path, or `null` when there are no files. An I/O error (e.g. a missing folder) is retried twice and then thrown.
 
 ### RndHexString
 
@@ -90,15 +88,13 @@ Random lowercase hex string of `length` digits, prefixed with `0x`.
 public static int RndInt(this IZennoPosterProjectModel project, string Var)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L254)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L253)
 
-Reads a project variable as an integer.
+Reads a project variable as an integer; a value like `10-20` gives a random integer from 10 (inclusive) to 20 (exclusive).
 
 | Параметр | Описание |
 |---|---|
 | `Var` | Variable name. |
-
-**Примечания:** A `min-max` value is not supported: the random result is discarded and parsing the text then throws.
 
 ### RndMail
 
@@ -106,7 +102,7 @@ Reads a project variable as an integer.
 public static string RndMail(int minLength = 5, int maxLength = 10, string domain = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L345)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L349)
 
 Random e-mail address: a random local part of letters and digits at a popular mail domain.
 
@@ -122,7 +118,7 @@ Random e-mail address: a random local part of letters and digits at a popular ma
 public static string RndMonth()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L360)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L364)
 
 Random English month name.
 
@@ -147,7 +143,7 @@ Random nickname built from word lists (adjective, noun, suffix, numbers, separat
 public static string RndPass(int minLength = 10, int maxLength = 14, bool upperCase = true, bool symbols = true)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L382)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L386)
 
 Random password with at least one lowercase letter and digit, plus the selected groups. Passwords with three sequential characters (abc, 321, ZYX) are rejected and generated again.
 
@@ -180,7 +176,7 @@ Takes `percent`% of `input` and reduces it by a random 0…`maxPercent`%. A resu
 public static void RndProfileData(this IZennoPosterProjectModel project, bool email = true, bool password = true)
 ```
 
-Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L473)
+Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L477)
 
 Sets random profile data.
 

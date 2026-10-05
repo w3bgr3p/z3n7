@@ -62,8 +62,8 @@ namespace z3n7
             }
             catch (Exception e)
             {
-                _logger.Warn($"[DIAG] LaunchBrowser threw exception: {e.Message}");
-                _logger.Warn(e.Message);
+                _logger?.Warn($"[DIAG] LaunchBrowser threw exception: {e.Message}");
+                _logger?.Warn(e.Message);
                 throw;
             }
             
@@ -98,7 +98,7 @@ namespace z3n7
                     _instance.CloseAllTabs();
                     exCnt++;
                     string currentAcc = _project.Variables["acc0"].Value;
-                    _logger.Warn($"SetInstance failed: attempt={exCnt}/3, acc={currentAcc}, error={ex.Message}");
+                    _logger?.Warn($"SetInstance failed: attempt={exCnt}/3, acc={currentAcc}, error={ex.Message}");
                     _logger?.Debug($"Exception details: {ex.ToString()}");
                     
                     if (exCnt > 3)
@@ -298,7 +298,7 @@ namespace z3n7
                     }
                     catch (Exception Ex)
                     {
-                        _logger.Warn($"Cookies set failed: source=database, path={cookiePath}, error={Ex.Message}");
+                        _logger?.Warn($"Cookies set failed: source=database, path={cookiePath}, error={Ex.Message}");
                         try
                         {
                             cookies = File.ReadAllText(cookiePath);
@@ -307,7 +307,7 @@ namespace z3n7
                         }
                         catch (Exception E)
                         {
-                            _logger.Warn($"Cookies set failed: source=file, path={cookiePath}, error={E.Message}");
+                            _logger?.Warn($"Cookies set failed: source=file, path={cookiePath}, error={E.Message}");
                         }
                     }
             }
@@ -497,7 +497,7 @@ namespace z3n7
             }
             catch (Exception ex)
             {
-                _logger.Warn($"Profile save failed: {ex.GetType().Name} - {ex.Message}");
+                _logger?.Warn($"Profile save failed: {ex.GetType().Name} - {ex.Message}");
             }
         }
         /// <summary>

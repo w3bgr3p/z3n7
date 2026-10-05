@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.Utilities
@@ -67,7 +68,6 @@ namespace z3n7.Utilities
                     var prop = type.GetProperty(column);
                     var value = prop.GetValue(obj, null); 
                     string valueStr = value != null ? value.ToString() : string.Empty;
-                    valueStr = valueStr.Replace("'", "''");
                     data.Add(column, valueStr);
                 }
                 catch
@@ -76,8 +76,9 @@ namespace z3n7.Utilities
                 }
             }
     
-            if (!string.IsNullOrEmpty(tableToUpd)) project.DicToDb(data, tableToUpd);
-            return data;
+            // DicToDb escapes quotes itself and renames an "id" key, so it gets its own raw copy.
+            if (!string.IsNullOrEmpty(tableToUpd)) project.DicToDb(new Dictionary<string, string>(data), tableToUpd);
+            return data.ToDictionary(kv => kv.Key, kv => kv.Value.Replace("'", "''"));
         }
         #endregion
         

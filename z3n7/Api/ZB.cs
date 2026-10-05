@@ -14,56 +14,46 @@ namespace z3n7
         private static readonly object _dbLock = new object();
         /// <summary>
         /// Reads <c>id</c> and <c>name</c> of every ZennoBrowser profile except <c>template</c> from the
-        /// <c>ProfileInfos</c> table. While reading, the <c>DBmode</c> and <c>DBsqltPath</c> variables point at
-        /// <c>%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db</c>; they are restored afterwards.
+        /// <c>ProfileInfos</c> table of <c>%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db</c>. The file
+        /// is read directly; project variables are not touched.
         /// </summary>
         /// <returns>Profile id → profile name. Throws when the ZennoBrowser database file is missing.</returns>
-        /// <remarks>
-        /// The read goes through <c>DbGetLines</c>/<c>DbGet</c> → <c>DbQ</c>, which picks the database by
-        /// <c>dbSource</c> and does not consult <c>DBmode</c> or <c>DBsqltPath</c>.
-        /// </remarks>
         public static Dictionary<string, string> ZBids(this IZennoPosterProjectModel project)
         {
             lock (_dbLock)
             {
-                var modeBkp = project.Var("DBmode");
-                var pathBkp = project.Var("DBsqltPath");
+                var current = ReadZbDb("SELECT \"id\", \"name\" FROM \"ProfileInfos\"").Split('·');
+                var zbId_acc0 = new Dictionary<string, string>();
 
-                try
+                foreach (var line in current)
                 {
-                    project.Var("DBmode", "SQLite");
-                    string dbPath = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                        "ZennoLab", "ZP8", ".zp8", "ProfileManagement.db");
+                    var parts = line.Split('¦');
+                    if (parts.Length < 2) continue;
 
-                    if (!File.Exists(dbPath))
-                        throw new FileNotFoundException($"ZB db not found by path: {dbPath}");
+                    var id = parts[0].Trim();
+                    var acc = parts[1].Trim();
 
-                    project.Var("DBsqltPath", dbPath);
-
-                    var current = project.DbGetLines("id, name", "ProfileInfos", where: "id = id");
-                    var zbId_acc0 = new Dictionary<string, string>();
-
-                    foreach (var line in current)
-                    {
-                        var parts = line.Split('¦');
-                        if (parts.Length < 2) continue;
-
-                        var id = parts[0].Trim();
-                        var acc = parts[1].Trim();
-
-                        if (acc == "template") continue;
-                        zbId_acc0.Add(id, acc);
-                    }
-
-                    return zbId_acc0;
+                    if (acc == "template") continue;
+                    zbId_acc0.Add(id, acc);
                 }
-                finally
-                {
-                    project.Var("DBsqltPath", pathBkp);
-                    project.Var("DBmode", modeBkp);
-                }
+
+                return zbId_acc0;
             }
+        }
+
+        // The ZennoBrowser database is read directly: DbQ picks its database by dbSource,
+        // so pointing DBmode/DBsqltPath at this file would not redirect it.
+        internal static string ReadZbDb(string query)
+        {
+            string dbPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ZennoLab", "ZP8", ".zp8", "ProfileManagement.db");
+
+            if (!File.Exists(dbPath))
+                throw new FileNotFoundException($"ZB db not found by path: {dbPath}");
+
+            using (var db = new Sql(dbPath, null))
+                return db.DbReadAsync(query, "¦", "·").GetAwaiter().GetResult();
         }
         
         /// <summary>
@@ -94,47 +84,22 @@ namespace z3n7
         public static class ZbDbManager
     {
         /// <summary>
-        /// Reads <c>query</c> columns of the profile whose id is in the <c>zb_id</c> variable. While reading,
-        /// <c>DBmode</c>, <c>DBsqltPath</c> and <c>acc0</c> point at the ZennoBrowser database and profile;
-        /// they are restored afterwards.
+        /// Reads <c>query</c> columns of the profile whose id is in the <c>zb_id</c> variable, directly from
+        /// <c>%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db</c>.
         /// </summary>
         /// <param name="query">Comma-separated column names.</param>
         /// <param name="tableName">Table.</param>
-        /// <param name="log">Write the query to the log.</param>
-        /// <remarks>
-        /// The read goes through <c>DbGetLines</c>/<c>DbGet</c> → <c>DbQ</c>, which picks the database by
-        /// <c>dbSource</c> and does not consult <c>DBmode</c> or <c>DBsqltPath</c>.
-        /// </remarks>
+        /// <param name="log">Write the query and its result to the log.</param>
+        /// <returns>Columns joined by <c>¦</c>; empty when there is no such profile.</returns>
         public static string ZBDbGet(this IZennoPosterProjectModel project,string query, string tableName = "ProfileInfos", bool log = false)
         {
-            var modeBkp = project.Var("DBmode");   
-            var pathBkp = project.Var("DBsqltPath");   
-            var acc0Bkp = project.Var("acc0");   
-	
-            string dbPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "ZennoLab", "ZP8", ".zp8", "ProfileManagement.db"
-            );
-    
-            if (!File.Exists(dbPath))
-            {
-                throw new FileNotFoundException(
-                    $"База данных не найдена по пути: {dbPath}"
-                );
-            }
-            project.Var("DBmode", "SQLite");
-            project.Var("acc0", 1);
-            project.Var("DBsqltPath", dbPath);
+            var columns = string.Join(", ", query.Split(',').Select(c => $"\"{c.Trim()}\""));
+            var zbId = project.Var("zb_id").Replace("'", "''");
+            var sql = $"SELECT {columns} FROM \"{tableName}\" WHERE \"id\" = '{zbId}'";
 
-            
-            project.Var("acc0",project.Var("zb_id")); 
-            string resp = project.DbGet(query,tableName, log:log );
-            
-            project.Var("DBmode",modeBkp);   
-            project.Var("DBsqltPath",pathBkp);  
-            project.Var("acc0",acc0Bkp); 
+            string resp = ZennoBrowser.ReadZbDb(sql);
+            if (log) project.SendInfoToLog($"[ZB] [{sql}]\n[{resp}]");
             return resp;
-            
         }
         /// <summary>
         /// Maps profile names to ids from a JSON array of ZennoBrowser profiles (<c>Name</c>, <c>Id</c>,
