@@ -172,7 +172,7 @@ namespace z3n7
                 default:
                     throw new Exception($"unsupported operation {operation}");
             }
-            if (string.IsNullOrEmpty(resultVar)) 
+            if (!string.IsNullOrEmpty(resultVar)) 
                 try { project.Var(resultVar, $"{result}"); } catch { }
             return result;
         }

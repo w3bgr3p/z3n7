@@ -244,7 +244,7 @@ namespace z3n7
         public static void DbDone(this IZennoPosterProjectModel project, string task = "daily", int cooldownMin = 0, string tableName = null, bool log = false, bool thrw = false, string key = "id", object acc = null, string where = "")
         {
             var cd = (cooldownMin == 0) ? Time.Cd() : Time.Cd(cooldownMin);
-            project.DbUpd($"{task} = '{cd}'", tableName, log, thrw);
+            project.DbUpd($"{task} = '{cd}'", tableName, log, thrw, key, acc, where);
         }
         
     }
@@ -805,7 +805,7 @@ namespace z3n7
         
         public static void EnsureTable(this IZennoPosterProjectModel project, TableSchema schema)
         {
-            project.TblAdd(DbSchema.Process.Columns, DbSchema.Process.Name);
+            project.TblAdd(schema.Columns, schema.Name);
         }
         
         public static void TblAdd(this IZennoPosterProjectModel project,  Dictionary<string, string> tableStructure, string tblName, bool log = false)
@@ -1006,12 +1006,12 @@ namespace z3n7
         public static void ClmnAdd(this IZennoPosterProjectModel project, List<string> columns, string tblName,  bool log = false, string defaultValue = "TEXT DEFAULT ''")
         {
             foreach (var column in columns)
-                project.ClmnAdd(column, tblName, log:log);
+                project.ClmnAdd(column, tblName, log:log, defaultValue: defaultValue);
         }      
         public static void ClmnAdd(this IZennoPosterProjectModel project, string[] columns, string tblName,  bool log = false, string defaultValue = "TEXT DEFAULT ''")
         {
             foreach (var column in columns)
-                project.ClmnAdd(column, tblName, log:log);
+                project.ClmnAdd(column, tblName, log:log, defaultValue: defaultValue);
         }
         
         public static void ClmnAdd(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null,  bool log = false)
@@ -1059,7 +1059,7 @@ namespace z3n7
             var current = project.TblColumns(tblName, log: log);
             foreach (var column in tableStructure)
             {
-                if (!current.Contains(column.Key))
+                if (current.Contains(column.Key))
                 {
                     string clmnName = DbHelpers.Quote(column.Key);
                     string cascade = (project.DbMode() == "pgSQL") ? " CASCADE" : null;

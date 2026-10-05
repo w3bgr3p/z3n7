@@ -82,7 +82,7 @@ namespace z3n7
             }
             
             string toLog = query.Contains("SELECT") ? $"[{query}]\n[{result}]" : $"[{query}] - [{result}]";
-            _log.Send($"[{(_dbMode == "pgSQL" ? "🐘" : "SQLite")}] {toLog}");
+            _log.Send($"[{(_dbMode == "pgSQL" ? "🐘" : "SQLite")}] {toLog}", show: log);
             return result;
         }
         #endregion
@@ -1213,6 +1213,11 @@ namespace z3n7
             if (_dbMode != "pgSQL")
                 throw new InvalidOperationException("Target database must be PostgreSQL");
 
+            CopySqliteToPg(sqlitePath, sqliteTable, pgTable, pgSchema, sql => Query(sql, log), log);
+        }
+
+        private void CopySqliteToPg(string sqlitePath, string sqliteTable, string pgTable, string pgSchema, Action<string> pgExec, bool log)
+        {
             Dictionary<string, string> sqliteColumns;
             List<List<object>> rows;
 
@@ -1222,8 +1227,8 @@ namespace z3n7
                 rows = FetchSqliteRows(sqliteDb, sqliteTable, sqliteColumns.Keys.ToList(), log);
             }
 
-            RecreatePgTable(pgSchema, pgTable, sqliteColumns, log);
-            InsertRowsIntoPg(pgSchema, pgTable, sqliteColumns.Keys.ToList(), rows, log);
+            RecreatePgTable(pgSchema, pgTable, sqliteColumns, pgExec);
+            InsertRowsIntoPg(pgSchema, pgTable, sqliteColumns.Keys.ToList(), rows, pgExec);
 
             _log.Send($"Transferred {rows.Count} rows from SQLite {sqliteTable} to PostgreSQL {pgSchema}.{pgTable}");
         }
@@ -1273,7 +1278,9 @@ namespace z3n7
             }
             else if (_dbMode == "SQLite" && targetMode == "pgSQL")
             {
-                SqliteToPg(_sqLitePath, sourceTable, targetTable, schema, log);
+                // The target is a different database: targetDbPath carries its connection string.
+                using (var pgDb = new Sql(targetDbPath))
+                    CopySqliteToPg(_sqLitePath, sourceTable, targetTable, schema, sql => pgDb.DbWrite(sql), log);
             }
             else if (_dbMode == "SQLite" && targetMode == "SQLite")
             {
@@ -1380,17 +1387,17 @@ namespace z3n7
             return rows;
         }
 
-        private void RecreatePgTable(string schema, string table, Dictionary<string, string> columns, bool log)
+        private void RecreatePgTable(string schema, string table, Dictionary<string, string> columns, Action<string> exec)
         {
-            Query($"DROP TABLE IF EXISTS \"{schema}\".\"{table}\"", log);
+            exec($"DROP TABLE IF EXISTS \"{schema}\".\"{table}\"");
 
             var columnsSql = string.Join(", ", columns.Select(kvp =>
                 $"\"{kvp.Key}\" {SqliteTypeToPg(kvp.Value)}"));
 
-            Query($"CREATE TABLE \"{schema}\".\"{table}\" ({columnsSql})", log);
+            exec($"CREATE TABLE \"{schema}\".\"{table}\" ({columnsSql})");
         }
 
-        private void InsertRowsIntoPg(string schema, string table, List<string> columns, List<List<object>> rows, bool log)
+        private void InsertRowsIntoPg(string schema, string table, List<string> columns, List<List<object>> rows, Action<string> exec)
         {
             if (rows.Count == 0)
                 return;
@@ -1403,7 +1410,7 @@ namespace z3n7
                     v == null ? "NULL" : $"'{v.ToString().Replace("'", "''")}'"));
 
                 string insertSql = $"INSERT INTO \"{schema}\".\"{table}\" ({columnNames}) VALUES ({values})";
-                Query(insertSql, log);
+                exec(insertSql);
             }
         }
 
