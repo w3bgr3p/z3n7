@@ -9,6 +9,10 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.Api
 {
+    /// <summary>
+    /// Client of the temporary mailbox service (default <c>https://mail.autoz3n.xyz</c>); the same API as
+    /// <c>BestMailBox</c>. A response whose <c>success</c> is not true throws with the service's error.
+    /// </summary>
     public class z3nmail
     {
         private const string DefaultBaseUrl = "https://mail.autoz3n.xyz";
@@ -18,6 +22,11 @@ namespace z3n7.Api
         private readonly bool _useNetHttp;
         private readonly bool _log;
 
+        /// <summary>Creates a client.</summary>
+        /// <param name="apikey">API key; default <c>Z3NMAIL_API_KEY</c> from the project's <c>.env</c>.</param>
+        /// <param name="baseUrl">Service URL; default <c>https://mail.autoz3n.xyz</c>.</param>
+        /// <param name="useNetHttp">Send requests through <c>NetHttp</c> instead of ZennoPoster's HTTP client.</param>
+        /// <param name="log">Log requests and responses.</param>
         public z3nmail(IZennoPosterProjectModel project, string apikey = null, string baseUrl = null, bool useNetHttp = false, bool log = false)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
@@ -50,10 +59,14 @@ namespace z3n7.Api
 
         // ── Mailbox Operations ──
 
-        /// <summary>Создает временный почтовый ящик. Возвращает [id, email].</summary>
-        /// <param name="domain">Желаемый домен (например "autoz3n.xyz" или "z3nd3v.xyz"), если null — выбирается случайно.</param>
-        /// <param name="prefix">Желаемый префикс (например "alex.miller"), если null — генерируется автоматически.</param>
-        /// <param name="ttl">Время жизни ящика в секундах (по умолчанию 1200 = 20 минут).</param>
+        /// <summary>
+        /// Creates a mailbox. Stores the id in <c>mailId</c>, the address in <c>email</c> and
+        /// <c>project.Profile.Email</c>.
+        /// </summary>
+        /// <param name="domain">Mailbox domain; random when <c>null</c>.</param>
+        /// <param name="prefix">Local part of the address; generated when <c>null</c>.</param>
+        /// <param name="ttl">Mailbox lifetime in seconds.</param>
+        /// <returns><c>[id, email]</c>.</returns>
         public string[] NewMail(string domain = null, string prefix = null, int ttl = 1200)
         {
             var query = $"?api_key={Uri.EscapeDataString(_apikey)}&ttl={ttl}";
@@ -74,9 +87,15 @@ namespace z3n7.Api
             return new[] { id, email };
         }
 
-        /// <summary>Быстрое получение OTP-кода (4-8 знаков). Опрашивает API до получения или таймаута.</summary>
-        /// <param name="deadline">Таймаут ожидания в секундах (по умолчанию 60 сек).</param>
-        /// <param name="id">ID ящика или email (если null, берется из переменной mailId).</param>
+        /// <summary>
+        /// Polls the service every 2.5 seconds for a one-time code found by the service in the mailbox.
+        /// </summary>
+        /// <param name="deadline">Seconds to wait; then <c>TimeoutException</c>.</param>
+        /// <param name="id">
+        /// Mailbox id or address; default is the <c>mailId</c> variable, then <c>bestMailId</c>, then
+        /// <c>email</c>.
+        /// </param>
+        /// <returns>The code.</returns>
         public string Otp(int deadline = 60, string id = null)
         {
             var mailId = id ?? _project.Var("mailId");
@@ -104,9 +123,13 @@ namespace z3n7.Api
             }
         }
 
-        /// <summary>Ожидает письмо и возвращает полное тело последнего письма (HTML / текст).</summary>
-        /// <param name="deadline">Таймаут ожидания в секундах (по умолчанию 60 сек).</param>
-        /// <param name="id">ID ящика или email (если null, берется из переменной mailId).</param>
+        /// <summary>Polls every 2.5 seconds for the latest message.</summary>
+        /// <param name="deadline">Seconds to wait; then <c>TimeoutException</c>.</param>
+        /// <param name="id">
+        /// Mailbox id or address; default is the <c>mailId</c> variable, then <c>bestMailId</c>, then
+        /// <c>email</c>.
+        /// </param>
+        /// <returns>The HTML body, or the text body when there is no HTML.</returns>
         public string GetMail(int deadline = 60, string id = null)
         {
             var mailId = id ?? _project.Var("mailId");
@@ -134,7 +157,16 @@ namespace z3n7.Api
             }
         }
 
-        /// <summary>Извлекает ссылки активации/подтверждения из полученного письма.</summary>
+        /// <summary>
+        /// Polls every 2.5 seconds for the latest message and returns its links: the service's verification
+        /// links, else all links of the HTML body. Anchors, <c>mailto:</c>, <c>tel:</c>, <c>javascript:</c>,
+        /// <c>data:</c> and links to images, styles, scripts and fonts are skipped.
+        /// </summary>
+        /// <param name="deadline">Seconds to wait; then <c>TimeoutException</c>.</param>
+        /// <param name="id">
+        /// Mailbox id or address; default is the <c>mailId</c> variable, then <c>bestMailId</c>, then
+        /// <c>email</c>.
+        /// </param>
         public HashSet<string> GetHrefs(int deadline = 60, string id = null)
         {
             var mailId = id ?? _project.Var("mailId");
@@ -195,7 +227,14 @@ namespace z3n7.Api
             }
         }
 
-        /// <summary>Досрочно уничтожает ящик и все его письма.</summary>
+        /// <summary>Deletes the mailbox and its messages.</summary>
+        /// <param name="id">
+        /// Mailbox id or address; default is the <c>mailId</c> variable, then <c>bestMailId</c>, then
+        /// <c>email</c>.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> when the service confirmed; <c>false</c> on any error or when there is no id.
+        /// </returns>
         public bool DeleteMail(string id = null)
         {
             var mailId = id ?? _project.Var("mailId");
@@ -216,7 +255,7 @@ namespace z3n7.Api
             }
         }
 
-        /// <summary>Получает список доступных доменов.</summary>
+        /// <summary>Domains the service offers.</summary>
         public List<string> GetDomains()
         {
             var json = Get($"/api/domains?api_key={Uri.EscapeDataString(_apikey)}");

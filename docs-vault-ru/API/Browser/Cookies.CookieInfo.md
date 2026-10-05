@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Cookies.CookieInfo
 
-`class` · пространство имён `z3n7` · исходник [Browser/Cookies.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L17)
+`class` · пространство имён `z3n7` · исходник [Browser/Cookies.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L22)
 
 ```csharp
 public class CookieInfo
 ```
 
-*Описания пока нет.*
+Summary of a stored cookie set (see `AnalyzeCookies`).
 
 ## Свойства
 
@@ -22,7 +22,9 @@ public class CookieInfo
 public Dictionary<string, int> ByDomain { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L24)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L35)
+
+Cookie count per domain.
 
 ### ExpiredCookies
 
@@ -30,7 +32,9 @@ public Dictionary<string, int> ByDomain { get; set; }
 public int ExpiredCookies { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L22)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L31)
+
+Cookies already expired.
 
 ### GoogleCookies
 
@@ -38,7 +42,9 @@ public int ExpiredCookies { get; set; }
 public int GoogleCookies { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L21)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L29)
+
+Cookies whose domain contains `google`.
 
 ### LargestCookies
 
@@ -46,7 +52,9 @@ public int GoogleCookies { get; set; }
 public List<dynamic> LargestCookies { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L25)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L37)
+
+The 10 cookies with the longest values.
 
 ### OldCookies
 
@@ -54,7 +62,9 @@ public List<dynamic> LargestCookies { get; set; }
 public int OldCookies { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L23)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L33)
+
+Cookies that expired more than 6 months ago.
 
 ### TotalCount
 
@@ -62,7 +72,9 @@ public int OldCookies { get; set; }
 public int TotalCount { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L19)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L25)
+
+Number of cookies.
 
 ### TotalSizeBytes
 
@@ -70,6 +82,8 @@ public int TotalCount { get; set; }
 public long TotalSizeBytes { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L20)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L27)
+
+Size of the cookie JSON, bytes.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

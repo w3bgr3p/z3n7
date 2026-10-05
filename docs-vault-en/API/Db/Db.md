@@ -38,7 +38,7 @@ Creates a database helper with explicit connection settings.
 | `pgUser` | PostgreSQL user. |
 | `pgPass` | PostgreSQL password. |
 | `defaultTable` | Table used when a method gets no table name. |
-| `logLevel` | Level of the internal logger; queries and results are logged at `Info`. |
+| `logLevel` | Not used for output: without a project the logger has nowhere to write. |
 
 ```csharp
 public Db(IZennoPosterProjectModel project, string dbMode = null, string sqLitePath = null, string pgHost = null, string pgPort = null, string pgDbName = null, string pgUser = null, string pgPass = null, string defaultTable = null, bool log = false)
@@ -68,7 +68,7 @@ Adds a column if the table does not have it yet.
 |---|---|
 | `columnName` | Column name. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `defaultValue` | SQL type of the new column. |
 
 ### AddColumns
@@ -85,7 +85,7 @@ Adds each listed column that the table does not have yet.
 |---|---|
 | `columns` | Column names. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `defaultValue` | SQL type of the new columns. |
 
 ```csharp
@@ -100,7 +100,7 @@ Adds each column of `tableStructure` that the table does not have yet, with its 
 |---|---|
 | `tableStructure` | Column → SQL type. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### AddRange
 
@@ -116,7 +116,7 @@ Inserts rows with ids from the current maximum + 1 up to `range`, in batches of 
 |---|---|
 | `tableName` | Table with an `id` column. |
 | `range` | Highest id to have. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### BridgeTable
 
@@ -135,7 +135,7 @@ Copies a table from this database to another one: PostgreSQL → SQLite, SQLite 
 | `targetTable` | Target table. |
 | `targetMode` | `SQLite` or `pgSQL`. |
 | `schema` | PostgreSQL schema. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### Clear
 
@@ -150,7 +150,7 @@ Deletes all rows and resets the id counter (`TRUNCATE … RESTART IDENTITY CASCA
 | Parameter | Description |
 |---|---|
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 
 ### ClearLine
@@ -167,7 +167,7 @@ Sets every column except `id` to an empty string in one row.
 |---|---|
 | `id` | Row id. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 
 ### ColumnExists
@@ -184,7 +184,7 @@ Checks whether a column exists. Case-insensitive on PostgreSQL, case-sensitive o
 |---|---|
 | `columnName` | Column name. |
 | `tableName` | Table name. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### CreateTable
 
@@ -200,7 +200,7 @@ Creates the table unless it exists. On PostgreSQL `AUTOINCREMENT` in a type is r
 |---|---|
 | `tableStructure` | Column → SQL type. |
 | `tableName` | Table to create. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### DbToJson
 
@@ -215,7 +215,7 @@ Rebuilds the JSON stored by `JsonToDb` from the row with the given `id`. Columns
 | Parameter | Description |
 |---|---|
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
 
@@ -234,7 +234,7 @@ Deletes the row where `key` = `id`, or the rows matching `where`.
 | Parameter | Description |
 |---|---|
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `key` | Column matched against `id`. |
 | `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
@@ -254,7 +254,7 @@ Drops a column if it exists (`CASCADE` on PostgreSQL).
 |---|---|
 | `columnName` | Column name. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### Get
 
@@ -270,7 +270,7 @@ Selects columns from the row where `key` = `id`, or from the rows matching `wher
 |---|---|
 | `columns` | Comma-separated column names; each is quoted. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `key` | Column matched against `id`. |
 | `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
@@ -292,7 +292,7 @@ Like `Get`, but returns the first row as column → value.
 |---|---|
 | `columns` | Comma-separated column names; each is quoted. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `key` | Column matched against `id`. |
 | `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
@@ -314,7 +314,7 @@ Like `Get`, split into column values.
 |---|---|
 | `columns` | Comma-separated column names; each is quoted. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `key` | Column matched against `id`. |
 | `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
@@ -334,7 +334,7 @@ Like `Get`, split into rows. Each row still has its columns joined by `¦`.
 |---|---|
 | `columns` | Comma-separated column names; each is quoted. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `key` | Column matched against `id`. |
 | `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
@@ -354,7 +354,7 @@ Selects `column` from random rows where it is not empty.
 |---|---|
 | `column` | Column to read. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `maxId` | When above 0, only rows with `id` below it. |
 | `includeId` | Prefix the result with the `id` column. |
@@ -374,7 +374,7 @@ Column names of a table.
 | Parameter | Description |
 |---|---|
 | `tableName` | Table name. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### GetTables
 
@@ -388,7 +388,7 @@ Names of all tables, sorted (PostgreSQL: base tables of the `public` schema).
 
 | Parameter | Description |
 |---|---|
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### InsertDic
 
@@ -404,7 +404,7 @@ Inserts one row from a dictionary. On PostgreSQL a conflicting row is skipped (`
 |---|---|
 | `data` | Column → value. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 
 ### JsonToDb
@@ -421,7 +421,7 @@ Flattens a JSON object into columns and writes it with `UpdFromDict`. Nested key
 |---|---|
 | `json` | JSON object. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `where` | Raw SQL condition selecting the row. |
 
@@ -441,7 +441,7 @@ Copies a PostgreSQL table into an SQLite file. The target table is dropped and r
 | `sqlitePath` | SQLite database file. |
 | `sqliteTable` | Target table. |
 | `pgSchema` | Source schema. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 **Remarks:** This instance must be in `pgSQL` mode.
 
@@ -459,7 +459,7 @@ Creates the table if it does not exist and adds missing columns.
 |---|---|
 | `tableStructure` | Column → SQL type, e.g. `{"id", "INTEGER PRIMARY KEY"}`. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `prune` | Also drop columns that are not in `tableStructure` (`PruneColumns`). |
 | `rearrange` | Also reorder columns to match `tableStructure` (`RearrangeColumns`). |
 
@@ -477,7 +477,7 @@ Same as the dictionary overload, with an `id` primary key and one type for every
 | `tableName` | Table; default is the table given to the constructor. |
 | `defaultType` | SQL type of every column. |
 | `serial` | Type of `id`. `INTEGER` becomes `INTEGER PRIMARY KEY AUTOINCREMENT` (`AUTOINCREMENT` is replaced by `SERIAL` on PostgreSQL). |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `prune` | Drop columns not in the list. |
 | `rearrange` | Reorder columns to match the list. |
 
@@ -495,7 +495,7 @@ Drops every column except `id` that is not a key of `tableStructure`.
 |---|---|
 | `tableStructure` | Columns to keep. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### PruneEmptyColumns
 
@@ -510,7 +510,7 @@ Drops every column except `id` in which no row has a non-empty value.
 | Parameter | Description |
 |---|---|
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### Query
 
@@ -525,7 +525,7 @@ Executes one SQL statement.
 | Parameter | Description |
 |---|---|
 | `query` | SQL text. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `unSafe` | Not used. |
 
@@ -545,7 +545,7 @@ Reorders the table's columns: `id` first, then the columns of `tableStructure` t
 |---|---|
 | `tableStructure` | Desired order (column → type). |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### SetDone
 
@@ -562,7 +562,7 @@ Writes a local timestamp `yyyy-MM-dd HH:mm:ss` to `taskColumn`: now, or now plus
 | `taskColumn` | Column to write. |
 | `cooldownMin` | Minutes to add; 0 writes the current time. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `key` | Column matched against `id`. |
 | `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
@@ -584,7 +584,7 @@ Copies an SQLite table into PostgreSQL. The target table is dropped and recreate
 | `sqliteTable` | Source table. |
 | `pgTable` | Target table. |
 | `pgSchema` | Target schema. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 **Remarks:** This instance must be in `pgSQL` mode; it is the target.
 
@@ -604,7 +604,7 @@ Copies a table between two SQLite files. The target table is dropped and recreat
 | `sourceTable` | Source table. |
 | `targetPath` | Target database file. |
 | `targetTable` | Target table. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### SwapLines
 
@@ -621,7 +621,7 @@ Exchanges the values of all columns except `id` between two rows.
 | `id1` | First row id. |
 | `id2` | Second row id. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Throw when a row is not found; otherwise it is logged and nothing changes. |
 
 ### TableExists
@@ -637,7 +637,7 @@ Checks whether the table exists (in the `public` schema on PostgreSQL).
 | Parameter | Description |
 |---|---|
 | `tableName` | Table name; double quotes are ignored. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 
 ### Upd
 
@@ -653,7 +653,7 @@ Runs `UPDATE … SET setClause` for the row where `key` = `id`, or for the rows 
 |---|---|
 | `setClause` | Assignments such as `status = 'ok', note = ''`; column names are quoted, values are taken as written. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `key` | Column matched against `id`. |
 | `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
@@ -673,7 +673,7 @@ Updates the rows matching `where` from a dictionary, adding missing columns firs
 |---|---|
 | `data` | Column → value. |
 | `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the log even when the logger level given to the constructor is `Off`. |
+| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `where` | Raw SQL condition; required. |
 

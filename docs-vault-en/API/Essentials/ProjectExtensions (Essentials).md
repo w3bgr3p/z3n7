@@ -6,7 +6,7 @@ generated: z3n7-docgen
 
 # ProjectExtensions (Essentials)
 
-`static class` · namespace `z3n7` · source [Essentials/ExternalCode.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/ExternalCode.cs#L9), [Essentials/Init.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Init.cs#L134), [Essentials/Logger.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L286), [Essentials/Time.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L174)
+`static class` · namespace `z3n7` · source [Essentials/ExternalCode.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/ExternalCode.cs#L9), [Essentials/Init.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Init.cs#L134), [Essentials/Logger.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L200), [Essentials/Time.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L174)
 
 ```csharp
 public static class ProjectExtensions
@@ -68,7 +68,7 @@ Runs `Init.InitVariables` and then starts the embedded server (`StartZpServer`).
 public static void log(this IZennoPosterProjectModel project, object toLog, [CallerMemberName] string caller = "", bool show = true, bool toZp = true)
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L295)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L209)
 
 Writes a message to the project log through a default `Logger`. When called directly from a C# action, the generated action name is replaced by the project name.
 
@@ -152,7 +152,7 @@ Throws once the session (`varSessionId`) is older than `min` minutes. The messag
 public static void warn(this IZennoPosterProjectModel project, string msg, bool thrw = false, bool show = true, [CallerMemberName] string caller = "")
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L311)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L225)
 
 Writes a warning to the project log.
 
@@ -166,7 +166,7 @@ Writes a warning to the project log.
 public static void warn(this IZennoPosterProjectModel project, Exception ex, bool thrw = false, bool withStack = false, bool toZp = true, [CallerMemberName] string caller = "")
 ```
 
-Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L330)
+Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L244)
 
 Writes an exception message as a warning and stores it in the `err` variable.
 

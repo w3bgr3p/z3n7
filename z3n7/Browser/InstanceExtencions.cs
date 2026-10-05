@@ -28,6 +28,16 @@ namespace z3n7
         
         #region Element Getters
         
+        /// <summary>Finds an element in the active tab.</summary>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="method">
+        /// For a 5-part selector: <c>random</c> picks a random match, <c>last</c> the last one; otherwise the
+        /// index is used.
+        /// </param>
+        /// <returns>The element. Throws when it is not found or the selector shape is unsupported.</returns>
         public static HtmlElement GetHe(this Instance instance, object obj, string method = "")
         {
             if (obj is HtmlElement element)
@@ -132,6 +142,26 @@ namespace z3n7
         
         #region Element Actions
         
+        /// <summary>Waits for an element and returns one of its attributes.</summary>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="method">
+        /// For a 5-part selector: <c>random</c> picks a random match, <c>last</c> the last one; otherwise the
+        /// index is used.
+        /// </param>
+        /// <param name="deadline">Seconds to keep looking (every 0.5 s).</param>
+        /// <param name="atr">Attribute to read.</param>
+        /// <param name="delay">Seconds to wait after finding it.</param>
+        /// <param name="thrw">Throw when the element is not found in time; otherwise return quietly.</param>
+        /// <param name="thr0w">Legacy switch: <c>false</c> also turns <c>thrw</c> off.</param>
+        /// <param name="waitTillVoid">
+        /// Wait until the element is gone instead; returns <c>null</c> at the deadline and throws while it is
+        /// present.
+        /// </param>
+        /// <param name="pathToScript">When set, appends the action and the element's XPath to this file.</param>
+        /// <returns>The attribute value, or <c>null</c> when not found and <c>thrw</c> is false.</returns>
         public static string HeGet(this Instance instance, object obj, string method = "", int deadline = 10, string atr = "innertext", int delay = 1, bool thrw = true, bool thr0w = true, bool waitTillVoid = false, string pathToScript = null)
         {
             DateTime functionStart = DateTime.Now;
@@ -195,6 +225,25 @@ namespace z3n7
             }
         }
         
+        /// <summary>
+        /// Watches for an element that must not appear (e.g. an error message) for <c>deadline</c> seconds.
+        /// </summary>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="method">
+        /// For a 5-part selector: <c>random</c> picks a random match, <c>last</c> the last one; otherwise the
+        /// index is used.
+        /// </param>
+        /// <param name="deadline">Seconds to keep looking (every 0.5 s).</param>
+        /// <param name="atr">Attribute used as the exception message.</param>
+        /// <param name="delay">Seconds to wait before starting.</param>
+        /// <param name="pathToScript">Not used.</param>
+        /// <returns>
+        /// <c>null</c> when the element never appeared. When it appears, throws an exception whose message is
+        /// its <c>atr</c>.
+        /// </returns>
         public static string HeCatch(this Instance instance, object obj,  string method = "", int deadline = 10, string atr = "innertext", int delay = 1, string pathToScript = null)
         {
             Thread.Sleep(1000 * delay);
@@ -230,6 +279,23 @@ namespace z3n7
                 Thread.Sleep(500);
             }
         }
+        /// <summary>
+        /// Same as the overload without <c>project</c>; also stores the message in the <c>err</c> variable
+        /// before throwing.
+        /// </summary>
+        /// <param name="project">Project for the <c>err</c> variable.</param>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="method">
+        /// For a 5-part selector: <c>random</c> picks a random match, <c>last</c> the last one; otherwise the
+        /// index is used.
+        /// </param>
+        /// <param name="deadline">Seconds to keep looking (every 0.5 s).</param>
+        /// <param name="atr">Attribute used as the exception message.</param>
+        /// <param name="delay">Seconds to wait before starting.</param>
+        /// <param name="pathToScript">Not used.</param>
         public static string HeCatch(this Instance instance, IZennoPosterProjectModel project, object obj,  string method = "", int deadline = 10, string atr = "innertext", int delay = 1, string pathToScript = null)
         {
             Thread.Sleep(1000 * delay);
@@ -267,12 +333,31 @@ namespace z3n7
             }
         }
 
+        /// <summary>Clicks each element in turn with <c>HeClick</c> defaults.</summary>
         public static void HeMultiClick(this Instance instance, List<object> selectors)
         {
             foreach (var selector in selectors) 
                 instance.HeClick(selector);
         }
 
+        /// <summary>Waits for an element and clicks it after a random pause of about 1–1.3 s × <c>delay</c>.</summary>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="method">
+        /// For a 5-part selector: <c>random</c> picks a random match, <c>last</c> the last one; otherwise the
+        /// index is used. <c>clickOut</c> keeps clicking until the element disappears.
+        /// </param>
+        /// <param name="deadline">Seconds to keep looking (every 0.5 s).</param>
+        /// <param name="delay">Multiplier of the pause before clicking.</param>
+        /// <param name="comment">Text added to the timeout message.</param>
+        /// <param name="thrw">Throw when the element is not found in time; otherwise return quietly.</param>
+        /// <param name="thr0w">Legacy switch: <c>false</c> also turns <c>thrw</c> off.</param>
+        /// <param name="emu">
+        /// 1 — use full mouse emulation for this action, −1 — turn it off, 0 — leave the instance setting.
+        /// </param>
+        /// <param name="pathToScript">When set, appends the action and the element's XPath to this file.</param>
         public static void HeClick(this Instance instance, object obj, string method = "", int deadline = 10, double delay = 1, string comment = "", bool thrw = true, bool thr0w = true, int emu = 0, string pathToScript = null)
         {
             bool emuSnap = instance.UseFullMouseEmulation;
@@ -336,6 +421,24 @@ namespace z3n7
             }
         }
         
+        /// <summary>Waits for an element and holds the left button at a random point inside it.</summary>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="holdMs">Hold time in milliseconds.</param>
+        /// <param name="method">
+        /// For a 5-part selector: <c>random</c> picks a random match, <c>last</c> the last one; otherwise the
+        /// index is used.
+        /// </param>
+        /// <param name="deadline">Seconds to keep looking (every 0.5 s).</param>
+        /// <param name="delay">Multiplier of the pause before pressing.</param>
+        /// <param name="comment">Text added to the timeout message.</param>
+        /// <param name="thrw">Throw when the element is not found in time; otherwise return quietly.</param>
+        /// <param name="thr0w">Legacy switch: <c>false</c> also turns <c>thrw</c> off.</param>
+        /// <param name="emu">
+        /// 1 — use full mouse emulation for this action, −1 — turn it off, 0 — leave the instance setting.
+        /// </param>
         public static void HeLongClick(this Instance instance, object obj, int holdMs = 3 , string method = "", int deadline = 10, double delay = 1, string comment = "", bool thrw = true, bool thr0w = true, int emu = 0)
         {
             if (holdMs < 0) throw new ArgumentOutOfRangeException(nameof(holdMs));
@@ -387,6 +490,14 @@ namespace z3n7
             }
         }
 
+        /// <summary>Holds the left button at a point.</summary>
+        /// <param name="x">X in the tab.</param>
+        /// <param name="y">Y in the tab.</param>
+        /// <param name="holdMs">Hold time in milliseconds.</param>
+        /// <param name="delay">Multiplier of the pause before pressing.</param>
+        /// <param name="emu">
+        /// 1 — use full mouse emulation for this action, −1 — turn it off, 0 — leave the instance setting.
+        /// </param>
         public static void HeLongClick(this Instance instance, int x, int y, int holdMs = 3, double delay = 1, int emu = 0)
         {
             if (holdMs < 0) throw new ArgumentOutOfRangeException(nameof(holdMs));
@@ -433,6 +544,28 @@ namespace z3n7
         }
         
         
+        /// <summary>
+        /// Waits for an input and enters <c>value</c> after a random pause of about 1.3–2 s × <c>delay</c>.
+        /// </summary>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="value">Text to enter.</param>
+        /// <param name="method">
+        /// For a 5-part selector: <c>random</c> picks a random match, <c>last</c> the last one; otherwise the
+        /// index is used.
+        /// </param>
+        /// <param name="deadline">Seconds to keep looking (every 0.5 s).</param>
+        /// <param name="delay">Multiplier of the pause.</param>
+        /// <param name="comment">Text added to the timeout message.</param>
+        /// <param name="thrw">Throw when the element is not found in time; otherwise return quietly.</param>
+        /// <param name="thr0w">Legacy switch: <c>false</c> also turns <c>thrw</c> off.</param>
+        /// <param name="emu">
+        /// 0 — set the value with ZennoPoster's full emulation; above 0 — click the field and type the text;
+        /// below 0 — nothing is entered.
+        /// </param>
+        /// <param name="pathToScript">When set, appends the action and the element's XPath to this file.</param>
         public static void HeSet(this Instance instance, object obj, string value, string method = "id", int deadline = 10, double delay = 1, string comment = "", bool thrw = true, bool thr0w = true,int emu = 0, string pathToScript = null)
         {
             DateTime functionStart = DateTime.Now;
@@ -472,6 +605,17 @@ namespace z3n7
             }
         }
         
+        /// <summary>Waits for an element and removes it from the page.</summary>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="method">
+        /// For a 5-part selector: <c>random</c> picks a random match, <c>last</c> the last one; otherwise the
+        /// index is used.
+        /// </param>
+        /// <param name="deadline">Seconds to keep looking (every 0.5 s).</param>
+        /// <param name="thrw">Throw when the element is not found in time; otherwise return quietly.</param>
         public static void HeDrop(this Instance instance, object obj, string method = "", int deadline = 10, bool thrw = true)
         {
             DateTime functionStart = DateTime.Now;
@@ -501,6 +645,14 @@ namespace z3n7
             }
         }
         
+        /// <summary>
+        /// Drags from the element's centre by the given offset with a human-like path: easing, slight vertical
+        /// wobble and, for longer moves, a small overshoot and correction.
+        /// </summary>
+        /// <param name="element">Element to drag.</param>
+        /// <param name="offsetX">Horizontal offset, px.</param>
+        /// <param name="offsetY">Vertical offset, px.</param>
+        /// <returns>The drop point.</returns>
         public static Point HeDragAndDrop(this Instance instance, HtmlElement element, int offsetX, int offsetY = 0)
         {
             var tab = instance.ActiveTab;
@@ -552,6 +704,13 @@ namespace z3n7
             return new Point(targetX, targetY);
         }
 
+        /// <summary>Opens a drop-down by two long clicks and presses Down a random number of times.</summary>
+        /// <param name="obj">
+        /// Element: an <c>HtmlElement</c>; <c>(value, "id")</c> or <c>(value, "name")</c>; or <c>(tag,
+        /// attribute, pattern, mode, index)</c> as in <c>FindElementByAttribute</c>.
+        /// </param>
+        /// <param name="min">Fewest presses.</param>
+        /// <param name="max">Upper bound of presses (exclusive).</param>
         public static void HePeakRandom(this Instance instance, object obj, int min = 1, int max = 10)
         {
             
@@ -570,6 +729,7 @@ namespace z3n7
 
         #region Browser Management
         
+        /// <summary>Closes all tabs, clears cache and cookies of <c>domain</c> and opens <c>about:blank</c>.</summary>
         public static void ClearShit(this Instance instance, string domain)
         {
             instance.CloseAllTabs();
@@ -579,6 +739,9 @@ namespace z3n7
             instance.ActiveTab.Navigate("about:blank", "");
         }
         
+        /// <summary>Closes every tab after the first <c>tabToKeep</c>.</summary>
+        /// <param name="blank">Then open <c>about:blank</c> in the active tab.</param>
+        /// <param name="tabToKeep">How many tabs to keep.</param>
         public static void CloseExtraTabs(this Instance instance, bool blank = false, int tabToKeep = 1)
         {
             for (; ; )
@@ -598,6 +761,10 @@ namespace z3n7
             if (blank) instance.ActiveTab.Navigate("about:blank", "");
         }
 
+        /// <summary>Waits until the number of tabs equals <c>tabIndex</c> and closes all but the first.</summary>
+        /// <param name="deadline">Seconds to wait.</param>
+        /// <param name="tabIndex">Tab count to wait for.</param>
+        /// <param name="thrw">Throw when it does not happen in time.</param>
         public static void CloseNewTab(this Instance instance, int deadline = 10, int tabIndex = 2, bool thrw = true)
         {
             int i = 0;
@@ -616,6 +783,11 @@ namespace z3n7
             if (thrw) throw new Exception("no new tab found");
         }
         
+        /// <summary>Navigates the active tab unless it is already on the URL.</summary>
+        /// <param name="url">Target URL.</param>
+        /// <param name="strict">Compare the whole URL; otherwise skip when the current URL contains it.</param>
+        /// <param name="waitTdle">Wait for loading to finish.</param>
+        /// <param name="newTab">Open a new tab first.</param>
         public static void Go(this Instance instance, string url, bool strict = false, bool waitTdle = false, bool newTab = false)
         {
             if (newTab)
@@ -632,12 +804,16 @@ namespace z3n7
             if (instance.ActiveTab.IsBusy && waitTdle) instance.ActiveTab.WaitDownloading();
         }
         
+        /// <summary>Reloads the page.</summary>
+        /// <param name="WaitTillLoad">Wait for loading to finish.</param>
         public static void F5(this Instance instance, bool WaitTillLoad = true)
         {
             instance.ActiveTab.MainDocument.EvaluateScript("location.reload(true)");
             if (instance.ActiveTab.IsBusy && WaitTillLoad) instance.ActiveTab.WaitDownloading();
         }
 
+        /// <summary>Scrolls with the emulated mouse wheel.</summary>
+        /// <param name="y">Wheel delta.</param>
         public static void ScrollDown(this Instance instance, int y = 420)
         {
             bool emu = instance.UseFullMouseEmulation;
@@ -646,6 +822,10 @@ namespace z3n7
             instance.UseFullMouseEmulation = emu;
         }
         
+        /// <summary>
+        /// Pastes text through the Windows clipboard (Ctrl+V); the previous clipboard text is restored. Errors
+        /// are ignored.
+        /// </summary>
         public static void CtrlV(this Instance instance, string ToPaste)
         {
             lock (_clipboardLock)
@@ -666,6 +846,10 @@ namespace z3n7
             }
         }
         
+        /// <summary>Launches the browser with a profile folder.</summary>
+        /// <param name="pathProfile">Profile folder.</param>
+        /// <param name="useProfile">Apply the ZennoPoster profile too.</param>
+        /// <param name="browserType">Browser to launch.</param>
         public static void UpFromFolder(this Instance instance, string pathProfile, bool useProfile = false, BrowserType browserType = BrowserType.Chromium)
         {
             ZennoLab.CommandCenter.Classes.BuiltInBrowserLaunchSettings settings =
@@ -676,11 +860,14 @@ namespace z3n7
             instance.Launch(settings);
         }
         
+        /// <summary>Launches Chromium without a profile folder.</summary>
         public static void UpEmpty(this Instance instance)
         {
             instance.Launch(BrowserType.Chromium, false);
         }
         
+        /// <summary>Closes the browser (launches "without browser") and waits.</summary>
+        /// <param name="pauseAfterMs">Pause afterwards, ms.</param>
         public static void Down(this Instance instance, int pauseAfterMs = 5000)
         {
             try
@@ -692,6 +879,7 @@ namespace z3n7
             Thread.Sleep(pauseAfterMs);
         }
         
+        /// <summary>Returns the instance's cookies as saved by <c>SaveCookie</c> (through a temporary file).</summary>
         public static string SaveCookies(this Instance instance)
         {
             string tmp = Path.Combine(
@@ -718,6 +906,10 @@ namespace z3n7
             }
         }
 
+        /// <summary>
+        /// Sets timezone emulation from the <c>timezone</c> JSON (<c>timezoneOffset</c>, <c>timezoneName</c>)
+        /// of the account's <c>_instance</c> row; warns when there is none.
+        /// </summary>
         public static void SetTimeFromDb(this Instance instance,  IZennoPosterProjectModel project)
         {
             var timezone = project.DbGet("timezone", "_instance");
@@ -732,6 +924,11 @@ namespace z3n7
             instance.SetIanaTimezone(tz["timezoneName"].ToString());
         }
 
+        /// <summary>
+        /// Opens <c>browserscan.net</c>, takes the IP timezone from its visitor-IP request in the traffic and
+        /// sets it as the instance's IANA timezone.
+        /// </summary>
+        /// <remarks>Throws when the response does not arrive within about 60 seconds or has no timezone.</remarks>
         public static void FixTimezone(this Instance instance, IZennoPosterProjectModel project)
         {
             instance.Go("https://www.browserscan.net/");

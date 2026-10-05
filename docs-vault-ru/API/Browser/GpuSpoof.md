@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # GpuSpoof
 
-`static class` · пространство имён `z3n7` · исходник [Browser/GpuSpoof.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L37)
+`static class` · пространство имён `z3n7` · исходник [Browser/GpuSpoof.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L51)
 
 ```csharp
 public static class GpuSpoof
 ```
 
-*Описания пока нет.*
+Picks a plausible WebGL vendor/renderer pair of the same GPU architecture as the machine's card, from the public PCI ID list.
 
 ## Методы
 
@@ -22,9 +22,15 @@ public static class GpuSpoof
 public static string BuildGpuJson(string pciIdsUrl = "https://pci-ids.ucw.cz/v2.2/pci.ids")
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L132)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L148)
 
-Скачивает pci.ids и возвращает JSON вида: [ { Vendor, Archs: [ { Arch, Models: [ { DeviceId, Name, Chip } ] } ] } ] Фильтр: только GPU-строки (GeForce / Radeon / UHD / Iris / Xe / Arc)
+Downloads the PCI ID list and groups the GPU models of NVIDIA, AMD and Intel by vendor and architecture (only GeForce/Quadro/Tesla/RTX, Radeon/Navi/Vega/Polaris and HD Graphics/UHD/Iris/Xe/Arc entries).
+
+| Параметр | Описание |
+|---|---|
+| `pciIdsUrl` | URL of `pci.ids`. |
+
+**Возвращает:** JSON `[{ Vendor, Archs: [{ Arch, Models: [{ DeviceId, Name, Chip }] }] }]`.
 
 ### DetectCurrentArch
 
@@ -32,9 +38,16 @@ public static string BuildGpuJson(string pciIdsUrl = "https://pci-ids.ucw.cz/v2.
 public static string DetectCurrentArch(string gpuJson, string cardName = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L305)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L328)
 
-По имени карты (из Win32) ищет в gpuJson её архитектуру. Поиск: частичное вхождение modelName в Name записи JSON.
+Architecture of the card in `gpuJson`: the first model of the card's vendor whose name contains the card name or is contained in it.
+
+| Параметр | Описание |
+|---|---|
+| `gpuJson` | JSON from `BuildGpuJson`. |
+| `cardName` | Card name; default is the current card (`GetCurrentCardName`). |
+
+**Возвращает:** Architecture name, or an empty string.
 
 ### EnsureGpuJson
 
@@ -42,9 +55,13 @@ public static string DetectCurrentArch(string gpuJson, string cardName = null)
 public static string EnsureGpuJson(string path)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L377)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L406)
 
-Если файл не существует — скачивает и создаёт, с локом на случай параллельных потоков. Возвращает содержимое JSON.
+Reads the GPU JSON from `path`; when the file does not exist, builds it with `BuildGpuJson` and saves it (one builder at a time).
+
+| Параметр | Описание |
+|---|---|
+| `path` | Cache file. |
 
 ### GetCurrentCardName
 
@@ -52,9 +69,9 @@ public static string EnsureGpuJson(string path)
 public static string GetCurrentCardName()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L287)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L307)
 
-Возвращает полное имя текущей карты из Win32_VideoController
+Full name of the machine's video card from WMI (the second card when there are several); empty on error.
 
 ### GetCurrentVendor
 
@@ -62,9 +79,11 @@ public static string GetCurrentCardName()
 public static string GetCurrentVendor()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L262)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L281)
 
-Возвращает "NVIDIA" / "AMD" / "Intel" / "" Использует Win32_VideoController, предпочитает дискретную (cards[1] если есть).
+Vendor of the machine's video card from WMI `Win32_VideoController`; with several cards the second one is used.
+
+**Возвращает:** `NVIDIA`, `AMD`, `Intel`, the first word of another name, or an empty string.
 
 ### LoadGpuJson
 
@@ -72,7 +91,9 @@ public static string GetCurrentVendor()
 public static string LoadGpuJson(string path)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L370)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L398)
+
+Reads the GPU JSON from a file.
 
 ### RandomAngleString
 
@@ -80,9 +101,16 @@ public static string LoadGpuJson(string path)
 public static string[] RandomAngleString(string gpuJson, string cardName = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L336)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L362)
 
-Возвращает массив из двух строк: [0] "Google Inc. (NVIDIA)" [1] "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Ti (0x00002486) Direct3D11 vs_5_0 ps_5_0, D3D11)" для той же архитектуры что у текущей карты.
+Random model of the same vendor and architecture as the card, formatted as Chrome's ANGLE strings.
+
+| Параметр | Описание |
+|---|---|
+| `gpuJson` | JSON from `BuildGpuJson`. |
+| `cardName` | Card name; default is the current card (`GetCurrentCardName`). |
+
+**Возвращает:** `["Google Inc. (NVIDIA)", "ANGLE (NVIDIA, NVIDIA {model} (0x0000XXXX) Direct3D11 vs_5_0 ps_5_0, D3D11)"]`; two empty strings when the architecture is unknown.
 
 ### SaveGpuJson
 
@@ -90,6 +118,8 @@ public static string[] RandomAngleString(string gpuJson, string cardName = null)
 public static void SaveGpuJson(string json, string path)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L367)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L394)
+
+Writes the GPU JSON to a file (UTF-8).
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

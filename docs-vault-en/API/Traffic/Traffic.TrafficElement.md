@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Traffic.TrafficElement
 
-`class` · namespace `z3n7` · source [Traffic/Traffic.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L110)
+`class` · namespace `z3n7` · source [Traffic/Traffic.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L147)
 
 ```csharp
 public class TrafficElement
 ```
 
-*No description yet.*
+One recorded request with its response. All fields are text; missing values are empty strings.
 
 ## Properties
 
@@ -22,7 +22,9 @@ public class TrafficElement
 public string Method { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L112)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L150)
+
+HTTP method.
 
 ### RequestBody
 
@@ -30,7 +32,9 @@ public string Method { get; }
 public string RequestBody { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L117)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L160)
+
+Request body.
 
 ### RequestCookies
 
@@ -38,7 +42,9 @@ public string RequestBody { get; }
 public string RequestCookies { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L116)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L158)
+
+Request cookies.
 
 ### RequestHeaders
 
@@ -46,7 +52,9 @@ public string RequestCookies { get; }
 public string RequestHeaders { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L115)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L156)
+
+Request headers as recorded by ZennoPoster.
 
 ### ResponseBody
 
@@ -54,7 +62,9 @@ public string RequestHeaders { get; }
 public string ResponseBody { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L120)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L166)
+
+Response body as UTF-8 text, decompressed when it is gzip.
 
 ### ResponseCookies
 
@@ -62,7 +72,9 @@ public string ResponseBody { get; }
 public string ResponseCookies { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L119)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L164)
+
+Response cookies.
 
 ### ResponseHeaders
 
@@ -70,7 +82,9 @@ public string ResponseCookies { get; }
 public string ResponseHeaders { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L118)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L162)
+
+Response headers as recorded by ZennoPoster.
 
 ### StatusCode
 
@@ -78,7 +92,9 @@ public string ResponseHeaders { get; }
 public string StatusCode { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L114)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L154)
+
+Response status code.
 
 ### Url
 
@@ -86,6 +102,8 @@ public string StatusCode { get; }
 public string Url { get; }
 ```
 
-[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L113)
+[source](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L152)
+
+Request URL.
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

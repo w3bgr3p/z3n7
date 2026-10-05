@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # TrafficCounter
 
-`static class` · пространство имён `z3n7` · исходник [Traffic/TrafficCounter.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L11)
+`static class` · пространство имён `z3n7` · исходник [Traffic/TrafficCounter.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L15)
 
 ```csharp
 public static class TrafficCounter
 ```
 
-*Описания пока нет.*
+Counts traffic per labelled step of a project run and reports it as JSON. Steps are kept in `project.Context`.
 
 ## Методы
 
@@ -22,7 +22,14 @@ public static class TrafficCounter
 public static void Add(IZennoPosterProjectModel project, string label, string responseText)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L71)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L88)
+
+Adds a step for traffic outside the browser, counted as the UTF-8 size of `responseText`.
+
+| Параметр | Описание |
+|---|---|
+| `label` | Step name. |
+| `responseText` | Response text. |
 
 ### Checkpoint
 
@@ -30,7 +37,15 @@ public static void Add(IZennoPosterProjectModel project, string label, string re
 public static long Checkpoint(Instance instance, IZennoPosterProjectModel project, string label)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L39)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L51)
+
+Adds a step: the summed request and response body sizes of the traffic returned by `ActiveTab.GetTraffic()` (blocked requests are skipped). Errors are written to the log as warnings.
+
+| Параметр | Описание |
+|---|---|
+| `label` | Step name. |
+
+**Возвращает:** Bytes counted for this step.
 
 ### Init
 
@@ -38,7 +53,9 @@ public static long Checkpoint(Instance instance, IZennoPosterProjectModel projec
 public static void Init(Instance instance)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L15)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L20)
+
+Turns on traffic monitoring and reads the traffic recorded so far once.
 
 ### MergeAndReport
 
@@ -46,7 +63,15 @@ public static void Init(Instance instance)
 public static string MergeAndReport(IZennoPosterProjectModel project, string existingJson)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L82)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L107)
+
+Merges the steps of an earlier report with the current ones, sorted by time, and builds a new report.
+
+| Параметр | Описание |
+|---|---|
+| `existingJson` | Report from `ReportJson` or this method; ignored when empty or unreadable. |
+
+**Возвращает:** JSON `{ total_kb, steps: [{ t, label, kb }] }`; `t` is seconds since 2020-01-01 UTC.
 
 ### ReportJson
 
@@ -54,6 +79,10 @@ public static string MergeAndReport(IZennoPosterProjectModel project, string exi
 public static string ReportJson(IZennoPosterProjectModel project)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L121)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L150)
+
+Builds a report from the current steps.
+
+**Возвращает:** JSON `{ total_kb, steps: [{ t, label, kb }] }`; `t` is seconds since 2020-01-01 UTC.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

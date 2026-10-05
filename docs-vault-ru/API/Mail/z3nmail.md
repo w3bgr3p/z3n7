@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # z3nmail
 
-`class` · пространство имён `z3n7.Api` · исходник [Mail/z3nmail.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L12)
+`class` · пространство имён `z3n7.Api` · исходник [Mail/z3nmail.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L16)
 
 ```csharp
 public class z3nmail
 ```
 
-*Описания пока нет.*
+Client of the temporary mailbox service (default `https://mail.autoz3n.xyz`); the same API as `BestMailBox`. A response whose `success` is not true throws with the service's error.
 
 ## Конструкторы
 
@@ -22,7 +22,16 @@ public class z3nmail
 public z3nmail(IZennoPosterProjectModel project, string apikey = null, string baseUrl = null, bool useNetHttp = false, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L20)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L30)
+
+Creates a client.
+
+| Параметр | Описание |
+|---|---|
+| `apikey` | API key; default `Z3NMAIL_API_KEY` from the project's `.env`. |
+| `baseUrl` | Service URL; default `https://mail.autoz3n.xyz`. |
+| `useNetHttp` | Send requests through `NetHttp` instead of ZennoPoster's HTTP client. |
+| `log` | Log requests and responses. |
 
 ## Методы
 
@@ -32,9 +41,15 @@ public z3nmail(IZennoPosterProjectModel project, string apikey = null, string ba
 public bool DeleteMail(string id = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L198)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L238)
 
-Досрочно уничтожает ящик и все его письма.
+Deletes the mailbox and its messages.
+
+| Параметр | Описание |
+|---|---|
+| `id` | Mailbox id or address; default is the `mailId` variable, then `bestMailId`, then `email`. |
+
+**Возвращает:** `true` when the service confirmed; `false` on any error or when there is no id.
 
 ### GetDomains
 
@@ -42,9 +57,9 @@ public bool DeleteMail(string id = null)
 public List<string> GetDomains()
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L219)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L259)
 
-Получает список доступных доменов.
+Domains the service offers.
 
 ### GetHrefs
 
@@ -52,9 +67,14 @@ public List<string> GetDomains()
 public HashSet<string> GetHrefs(int deadline = 60, string id = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L137)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L170)
 
-Извлекает ссылки активации/подтверждения из полученного письма.
+Polls every 2.5 seconds for the latest message and returns its links: the service's verification links, else all links of the HTML body. Anchors, `mailto:`, `tel:`, `javascript:`, `data:` and links to images, styles, scripts and fonts are skipped.
+
+| Параметр | Описание |
+|---|---|
+| `deadline` | Seconds to wait; then `TimeoutException`. |
+| `id` | Mailbox id or address; default is the `mailId` variable, then `bestMailId`, then `email`. |
 
 ### GetMail
 
@@ -62,14 +82,16 @@ public HashSet<string> GetHrefs(int deadline = 60, string id = null)
 public string GetMail(int deadline = 60, string id = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L109)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L133)
 
-Ожидает письмо и возвращает полное тело последнего письма (HTML / текст).
+Polls every 2.5 seconds for the latest message.
 
 | Параметр | Описание |
 |---|---|
-| `deadline` | Таймаут ожидания в секундах (по умолчанию 60 сек). |
-| `id` | ID ящика или email (если null, берется из переменной mailId). |
+| `deadline` | Seconds to wait; then `TimeoutException`. |
+| `id` | Mailbox id or address; default is the `mailId` variable, then `bestMailId`, then `email`. |
+
+**Возвращает:** The HTML body, or the text body when there is no HTML.
 
 ### NewMail
 
@@ -77,15 +99,17 @@ public string GetMail(int deadline = 60, string id = null)
 public string[] NewMail(string domain = null, string prefix = null, int ttl = 1200)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L56)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L70)
 
-Создает временный почтовый ящик. Возвращает [id, email].
+Creates a mailbox. Stores the id in `mailId`, the address in `email` and `project.Profile.Email`.
 
 | Параметр | Описание |
 |---|---|
-| `domain` | Желаемый домен (например "autoz3n.xyz" или "z3nd3v.xyz"), если null — выбирается случайно. |
-| `prefix` | Желаемый префикс (например "alex.miller"), если null — генерируется автоматически. |
-| `ttl` | Время жизни ящика в секундах (по умолчанию 1200 = 20 минут). |
+| `domain` | Mailbox domain; random when `null`. |
+| `prefix` | Local part of the address; generated when `null`. |
+| `ttl` | Mailbox lifetime in seconds. |
+
+**Возвращает:** `[id, email]`.
 
 ### Otp
 
@@ -93,13 +117,15 @@ public string[] NewMail(string domain = null, string prefix = null, int ttl = 12
 public string Otp(int deadline = 60, string id = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L79)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/z3nmail.cs#L99)
 
-Быстрое получение OTP-кода (4-8 знаков). Опрашивает API до получения или таймаута.
+Polls the service every 2.5 seconds for a one-time code found by the service in the mailbox.
 
 | Параметр | Описание |
 |---|---|
-| `deadline` | Таймаут ожидания в секундах (по умолчанию 60 сек). |
-| `id` | ID ящика или email (если null, берется из переменной mailId). |
+| `deadline` | Seconds to wait; then `TimeoutException`. |
+| `id` | Mailbox id or address; default is the `mailId` variable, then `bestMailId`, then `email`. |
+
+**Возвращает:** The code.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

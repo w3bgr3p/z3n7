@@ -9,18 +9,22 @@ using AForge.Imaging;
 using ZennoLab.CommandCenter;
 
 
-    /// <summary>
-    /// Canvas & Image Recognition methods for ZennoPoster automation
-    /// </summary>
    namespace z3n7
 {
+    /// <summary>
+    /// Extension methods on <c>Instance</c>: image search on page screenshots, clicks, taps and swipes by
+    /// coordinates, viewport helpers.
+    /// </summary>
     public static partial class InstanceExtensions
     {
         private static Random _r = new Random();
 
         #region Image Conversion & Validation
 
-        /// <summary>AForge requires 24bppRgb/32bppRgb/8bppIndexed, converts to 24bppRgb with white background</summary>
+        /// <summary>
+        /// Returns the bitmap in 24bpp RGB (on a white background), the format AForge template matching needs;
+        /// a 24bpp bitmap is returned as is.
+        /// </summary>
         public static Bitmap ConvertToSupportedFormat(Bitmap source)
         {
             if (source.PixelFormat == System.Drawing.Imaging.PixelFormat.Format24bppRgb)
@@ -74,7 +78,11 @@ using ZennoLab.CommandCenter;
 
         #region Image Recognition - Native
 
-        /// <summary>searchArea: [x, y, width, height]</summary>
+        /// <summary>Finds an image in the area with ZennoPoster's own image search.</summary>
+        /// <param name="imgFile">Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64.</param>
+        /// <param name="searchArea">Search area <c>[x, y, width, height]</c> in page pixels.</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
+        /// <returns>Centre <c>[x, y]</c> of the match, or <c>null</c> when not found.</returns>
         public static int[] FindImg(this Instance instance, string imgFile, int[] searchArea, double threshold = 0.99)
         {
             Tab tab = instance.ActiveTab;
@@ -112,7 +120,15 @@ using ZennoLab.CommandCenter;
 
         #region Image Recognition - AForge
 
-        /// <summary>Single screenshot approach, memory-optimized</summary>
+        /// <summary>
+        /// Takes one page preview (<c>GetPagePreview</c>) and finds the image in the area with AForge template
+        /// matching.
+        /// </summary>
+        /// <param name="imgFile">Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64.</param>
+        /// <param name="searchArea">Search area <c>[x, y, width, height]</c> in page pixels.</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
+        /// <param name="thrw">Throw when not found; otherwise return <c>null</c>.</param>
+        /// <returns>Centre <c>[x, y]</c> of the first match.</returns>
         public static int[] FindImgFast(this Instance instance, string imgFile, int[] searchArea,
             float threshold = 0.99f, bool thrw = true)
         {
@@ -194,7 +210,17 @@ using ZennoLab.CommandCenter;
             }
         }
 
-        /// <summary>Finds all matches, filters by minDistance to avoid duplicates</summary>
+        /// <summary>
+        /// Takes one page preview (<c>GetPagePreview</c>) and finds every occurrence of each template in the
+        /// area. Matches closer than <c>minDistance</c> to a better one are dropped.
+        /// </summary>
+        /// <param name="templates">Name → Base64 image.</param>
+        /// <param name="searchArea">Search area <c>[x, y, width, height]</c> in page pixels.</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
+        /// <param name="minDistance">Minimum distance between reported centres, px.</param>
+        /// <returns>
+        /// Name → centres <c>[x, y]</c>; templates without matches or with unreadable images are left out.
+        /// </returns>
         public static Dictionary<string, List<int[]>> FindAllInScreenshot(
             this Instance instance,
             Dictionary<string, string> templates,
@@ -289,7 +315,14 @@ using ZennoLab.CommandCenter;
             return results;
         }
 
-        /// <summary>Single screenshot, multiple templates search</summary>
+        /// <summary>
+        /// Takes one page preview (<c>GetPagePreview</c>) and finds the first match of each template in the
+        /// area.
+        /// </summary>
+        /// <param name="templates">Name → Base64 image.</param>
+        /// <param name="searchArea">Search area <c>[x, y, width, height]</c> in page pixels.</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
+        /// <returns>Name → centre <c>[x, y]</c>; templates without a match are left out.</returns>
         public static Dictionary<string, int[]> FindMultipleInScreenshot(this Instance instance,
             Dictionary<string, string> templates, int[] searchArea, float threshold = 0.95f)
         {
@@ -357,7 +390,10 @@ using ZennoLab.CommandCenter;
             return results;
         }
 
-        /// <summary>Single screenshot, each template has its own search area</summary>
+        /// <summary>Takes one page preview (<c>GetPagePreview</c>) and finds each template in its own area.</summary>
+        /// <param name="templatesWithAreas">Name → (Base64 image, area <c>[x, y, width, height]</c>).</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
+        /// <returns>Name → centre <c>[x, y]</c>; templates without a match are left out.</returns>
         public static Dictionary<string, int[]> FindMultipleInMultipleAreas(
             this Instance instance,
             Dictionary<string, (string template, int[] area)> templatesWithAreas,
@@ -431,7 +467,11 @@ using ZennoLab.CommandCenter;
             return results;
         }
 
-        /// <summary>Reuses cached screenshot base64, no Instance required</summary>
+        /// <summary>Like <c>FindMultipleInScreenshot</c>, on a screenshot taken earlier.</summary>
+        /// <param name="base64Screenshot">Screenshot as Base64.</param>
+        /// <param name="templates">Name → Base64 image.</param>
+        /// <param name="searchArea">Search area <c>[x, y, width, height]</c> in page pixels.</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
         public static Dictionary<string, int[]> FindMultipleInCachedScreenshot(string base64Screenshot,
             Dictionary<string, string> templates, int[] searchArea, float threshold = 0.95f)
         {
@@ -524,6 +564,13 @@ using ZennoLab.CommandCenter;
         
         #region Click & Tap Actions
 
+        /// <summary>Finds the image and taps its centre (touch event).</summary>
+        /// <param name="imgFile">Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64.</param>
+        /// <param name="searchArea">Search area <c>[x, y, width, height]</c> in page pixels.</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
+        /// <param name="nativeSearch">Use <c>FindImg</c> instead of <c>FindImgFast</c>.</param>
+        /// <param name="delay">Seconds to wait before tapping.</param>
+        /// <returns>The tapped point.</returns>
         public static int[] TapImg(this Instance instance, string imgFile, int[] searchArea, float threshold = 0.99f,
             bool nativeSearch = false, int delay = 0)
         {
@@ -535,6 +582,13 @@ using ZennoLab.CommandCenter;
             return coords;
         }
 
+        /// <summary>Finds the image and clicks its centre.</summary>
+        /// <param name="imgFile">Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64.</param>
+        /// <param name="searchArea">Search area <c>[x, y, width, height]</c> in page pixels.</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
+        /// <param name="nativeSearch">Use <c>FindImg</c> (default) instead of <c>FindImgFast</c>.</param>
+        /// <param name="delay">Seconds to wait before clicking.</param>
+        /// <returns>The clicked point.</returns>
         public static int[] ClickImg(this Instance instance, string imgFile, int[] searchArea, float threshold = 0.99f,
             bool nativeSearch = true, int delay = 0)
         {
@@ -551,12 +605,16 @@ using ZennoLab.CommandCenter;
 
         #region Viewport & Positioning
 
+        /// <summary>Centre <c>[x, y]</c> of the page viewport (<c>window.innerWidth/innerHeight</c>).</summary>
         public static int[] GetCenter(this Instance instance)
         {
             int[] viewport = GetViewportSize(instance);
             return new int[] { viewport[0] / 2, viewport[1] / 2 };
         }
 
+        /// <summary>Turns on full mouse emulation and puts the cursor at the viewport centre.</summary>
+        /// <param name="moveMouse">Move the cursor there instead of setting its position.</param>
+        /// <returns>The centre.</returns>
         public static int[] MousePOsCenter(this Instance instance, bool moveMouse = false)
         {
             int[] center = instance.GetCenter();
@@ -571,6 +629,7 @@ using ZennoLab.CommandCenter;
             return center;
         }
 
+        /// <summary>Taps the viewport centre; returns the point.</summary>
         public static int[] TapCenter(this Instance instance)
         {
             int[] center = instance.GetCenter();
@@ -578,6 +637,7 @@ using ZennoLab.CommandCenter;
             return center;
         }
 
+        /// <summary>Clicks the viewport centre; returns the point.</summary>
         public static int[] ClickCenter(this Instance instance)
         {
             int[] center = instance.GetCenter();
@@ -586,7 +646,9 @@ using ZennoLab.CommandCenter;
             return center;
         }
 
-        /// <summary>Returns [x, y, width, height]. If width=0 and height=0, returns full viewport</summary>
+        /// <summary>Area <c>[x, y, width, height]</c> of the given size centred in the viewport.</summary>
+        /// <param name="width">Width; 0 together with <c>height</c> = 0 returns the whole viewport.</param>
+        /// <param name="height">Height; 0 means equal to <c>width</c>.</param>
         public static int[] CenterArea(this Instance instance, int width = 0, int height = 0)
         {
             int[] viewportSize = GetViewportSize(instance);
@@ -611,7 +673,11 @@ using ZennoLab.CommandCenter;
 
         #region Swipe Actions
         
-        /// <summary>direction: left, right, up, down. Random if null. Coordinates limited by bounds [x, y, width, height]</summary>
+        /// <summary>Swipes from the viewport centre.</summary>
+        /// <param name="distance">Swipe length, px.</param>
+        /// <param name="direction"><c>left</c>, <c>right</c>, <c>up</c> or <c>down</c>; random when empty.</param>
+        /// <param name="bounds">Keep the end point inside <c>[x, y, width, height]</c>.</param>
+        /// <returns>The end point.</returns>
         public static int[] SwipeFromCenter(this Instance instance, int distance, string direction = null, int[] bounds = null)
         {
             int[] center = instance.GetCenter();
@@ -661,6 +727,12 @@ using ZennoLab.CommandCenter;
             return new int[] { toX, toY };
         }
         
+        /// <summary>Finds the image and swipes from it to the viewport centre.</summary>
+        /// <param name="imgFile">Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64.</param>
+        /// <param name="searchArea">Search area <c>[x, y, width, height]</c> in page pixels.</param>
+        /// <param name="threshold">Required similarity, 0–1.</param>
+        /// <param name="nativeSearch">Use <c>FindImg</c> instead of <c>FindImgFast</c>.</param>
+        /// <returns>The viewport centre.</returns>
         public static int[] SwipeImgToCenter(this Instance instance, string imgFile, int[] searchArea,
             float threshold = 0.95f, bool nativeSearch = false)
         {

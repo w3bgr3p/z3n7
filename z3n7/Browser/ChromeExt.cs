@@ -13,6 +13,9 @@ using ZennoLab.Emulation;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Chrome extension management in a ZennoPoster instance: version, install, enable/disable, remove.
+    /// </summary>
     public class Extension
     {
 
@@ -25,6 +28,8 @@ namespace z3n7
 
         private const string URL_STORE = "https://chromewebstore.google.com/detail/one-click-extensions-mana/pbgjpgbpljobkekbhnnmlikbbfhbhmem";
         private const string URL_POPUP = "chrome-extension://pbgjpgbpljobkekbhnnmlikbbfhbhmem/index.html";
+        /// <summary>Creates a helper without an instance; only <c>GetVer</c> works.</summary>
+        /// <param name="log">Logger for progress; <c>null</c> logs nothing.</param>
         public Extension(IZennoPosterProjectModel project, Logger log = null)
         {
             _project = project;
@@ -32,6 +37,8 @@ namespace z3n7
             _logger = log;
             _logger?.Send("Ext initialized (without instance)");
         }
+        /// <summary>Creates a helper for an instance.</summary>
+        /// <param name="log">Logger for progress; <c>null</c> logs nothing.</param>
         public Extension(IZennoPosterProjectModel project, Instance instance,  Logger log = null)
         {
             _project = project;
@@ -39,6 +46,11 @@ namespace z3n7
             _logger = log;
             _logger?.Send("Ext initialized (with instance)");
         }
+        /// <summary>
+        /// Reads an installed extension's version from <c>{pathProfileFolder}\Default\Secure Preferences</c>.
+        /// </summary>
+        /// <param name="extId">Extension id.</param>
+        /// <returns>The version. Throws when the file has no such extension or version.</returns>
         public string GetVer(string extId)
         {
             _logger?.Send($"GetVer started for extId: {extId}");
@@ -75,6 +87,13 @@ namespace z3n7
             _logger?.Send($"GetVer completed. Version: {version}");
             return version;
         }
+        /// <summary>
+        /// Opens the Chrome Web Store page and installs the extension, confirming the dialog with keystrokes.
+        /// When it is already installed, clicks "Enable now" if shown.
+        /// </summary>
+        /// <param name="url">Web Store page of the extension.</param>
+        /// <param name="log">Not used.</param>
+        /// <returns><c>true</c> when the install was started; <c>false</c> when it was already installed.</returns>
         public bool InstallFromStore(string url, bool log = false)
         {
             _logger?.Send($"InstallFromStore: {url}");
@@ -117,6 +136,11 @@ namespace z3n7
             #endif
 
         }
+        /// <summary>Installs a CRX file unless an extension with this id is already installed.</summary>
+        /// <param name="extId">Extension id.</param>
+        /// <param name="fileName">CRX file name in <c>{project.Path}.crx\</c>.</param>
+        /// <param name="log">Not used.</param>
+        /// <returns><c>true</c> when installed now. Throws when the file is missing.</returns>
         public bool InstallFromCrx(string extId, string fileName, bool log = false)
         {
             _logger?.Send($"InstallFromCrx started for extId: {extId}, fileName: {fileName}");
@@ -143,6 +167,14 @@ namespace z3n7
             _logger?.Send($"Extension {extId} already installed, skipping");
             return false;
         }
+        /// <summary>
+        /// Enables the listed extensions and disables all others through the One-Click Extensions Manager page
+        /// (installed first if missing). Mouse emulation is restored afterwards. Works for Chromium (manager
+        /// from CRX) and ChromiumFromZB (manager from the Web Store) instances.
+        /// </summary>
+        /// <param name="toUse">Names or ids of the extensions to keep enabled; matched as substrings of this text.</param>
+        /// <param name="log">Not used.</param>
+        /// <returns><c>true</c> when at least one listed extension is enabled.</returns>
         public bool Switch( string toUse = "", bool log = false)
         {
             _logger?.Send($"Switch started. Extensions to use: {toUse}");
@@ -213,6 +245,8 @@ namespace z3n7
             _logger?.Send($"Switch result: {switched}");
             return switched;
         }
+        /// <summary>Uninstalls the extensions; failures are logged and skipped.</summary>
+        /// <param name="ExtToRemove">Extension ids.</param>
         public void Rm(string[] ExtToRemove)
         {
             _logger?.Send($"Rm started. Extensions to remove: {(ExtToRemove != null ? string.Join(", ", ExtToRemove) : "null")}");
@@ -239,6 +273,7 @@ namespace z3n7
         
     }
     
+    /// <summary>Older variant of <c>Extension</c>: Chromium instances only, manager installed from CRX.</summary>
     public class ChromeExt
     {
 
@@ -247,6 +282,8 @@ namespace z3n7
         protected readonly Instance _instance;
         private readonly Logger _logger;
 
+        /// <summary>Creates a helper without an instance; only <c>GetVer</c> works.</summary>
+        /// <param name="log">Not used.</param>
         public ChromeExt(IZennoPosterProjectModel project, bool log = false)
         {
             _project = project;
@@ -254,6 +291,8 @@ namespace z3n7
             _logger = new Logger(project);
 
         }
+        /// <summary>Creates a helper for an instance.</summary>
+        /// <param name="log">Not used.</param>
         public ChromeExt(IZennoPosterProjectModel project, Instance instance,  bool log = false)
         {
             _project = project;
@@ -263,6 +302,11 @@ namespace z3n7
 
         }
 
+        /// <summary>
+        /// Reads an installed extension's version from <c>{pathProfileFolder}\Default\Secure Preferences</c>.
+        /// </summary>
+        /// <param name="extId">Extension id.</param>
+        /// <returns>The version. Throws when the file has no such extension or version.</returns>
         public string GetVer(string extId)
         {
             string securePrefsPath = _project.Variables["pathProfileFolder"].Value + @"\Default\Secure Preferences";
@@ -289,6 +333,11 @@ namespace z3n7
             return version;
         }
 
+        /// <summary>Installs a CRX file unless an extension with this id is already installed.</summary>
+        /// <param name="extId">Extension id.</param>
+        /// <param name="fileName">CRX file name in <c>{project.Path}.crx\</c>.</param>
+        /// <param name="log">Not used.</param>
+        /// <returns><c>true</c> when installed now. Throws when the file is missing.</returns>
         public bool Install(string extId, string fileName, bool log = false)
         {
             string path = $"{_project.Path}.crx\\{fileName}";
@@ -309,6 +358,13 @@ namespace z3n7
             return false;
         }
 
+        /// <summary>
+        /// Enables the listed extensions and disables all others through the One-Click Extensions Manager page
+        /// (installed first if missing). Mouse emulation is restored afterwards. Chromium instances only.
+        /// </summary>
+        /// <param name="toUse">Names or ids of the extensions to keep enabled; matched as substrings of this text.</param>
+        /// <param name="log">Not used.</param>
+        /// <returns><c>true</c> when a listed extension was switched on.</returns>
         public bool Switch( string toUse = "", bool log = false)
         {
             _logger?.Send($"switching extentions  {toUse}");
@@ -358,6 +414,8 @@ namespace z3n7
             }
             return switched;
         }
+        /// <summary>Uninstalls the extensions; failures are ignored.</summary>
+        /// <param name="ExtToRemove">Extension ids.</param>
         public void Rm(string[] ExtToRemove)
         {
             if (ExtToRemove != null && ExtToRemove.Length > 0)

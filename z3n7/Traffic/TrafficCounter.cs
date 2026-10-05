@@ -8,10 +8,15 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Counts traffic per labelled step of a project run and reports it as JSON. Steps are kept in
+    /// <c>project.Context</c>.
+    /// </summary>
     public static class TrafficCounter
     {
         private const string ContextKey = "trafficMap";
 
+        /// <summary>Turns on traffic monitoring and reads the traffic recorded so far once.</summary>
         public static void Init(Instance instance)
         {
             instance.UseTrafficMonitoring = true;
@@ -36,6 +41,13 @@ namespace z3n7
                 return new List<TrafficStep>();
             }
         }
+        /// <summary>
+        /// Adds a step: the summed request and response body sizes of the traffic returned by
+        /// <c>ActiveTab.GetTraffic()</c> (blocked requests are skipped). Errors are written to the log as
+        /// warnings.
+        /// </summary>
+        /// <param name="label">Step name.</param>
+        /// <returns>Bytes counted for this step.</returns>
         public static long Checkpoint(Instance instance, IZennoPosterProjectModel project, string label)
         {
             long bytes = 0;
@@ -68,6 +80,11 @@ namespace z3n7
             return bytes;
         }
         // для HTTP-запросов вне браузера (AI clients, ZennoPoster.HTTP.Request)
+        /// <summary>
+        /// Adds a step for traffic outside the browser, counted as the UTF-8 size of <c>responseText</c>.
+        /// </summary>
+        /// <param name="label">Step name.</param>
+        /// <param name="responseText">Response text.</param>
         public static void Add(IZennoPosterProjectModel project, string label, string responseText)
         {
             long bytes = Encoding.UTF8.GetByteCount(responseText ?? "");
@@ -79,6 +96,14 @@ namespace z3n7
 
             project.Context[ContextKey] = map;
         }
+        /// <summary>
+        /// Merges the steps of an earlier report with the current ones, sorted by time, and builds a new
+        /// report.
+        /// </summary>
+        /// <param name="existingJson">Report from <c>ReportJson</c> or this method; ignored when empty or unreadable.</param>
+        /// <returns>
+        /// JSON <c>{ total_kb, steps: [{ t, label, kb }] }</c>; <c>t</c> is seconds since 2020-01-01 UTC.
+        /// </returns>
         public static string MergeAndReport(IZennoPosterProjectModel project, string existingJson)
         {
             var currentSteps = GetMap(project);
@@ -118,6 +143,10 @@ namespace z3n7
 
             return JsonConvert.SerializeObject(report, Formatting.Indented);
         }
+        /// <summary>Builds a report from the current steps.</summary>
+        /// <returns>
+        /// JSON <c>{ total_kb, steps: [{ t, label, kb }] }</c>; <c>t</c> is seconds since 2020-01-01 UTC.
+        /// </returns>
         public static string ReportJson(IZennoPosterProjectModel project)
         {
             var steps = project.Context[ContextKey] as List<TrafficStep>
@@ -140,10 +169,14 @@ namespace z3n7
         }
         
 
+        /// <summary>One counted step.</summary>
         public class TrafficStep
         {
+            /// <summary>Time, seconds since 2020-01-01 UTC.</summary>
             public long   T     { get; set; }
+            /// <summary>Step name.</summary>
             public string Label { get; set; }
+            /// <summary>Counted bytes.</summary>
             public long   Bytes { get; set; }
         }
         

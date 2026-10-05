@@ -45,7 +45,7 @@ namespace z3n7
         /// <param name="pgUser">PostgreSQL user.</param>
         /// <param name="pgPass">PostgreSQL password.</param>
         /// <param name="defaultTable">Table used when a method gets no table name.</param>
-        /// <param name="logLevel">Level of the internal logger; queries and results are logged at <c>Info</c>.</param>
+        /// <param name="logLevel">Not used for output: without a project the logger has nowhere to write.</param>
         public Db(string dbMode = "pgSQL", string sqLitePath = null,
             string pgHost = "localhost", string pgPort = "5432", string pgDbName = "postgres",
             string pgUser = "postgres", string pgPass = "",
@@ -66,8 +66,8 @@ namespace z3n7
         /// <summary>Executes one SQL statement.</summary>
         /// <param name="query">SQL text.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="unSafe">Not used.</param>
@@ -126,8 +126,8 @@ namespace z3n7
         /// <param name="columns">Comma-separated column names; each is quoted.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="key">Column matched against <c>id</c>.</param>
@@ -163,8 +163,8 @@ namespace z3n7
         /// <param name="columns">Comma-separated column names; each is quoted.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="key">Column matched against <c>id</c>.</param>
@@ -196,8 +196,8 @@ namespace z3n7
         /// <param name="columns">Comma-separated column names; each is quoted.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="key">Column matched against <c>id</c>.</param>
@@ -212,8 +212,8 @@ namespace z3n7
         /// <param name="columns">Comma-separated column names; each is quoted.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="key">Column matched against <c>id</c>.</param>
@@ -228,8 +228,8 @@ namespace z3n7
         /// <param name="column">Column to read.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="maxId">When above 0, only rows with <c>id</c> below it.</param>
@@ -275,8 +275,8 @@ namespace z3n7
         /// </param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="key">Column matched against <c>id</c>.</param>
@@ -312,8 +312,8 @@ namespace z3n7
         /// <param name="data">Column → value.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="where">Raw SQL condition; required.</param>
@@ -347,8 +347,8 @@ namespace z3n7
         /// <param name="data">Column → value.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         public void InsertDic(Dictionary<string, string> data, string tableName = null, bool log = false, bool thrw = false)
@@ -373,8 +373,8 @@ namespace z3n7
         /// <param name="cooldownMin">Minutes to add; 0 writes the current time.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="key">Column matched against <c>id</c>.</param>
@@ -397,8 +397,8 @@ namespace z3n7
         /// <param name="json">JSON object.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="where">Raw SQL condition selecting the row.</param>
@@ -418,8 +418,8 @@ namespace z3n7
         /// </summary>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="id">Value of <c>key</c>, inserted into the SQL as written: quote text values yourself.</param>
@@ -676,8 +676,8 @@ namespace z3n7
         /// <param name="tableStructure">Column → SQL type, e.g. <c>{"id", "INTEGER PRIMARY KEY"}</c>.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="prune">Also drop columns that are not in <c>tableStructure</c> (<c>PruneColumns</c>).</param>
         /// <param name="rearrange">Also reorder columns to match <c>tableStructure</c> (<c>RearrangeColumns</c>).</param>
@@ -708,8 +708,8 @@ namespace z3n7
         /// (<c>AUTOINCREMENT</c> is replaced by <c>SERIAL</c> on PostgreSQL).
         /// </param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="prune">Drop columns not in the list.</param>
         /// <param name="rearrange">Reorder columns to match the list.</param>
@@ -741,8 +741,8 @@ namespace z3n7
         /// <param name="tableStructure">Desired order (column → type).</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void RearrangeColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
         {
@@ -945,8 +945,8 @@ namespace z3n7
         /// <param name="tableStructure">Columns to keep.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void PruneColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
         {
@@ -974,8 +974,8 @@ namespace z3n7
         /// <param name="tableStructure">Column → SQL type.</param>
         /// <param name="tableName">Table to create.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void CreateTable(Dictionary<string, string> tableStructure, string tableName, bool log = false)
         {
@@ -999,8 +999,8 @@ namespace z3n7
         /// <summary>Checks whether the table exists (in the <c>public</c> schema on PostgreSQL).</summary>
         /// <param name="tableName">Table name; double quotes are ignored.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public bool TableExists(string tableName, bool log = false)
         {
@@ -1021,8 +1021,8 @@ namespace z3n7
         }
         /// <summary>Names of all tables, sorted (PostgreSQL: base tables of the <c>public</c> schema).</summary>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public List<string> GetTables(bool log = false)
         {
@@ -1039,8 +1039,8 @@ namespace z3n7
         /// <summary>Column names of a table.</summary>
         /// <param name="tableName">Table name.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public List<string> GetTableColumns(string tableName, bool log = false)
         {
@@ -1063,8 +1063,8 @@ namespace z3n7
         /// <param name="columnName">Column name.</param>
         /// <param name="tableName">Table name.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public bool ColumnExists(string columnName, string tableName, bool log = false)
         {
@@ -1087,8 +1087,8 @@ namespace z3n7
         /// <param name="columnName">Column name.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="defaultValue">SQL type of the new column.</param>
         public void AddColumn(string columnName, string tableName = null, bool log = false, string defaultValue = "TEXT DEFAULT ''")
@@ -1107,8 +1107,8 @@ namespace z3n7
         /// <param name="columns">Column names.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="defaultValue">SQL type of the new columns.</param>
         public void AddColumns(List<string> columns, string tableName = null, bool log = false, string defaultValue = "TEXT DEFAULT ''")
@@ -1125,8 +1125,8 @@ namespace z3n7
         /// <param name="tableStructure">Column → SQL type.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void AddColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
         {
@@ -1149,8 +1149,8 @@ namespace z3n7
         /// <param name="columnName">Column name.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void DropColumn(string columnName, string tableName = null, bool log = false)
         {
@@ -1169,8 +1169,8 @@ namespace z3n7
         /// <summary>Drops every column except <c>id</c> in which no row has a non-empty value.</summary>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void PruneEmptyColumns(string tableName = null, bool log = false)
         {
@@ -1202,8 +1202,8 @@ namespace z3n7
         /// <param name="tableName">Table with an <c>id</c> column.</param>
         /// <param name="range">Highest id to have.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void AddRange(string tableName, int range, bool log = false)
         {
@@ -1236,8 +1236,8 @@ namespace z3n7
         /// <summary>Deletes the row where <c>key</c> = <c>id</c>, or the rows matching <c>where</c>.</summary>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         /// <param name="key">Column matched against <c>id</c>.</param>
@@ -1272,8 +1272,8 @@ namespace z3n7
         /// </summary>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         public void Clear(string tableName = null, bool log = false, bool thrw = false)
@@ -1301,8 +1301,8 @@ namespace z3n7
         /// <param name="id">Row id.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Rethrow a database error instead of returning an empty result.</param>
         public void ClearLine(int id, string tableName = null, bool log = false, bool thrw = false)
@@ -1332,8 +1332,8 @@ namespace z3n7
         /// <param name="id2">Second row id.</param>
         /// <param name="tableName">Table; default is the table given to the constructor.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <param name="thrw">Throw when a row is not found; otherwise it is logged and nothing changes.</param>
         public void SwapLines(int id1, int id2, string tableName = null, bool log = false, bool thrw = false)
@@ -1511,8 +1511,8 @@ namespace z3n7
         /// <param name="sqliteTable">Target table.</param>
         /// <param name="pgSchema">Source schema.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <remarks>This instance must be in <c>pgSQL</c> mode.</remarks>
         public void PgToSqlite(string pgTable, string sqlitePath, string sqliteTable, string pgSchema = "public", bool log = false)
@@ -1548,8 +1548,8 @@ namespace z3n7
         /// <param name="pgTable">Target table.</param>
         /// <param name="pgSchema">Target schema.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         /// <remarks>This instance must be in <c>pgSQL</c> mode; it is the target.</remarks>
         public void SqliteToPg(string sqlitePath, string sqliteTable, string pgTable, string pgSchema = "public", bool log = false)
@@ -1583,8 +1583,8 @@ namespace z3n7
         /// <param name="targetPath">Target database file.</param>
         /// <param name="targetTable">Target table.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void SqliteToSqlite(string sourcePath, string sourceTable, string targetPath, string targetTable, bool log = false)
         {
@@ -1616,8 +1616,8 @@ namespace z3n7
         /// <param name="targetMode"><c>SQLite</c> or <c>pgSQL</c>.</param>
         /// <param name="schema">PostgreSQL schema.</param>
         /// <param name="log">
-        /// Write the query and its result to the log even when the logger level given to the constructor is
-        /// <c>Off</c>.
+        /// Write the query and its result to the project log even when the logger level is <c>Off</c>. A
+        /// <c>Db</c> created without a project writes nothing.
         /// </param>
         public void BridgeTable(string sourceTable, string targetDbPath, string targetTable, string targetMode = "SQLite", string schema = "public", bool log = false)
         {

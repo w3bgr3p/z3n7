@@ -8,6 +8,7 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>Reads the fingerprint report of <c>browserscan.net</c> in a browser instance.</summary>
     public class BrowserScan
     {
         private readonly IZennoPosterProjectModel _project;
@@ -15,6 +16,8 @@ namespace z3n7
         private readonly Logger _logger;
         private readonly Time.Sleeper _idle;
 
+        /// <summary>Creates the reader.</summary>
+        /// <param name="log">Logger for progress; <c>null</c> logs nothing.</param>
         public BrowserScan(IZennoPosterProjectModel project, Instance instance, Logger log = null)
         {
             _project = project;
@@ -66,6 +69,13 @@ namespace z3n7
             
         }
 
+        /// <summary>
+        /// Opens <c>browserscan.net</c> and waits for it to finish (checked every 3–5 seconds, up to 60
+        /// seconds). Reads WebGL, WebGL report, audio, client rects, WebGPU report, fonts and the IP-based
+        /// timezone and time, and writes them to the current account's row of the <c>_browserscan</c> table
+        /// (created and filled with account rows if needed).
+        /// </summary>
+        /// <returns>Field → value as shown on the page.</returns>
         public Dictionary<string,string> ParseStats()
         {
             AddTable();
@@ -116,6 +126,11 @@ namespace z3n7
 
         }
 
+        /// <summary>
+        /// Opens <c>browserscan.net</c> and waits for it to finish (checked every 3–5 seconds, up to 60
+        /// seconds). Reads the overall score.
+        /// </summary>
+        /// <returns><c>[score] problems</c>; problems are listed when the score is not 100%.</returns>
         public string GetScore()
         {
             LoadStats();
@@ -130,6 +145,11 @@ namespace z3n7
             return score;
         }
         
+        /// <summary>
+        /// Opens <c>browserscan.net</c> and waits for it to finish (checked every 3–5 seconds, up to 60
+        /// seconds). Reads the listed problems when the score is not 100%.
+        /// </summary>
+        /// <returns>Problem → description; empty at 100%.</returns>
         public Dictionary<string,string> Problems()
         {
             LoadStats();
@@ -152,6 +172,11 @@ namespace z3n7
             return prblems;
         }
         
+        /// <summary>
+        /// Opens <c>browserscan.net</c> and waits for it to finish (checked every 3–5 seconds, up to 60
+        /// seconds). Sets the instance timezone to the page's IP-based offset (emulation mode) and IANA zone.
+        /// </summary>
+        /// <returns>JSON <c>{ timezoneOffset, timezoneName }</c>.</returns>
         public string FixTime()
         {
             LoadStats();
@@ -202,6 +227,12 @@ namespace z3n7
     }
     public static partial class ProjectExtensions
     {
+        /// <summary>
+        /// Runs <c>BrowserScan.FixTime</c>; an error is written to the log as a warning and does not stop the
+        /// project.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="log">Logger for progress.</param>
         public static void FixTime(this IZennoPosterProjectModel project, Instance instance, Logger log = null)
         {
             try

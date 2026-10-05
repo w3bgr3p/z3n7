@@ -12,11 +12,19 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
-    /// <summary>
-    /// Standalone HAR exporter for a ZennoPoster C# action.
-    /// </summary>
+    /// <summary>HAR 1.2 export of browser traffic (<c>GetTraffic</c>) and of saved <c>Rqst</c> traffic.</summary>
     public static partial class HarTraffic
     {
+        /// <summary>
+        /// Writes the active tab's traffic to a HAR 1.2 file, replacing an existing file.
+        /// Response bodies are decoded (gzip, deflate; brotli and zstd when Brotli.Core or ZstdNet are loaded);
+        /// text types are stored as text, others as Base64. Items that cannot be converted are skipped. Timings
+        /// and start times are approximate: ZennoPoster gives only the total time.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="path">Target file; must end with <c>.har</c>. Missing folders are created.</param>
+        /// <param name="filter">URL filter for <c>GetTraffic</c>; default is the active tab's domain.</param>
+        /// <returns>Number of entries written.</returns>
         public static int Save(Instance instance, string path,string filter = null)
         {
             if (instance == null) throw new ArgumentNullException("instance");
@@ -466,8 +474,18 @@ namespace z3n7
         }
     }
 
+    /// <summary>Extension methods on <c>IZennoPosterProjectModel</c>: HAR export.</summary>
     public partial class ProjectExtensions
     {
+        /// <summary>
+        /// Saves the browser traffic to <c>{project.Path}/har/{yyyy-MM-dd}/{result}/{project.Name}/{unix
+        /// ms}.har</c>.
+        /// Uses the CDP recorder when <c>instance.StartHar()</c> was called; otherwise <c>HarTraffic.Save</c>
+        /// with the main domain as the filter, and a warning in the log.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="filter">URL filter; default: everything (CDP) or the main domain (GetTraffic).</param>
+        /// <param name="result">Sub-folder name, e.g. <c>success</c> or <c>fail</c>.</param>
         public static void SaveSuccessHar(this IZennoPosterProjectModel project , Instance instance, string filter = null, string result = "success")
         {
             var filename = Path.Combine(project.Path,"har",DateTime.Today.ToString("yyyy-MM-dd"), result, project.Name, $"{((long)((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds)).ToString()}.har");

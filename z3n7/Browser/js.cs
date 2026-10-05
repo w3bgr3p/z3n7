@@ -12,12 +12,16 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Extension methods on <c>Instance</c> that act on the page through JavaScript in the active tab.
+    /// </summary>
     public static partial class JsExtensions
     {
 
 
         #region JavaScript Methods
         
+        /// <summary>Dispatches a <c>mousemove</c> event to the element at the centre of the window.</summary>
         public static void CenterMouse(this Instance instance)
         {
             int[] center = instance.GetCenter();
@@ -26,6 +30,13 @@ namespace z3n7
             );
         }
         
+        /// <summary>
+        /// Finds the element by CSS selector, also inside shadow roots, scrolls it into view, focuses it and
+        /// dispatches a <c>click</c> event.
+        /// </summary>
+        /// <param name="selector">CSS selector.</param>
+        /// <param name="delay">Seconds to wait before acting.</param>
+        /// <returns>The script result, or <c>Error: {message}</c> (e.g. when the element is not found).</returns>
         public static string JsClick(this Instance instance, string selector, double delay = 1.0)
         {
             Thread.Sleep((int)(delay * 1000));
@@ -90,6 +101,12 @@ namespace z3n7
                 return $"Error: {ex.Message}";
             }
         }
+        /// <summary>
+        /// Dispatches <c>mousedown</c>, <c>mouseup</c> and <c>click</c> at the given client coordinates to the
+        /// first <c>canvas</c> of the page.
+        /// </summary>
+        /// <param name="x">Client X.</param>
+        /// <param name="y">Client Y.</param>
         public static void JsClick(this Instance instance, int x, int y)
         {
             string js = $@"
@@ -123,12 +140,21 @@ namespace z3n7
             instance.ActiveTab.MainDocument.EvaluateScript(js);
 
         }
+        /// <summary>Same as <c>JsClick(x, y)</c> with <c>[x, y]</c>.</summary>
         public static void JsClick(this Instance instance, int[] pos)
         {
             instance.JsClick(pos[0], pos[1]);
         }
         
         
+        /// <summary>
+        /// Finds the element by CSS selector, clicks and focuses it, clears it and types <c>value</c> with
+        /// <c>insertText</c>, then dispatches <c>input</c> and <c>change</c>.
+        /// </summary>
+        /// <param name="selector">CSS selector.</param>
+        /// <param name="value">Text to enter.</param>
+        /// <param name="delay">Seconds to wait before acting.</param>
+        /// <returns>The script result, or <c>Error: {message}</c>.</returns>
         public static string JsSet(this Instance instance, string selector, string value, double delay = 1.0)
         {
             Thread.Sleep((int)(delay * 1000));
@@ -187,6 +213,16 @@ namespace z3n7
                 return $"Error: {ex.Message}";
             }
         }
+        /// <summary>
+        /// Evaluates <c>jsSelector</c> to an element and returns one of its properties: any attribute, or
+        /// <c>innerText</c>, <c>innerHTML</c>, <c>textContent</c>, <c>value</c>, <c>checked</c>,
+        /// <c>tagName</c>.
+        /// </summary>
+        /// <param name="jsSelector">JavaScript expression returning the element, e.g. <c>document.querySelector('#id')</c>.</param>
+        /// <param name="property">Property name.</param>
+        /// <returns>
+        /// The value. Throws when the element or the property is missing; the message lists the available ones.
+        /// </returns>
         public static string JsGet(this Instance instance, string jsSelector, string property)
         {
             string json = instance.ActiveTab.MainDocument.EvaluateScript($@"
@@ -226,6 +262,12 @@ namespace z3n7
 
             return value;
         }
+        /// <summary>
+        /// Runs a script in the active tab. Double quotes in the script are replaced with single quotes first.
+        /// </summary>
+        /// <param name="script">JavaScript.</param>
+        /// <param name="delay">Seconds to wait before running.</param>
+        /// <returns>The script result, or the exception message.</returns>
         public static string JsPost(this Instance instance, string script, int delay = 0)
         {
             Thread.Sleep(1000 * delay);

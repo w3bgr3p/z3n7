@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # GpuVendor
 
-`class` · пространство имён `z3n7` · исходник [Browser/GpuSpoof.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L31)
+`class` · пространство имён `z3n7` · исходник [Browser/GpuSpoof.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L39)
 
 ```csharp
 public class GpuVendor
 ```
 
-*Описания пока нет.*
+GPU architectures of one vendor.
 
 ## Свойства
 
@@ -22,7 +22,9 @@ public class GpuVendor
 public List<GpuArch> Archs { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L34)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L44)
+
+Architectures of this vendor.
 
 ### Vendor
 
@@ -30,6 +32,8 @@ public List<GpuArch> Archs { get; set; }
 public string Vendor { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L33)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L42)
+
+`NVIDIA`, `AMD` or `Intel`.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

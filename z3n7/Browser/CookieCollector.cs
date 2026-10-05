@@ -8,31 +8,58 @@ using Newtonsoft.Json.Linq;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Collects cookies by visiting sites over plain HTTP (not the browser), starting from an existing
+    /// cookie set, and returns them as browser-extension style JSON.
+    /// </summary>
     public class CookieCollector
     {
         private readonly Random _random = new Random();
         private readonly Dictionary<string, CookieDates> _cookieDates =
             new Dictionary<string, CookieDates>(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>Timeout of each request, seconds.</summary>
         public int TimeoutSeconds { get; set; } = 25;
+        /// <summary>Follow redirects (up to 10).</summary>
         public bool AllowRedirects { get; set; } = true;
+        /// <summary>Lower bound of the made-up age of new cookies, days.</summary>
         public int MinCookieAgeDays { get; set; } = 7;
+        /// <summary>Upper bound of the made-up age of new cookies, days.</summary>
         public int MaxCookieAgeDays { get; set; } = 120;
+        /// <summary>Made-up last-access dates of new cookies fall within this many days before now.</summary>
         public int MaxLastAccessAgeDays { get; set; } = 14;
 
+        /// <summary>User-Agent header of the requests.</summary>
         public string UserAgent { get; set; } =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
             "AppleWebKit/537.36 (KHTML, like Gecko) " +
             "Chrome/126.0 Safari/537.36";
 
+        /// <summary>Accept header of the requests.</summary>
         public string Accept { get; set; } =
             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 
+        /// <summary>Accept-Language header of the requests.</summary>
         public string AcceptLanguage { get; set; } =
             "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7";
 
+        /// <summary>Receives <c>COOKIES={count}</c> at the end of <c>Run</c>; <c>null</c> for none.</summary>
         public Action<string> Log { get; set; }
 
+        /// <summary>
+        /// Loads <c>cookiesJson</c>, sends a GET to each service and saves every cookie of the involved
+        /// domains.
+        /// A service that times out or fails is skipped. Cookies without <c>creationDate</c> get random
+        /// creation and last-access dates within the configured ages.
+        /// </summary>
+        /// <param name="services">URLs or host names; <c>https://</c> is added when missing.</param>
+        /// <param name="cookiesJson">
+        /// Starting cookies: JSON array with <c>name</c>, <c>value</c>, <c>domain</c>, <c>path</c>,
+        /// <c>secure</c>, <c>httpOnly</c>, <c>expirationDate</c> and optional
+        /// <c>creationDate</c>/<c>lastAccessDate</c>.
+        /// </param>
+        /// <param name="proxy"><c>[scheme://][user:pass@]host:port</c>; empty for none.</param>
+        /// <returns>JSON array of cookies in the same format.</returns>
         public string Run(IEnumerable<string> services, string cookiesJson, string proxy = null)
         {
             _cookieDates.Clear();

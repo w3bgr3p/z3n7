@@ -6,9 +6,16 @@ using ZXing;
 
 namespace z3n7
 {
+    /// <summary>Helpers for ZennoPoster <c>HtmlElement</c>: centre point, QR decoding, XPath.</summary>
     public static class HtmlExtensions
     {
         
+        /// <summary>
+        /// Centre of the element relative to <c>origin</c> (bounding-client size when known, else the element
+        /// size).
+        /// </summary>
+        /// <param name="origin">Top-left corner of the element.</param>
+        /// <returns>The point. Throws when the element is null or void.</returns>
         public static Point Center(this HtmlElement element, Point origin)
         {
             if (element == null || element.IsVoid || element.IsNull)
@@ -20,6 +27,11 @@ namespace z3n7
             return new Point(origin.X + w / 2, origin.Y + h / 2);
         }
 
+        /// <summary>Draws the element and decodes a QR code from the picture (ZXing).</summary>
+        /// <returns>
+        /// The decoded text, or one of <c>elementZeroSize</c>, <c>bitmapIsNull</c>, <c>qrIsNull</c>, or an
+        /// exception message. Never throws.
+        /// </returns>
         public static string DecodeQr(this HtmlElement element)
         {
             try
@@ -42,6 +54,11 @@ namespace z3n7
             }
             catch (Exception ex) { return ex.Message; }
         }
+        /// <summary>
+        /// Builds an XPath for the element by walking up to <c>body</c>. Each step uses <c>@id</c>, else the
+        /// first class, else <c>@name</c>, else the position among same-tag siblings.
+        /// </summary>
+        /// <returns>The XPath, starting with <c>//*</c>; empty for a void element.</returns>
         public static string GetXPath(this HtmlElement element)
         {
             if (element.IsVoid || element.IsNull)
@@ -117,6 +134,10 @@ namespace z3n7
             
             return 1;
         }
+        /// <summary>
+        /// Checks that the first element found by <c>xpath</c> in <c>tab</c> has the same outer HTML as
+        /// <c>originalElement</c>.
+        /// </summary>
         public static bool VerifyXPath(Tab tab, HtmlElement originalElement, string xpath)
         {
             if (string.IsNullOrEmpty(xpath))

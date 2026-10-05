@@ -13,27 +13,41 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7
 {
     // Структура одной модели GPU
+    /// <summary>One GPU model from the PCI ID list.</summary>
     public class GpuModel
     {
+        /// <summary>PCI device id, 4 hex digits, e.g. <c>2486</c>.</summary>
         public string DeviceId { get; set; }   // "2486"
+        /// <summary>Model name, e.g. <c>GeForce RTX 3060 Ti</c>.</summary>
         public string Name     { get; set; }   // "GeForce RTX 3060 Ti"
+        /// <summary>Chip code, e.g. <c>GA104</c>; empty when the list does not give one.</summary>
         public string Chip     { get; set; }   // "GA104"
     }
 
     // Структура одной архитектуры
+    /// <summary>GPU models of one architecture.</summary>
     public class GpuArch
     {
+        /// <summary>Architecture name, e.g. <c>Ampere</c>.</summary>
         public string Arch     { get; set; }   // "Ampere"
+        /// <summary>Models of this architecture.</summary>
         public List<GpuModel> Models { get; set; } = new List<GpuModel>();
     }
 
     // Структура одного вендора
+    /// <summary>GPU architectures of one vendor.</summary>
     public class GpuVendor
     {
+        /// <summary><c>NVIDIA</c>, <c>AMD</c> or <c>Intel</c>.</summary>
         public string Vendor   { get; set; }   // "NVIDIA"
+        /// <summary>Architectures of this vendor.</summary>
         public List<GpuArch> Archs { get; set; } = new List<GpuArch>();
     }
 
+    /// <summary>
+    /// Picks a plausible WebGL vendor/renderer pair of the same GPU architecture as the machine's card,
+    /// from the public PCI ID list.
+    /// </summary>
     public static class GpuSpoof
     {
         private static readonly Random _rng = new Random();
@@ -125,10 +139,12 @@ namespace z3n7
         // ── Главный парсер ──────────────────────────────────────────────────────
 
         /// <summary>
-        /// Скачивает pci.ids и возвращает JSON вида:
-        /// [ { Vendor, Archs: [ { Arch, Models: [ { DeviceId, Name, Chip } ] } ] } ]
-        /// Фильтр: только GPU-строки (GeForce / Radeon / UHD / Iris / Xe / Arc)
+        /// Downloads the PCI ID list and groups the GPU models of NVIDIA, AMD and Intel by vendor and
+        /// architecture (only GeForce/Quadro/Tesla/RTX, Radeon/Navi/Vega/Polaris and HD
+        /// Graphics/UHD/Iris/Xe/Arc entries).
         /// </summary>
+        /// <param name="pciIdsUrl">URL of <c>pci.ids</c>.</param>
+        /// <returns>JSON <c>[{ Vendor, Archs: [{ Arch, Models: [{ DeviceId, Name, Chip }] }] }]</c>.</returns>
         public static string BuildGpuJson(string pciIdsUrl = "https://pci-ids.ucw.cz/v2.2/pci.ids")
         {
             string raw;
@@ -256,9 +272,12 @@ namespace z3n7
         // ── Определение вендора текущей карты ──────────────────────────────────
 
         /// <summary>
-        /// Возвращает "NVIDIA" / "AMD" / "Intel" / ""
-        /// Использует Win32_VideoController, предпочитает дискретную (cards[1] если есть).
+        /// Vendor of the machine's video card from WMI <c>Win32_VideoController</c>; with several cards the
+        /// second one is used.
         /// </summary>
+        /// <returns>
+        /// <c>NVIDIA</c>, <c>AMD</c>, <c>Intel</c>, the first word of another name, or an empty string.
+        /// </returns>
         public static string GetCurrentVendor()
         {
             try
@@ -282,7 +301,8 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Возвращает полное имя текущей карты из Win32_VideoController
+        /// Full name of the machine's video card from WMI (the second card when there are several); empty on
+        /// error.
         /// </summary>
         public static string GetCurrentCardName()
         {
@@ -299,9 +319,12 @@ namespace z3n7
         // ── Определение архитектуры текущей карты из JSON ─────────────────────
 
         /// <summary>
-        /// По имени карты (из Win32) ищет в gpuJson её архитектуру.
-        /// Поиск: частичное вхождение modelName в Name записи JSON.
+        /// Architecture of the card in <c>gpuJson</c>: the first model of the card's vendor whose name contains
+        /// the card name or is contained in it.
         /// </summary>
+        /// <param name="gpuJson">JSON from <c>BuildGpuJson</c>.</param>
+        /// <param name="cardName">Card name; default is the current card (<c>GetCurrentCardName</c>).</param>
+        /// <returns>Architecture name, or an empty string.</returns>
         public static string DetectCurrentArch(string gpuJson, string cardName = null)
         {
             if (string.IsNullOrEmpty(cardName))
@@ -328,11 +351,14 @@ namespace z3n7
         // ── Финальный метод: случайная строка той же архитектуры ───────────────
 
         /// <summary>
-        /// Возвращает массив из двух строк:
-        /// [0] "Google Inc. (NVIDIA)"
-        /// [1] "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Ti (0x00002486) Direct3D11 vs_5_0 ps_5_0, D3D11)"
-        /// для той же архитектуры что у текущей карты.
+        /// Random model of the same vendor and architecture as the card, formatted as Chrome's ANGLE strings.
         /// </summary>
+        /// <param name="gpuJson">JSON from <c>BuildGpuJson</c>.</param>
+        /// <param name="cardName">Card name; default is the current card (<c>GetCurrentCardName</c>).</param>
+        /// <returns>
+        /// <c>["Google Inc. (NVIDIA)", "ANGLE (NVIDIA, NVIDIA {model} (0x0000XXXX) Direct3D11 vs_5_0 ps_5_0,
+        /// D3D11)"]</c>; two empty strings when the architecture is unknown.
+        /// </returns>
         public static string[] RandomAngleString(string gpuJson, string cardName = null)
         {
             if (string.IsNullOrEmpty(cardName))
@@ -364,16 +390,19 @@ namespace z3n7
 
         // ── Утилита: сохранить/загрузить/обеспечить JSON ──────────────────────
 
+        /// <summary>Writes the GPU JSON to a file (UTF-8).</summary>
         public static void SaveGpuJson(string json, string path)
             => File.WriteAllText(path, json, System.Text.Encoding.UTF8);
 
+        /// <summary>Reads the GPU JSON from a file.</summary>
         public static string LoadGpuJson(string path)
             => File.ReadAllText(path, System.Text.Encoding.UTF8);
 
         /// <summary>
-        /// Если файл не существует — скачивает и создаёт, с локом на случай параллельных потоков.
-        /// Возвращает содержимое JSON.
+        /// Reads the GPU JSON from <c>path</c>; when the file does not exist, builds it with
+        /// <c>BuildGpuJson</c> and saves it (one builder at a time).
         /// </summary>
+        /// <param name="path">Cache file.</param>
         public static string EnsureGpuJson(string path)
         {
             if (!File.Exists(path))
@@ -392,8 +421,16 @@ namespace z3n7
         }
     }
 
+    /// <summary>Extension methods on <c>IZennoPosterProjectModel</c>: WebGL spoofing.</summary>
     public static partial class ProjectExtensions
     {
+        /// <summary>
+        /// Takes a random WebGL profile (Base64 JSON per line) from <c>{project.Path}/resourses/webgl.txt</c>,
+        /// replaces its unmasked vendor and renderer with <c>RandomAngleString</c> (GPU list cached in
+        /// <c>resourses/gpu.json</c>), stores it in <c>webgl</c> and loads it into the instance. Does nothing
+        /// when <c>webgl.txt</c> is missing.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
         public static void SpoofGpu(this IZennoPosterProjectModel project, Instance instance)
         {
             var jGpuPath  = Path.Combine(project.Path, "resourses", "gpu.json");

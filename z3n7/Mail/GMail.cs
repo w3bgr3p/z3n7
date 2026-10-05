@@ -10,6 +10,11 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 namespace z3n7.Api
 {
     
+    /// <summary>
+    /// Gmail access over the Gmail API with an OAuth refresh token.
+    /// Credentials come from the <c>_api</c> table, row <c>id = 'gmail'</c>: <c>client_id</c>,
+    /// <c>client_secret</c>, <c>refresh_token</c>. A new access token is requested before every operation.
+    /// </summary>
     public class GmailClient
     {
         private readonly IZennoPosterProjectModel _project;
@@ -24,6 +29,8 @@ namespace z3n7.Api
         private const string TOKEN_URL = "https://oauth2.googleapis.com/token";
         private const string GMAIL_URL = "https://gmail.googleapis.com/gmail/v1/users/me";
 
+        /// <summary>Creates the client and reads the credentials from the database.</summary>
+        /// <param name="log">Log requests and responses.</param>
         public GmailClient(IZennoPosterProjectModel project, bool log = false)
         {
             _project = project;
@@ -143,9 +150,12 @@ namespace z3n7.Api
         }
 
         /// <summary>
-        /// Ищет 6-значный OTP в последних письмах адресованных на targetEmail.
-        /// Бросает Exception если не найден.
+        /// Looks through messages of the last 5 minutes sent to <c>targetEmail</c> and returns the first
+        /// 6-digit number of the subject, else of the plain-text body.
         /// </summary>
+        /// <param name="targetEmail">Address the message must be sent to (matched against the <c>To</c> header).</param>
+        /// <param name="maxResults">How many recent messages to check.</param>
+        /// <returns>The code. Throws when none is found.</returns>
         public string Otp(string targetEmail, int maxResults = 10)
         {
             _logger?.Debug($"gmail: search messages for {targetEmail}");
@@ -172,8 +182,11 @@ namespace z3n7.Api
         }
 
         /// <summary>
-        /// Ищет ссылку в последнем письме адресованном на targetEmail.
+        /// Returns the first http(s) link in the plain-text body of the newest of the last 5 messages (within 5
+        /// minutes) sent to <c>targetEmail</c>.
         /// </summary>
+        /// <param name="targetEmail">Address the message must be sent to (matched against the <c>To</c> header).</param>
+        /// <returns>The link. Throws when none is found.</returns>
         public string GetLink(string targetEmail)
         {
             RefreshAccessToken();
@@ -204,9 +217,10 @@ namespace z3n7.Api
             throw new Exception($"Gmail: no link found for {targetEmail}");
         }
 
-        /// <summary>
-        /// Отправляет письмо из текущего ящика.
-        /// </summary>
+        /// <summary>Sends a plain-text message from this mailbox.</summary>
+        /// <param name="to">Recipient.</param>
+        /// <param name="subject">Subject.</param>
+        /// <param name="body">Text.</param>
         public void SendMail(string to, string subject, string body)
         {
             _logger?.Debug($"gmail: sending email to {to}");

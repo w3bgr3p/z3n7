@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # TrafficCounter.TrafficStep
 
-`class` · пространство имён `z3n7` · исходник [Traffic/TrafficCounter.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L143)
+`class` · пространство имён `z3n7` · исходник [Traffic/TrafficCounter.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L173)
 
 ```csharp
 public class TrafficStep
 ```
 
-*Описания пока нет.*
+One counted step.
 
 ## Свойства
 
@@ -22,7 +22,9 @@ public class TrafficStep
 public long Bytes { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L147)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L180)
+
+Counted bytes.
 
 ### Label
 
@@ -30,7 +32,9 @@ public long Bytes { get; set; }
 public string Label { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L146)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L178)
+
+Step name.
 
 ### T
 
@@ -38,6 +42,8 @@ public string Label { get; set; }
 public long T { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L145)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L176)
+
+Time, seconds since 2020-01-01 UTC.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

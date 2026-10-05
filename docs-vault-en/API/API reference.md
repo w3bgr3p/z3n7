@@ -36,21 +36,21 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[BetterBrowser]] | static class |  |
-| [[BrowserScan]] | class |  |
-| [[ChromeExt]] | class |  |
-| [[CookieCollector]] | class |  |
-| [[Cookies]] | static class |  |
-| [[Cookies.CookieInfo]] | class |  |
-| [[Extension]] | class |  |
-| [[GpuArch]] | class |  |
-| [[GpuModel]] | class |  |
-| [[GpuSpoof]] | static class |  |
-| [[GpuVendor]] | class |  |
-| [[HtmlExtensions]] | static class |  |
-| [[InstanceExtensions (Browser)]] | static class |  |
-| [[JsExtensions]] | static class |  |
-| [[ProjectExtensions (Browser)]] | static class |  |
+| [[BetterBrowser]] | static class | Preparing a browser instance for a session: cookies, profile data and a browser profile matching the proxy's exit point. |
+| [[BrowserScan]] | class | Reads the fingerprint report of `browserscan.net` in a browser instance. |
+| [[ChromeExt]] | class | Older variant of `Extension`: Chromium instances only, manager installed from CRX. |
+| [[CookieCollector]] | class | Collects cookies by visiting sites over plain HTTP (not the browser), starting from an existing cookie set, and returns them as browser-extension style JSON. |
+| [[Cookies]] | static class | Browser cookies: read and write in an instance, store as Base64 in the account's database row, convert between JSON and Netscape formats. |
+| [[Cookies.CookieInfo]] | class | Summary of a stored cookie set (see `AnalyzeCookies`). |
+| [[Extension]] | class | Chrome extension management in a ZennoPoster instance: version, install, enable/disable, remove. |
+| [[GpuArch]] | class | GPU models of one architecture. |
+| [[GpuModel]] | class | One GPU model from the PCI ID list. |
+| [[GpuSpoof]] | static class | Picks a plausible WebGL vendor/renderer pair of the same GPU architecture as the machine's card, from the public PCI ID list. |
+| [[GpuVendor]] | class | GPU architectures of one vendor. |
+| [[HtmlExtensions]] | static class | Helpers for ZennoPoster `HtmlElement`: centre point, QR decoding, XPath. |
+| [[InstanceExtensions (Browser)]] | static class | Extension methods on `Instance`: image search on page screenshots, clicks, taps and swipes by coordinates, viewport helpers. |
+| [[JsExtensions]] | static class | Extension methods on `Instance` that act on the page through JavaScript in the active tab. |
+| [[ProjectExtensions (Browser)]] | static class | Extension methods on `IZennoPosterProjectModel`: WebGL spoofing. |
 
 ## Db
 
@@ -100,7 +100,7 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 | [[Init]] | class | Project start-up: session, account range, encrypted storage and the start banner in the log. |
 | [[ISAFU]] | interface | Encryption used by SAFU (secure storage of account secrets). |
 | [[LogDisabler]] | class | Stops ZennoPoster from writing its own log files to the `Logs` folder next to the running executable. |
-| [[Logger]] | class | Writes messages to the ZennoPoster log and, optionally, as JSON to an HTTP log collector. |
+| [[Logger]] | class | Writes messages to the ZennoPoster log. |
 | [[LogLevel]] | enum | Message severity. |
 | [[ProjectExtensions (Essentials)]] | static class | Extension methods on `IZennoPosterProjectModel`: start-up, logging, timing and running other projects. |
 | [[SAFU]] | static class | Entry point to secure storage. |
@@ -114,15 +114,14 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 
 | Type | Kind | Summary |
 |---|---|---|
-| [[AnyMessage]] | class |  |
-| [[BestMailBox]] | class |  |
-| [[FirstMail]] | class |  |
-| [[GmailClient]] | class |  |
-| [[MSMail]] | class |  |
-| [[ProjectExtensions (Mail)]] | static class |  |
-| [[SuperMails]] | class |  |
-| [[TempMail]] | class |  |
-| [[z3nmail]] | class |  |
+| [[AnyMessage]] | class | Client of the AnyMessage mailbox service (`api.anymessage.shop`): short-term and long-term mailboxes. |
+| [[BestMailBox]] | class | Client of the BestMailBox temporary mailbox service (default `https://mail.autoz3n.xyz`). |
+| [[FirstMail]] | class | Client of the FirstMail mailbox API (`firstmail.ltd`). |
+| [[GmailClient]] | class | Gmail access over the Gmail API with an OAuth refresh token. |
+| [[MSMail]] | class | Microsoft mailbox access over Microsoft Graph with an OAuth refresh token. |
+| [[ProjectExtensions (Mail)]] | static class | Extension methods on `IZennoPosterProjectModel`: one-time codes from mail. |
+| [[TempMail]] | class | Client of the Temp Mail service (Privatix) on RapidAPI. |
+| [[z3nmail]] | class | Client of the temporary mailbox service (default `https://mail.autoz3n.xyz`); the same API as `BestMailBox`. |
 
 ## MethodExtensions
 
@@ -175,13 +174,13 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 | Type | Kind | Summary |
 |---|---|---|
 | [[CdpHar]] | class | HAR recorder that talks to the instance browser over its own DevTools endpoint (the browser writes the port to &lt;user-data-dir&gt;\DevToolsActivePort). |
-| [[GraphQL]] | class |  |
-| [[HarTraffic]] | static class | Standalone HAR exporter for a ZennoPoster C# action. |
-| [[InstanceExtensions (Traffic)]] | static class |  |
-| [[ProjectExtensions (Traffic)]] | class |  |
-| [[Traffic]] | class |  |
-| [[Traffic.TrafficElement]] | class |  |
-| [[TrafficCounter]] | static class |  |
-| [[TrafficCounter.TrafficStep]] | class |  |
+| [[GraphQL]] | class | Collects the GraphQL operations seen in a browser instance's traffic. |
+| [[HarTraffic]] | static class | HAR 1.2 export of browser traffic (`GetTraffic`) and of saved `Rqst` traffic. |
+| [[InstanceExtensions (Traffic)]] | static class | Extension methods on `Instance`: HAR recording over DevTools. |
+| [[ProjectExtensions (Traffic)]] | class | Extension methods on `IZennoPosterProjectModel`: HAR export. |
+| [[Traffic]] | class | Reads the traffic recorded by the active tab of a ZennoPoster instance (`ActiveTab.GetTraffic`). |
+| [[Traffic.TrafficElement]] | class | One recorded request with its response. |
+| [[TrafficCounter]] | static class | Counts traffic per labelled step of a project run and reports it as JSON. |
+| [[TrafficCounter.TrafficStep]] | class | One counted step. |
 
 > This page is generated from the source code. Do not edit it: changes will be overwritten.

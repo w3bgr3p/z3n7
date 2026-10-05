@@ -22,8 +22,11 @@ namespace z3n7
     /// </summary>
     public sealed class CdpHar : IDisposable
     {
+        /// <summary>Most entries kept; the oldest are dropped beyond it.</summary>
         public int MaxEntries = 5000;
+        /// <summary>Response bodies larger than this (encoded size) are not fetched.</summary>
         public long MaxBodyBytes = 10 * 1024 * 1024;
+        /// <summary>Timeout for connecting and for each DevTools command, ms.</summary>
         public int CommandTimeoutMs = 10000;
 
         private static readonly Dictionary<int, CdpHar> Active = new Dictionary<int, CdpHar>();
@@ -40,8 +43,11 @@ namespace z3n7
         private int _nextId;
         private int _bodyFetchesInFlight;
 
+        /// <summary>DevTools port of the browser.</summary>
         public int DevToolsPort { get; private set; }
+        /// <summary>Last error of the background receive loop, or <c>null</c>.</summary>
         public string LastError { get; private set; }
+        /// <summary>Whether the DevTools connection is open.</summary>
         public bool IsAlive { get { return _ws != null && _ws.State == WebSocketState.Open; } }
 
         private CdpHar() { }
@@ -89,6 +95,7 @@ namespace z3n7
             }
         }
 
+        /// <summary>Stops and forgets the recorder of this instance, if any.</summary>
         public static void Stop(Instance instance)
         {
             if (instance == null) return;
@@ -104,9 +111,15 @@ namespace z3n7
         // ─── DevTools port discovery ────────────────────────────────────────
 
         /// <summary>
-        /// Candidates: instance.ProfilePath, ProjectMaker browser dir, ZP Trash\Profiles\*.
-        /// Only one live candidate → it. Several → the one whose page url equals ActiveTab.URL.
+        /// Finds the DevTools port of the instance's browser from <c>DevToolsActivePort</c> files: the instance
+        /// profile folder, the ProjectMaker browser folder and ZennoPoster's <c>Trash\Profiles\*</c>. The
+        /// profile's own port wins when it is live; otherwise the only live candidate; otherwise the one whose
+        /// page URL equals <c>ActiveTab.URL</c>.
         /// </summary>
+        /// <returns>
+        /// The port. Throws <c>InvalidOperationException</c> when no live browser or several matching ones are
+        /// found.
+        /// </returns>
         public static int ResolveDevToolsPort(Instance instance)
         {
             var files = new List<string>();
@@ -455,8 +468,10 @@ namespace z3n7
 
         // ─── Export ─────────────────────────────────────────────────────────
 
+        /// <summary>Number of recorded entries.</summary>
         public int Count { get { lock (_sync) return _entries.Count; } }
 
+        /// <summary>Forgets all recorded entries.</summary>
         public void Clear()
         {
             lock (_sync)
@@ -466,7 +481,14 @@ namespace z3n7
             }
         }
 
-        /// <summary>Writes recorded traffic as HAR 1.2. urlRegex = null → everything. Returns entry count.</summary>
+        /// <summary>
+        /// Writes the recorded traffic to a HAR 1.2 file (missing folders are created, an existing file is
+        /// replaced).
+        /// </summary>
+        /// <param name="path">Target file.</param>
+        /// <param name="urlRegex">Case-insensitive regex the URL must match; <c>null</c> keeps everything.</param>
+        /// <param name="waitBodiesMs">How long to wait for response bodies still being fetched.</param>
+        /// <returns>Number of entries written.</returns>
         public int Save(string path, string urlRegex = null, int waitBodiesMs = 3000)
         {
             if (string.IsNullOrWhiteSpace(path)) throw new ArgumentNullException("path");
@@ -623,6 +645,7 @@ namespace z3n7
             try { return Uri.UnescapeDataString(s.Replace("+", " ")); } catch { return s; }
         }
 
+        /// <summary>Closes the DevTools connection.</summary>
         public void Dispose()
         {
             try { _cts.Cancel(); } catch { }
@@ -636,6 +659,7 @@ namespace z3n7
         }
     }
 
+    /// <summary>Extension methods on <c>Instance</c>: HAR recording over DevTools.</summary>
     public static partial class InstanceExtensions
     {
         /// <summary>Starts HAR recording over DevTools for this instance. Call BEFORE the traffic you need.</summary>
@@ -644,6 +668,10 @@ namespace z3n7
             return CdpHar.Start(instance);
         }
 
+        /// <summary>Writes the traffic recorded since <c>StartHar</c> to a HAR file. See <c>CdpHar.Save</c>.</summary>
+        /// <param name="path">Target file.</param>
+        /// <param name="urlRegex">Case-insensitive regex the URL must match; <c>null</c> keeps everything.</param>
+        /// <returns>Number of entries written. Throws when the recorder was not started.</returns>
         public static int SaveHar(this Instance instance, string path, string urlRegex = null)
         {
             var rec = CdpHar.For(instance);
@@ -651,6 +679,7 @@ namespace z3n7
             return rec.Save(path, urlRegex);
         }
 
+        /// <summary>Stops HAR recording for this instance.</summary>
         public static void StopHar(this Instance instance)
         {
             CdpHar.Stop(instance);

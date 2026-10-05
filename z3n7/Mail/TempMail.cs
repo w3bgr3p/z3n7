@@ -12,6 +12,10 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.Api
 {
+    /// <summary>
+    /// Client of the Temp Mail service (Privatix) on RapidAPI. The mailbox id is the MD5 of the address; it
+    /// is kept in <c>tempMailId</c>.
+    /// </summary>
     public class TempMail
     {
         private const string BaseUrl = "https://privatix-temp-mail-v1.p.rapidapi.com";
@@ -23,6 +27,11 @@ namespace z3n7.Api
         private readonly bool _useNetHttp;
         private readonly string _proxy;
 
+        /// <summary>Creates a client.</summary>
+        /// <param name="apikey">RapidAPI key; required.</param>
+        /// <param name="log">Log requests and responses.</param>
+        /// <param name="useNetHttp">Send requests through <c>NetHttp</c> instead of ZennoPoster's HTTP client.</param>
+        /// <param name="proxy">Proxy in <c>Rqst</c> format; empty for none.</param>
         public TempMail(
             IZennoPosterProjectModel project,
             string apikey,
@@ -54,6 +63,8 @@ namespace z3n7.Api
                 useNetHttp: _useNetHttp,
                 thrw: true);
 
+        /// <summary>Domains the service offers.</summary>
+        /// <returns>Throws when the list is empty.</returns>
         public string[] GetDomains()
         {
             var json = Get("/request/domains/format/json/");
@@ -65,7 +76,14 @@ namespace z3n7.Api
             return domains;
         }
 
-        /// <summary>Создать временный email. Возвращает [md5, email].</summary>
+        /// <summary>
+        /// Builds an address on a service domain; no request creates it, the service accepts mail for any
+        /// login. Stores the id in <c>tempMailId</c> and <c>mailId</c>, the address in <c>email</c> and
+        /// <c>project.Profile.Email</c>.
+        /// </summary>
+        /// <param name="login">Local part; random 10 hex characters when empty.</param>
+        /// <param name="domain">Domain; a random service domain when empty.</param>
+        /// <returns><c>[md5, email]</c>.</returns>
         public string[] NewMail(string login = null, string domain = null)
         {
             if (string.IsNullOrWhiteSpace(login))
@@ -89,7 +107,10 @@ namespace z3n7.Api
             return new[] { id, email };
         }
 
-        /// <summary>Получить текущий список сообщений без ожидания.</summary>
+        /// <summary>
+        /// Current messages of the mailbox in <c>tempMailId</c> (else <c>mailId</c>), without waiting.
+        /// </summary>
+        /// <returns>The raw JSON answer. Throws when no mailbox was created.</returns>
         public string GetMessages()
         {
             var id = _project.Var("tempMailId");
@@ -102,7 +123,9 @@ namespace z3n7.Api
             return Get($"/request/mail/id/{id}/format/json/");
         }
 
-        /// <summary>Ждать письмо. Возвращает JSON первого сообщения.</summary>
+        /// <summary>Waits for a message, checking every 5 seconds.</summary>
+        /// <param name="deadline">Seconds to wait; then <c>TimeoutException</c>.</param>
+        /// <returns>JSON of the first message.</returns>
         public string GetMail(int deadline = 120)
         {
             var d = new Time.Deadline();
@@ -123,6 +146,11 @@ namespace z3n7.Api
             }
         }
 
+        /// <summary>
+        /// Waits for a message and returns the first 6-digit number of its subject, else of its text.
+        /// </summary>
+        /// <param name="deadline">Seconds to wait; then <c>TimeoutException</c>.</param>
+        /// <returns>The code. Throws when there is none.</returns>
         public string Otp(int deadline = 120)
         {
             var message = JObject.Parse(GetMail(deadline));
@@ -141,6 +169,11 @@ namespace z3n7.Api
             throw new Exception("TempMail: OTP not found");
         }
 
+        /// <summary>
+        /// Waits for a message and collects the links of its HTML, skipping anchors, <c>mailto:</c>,
+        /// <c>tel:</c>, <c>javascript:</c>, <c>data:</c> and links to images, styles, scripts and fonts.
+        /// </summary>
+        /// <param name="deadline">Seconds to wait; then <c>TimeoutException</c>.</param>
         public HashSet<string> GetHrefs(int deadline = 120)
         {
             var message = JObject.Parse(GetMail(deadline));
@@ -164,6 +197,12 @@ namespace z3n7.Api
             return result;
         }
 
+        /// <summary>
+        /// Waits for a message and returns the first match of <c>urlPattern</c> in its JSON, HTML-decoded.
+        /// </summary>
+        /// <param name="urlPattern">Regular expression.</param>
+        /// <param name="deadline">Seconds to wait; then <c>TimeoutException</c>.</param>
+        /// <returns>The match. Throws when there is none.</returns>
         public string Link(string urlPattern, int deadline = 120)
         {
             var json = GetMail(deadline);
@@ -173,6 +212,7 @@ namespace z3n7.Api
             throw new Exception("TempMail: link not found");
         }
 
+        /// <summary>Joins login and domain into an address.</summary>
         public static string CreateAddress(string login, string domain)
         {
             if (string.IsNullOrWhiteSpace(login))
@@ -183,6 +223,7 @@ namespace z3n7.Api
             return login.Trim() + "@" + domain.Trim().TrimStart('@');
         }
 
+        /// <summary>MD5 of the lower-cased address, as hex: the mailbox id used by the service.</summary>
         public static string HashEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))

@@ -12,6 +12,7 @@ namespace z3n7
 {
 
 
+    /// <summary>Collects the GraphQL operations seen in a browser instance's traffic.</summary>
     public class GraphQL
     {
         #region Fields & Constructor
@@ -22,6 +23,8 @@ namespace z3n7
 
       
 
+        /// <summary>Turns on traffic monitoring for the instance.</summary>
+        /// <param name="log">Logger for step-by-step progress; <c>null</c> logs nothing.</param>
         public GraphQL(IZennoPosterProjectModel project, Instance instance, Logger log = null)
         {
             _project = project;
@@ -32,6 +35,16 @@ namespace z3n7
 
         #endregion
         
+		/// <summary>
+		/// Builds indented JSON <c>{ totalOperations, operations: [...] }</c> from the requests whose URL
+		/// contains <c>urlFilter</c>.
+		/// An operation is identified by its normalised <c>query</c> text, else by <c>operationName</c> +
+		/// persisted-query hash, else by <c>operationName</c>; each appears once. Requests without a JSON body
+		/// or without any of these are skipped. Each item has <c>operationType</c>, <c>operationName</c>,
+		/// <c>url</c>, <c>statusCode</c>, <c>isPersistedQuery</c> (with <c>queryHash</c>), <c>requestBody</c>
+		/// and <c>responseBody</c>.
+		/// </summary>
+		/// <param name="urlFilter">Text the request URL must contain.</param>
 		public string GetGraphQLStructure(string urlFilter)
 		{
 		    var t = new Traffic(_instance);

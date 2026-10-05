@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # CookieCollector
 
-`class` · пространство имён `z3n7` · исходник [Browser/CookieCollector.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L11)
+`class` · пространство имён `z3n7` · исходник [Browser/CookieCollector.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L15)
 
 ```csharp
 public class CookieCollector
 ```
 
-*Описания пока нет.*
+Collects cookies by visiting sites over plain HTTP (not the browser), starting from an existing cookie set, and returns them as browser-extension style JSON.
 
 ## Свойства
 
@@ -22,7 +22,9 @@ public class CookieCollector
 public string Accept { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L28)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L39)
+
+Accept header of the requests.
 
 ### AcceptLanguage
 
@@ -30,7 +32,9 @@ public string Accept { get; set; }
 public string AcceptLanguage { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L31)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L43)
+
+Accept-Language header of the requests.
 
 ### AllowRedirects
 
@@ -38,7 +42,9 @@ public string AcceptLanguage { get; set; }
 public bool AllowRedirects { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L18)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L24)
+
+Follow redirects (up to 10).
 
 ### Log
 
@@ -46,7 +52,9 @@ public bool AllowRedirects { get; set; }
 public Action<string> Log { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L34)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L47)
+
+Receives `COOKIES={count}` at the end of `Run`; `null` for none.
 
 ### MaxCookieAgeDays
 
@@ -54,7 +62,9 @@ public Action<string> Log { get; set; }
 public int MaxCookieAgeDays { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L20)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L28)
+
+Upper bound of the made-up age of new cookies, days.
 
 ### MaxLastAccessAgeDays
 
@@ -62,7 +72,9 @@ public int MaxCookieAgeDays { get; set; }
 public int MaxLastAccessAgeDays { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L21)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L30)
+
+Made-up last-access dates of new cookies fall within this many days before now.
 
 ### MinCookieAgeDays
 
@@ -70,7 +82,9 @@ public int MaxLastAccessAgeDays { get; set; }
 public int MinCookieAgeDays { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L19)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L26)
+
+Lower bound of the made-up age of new cookies, days.
 
 ### TimeoutSeconds
 
@@ -78,7 +92,9 @@ public int MinCookieAgeDays { get; set; }
 public int TimeoutSeconds { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L17)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L22)
+
+Timeout of each request, seconds.
 
 ### UserAgent
 
@@ -86,7 +102,9 @@ public int TimeoutSeconds { get; set; }
 public string UserAgent { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L23)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L33)
+
+User-Agent header of the requests.
 
 ## Методы
 
@@ -96,6 +114,16 @@ public string UserAgent { get; set; }
 public string Run(IEnumerable<string> services, string cookiesJson, string proxy = null)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L36)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L63)
+
+Loads `cookiesJson`, sends a GET to each service and saves every cookie of the involved domains. A service that times out or fails is skipped. Cookies without `creationDate` get random creation and last-access dates within the configured ages.
+
+| Параметр | Описание |
+|---|---|
+| `services` | URLs or host names; `https://` is added when missing. |
+| `cookiesJson` | Starting cookies: JSON array with `name`, `value`, `domain`, `path`, `secure`, `httpOnly`, `expirationDate` and optional `creationDate`/`lastAccessDate`. |
+| `proxy` | `[scheme://][user:pass@]host:port`; empty for none. |
+
+**Возвращает:** JSON array of cookies in the same format.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -8,8 +8,18 @@ using ZennoLab.InterfacesLibrary.Enums.Browser;
 using ZennoLab.BrowserProfiles;
 namespace z3n7
 {
+    /// <summary>
+    /// Preparing a browser instance for a session: cookies, profile data and a browser profile matching the
+    /// proxy's exit point.
+    /// </summary>
     public static class BetterBrowser
     {
+         /// <summary>
+         /// Loads the account's cookies (<c>instance.GetCookies</c>), sets the profile email to
+         /// <c>{NickName}@outlook.com</c> and a random 12-character password, turns on traffic monitoring, sets
+         /// the window to 1280×720, stores <c>Time.Now()</c> in <c>ts0</c> and runs <c>ImproveBrowser</c>. An
+         /// error is logged and rethrown.
+         /// </summary>
          public static void PrepareSession(this IZennoPosterProjectModel project, Instance instance)
         {
             try{
@@ -29,6 +39,16 @@ namespace z3n7
             }
         }
         
+        /// <summary>
+        /// Applies a browser profile matching the proxy's exit point, then checks the result.
+        /// 1. Opens <c>check.z3n.pro/api/ip</c> in the browser to learn the exit IP and Chrome version. 2.
+        /// Requests a profile for them and the <c>proxy_iso</c> country from <c>check.z3n.pro/api/profile</c>
+        /// (directly, without the proxy). 3. Applies it to <c>project.Profile.BrowserProfile</c> and the
+        /// instance. 4. Sets timezone and canvas emulation with the profile's canvas seed and window size. 5.
+        /// Appends a diagnostic line to <c>{project.Path}/diag/z3n-diag.jsonl</c>. 6. Opens the
+        /// <c>check.z3n.pro</c> fingerprint check, waits up to 60 seconds and writes each finding to the log as
+        /// a warning.
+        /// </summary>
         public static void ImproveBrowser(this IZennoPosterProjectModel project, Instance instance)
         {
             // 1. Точка выхода прокси глазами самого браузера: из C# запрос

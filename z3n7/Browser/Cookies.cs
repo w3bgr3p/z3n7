@@ -12,19 +12,35 @@ using ZennoLab.CommandCenter;
 
 namespace z3n7
 {
+    /// <summary>
+    /// Browser cookies: read and write in an instance, store as Base64 in the account's database row,
+    /// convert between JSON and Netscape formats.
+    /// </summary>
     public static class Cookies
     {
+        /// <summary>Summary of a stored cookie set (see <c>AnalyzeCookies</c>).</summary>
         public class CookieInfo
         {
+            /// <summary>Number of cookies.</summary>
             public int TotalCount { get; set; }
+            /// <summary>Size of the cookie JSON, bytes.</summary>
             public long TotalSizeBytes { get; set; }
+            /// <summary>Cookies whose domain contains <c>google</c>.</summary>
             public int GoogleCookies { get; set; }
+            /// <summary>Cookies already expired.</summary>
             public int ExpiredCookies { get; set; }
+            /// <summary>Cookies that expired more than 6 months ago.</summary>
             public int OldCookies { get; set; }
+            /// <summary>Cookie count per domain.</summary>
             public Dictionary<string, int> ByDomain { get; set; }
+            /// <summary>The 10 cookies with the longest values.</summary>
             public List<dynamic> LargestCookies { get; set; }
         }
 
+        /// <summary>Reads the current account's stored cookies and summarises them.</summary>
+        /// <param name="table">Table with the account's cookies.</param>
+        /// <param name="column">Column with Base64 cookies (JSON or Netscape).</param>
+        /// <returns>The summary; zero counts when nothing is stored.</returns>
         public static CookieInfo AnalyzeCookies(this IZennoPosterProjectModel project, string table = "_instance", string column = "cookies")
         {
             string cookiesBase64 = project.DbGet(column, table);
@@ -50,6 +66,12 @@ namespace z3n7
             };
         }
 
+        /// <summary>Removes cookies from the current account's stored set and writes it back as Base64 JSON.</summary>
+        /// <param name="removeExpired">Remove expired cookies.</param>
+        /// <param name="removeOld">Remove cookies that expired more than 6 months ago.</param>
+        /// <param name="removeNonGoogle">Keep only cookies whose domain contains <c>google</c>.</param>
+        /// <param name="table">Table with the account's cookies.</param>
+        /// <param name="column">Column with Base64 cookies (JSON or Netscape).</param>
         public static void PruneCookies(this IZennoPosterProjectModel project, bool removeExpired = true, bool removeOld = true, bool removeNonGoogle = false, string table = "_instance", string column = "cookies")
         {
             string cookiesBase64 = project.DbGet(column, table);
@@ -82,6 +104,13 @@ namespace z3n7
             project.DbUpd($"{column} = '{cleanedBase64}'", table);
         }
 
+        /// <summary>
+        /// Runs <c>PruneCookies</c> on the <c>_instance</c> and <c>folder_profile</c> tables for every account
+        /// from <c>rangeStart</c> to <c>rangeEnd</c>, then clears <c>acc0</c>.
+        /// </summary>
+        /// <param name="removeExpired">Remove expired cookies.</param>
+        /// <param name="removeOld">Remove cookies that expired more than 6 months ago.</param>
+        /// <param name="removeNonGoogle">Keep only cookies whose domain contains <c>google</c>.</param>
         public static void PruneAllCookies(this IZennoPosterProjectModel project, bool removeExpired = true, bool removeOld = true, bool removeNonGoogle = false)
         {
             var acc0 = project.Int("rangeStart")-1;
@@ -95,6 +124,11 @@ namespace z3n7
             project.Var("acc0","");
         }
 
+        /// <summary>
+        /// Writes the <c>AnalyzeCookies</c> summary to the log (top 10 domains, top 5 largest cookies).
+        /// </summary>
+        /// <param name="table">Table with the account's cookies.</param>
+        /// <param name="column">Column with Base64 cookies (JSON or Netscape).</param>
         public static void PrintCookieReport(this IZennoPosterProjectModel project, string table = "_instance", string column = "cookies")
         {
             var info = project.AnalyzeCookies(table, column);
@@ -120,6 +154,16 @@ namespace z3n7
             project.SendInfoToLog(toLog.ToString());
         }
         
+        /// <summary>
+        /// Converts cookies between JSON (browser-extension format) and Netscape (tab-separated). Text starting
+        /// with <c>[</c> or <c>{</c> is JSON; text with tabs is Netscape.
+        /// </summary>
+        /// <param name="input">Cookies.</param>
+        /// <param name="output"><c>json</c>, <c>netscape</c>, or empty to convert to the other format.</param>
+        /// <returns>
+        /// The converted text, or the input when it is already in the requested format. Throws on an unknown
+        /// format.
+        /// </returns>
         public static string ConvertCookieFormat(string input, string output = null)
         {
             input = input?.Trim();
@@ -261,6 +305,9 @@ namespace z3n7
             return string.Join("\n", lines);
         }
 
+        /// <summary>Reads the instance's cookies.</summary>
+        /// <param name="domainFilter">Only cookies of this domain; <c>.</c> for the active tab's main domain; empty for all.</param>
+        /// <param name="format"><c>json</c>, <c>netscape</c>, <c>base64Json</c> or <c>base64Netscape</c>.</param>
         public static string GetCookies(this Instance instance, string domainFilter = null, string format = "json")
         {
             if (domainFilter == ".")
@@ -280,6 +327,13 @@ namespace z3n7
             else throw new ArgumentException($"Unknown format: {format}");
         }
 
+        /// <summary>
+        /// Writes all instance cookies as Base64 to the <c>cookies</c> column of the current account's row.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="jsonPath">Also write the cookies as JSON to this file.</param>
+        /// <param name="table">Target table.</param>
+        /// <param name="saveJsonToDb">Store JSON instead of Netscape.</param>
         public static void SaveAllCookies(this IZennoPosterProjectModel project, Instance instance,
             string jsonPath = null, string table = "_instance", bool saveJsonToDb = false)
         {
@@ -291,6 +345,15 @@ namespace z3n7
                 File.WriteAllText(jsonPath, jsonCookies);
         }
 
+        /// <summary>
+        /// Writes the instance cookies of one domain as Base64 to the <c>cookies</c> column of the current
+        /// account's row.
+        /// </summary>
+        /// <param name="instance">Browser instance.</param>
+        /// <param name="domain">Domain; default is the active tab's main domain.</param>
+        /// <param name="jsonPath">Also write the cookies as JSON to this file.</param>
+        /// <param name="tableName">Target table.</param>
+        /// <param name="saveJsonToDb">Store JSON instead of Netscape.</param>
         public static void SaveDomainCookies(this IZennoPosterProjectModel project, Instance instance,
             string domain = null, string jsonPath = null, string tableName = "_instance", bool saveJsonToDb = false)
         {
@@ -323,6 +386,10 @@ namespace z3n7
             instance.SetCookie(netscapeCookies);
         }
 
+        /// <summary>
+        /// Reads <c>document.cookie</c> of the active page as JSON (path <c>/</c>, no expiry; HttpOnly cookies
+        /// are not visible to scripts).
+        /// </summary>
         public static string GetCookiesByJs(this Instance instance)
         {
             string jsCode = @"
@@ -351,6 +418,13 @@ namespace z3n7
             return result.Replace("\r\n", "").Replace("\n", "").Replace("\r", "").Trim();
         }
 
+        /// <summary>
+        /// Sets cookies of the active tab's domain through <c>document.cookie</c>, for the parent domain,
+        /// Secure, expiring in a year when the stored date has passed.
+        /// </summary>
+        /// <param name="cookiesJson">
+        /// JSON array of cookies; for duplicate domain + name the last one wins, other domains are skipped.
+        /// </param>
         public static void SetCookiesByJs(this Instance instance, string cookiesJson)
         {
             var cookies = JArray.Parse(cookiesJson);
@@ -406,12 +480,12 @@ namespace z3n7
         }
 
         /// <summary>
-        /// Очистить cookies для конкретного домена в БД
+        /// Removes cookies of a domain (and, for cookies stored with a leading dot, its subdomains) from the
+        /// current account's stored set.
         /// </summary>
-        /// <param name="project">Project model</param>
-        /// <param name="domain">Домен для очистки (например, "x.com" или "twitter.com")</param>
-        /// <param name="table">Таблица БД (по умолчанию "_instance")</param>
-        /// <param name="column">Колонка с cookies (по умолчанию "cookies")</param>
+        /// <param name="domain">Domain, e.g. <c>x.com</c>.</param>
+        /// <param name="table">Table with the account's cookies.</param>
+        /// <param name="column">Column with Base64 cookies (JSON or Netscape).</param>
         public static void CleanDomainInDb(this IZennoPosterProjectModel project, string domain,
             string table = "_instance", string column = "cookies")
         {
@@ -509,6 +583,12 @@ namespace z3n7
             return false;
         }
         
+        /// <summary>Decodes a JWT without checking its signature.</summary>
+        /// <returns>
+        /// <c>alg</c>, <c>typ</c>, <c>kid</c>, <c>iss</c>, <c>sub</c>, <c>aud</c>, <c>iat</c>/<c>exp</c> with
+        /// dates, <c>ttl_seconds</c>, <c>is_expired</c>, raw header and payload JSON and the signature; or
+        /// <c>error</c>.
+        /// </returns>
         public static Dictionary<string, object> ParseJwt(string jwt)
         {
             var result = new Dictionary<string, object>();
@@ -591,8 +671,15 @@ namespace z3n7
         }
     }
 
+    /// <summary>Extension methods on <c>Instance</c>: cookies.</summary>
     public static partial class InstanceExtensions
     {
+        /// <summary>
+        /// Collects fresh cookies from 5–15 random popular sites with <c>CookieCollector</c> (the profile's
+        /// user agent and languages, requests sent directly without the instance proxy) and loads them into the
+        /// instance.
+        /// </summary>
+        /// <returns>The cookies in Netscape format.</returns>
         public static string GetCookies(this Instance instance , IZennoPosterProjectModel project)
         {
             var collector = new z3n7.CookieCollector

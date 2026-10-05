@@ -8,6 +8,12 @@ using System.Net.Http;
 
 namespace z3n7.Api
 {
+    /// <summary>
+    /// Microsoft mailbox access over Microsoft Graph with an OAuth refresh token.
+    /// Credentials are kept in the <c>mail</c> table of a <c>FastDb</c> (created if missing): the row of
+    /// the address in the <c>mail</c> project variable supplies <c>thunderbird_client_id</c> and
+    /// <c>graph_refresh_token</c>.
+    /// </summary>
     public class MSMail
     {
         private readonly IZennoPosterProjectModel _project;
@@ -24,6 +30,13 @@ namespace z3n7.Api
 
         private static readonly HttpClient _http = new HttpClient();
 
+        /// <summary>
+        /// Creates the client. When the <c>mail</c> variable is set, loads its credentials and gets an access
+        /// token right away; throws when the table has no credentials for it or the token request fails.
+        /// </summary>
+        /// <param name="db">Database with the <c>mail</c> table.</param>
+        /// <param name="proxy">Proxy for Graph requests (<c>Rqst</c> format). The token request itself is sent directly.</param>
+        /// <param name="log">Log requests and responses.</param>
         public MSMail(IZennoPosterProjectModel project, FastDb db, string proxy = "", bool log = false)
         {
             _project = project;
@@ -79,6 +92,9 @@ namespace z3n7.Api
 
         // ── Public API ────────────────────────────────────────────────────────
 
+        /// <summary>Sends a GET request to Microsoft Graph.</summary>
+        /// <param name="endpoint">Path under <c>https://graph.microsoft.com/v1.0/</c>, e.g. <c>me/messages</c>.</param>
+        /// <returns>Response body. Throws on a non-2xx status.</returns>
         public string Get(string endpoint)
         {
             //RefreshAccessToken();
@@ -87,6 +103,10 @@ namespace z3n7.Api
             return _project.GET(url, _proxy, AuthHeaders(), thrw: true);
         }
 
+        /// <summary>Sends a POST request with a JSON body to Microsoft Graph.</summary>
+        /// <param name="endpoint">Path under <c>https://graph.microsoft.com/v1.0/</c>, e.g. <c>me/messages</c>.</param>
+        /// <param name="jsonBody">JSON body.</param>
+        /// <returns>Response body. Throws on a non-2xx status.</returns>
         public string Post(string endpoint, string jsonBody)
         {
             //RefreshAccessToken();
@@ -96,6 +116,9 @@ namespace z3n7.Api
             return _project.POST(url,  jsonBody, _proxy, AuthHeaders(), thrw: true);
         }
 
+        /// <summary>Sends a DELETE request to Microsoft Graph.</summary>
+        /// <param name="endpoint">Path under <c>https://graph.microsoft.com/v1.0/</c>, e.g. <c>me/messages</c>.</param>
+        /// <returns>Response body. Throws on a non-2xx status.</returns>
         public string Delete(string endpoint)
         {
             //RefreshAccessToken();
@@ -104,7 +127,8 @@ namespace z3n7.Api
             return _project.DELETE(url, _proxy, AuthHeaders(), thrw: true);
         }
 
-        /// <summary>Inbox messages, newest first.</summary>
+        /// <summary>Mailbox messages, newest first.</summary>
+        /// <param name="top">How many.</param>
         public JArray GetMessages(int top = 10)
         {
             var raw = Get($"me/messages?$top={top}&$orderby=receivedDateTime desc");
@@ -112,7 +136,10 @@ namespace z3n7.Api
             return JObject.Parse(raw)["value"] as JArray ?? new JArray();
         }
 
-        /// <summary>Send message.</summary>
+        /// <summary>Sends a plain-text message.</summary>
+        /// <param name="toEmail">Recipient.</param>
+        /// <param name="subject">Subject.</param>
+        /// <param name="body">Text.</param>
         public void SendMail(string toEmail, string subject, string body)
         {
             var payload = new JObject
@@ -134,9 +161,12 @@ namespace z3n7.Api
         }
 
         /// <summary>
-        /// Отправляет письмо самому себе и проверяет его получение.
-        /// Возвращает true если письмо успешно отправлено и получено.
+        /// Sends a message with a unique subject to the mailbox itself and waits until it shows up among the
+        /// latest 20 messages.
         /// </summary>
+        /// <param name="timeoutSeconds">How long to wait.</param>
+        /// <param name="checkIntervalSeconds">Pause between checks.</param>
+        /// <returns><c>true</c> when the message arrived in time.</returns>
         public bool SelfCheck(int timeoutSeconds = 30, int checkIntervalSeconds = 3)
         {
             _logger?.Send("MSMail: starting self-check");
@@ -187,9 +217,7 @@ namespace z3n7.Api
             return false;
         }
 
-        /// <summary>
-        /// Удаляет последнее письмо из inbox.
-        /// </summary>
+        /// <summary>Deletes the newest message, if there is one.</summary>
         public void DelLast()
         {
             _logger?.Debug("MSMail: deleting last message");
@@ -209,9 +237,8 @@ namespace z3n7.Api
             _logger?.Send($"MSMail: deleted message {messageId}");
         }
 
-        /// <summary>
-        /// Удаляет все письма из inbox.
-        /// </summary>
+        /// <summary>Deletes all messages, <c>batchSize</c> at a time.</summary>
+        /// <param name="batchSize">Messages fetched per round.</param>
         public void CleanAll(int batchSize = 50)
         {
             _logger?.Send("MSMail: cleaning all messages");
@@ -254,6 +281,13 @@ namespace z3n7.Api
             _db.dbString(createTable);
         }
         
+        /// <summary>
+        /// Adds mailboxes to the <c>mail</c> table from a JSON array; existing addresses are left as they are.
+        /// </summary>
+        /// <param name="json">
+        /// Array of objects with <c>email</c>, <c>password</c>, <c>access_token</c>, <c>refresh_token</c>,
+        /// <c>thunderbird_client_id</c>, <c>graph_access_token</c>, <c>graph_refresh_token</c>.
+        /// </param>
         public void ImportFromJson(string json)
         {
             var arr  = Newtonsoft.Json.Linq.JArray.Parse(json);

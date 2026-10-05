@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # ChromeExt
 
-`class` · пространство имён `z3n7` · исходник [Browser/ChromeExt.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L242)
+`class` · пространство имён `z3n7` · исходник [Browser/ChromeExt.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L277)
 
 ```csharp
 public class ChromeExt
 ```
 
-*Описания пока нет.*
+Older variant of `Extension`: Chromium instances only, manager installed from CRX.
 
 ## Конструкторы
 
@@ -22,13 +22,25 @@ public class ChromeExt
 public ChromeExt(IZennoPosterProjectModel project, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L250)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L287)
+
+Creates a helper without an instance; only `GetVer` works.
+
+| Параметр | Описание |
+|---|---|
+| `log` | Not used. |
 
 ```csharp
 public ChromeExt(IZennoPosterProjectModel project, Instance instance, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L257)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L296)
+
+Creates a helper for an instance.
+
+| Параметр | Описание |
+|---|---|
+| `log` | Not used. |
 
 ## Методы
 
@@ -38,7 +50,15 @@ public ChromeExt(IZennoPosterProjectModel project, Instance instance, bool log =
 public string GetVer(string extId)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L266)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L310)
+
+Reads an installed extension's version from `{pathProfileFolder}\Default\Secure Preferences`.
+
+| Параметр | Описание |
+|---|---|
+| `extId` | Extension id. |
+
+**Возвращает:** The version. Throws when the file has no such extension or version.
 
 ### Install
 
@@ -46,7 +66,17 @@ public string GetVer(string extId)
 public bool Install(string extId, string fileName, bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L292)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L341)
+
+Installs a CRX file unless an extension with this id is already installed.
+
+| Параметр | Описание |
+|---|---|
+| `extId` | Extension id. |
+| `fileName` | CRX file name in `{project.Path}.crx\`. |
+| `log` | Not used. |
+
+**Возвращает:** `true` when installed now. Throws when the file is missing.
 
 ### Rm
 
@@ -54,7 +84,13 @@ public bool Install(string extId, string fileName, bool log = false)
 public void Rm(string[] ExtToRemove)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L361)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L419)
+
+Uninstalls the extensions; failures are ignored.
+
+| Параметр | Описание |
+|---|---|
+| `ExtToRemove` | Extension ids. |
 
 ### Switch
 
@@ -62,6 +98,15 @@ public void Rm(string[] ExtToRemove)
 public bool Switch(string toUse = "", bool log = false)
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L312)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L368)
+
+Enables the listed extensions and disables all others through the One-Click Extensions Manager page (installed first if missing). Mouse emulation is restored afterwards. Chromium instances only.
+
+| Параметр | Описание |
+|---|---|
+| `toUse` | Names or ids of the extensions to keep enabled; matched as substrings of this text. |
+| `log` | Not used. |
+
+**Возвращает:** `true` when a listed extension was switched on.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

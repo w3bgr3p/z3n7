@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # Traffic.TrafficElement
 
-`class` · пространство имён `z3n7` · исходник [Traffic/Traffic.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L110)
+`class` · пространство имён `z3n7` · исходник [Traffic/Traffic.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L147)
 
 ```csharp
 public class TrafficElement
 ```
 
-*Описания пока нет.*
+One recorded request with its response. All fields are text; missing values are empty strings.
 
 ## Свойства
 
@@ -22,7 +22,9 @@ public class TrafficElement
 public string Method { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L112)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L150)
+
+HTTP method.
 
 ### RequestBody
 
@@ -30,7 +32,9 @@ public string Method { get; }
 public string RequestBody { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L117)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L160)
+
+Request body.
 
 ### RequestCookies
 
@@ -38,7 +42,9 @@ public string RequestBody { get; }
 public string RequestCookies { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L116)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L158)
+
+Request cookies.
 
 ### RequestHeaders
 
@@ -46,7 +52,9 @@ public string RequestCookies { get; }
 public string RequestHeaders { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L115)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L156)
+
+Request headers as recorded by ZennoPoster.
 
 ### ResponseBody
 
@@ -54,7 +62,9 @@ public string RequestHeaders { get; }
 public string ResponseBody { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L120)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L166)
+
+Response body as UTF-8 text, decompressed when it is gzip.
 
 ### ResponseCookies
 
@@ -62,7 +72,9 @@ public string ResponseBody { get; }
 public string ResponseCookies { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L119)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L164)
+
+Response cookies.
 
 ### ResponseHeaders
 
@@ -70,7 +82,9 @@ public string ResponseCookies { get; }
 public string ResponseHeaders { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L118)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L162)
+
+Response headers as recorded by ZennoPoster.
 
 ### StatusCode
 
@@ -78,7 +92,9 @@ public string ResponseHeaders { get; }
 public string StatusCode { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L114)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L154)
+
+Response status code.
 
 ### Url
 
@@ -86,6 +102,8 @@ public string StatusCode { get; }
 public string Url { get; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L113)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L152)
+
+Request URL.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

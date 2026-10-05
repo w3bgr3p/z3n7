@@ -14,6 +14,14 @@ namespace z3n7
         public static string ExportRqst(IZennoPosterProjectModel project, string projectFilter = null, string taskId = null)
             => FromRqstJsonl(ZpTraffic.FilePath(project), projectFilter, taskId);
 
+        /// <summary>
+        /// Converts the <c>Rqst</c> traffic file at <c>path</c> to a HAR 1.2 JSON document.
+        /// Only what <c>Rqst</c> recorded is available: timings hold the total duration only, binary bodies are
+        /// text.
+        /// </summary>
+        /// <param name="path">Traffic file written by <c>ZpTraffic</c>.</param>
+        /// <param name="projectFilter">Keep only records of this project.</param>
+        /// <param name="taskId">Keep only records of this task.</param>
         public static string FromRqstJsonl(string path, string projectFilter = null, string taskId = null)
         {
             var page = ZpTraffic.Read(path, 0, int.MaxValue, projectFilter, taskId);

@@ -6,7 +6,7 @@ generated: z3n7-docgen
 
 # LogLevel
 
-`enum` · namespace `z3n7` · source [Essentials/Logger.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L19)
+`enum` · namespace `z3n7` · source [Essentials/Logger.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L16)
 
 ```csharp
 public enum LogLevel

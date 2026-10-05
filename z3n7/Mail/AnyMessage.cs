@@ -11,12 +11,22 @@ using ZennoLab.InterfacesLibrary.ProjectModel;
 
 namespace z3n7.Api
 {
+    /// <summary>
+    /// Client of the AnyMessage mailbox service (<c>api.anymessage.shop</c>): short-term and long-term
+    /// mailboxes.
+    /// State is kept in project variables: <c>anyMailId</c> for the current short-term order,
+    /// <c>anyLLId</c> for the long-term one. A response whose <c>status</c> is not <c>success</c> throws
+    /// with the service's message.
+    /// </summary>
     public class AnyMessage
     {
         private const string BaseUrl = "https://api.anymessage.shop";
         private readonly string _apikey;
         private readonly IZennoPosterProjectModel _project;
         private readonly bool _log;
+        /// <summary>Creates a client.</summary>
+        /// <param name="apikey">AnyMessage API token.</param>
+        /// <param name="log">Log requests and responses.</param>
         public AnyMessage(IZennoPosterProjectModel project, string apikey , bool log = false)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
@@ -41,13 +51,12 @@ namespace z3n7.Api
         // Дословный ответ /email/order, когда на домене нет ящиков.
         private const string NoEmails = "no emails";
 
-        /// <summary>Домен, на котором заказан последний email (может отличаться от запрошенного при откате).</summary>
+        /// <summary>Domain of the last ordered mailbox; may differ from the requested one after a fallback.</summary>
         public string LastDomain { get; private set; }
 
-        /// <summary>
-        /// Доступные домены для сайта: domain -> (count, price).
-        /// Ответ /email/quantity: {"status":"success","data":{"gmx.com":{"count":..,"price":..},...}}.
-        /// </summary>
+        /// <summary>Available domains for a site (<c>/email/quantity</c>).</summary>
+        /// <param name="site">Target site, e.g. <c>instagram.com</c>.</param>
+        /// <returns>Domain → (mailboxes available, price). Domains without a price are left out.</returns>
         public Dictionary<string, (int Count, double Price)> Quantity(string site)
         {
             var json = Get($"/email/quantity?token={_apikey}&site={site}");
@@ -73,7 +82,11 @@ namespace z3n7.Api
             return result;
         }
 
-        /// <summary>Домены с count > 0: по цене, при равной цене — у кого больше ящиков.</summary>
+        /// <summary>
+        /// Domains with mailboxes available, cheapest first; at equal price the one with more mailboxes first.
+        /// </summary>
+        /// <param name="site">Target site.</param>
+        /// <param name="exclude">Domains to leave out.</param>
         public List<string> CheapestDomains(string site, params string[] exclude)
         {
             var ex = new HashSet<string>(exclude ?? new string[0], StringComparer.OrdinalIgnoreCase);
@@ -103,12 +116,18 @@ namespace z3n7.Api
         private static bool IsNoEmails(Exception ex) =>
             ex.Message.IndexOf(NoEmails, StringComparison.OrdinalIgnoreCase) >= 0;
 
-        /// <summary>Заказать временный email. Возвращает [id, email].</summary>
-        /// <param name="site">Сайт, например "instagram.com"</param>
-        /// <param name="domain">Домен: "mailcom", "gmx", "hotmail", "outlook" (или через запятую)</param>
-        /// <param name="fallback">На ответ "no emails" взять список доменов (/email/quantity)
-        /// и заказать на самом дешёвом из доступных (count > 0). Итоговый домен — LastDomain.</param>
-        /// <param name="maxFallback">Сколько доменов из списка пробовать.</param>
+        /// <summary>
+        /// Orders a short-term mailbox. Stores the id in <c>anyMailId</c> and the address in <c>email</c> and
+        /// <c>project.Profile.Email</c>.
+        /// </summary>
+        /// <param name="site">Target site, e.g. <c>instagram.com</c>.</param>
+        /// <param name="domain">Mailbox domain.</param>
+        /// <param name="fallback">
+        /// When the service answers "no emails", try the cheapest available domains instead. The domain used
+        /// ends up in <c>LastDomain</c>.
+        /// </param>
+        /// <param name="maxFallback">How many fallback domains to try.</param>
+        /// <returns><c>[id, email]</c>. Throws with every attempt's error when nothing could be ordered.</returns>
         public string[] NewMail(string site, string domain = "outlook.com", bool fallback = true, int maxFallback = 5)
         {
             var errors = new List<string>();
@@ -150,7 +169,9 @@ namespace z3n7.Api
             throw new Exception("AnyMessage order: " + string.Join(" | ", errors));
         }
 
-        /// <summary>Ждать письмо. Возвращает HTML тела.</summary>
+        /// <summary>Waits for a message to the mailbox in <c>anyMailId</c>, polling every 5 seconds.</summary>
+        /// <param name="deadline">Seconds to wait; then <c>TimeoutException</c>.</param>
+        /// <returns>The message body (HTML).</returns>
         public string GetMail(int deadline = 120)
         {
             var id = _project.Var("anyMailId");
@@ -173,7 +194,12 @@ namespace z3n7.Api
             }
         }
 
-        /// <summary>Получить OTP (6 цифр) из письма.</summary>
+        /// <summary>Waits for a message and extracts a 6-digit code; stores it in <c>mailOtp</c>.</summary>
+        /// <param name="matchIndex">
+        /// Which 6-digit number of the message to take; -1 writes all of them to the log and returns an empty
+        /// string.
+        /// </param>
+        /// <returns>The code. Throws when no code is found after 10 attempts.</returns>
         public string Otp(int matchIndex = 0)
         {
             var retries = 10;
@@ -203,6 +229,9 @@ namespace z3n7.Api
             throw new Exception("AnyMessage: OTP not found");
         }
 
+        /// <summary>Returns one link from the message (see <c>GetHrefs</c>).</summary>
+        /// <param name="hrefIndex">Index of the link; -1 writes all links to the log and returns an empty string.</param>
+        /// <param name="deadline">Seconds to wait for the message.</param>
         public string Href(int hrefIndex = 0, int deadline = 60)
         {
             var hrefs = GetHrefs(deadline);
@@ -215,6 +244,11 @@ namespace z3n7.Api
             
         }
 
+        /// <summary>
+        /// Waits for a message and collects its unique links, skipping anchors, <c>mailto:</c>, <c>tel:</c>,
+        /// <c>javascript:</c>, <c>data:</c> and links to images, styles, scripts and fonts.
+        /// </summary>
+        /// <param name="deadline">Seconds to wait for the message.</param>
         public List<string> GetHrefs(int deadline = 60)
         {
             var json = GetMail(deadline);
@@ -302,7 +336,11 @@ namespace z3n7.Api
                 value.EndsWith(".eot", StringComparison.OrdinalIgnoreCase);
         }
 
-        /// <summary>Извлечь ссылку из письма по паттерну.</summary>
+        /// <summary>
+        /// Waits for a message and returns the first match of <c>urlPattern</c> in its HTML. Throws when there
+        /// is none.
+        /// </summary>
+        /// <param name="urlPattern">Regular expression.</param>
         public string LinkByRegex(string urlPattern)
         {
             var html  = GetMail();
@@ -311,7 +349,11 @@ namespace z3n7.Api
             return match.Value;
         }
 
-        /// <summary>Перезаказать тот же email (новый id).</summary>
+        /// <summary>
+        /// Orders the mailbox in <c>anyMailId</c> again under a new id; updates <c>anyMailId</c> and
+        /// <c>email</c>.
+        /// </summary>
+        /// <returns><c>[id, email]</c>.</returns>
         public string[] Reorder()
         {
             var id   = _project.Var("anyMailId");
@@ -326,7 +368,7 @@ namespace z3n7.Api
             return new[] { newId, newEmail };
         }
 
-        /// <summary>Отменить активацию.</summary>
+        /// <summary>Cancels the order in <c>anyMailId</c>.</summary>
         public void Cancel()
         {
             var id   = _project.Var("anyMailId");
@@ -338,11 +380,11 @@ namespace z3n7.Api
         // ── long-term emails ──────────────────────────────────────────────────────
 
         /// <summary>
-        /// Купить долгосрочный почтовый ящик.
-        /// Возвращает первый email из списка: [id, email, imapPass, imapHost, imapPort].
+        /// Buys a long-term mailbox. Stores the id in <c>anyLLId</c> and the address in <c>anyLLEmail</c>.
         /// </summary>
-        /// <param name="site">Сайт, например "instagram.com"</param>
-        /// <param name="domain">Домен, например "hotmail.com"</param>
+        /// <param name="site">Target site, e.g. <c>instagram.com</c>.</param>
+        /// <param name="domain">Mailbox domain, e.g. <c>hotmail.com</c>.</param>
+        /// <returns><c>[id, email, imapPassword, imapHost, imapPort]</c> of the first mailbox in the answer.</returns>
         public string[] OrderLongLive(string site, string domain)
         {
             var json = Get($"/longlive-email/order?token={_apikey}&site={site}&domain={domain}");
@@ -360,7 +402,9 @@ namespace z3n7.Api
             return new[] { id, email, pass, host, port };
         }
 
-        /// <summary>Получить последние сообщения (за 40 мин) для долгосрочного ящика.</summary>
+        /// <summary>Recent messages of the long-term mailbox in <c>anyLLId</c>.</summary>
+        /// <param name="subject">When set, only messages with this subject.</param>
+        /// <returns>The raw JSON answer.</returns>
         public string GetLastMessages(string subject = null)
         {
             var id  = _project.Var("anyLLId");
@@ -373,6 +417,7 @@ namespace z3n7.Api
 
         // ── misc ──────────────────────────────────────────────────────────────────
 
+        /// <summary>Account balance as returned by the service.</summary>
         public string Balance()
         {
             var json = Get($"/user/balance?token={_apikey}");

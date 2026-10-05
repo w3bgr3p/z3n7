@@ -6,13 +6,13 @@ generated: z3n7-docgen
 
 # GpuModel
 
-`class` · пространство имён `z3n7` · исходник [Browser/GpuSpoof.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L16)
+`class` · пространство имён `z3n7` · исходник [Browser/GpuSpoof.cs](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L17)
 
 ```csharp
 public class GpuModel
 ```
 
-*Описания пока нет.*
+One GPU model from the PCI ID list.
 
 ## Свойства
 
@@ -22,7 +22,9 @@ public class GpuModel
 public string Chip { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L20)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L24)
+
+Chip code, e.g. `GA104`; empty when the list does not give one.
 
 ### DeviceId
 
@@ -30,7 +32,9 @@ public string Chip { get; set; }
 public string DeviceId { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L18)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L20)
+
+PCI device id, 4 hex digits, e.g. `2486`.
 
 ### Name
 
@@ -38,6 +42,8 @@ public string DeviceId { get; set; }
 public string Name { get; set; }
 ```
 
-[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L19)
+[исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L22)
+
+Model name, e.g. `GeForce RTX 3060 Ti`.
 
 > Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.
