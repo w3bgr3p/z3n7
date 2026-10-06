@@ -14,6 +14,7 @@ The basics most scripts start with: start-up, logging, variables, timing, secret
 | [[LogDisabler]] | Stops ZennoPoster from writing its own log files. |
 
 ```csharp
+// jVars must hold a path to an existing file: InitVariables reads it with File.ReadAllText
 project.InitVariables(instance);
 project.log("start");                       // to the project log
 var d = new Time.Deadline();

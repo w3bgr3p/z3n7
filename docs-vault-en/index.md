@@ -13,7 +13,6 @@ mailboxes, cookies, traffic capture and reporting — behind extension methods o
 ## Where to start
 
 - [[01. Installation]] — put `z3n7.dll` where ZennoPoster loads it.
-- [[02. Quick start]] — the first lines of a C# action.
 - [[03. Building from source]] — build the library yourself.
 - [[04. Project variables]] — the project variables the library reads and writes.
 - [[05. Database]] — the `Db` class and the `project.Db*` helpers.
