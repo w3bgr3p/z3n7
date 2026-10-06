@@ -5,7 +5,7 @@
 ## Requirements
 
 - .NET Framework 4.8
-- ZennoPoster. The library is built against ZennoPoster 7.9.2.0 (see `ZennoLab.props`).
+- ZennoPoster 7.7.21 or later
 
 ## Installation
 
