@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public enum LogLevel
 ```
 
-Message severity. A logger drops messages below its minimum level; `Off` drops everything except forced messages.
+Важность сообщения. Логгер отбрасывает сообщения ниже своего минимального уровня; `Off` отбрасывает всё, кроме принудительных сообщений.
 
 ## Значения
 

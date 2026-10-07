@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class ChromeExt
 ```
 
-Older variant of `Extension`: Chromium instances only, manager installed from CRX.
+Старый вариант `Extension`: только инстансы Chromium, менеджер ставится из CRX.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public ChromeExt(IZennoPosterProjectModel project, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L292)
 
-Creates a helper without an instance; only `GetVer` works.
+Создаёт помощника без инстанса; работает только `GetVer`.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Not used. |
+| `log` | Не используется. |
 
 ```csharp
 public ChromeExt(IZennoPosterProjectModel project, Instance instance, bool log = false)
@@ -36,11 +36,11 @@ public ChromeExt(IZennoPosterProjectModel project, Instance instance, bool log =
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L301)
 
-Creates a helper for an instance.
+Создаёт помощника для инстанса.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Not used. |
+| `log` | Не используется. |
 
 ## Методы
 
@@ -52,13 +52,13 @@ public string GetVer(string extId)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L315)
 
-Reads an installed extension's version from `{pathProfileFolder}\Default\Secure Preferences`.
+Читает версию установленного расширения из `{pathProfileFolder}\Default\Secure Preferences`.
 
 | Параметр | Описание |
 |---|---|
-| `extId` | Extension id. |
+| `extId` | Id расширения. |
 
-**Возвращает:** The version. Throws when the file has no such extension or version.
+**Возвращает:** Версия. Бросает исключение, если в файле нет такого расширения или версии.
 
 ### Install
 
@@ -68,15 +68,15 @@ public bool Install(string extId, string fileName, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L346)
 
-Installs a CRX file unless an extension with this id is already installed.
+Устанавливает CRX-файл, если расширение с таким id ещё не установлено.
 
 | Параметр | Описание |
 |---|---|
-| `extId` | Extension id. |
-| `fileName` | CRX file name in `{project.Path}.crx\`. |
-| `log` | Not used. |
+| `extId` | Id расширения. |
+| `fileName` | Имя CRX-файла в `{project.Path}.crx\`. |
+| `log` | Не используется. |
 
-**Возвращает:** `true` when installed now. Throws when the file is missing.
+**Возвращает:** `true`, если установлено сейчас. Если файла нет, бросает исключение.
 
 ### Rm
 
@@ -86,11 +86,11 @@ public void Rm(string[] ExtToRemove)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L424)
 
-Uninstalls the extensions; failures are ignored.
+Удаляет расширения; сбои игнорируются.
 
 | Параметр | Описание |
 |---|---|
-| `ExtToRemove` | Extension ids. |
+| `ExtToRemove` | Id расширений. |
 
 ### Switch
 
@@ -100,12 +100,12 @@ public bool Switch(string toUse = "", bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/ChromeExt.cs#L373)
 
-Enables the listed extensions and disables all others through the One-Click Extensions Manager page (installed first if missing). Mouse emulation is restored afterwards. Chromium instances only.
+Включает перечисленные расширения и выключает все остальные через страницу One-Click Extensions Manager (если его нет, сначала устанавливает). Эмуляция мыши потом восстанавливается. Только для инстансов Chromium.
 
 | Параметр | Описание |
 |---|---|
-| `toUse` | Names or ids of the extensions to keep enabled; matched as substrings of this text. |
-| `log` | Not used. |
+| `toUse` | Имена или id расширений, которые должны остаться включёнными; сверяются как подстроки этого текста. |
+| `log` | Не используется. |
 
-**Возвращает:** `true` when a listed extension was switched on.
+**Возвращает:** `true`, если какое-то из перечисленных расширений было включено.
 

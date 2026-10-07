@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public sealed class VersionInfo
 ```
 
-Versions of the node's environment. An empty string means the value could not be read.
+Версии окружения узла. Пустая строка значит, что значение не удалось прочитать.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public string framework { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L176)
 
-.NET runtime description.
+Описание среды выполнения .NET.
 
 ### machine
 
@@ -34,7 +34,7 @@ public string machine { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L178)
 
-Machine name.
+Имя машины.
 
 ### process
 
@@ -44,7 +44,7 @@ public string process { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L174)
 
-File name of the host process.
+Имя файла процесса-хоста.
 
 ### product
 
@@ -54,7 +54,7 @@ public string product { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L172)
 
-Product name of the host process.
+Название продукта процесса-хоста.
 
 ### z3n7
 
@@ -64,7 +64,7 @@ public string z3n7 { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L168)
 
-Version of `z3n7.dll`.
+Версия `z3n7.dll`.
 
 ### zennoposter
 
@@ -74,5 +74,5 @@ public string zennoposter { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L170)
 
-Product version of the host process (ZennoPoster).
+Версия продукта процесса-хоста (ZennoPoster).
 

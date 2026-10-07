@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class Diagnostic
 ```
 
-Environment information for logs and diagnostics.
+Сведения об окружении для логов и диагностики.
 
 ## Методы
 
@@ -24,5 +24,5 @@ public static VersionInfo Info()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L188)
 
-Reads library, ZennoPoster and runtime versions and the machine name. Each field is read separately and a failure leaves only that field empty; never throws.
+Читает версии библиотеки, ZennoPoster и среды выполнения и имя машины. Каждое поле читается отдельно, при сбое пустым остаётся только оно; исключений не бросает.
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class CookieInfo
 ```
 
-Summary of a stored cookie set (see `AnalyzeCookies`).
+Сводка по сохранённому набору кук (см. `AnalyzeCookies`).
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public Dictionary<string, int> ByDomain { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L35)
 
-Cookie count per domain.
+Число кук по доменам.
 
 ### ExpiredCookies
 
@@ -34,7 +34,7 @@ public int ExpiredCookies { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L31)
 
-Cookies already expired.
+Уже истёкшие куки.
 
 ### GoogleCookies
 
@@ -44,7 +44,7 @@ public int GoogleCookies { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L29)
 
-Cookies whose domain contains `google`.
+Куки, у которых домен содержит `google`.
 
 ### LargestCookies
 
@@ -54,7 +54,7 @@ public List<dynamic> LargestCookies { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L37)
 
-The 10 cookies with the longest values.
+10 кук с самыми длинными значениями.
 
 ### OldCookies
 
@@ -64,7 +64,7 @@ public int OldCookies { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L33)
 
-Cookies that expired more than 6 months ago.
+Куки, истёкшие больше 6 месяцев назад.
 
 ### TotalCount
 
@@ -74,7 +74,7 @@ public int TotalCount { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L25)
 
-Number of cookies.
+Число кук.
 
 ### TotalSizeBytes
 
@@ -84,5 +84,5 @@ public long TotalSizeBytes { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L27)
 
-Size of the cookie JSON, bytes.
+Размер JSON с куками, байты.
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class ZpToCsx
 ```
 
-Converts a ZennoPoster project (.zp) into a C# script (.csx) outline and builds .zp files from XML. Works only inside ProjectMaker: it uses the ProjectMaker assembly loaded in the process.
+Превращает проект ZennoPoster (.zp) в каркас C#-скрипта (.csx) и собирает файлы .zp из XML. Работает только внутри ProjectMaker: использует сборку ProjectMaker, загруженную в процесс.
 
 ## Методы
 
@@ -24,9 +24,9 @@ public static string ExtractXml(string zpPath)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/ZpToCsx.cs#L26)
 
-Unpacks the project XML of a .zp file.
+Распаковывает XML проекта из файла .zp.
 
-**Возвращает:** The XML; the loader's exception text when it fails; `null` outside ProjectMaker.
+**Возвращает:** XML; текст исключения загрузчика при сбое; `null` вне ProjectMaker.
 
 ### GenerateCsx
 
@@ -36,11 +36,11 @@ public static string GenerateCsx(string zpPath)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/ZpToCsx.cs#L92)
 
-Generates a C# script from a project: `#r` references, usings, `InitVariables` with the variable defaults, and `Execute` with one labelled block per action in reachability order, `goto` jumps for the branches, and each action's type and parameters as comments.
+Генерирует C#-скрипт из проекта: ссылки `#r`, using-и, `InitVariables` со значениями переменных по умолчанию и `Execute` с помеченным блоком на каждое действие в порядке достижимости, переходами `goto` для ветвлений, а тип и параметры каждого действия — комментариями.
 
 | Параметр | Описание |
 |---|---|
-| `zpPath` | Project file. |
+| `zpPath` | Файл проекта. |
 
 ### Template
 
@@ -50,7 +50,7 @@ public static string Template()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/ZpToCsx.cs#L111)
 
-The embedded empty project (.zp) as Base64.
+Встроенный пустой проект (.zp) в Base64.
 
 ### XmlToZp
 
@@ -60,10 +60,10 @@ public static void XmlToZp(string xml, string zpPath)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/ZpToCsx.cs#L53)
 
-Builds a .zp file from project XML, using an empty project embedded in the library as the container.
+Собирает файл .zp из XML проекта; контейнером служит пустой проект, встроенный в библиотеку.
 
 | Параметр | Описание |
 |---|---|
-| `xml` | Project XML. |
-| `zpPath` | Target file. |
+| `xml` | XML проекта. |
+| `zpPath` | Целевой файл. |
 

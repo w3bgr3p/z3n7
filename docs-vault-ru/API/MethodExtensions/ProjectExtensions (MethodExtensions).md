@@ -14,7 +14,7 @@ public static class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Accounts)]], [[ProjectExtensions (Browser)]], [[ProjectExtensions (Diagnostic)]], [[ProjectExtensions (Essentials)]], [[ProjectExtensions (Mail)]], [[ProjectExtensions (Reports)]], [[ProjectExtensions (Requests)]], [[ProjectExtensions (Traffic)]]
 
-Extension methods: dictionaries and ZennoPoster lists.
+Методы расширения: словари и списки ZennoPoster.
 
 ## Методы
 
@@ -26,7 +26,7 @@ public static void DicToVars(this Dictionary<string, string> dict, IZennoPosterP
 
 Метод расширения для `Dictionary<string, string>`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/DictionaryExtensions.cs#L12)
 
-Sets a project variable for every key of the dictionary.
+Задаёт переменную проекта для каждого ключа словаря.
 
 ### ListFromFile
 
@@ -36,14 +36,14 @@ public static List<string> ListFromFile(this IZennoPosterProjectModel project, s
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/ListExtentions.cs#L78)
 
-Replaces the content of a ZennoPoster list with the lines of a file.
+Заменяет содержимое списка ZennoPoster строками файла.
 
 | Параметр | Описание |
 |---|---|
-| `listName` | Project list name. |
-| `fileName` | File to read. |
+| `listName` | Имя списка проекта. |
+| `fileName` | Файл, который нужно прочитать. |
 
-**Возвращает:** The lines.
+**Возвращает:** Строки.
 
 ### ListSync
 
@@ -53,7 +53,7 @@ public static List<string> ListSync(this IZennoPosterProjectModel project, strin
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/ListExtentions.cs#L49)
 
-Copies a ZennoPoster list into a new `List<string>`.
+Копирует список ZennoPoster в новый `List<string>`.
 
 ```csharp
 public static List<string> ListSync(this IZennoPosterProjectModel project, string listName, List<string> localList)
@@ -61,7 +61,7 @@ public static List<string> ListSync(this IZennoPosterProjectModel project, strin
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/ListExtentions.cs#L62)
 
-Replaces the content of a ZennoPoster list with `localList`.
+Заменяет содержимое списка ZennoPoster на `localList`.
 
 **Возвращает:** `localList`.
 
@@ -73,12 +73,12 @@ public static string RndFromList(this IZennoPosterProjectModel project, string l
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/ListExtentions.cs#L38)
 
-Returns a random line of a ZennoPoster list.
+Возвращает случайную строку списка ZennoPoster.
 
 | Параметр | Описание |
 |---|---|
-| `listName` | Project list name. |
-| `remove` | Also remove it from the project list. |
+| `listName` | Имя списка проекта. |
+| `remove` | Заодно удалить его из списка проекта. |
 
 ### ToJson
 
@@ -88,11 +88,11 @@ public static void ToJson(this IZennoPosterProjectModel project, string json, bo
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L530)
 
-Loads JSON into `project.Json`. When the text is not JSON, takes the line starting with `{objIndex}:` and loads the rest of it. Failures are logged as warnings.
+Загружает JSON в `project.Json`. Если текст не JSON, берёт строку, начинающуюся с `{objIndex}:`, и загружает её остаток. Ошибки пишутся в лог как предупреждения.
 
 | Параметр | Описание |
 |---|---|
-| `json` | JSON text, or numbered lines of JSON. |
-| `thrw` | Throw when the second attempt also fails. |
-| `objIndex` | Line number prefix to look for. |
+| `json` | Текст JSON или пронумерованные строки JSON. |
+| `thrw` | Бросать исключение, если и вторая попытка не удалась. |
+| `objIndex` | Префикс с номером строки, который нужно искать. |
 

@@ -14,7 +14,7 @@ public static class InstanceExtensions
 
 Другие части этого типа: [[InstanceExtensions (Browser)]]
 
-Extension methods on `Instance`: HAR recording over DevTools.
+Методы расширения для `Instance`: запись HAR через DevTools.
 
 ## Методы
 
@@ -26,12 +26,12 @@ public static List<Traffic.TrafficElement> GrabTrafficList(this Instance instanc
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L247)
 
-Returns the requests recorded so far whose URL matches `url`. The same text is used as the traffic filter.
+Возвращает записанные к этому моменту запросы, URL которых подходит под `url`. Тот же текст используется как фильтр трафика.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Text to look for in the URL. |
-| `strict` | Require an exact URL match. |
+| `url` | Текст, который ищется в URL. |
+| `strict` | Требовать точного совпадения URL. |
 
 ### SaveHar
 
@@ -41,14 +41,14 @@ public static int SaveHar(this Instance instance, string path, string urlRegex =
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/CdpHar.cs#L675)
 
-Writes the traffic recorded since `StartHar` to a HAR file. See `CdpHar.Save`.
+Записывает трафик с момента `StartHar` в файл HAR. См. `CdpHar.Save`.
 
 | Параметр | Описание |
 |---|---|
-| `path` | Target file. |
-| `urlRegex` | Case-insensitive regex the URL must match; `null` keeps everything. |
+| `path` | Целевой файл. |
+| `urlRegex` | Регулярное выражение без учёта регистра, которому должен соответствовать URL; `null` оставляет всё. |
 
-**Возвращает:** Number of entries written. Throws when the recorder was not started.
+**Возвращает:** Число записанных записей. Бросает исключение, если запись не была запущена.
 
 ### StartHar
 
@@ -58,7 +58,7 @@ public static CdpHar StartHar(this Instance instance)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/CdpHar.cs#L666)
 
-Starts HAR recording over DevTools for this instance. Call BEFORE the traffic you need.
+Запускает запись HAR через DevTools для этого инстанса. Вызывай ДО нужного трафика.
 
 ### StopHar
 
@@ -68,5 +68,5 @@ public static void StopHar(this Instance instance)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/CdpHar.cs#L683)
 
-Stops HAR recording for this instance.
+Останавливает запись HAR для этого инстанса.
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class SearchHit
 ```
 
-One match of `SearchInZp`.
+Одно совпадение `SearchInZp`.
 
 ## Методы
 
@@ -24,7 +24,7 @@ public override string ToString()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L224)
 
-`ZpPath`, `StepId` and `Context`, tab-separated.
+`ZpPath`, `StepId` и `Context` через табуляцию.
 
 ## Поля
 
@@ -36,7 +36,7 @@ public string Context;
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L222)
 
-The match with surrounding text; line breaks collapsed to spaces.
+Совпадение с окружающим текстом; переводы строк заменены пробелами.
 
 ### StepId
 
@@ -46,7 +46,7 @@ public string StepId;
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L220)
 
-Id of the action (step) containing the match.
+Id действия (шага), в котором найдено совпадение.
 
 ### ZpPath
 
@@ -56,5 +56,5 @@ public string ZpPath;
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L218)
 
-Project file.
+Файл проекта.
 

@@ -11,11 +11,13 @@ public sealed class Writer
     readonly List<TypePage> _pages;
     readonly Strings _s;
     readonly string _sourceUrl;
+    readonly Translations _tr;
 
-    public Writer(List<TypePage> pages, Strings strings, string sourceUrl)
+    public Writer(List<TypePage> pages, Strings strings, string sourceUrl, Translations tr)
     {
         _pages = pages;
         _s = strings;
+        _tr = tr;
         _sourceUrl = sourceUrl.TrimEnd('/') + "/";
     }
 
@@ -77,7 +79,7 @@ public sealed class Writer
         {
             sb.Append($"| | {_s.Description} |\n|---|---|\n");
             foreach (var m in list)
-                sb.Append($"| `{m.Name}` | {OneLine(m.Doc.Summary)} |\n");
+                sb.Append($"| `{m.Name}` | {OneLine(_tr.T(m.Doc.Summary))} |\n");
             sb.Append('\n');
             return;
         }
@@ -104,25 +106,25 @@ public sealed class Writer
             if (emptyNote) sb.Append($"*{_s.NoDescription}*\n\n");
             return;
         }
-        if (d.Summary != "") sb.Append(d.Summary + "\n\n");
+        if (d.Summary != "") sb.Append(_tr.T(d.Summary) + "\n\n");
 
         var documented = d.Params.Where(p => p.Text != "").ToList();
         if (documented.Count > 0)
         {
             sb.Append($"| {_s.Parameter} | {_s.Description} |\n|---|---|\n");
             foreach (var (name, text) in documented)
-                sb.Append($"| `{name}` | {OneLine(text)} |\n");
+                sb.Append($"| `{name}` | {OneLine(_tr.T(text))} |\n");
             sb.Append('\n');
         }
-        if (d.Returns != "") sb.Append($"**{_s.Returns}:** {d.Returns}\n\n");
+        if (d.Returns != "") sb.Append($"**{_s.Returns}:** {_tr.T(d.Returns)}\n\n");
         if (d.Exceptions.Count > 0)
         {
             sb.Append($"**{_s.Exceptions}:**\n\n");
             foreach (var (type, text) in d.Exceptions)
-                sb.Append($"- `{type}` — {text}\n");
+                sb.Append($"- `{type}` — {_tr.T(text)}\n");
             sb.Append('\n');
         }
-        if (d.Remarks != "") sb.Append($"**{_s.Remarks}:** {d.Remarks}\n\n");
+        if (d.Remarks != "") sb.Append($"**{_s.Remarks}:** {_tr.T(d.Remarks)}\n\n");
         if (d.Example != "") sb.Append($"**{_s.Example}:**\n\n{d.Example}\n\n");
     }
 
@@ -135,7 +137,7 @@ public sealed class Writer
         {
             sb.Append($"## {folder.Key}\n\n| {_s.Type} | {_s.Kind} | {_s.Summary} |\n|---|---|---|\n");
             foreach (var p in folder.OrderBy(p => p.Label, StringComparer.OrdinalIgnoreCase))
-                sb.Append($"| [[{p.Label}]] | {p.Kind} | {FirstSentence(p.Doc.Summary)} |\n");
+                sb.Append($"| [[{p.Label}]] | {p.Kind} | {FirstSentence(_tr.T(p.Doc.Summary))} |\n");
             sb.Append('\n');
         }
         return sb.ToString();
@@ -154,7 +156,7 @@ public sealed class Writer
                          .OrderBy(g => g.Key.Name, StringComparer.OrdinalIgnoreCase))
             {
                 var summary = g.Select(e => e.Member.Doc.Summary).FirstOrDefault(s => s != "") ?? "";
-                sb.Append($"| [[{g.Key.Label}#{g.Key.Name}\\|{g.Key.Name}]] | {FirstSentence(summary)} |\n");
+                sb.Append($"| [[{g.Key.Label}#{g.Key.Name}\\|{g.Key.Name}]] | {FirstSentence(_tr.T(summary))} |\n");
             }
             sb.Append('\n');
         }

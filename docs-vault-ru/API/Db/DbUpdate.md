@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbUpdate
 ```
 
-Writing to the project database.
+Запись в базу проекта.
 
 ## Методы
 
@@ -24,18 +24,18 @@ public static void DbDone(this IZennoPosterProjectModel project, string task = "
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L375)
 
-Writes a cooldown timestamp (`Time.Cd`, ISO UTC) to the `task` column of the current account's row (or the row selected by `key`/`acc`, or the rows matching `where`): end of today, or now plus `cooldownMin`.
+Записывает метку кулдауна (`Time.Cd`, ISO UTC) в колонку `task` строки текущего аккаунта (или строки, выбранной `key`/`acc`, или строк, подходящих под `where`): конец сегодняшнего дня или текущий момент плюс `cooldownMin`.
 
 | Параметр | Описание |
 |---|---|
-| `task` | Column to write. |
-| `cooldownMin` | Minutes from now; 0 means today 23:59:59 UTC. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `key` | Column matched against `id`. |
-| `acc` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `task` | Колонка, в которую нужно записать. |
+| `cooldownMin` | Минуты от текущего момента; 0 — сегодня 23:59:59 UTC. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `acc` | Значение `key`; по умолчанию текущий аккаунт, `acc0`. Подставляется в SQL как написано. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
 ### DbInsert
 
@@ -45,16 +45,16 @@ public static string DbInsert(this IZennoPosterProjectModel project, Dictionary<
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L288)
 
-Inserts one row. The `id` key is skipped; an empty dictionary inserts a row of defaults.
+Вставляет одну строку. Ключ `id` пропускается; пустой словарь вставляет строку со значениями по умолчанию.
 
 | Параметр | Описание |
 |---|---|
-| `dataDic` | Column → value. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `dataDic` | Колонка → значение. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
 
-**Возвращает:** Affected row count as text.
+**Возвращает:** Число затронутых строк, текстом.
 
 ### DbUpd
 
@@ -64,18 +64,18 @@ public static void DbUpd(this IZennoPosterProjectModel project, string toUpd, st
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L354)
 
-Runs `UPDATE … SET toUpd` for the current account's row, or for the rows matching `where`.
+Выполняет `UPDATE … SET toUpd` для строки текущего аккаунта или для строк, подходящих под `where`.
 
 | Параметр | Описание |
 |---|---|
-| `toUpd` | Assignments such as `status = 'ok'`; column names are quoted, values are taken as written. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `key` | Column matched against `id`. |
-| `acc` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
-| `saveToVar` | Variable that receives `toUpd` before the update; empty to skip. |
+| `toUpd` | Присваивания вида `status = 'ok'`; имена колонок берутся в кавычки, значения — как написаны. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `acc` | Значение `key`; по умолчанию текущий аккаунт, `acc0`. Подставляется в SQL как написано. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
+| `saveToVar` | Переменная, в которую перед обновлением записывается `toUpd`; пусто — не записывать. |
 
 ### DicToDb
 
@@ -85,13 +85,13 @@ public static void DicToDb(this IZennoPosterProjectModel project, Dictionary<str
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L312)
 
-Writes a dictionary to the current account's row (or the rows matching `where`), adding missing columns first. A key `id` is written to the column `_id`.
+Записывает словарь в строку текущего аккаунта (или в строки, подходящие под `where`), сначала добавив недостающие колонки. Ключ `id` пишется в колонку `_id`.
 
 | Параметр | Описание |
 |---|---|
-| `dataDic` | Column → value. Modified in place when it has an `id` key. |
-| `tableName` | Table; default is the `projectTable` variable. |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `dataDic` | Колонка → значение. Изменяется на месте, если есть ключ `id`. |
+| `tableName` | Таблица; по умолчанию переменная `projectTable`. |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 

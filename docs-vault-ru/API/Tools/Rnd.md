@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class Rnd
 ```
 
-Random values: strings, nicknames, e-mail addresses, passwords, numbers from project variables, pauses.
+Случайные значения: строки, никнеймы, адреса почты, пароли, числа из переменных проекта, паузы.
 
 ## Методы
 
@@ -24,12 +24,12 @@ public static void Delay(int min = 1008, int max = 1337)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L488)
 
-Sleeps for a random time.
+Засыпает на случайное время.
 
 | Параметр | Описание |
 |---|---|
-| `min` | Shortest pause, ms. |
-| `max` | Upper bound of the pause, ms (exclusive). |
+| `min` | Наименьшая пауза, мс. |
+| `max` | Верхняя граница паузы, мс (не включая). |
 
 ### RndBool
 
@@ -39,7 +39,7 @@ public static bool RndBool(this int truePercent)
 
 Метод расширения для `int`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L275)
 
-`true` with the given probability, in percent.
+`true` с заданной вероятностью в процентах.
 
 ### RndDecimal
 
@@ -49,11 +49,11 @@ public static decimal RndDecimal(this IZennoPosterProjectModel project, string V
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L225)
 
-Reads a project variable as a decimal; a value like `0.1-0.5` gives a random number in that range.
+Читает переменную проекта как десятичное число; значение вида `0.1-0.5` даёт случайное число в этом диапазоне.
 
 | Параметр | Описание |
 |---|---|
-| `Var` | Variable name. |
+| `Var` | Имя переменной. |
 
 ### RndFile
 
@@ -63,14 +63,14 @@ public static string RndFile(string directoryPath, string extension = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L286)
 
-Random file from a folder and its subfolders.
+Случайный файл из папки и её подпапок.
 
 | Параметр | Описание |
 |---|---|
-| `directoryPath` | Folder. |
-| `extension` | Only files with this extension; empty for all. |
+| `directoryPath` | Папка. |
+| `extension` | Только файлы с этим расширением; пусто — все. |
 
-**Возвращает:** The path, or `null` when there are no files. An I/O error (e.g. a missing folder) is retried twice and then thrown.
+**Возвращает:** Путь или `null`, если файлов нет. Ошибка ввода-вывода (например, нет папки) повторяется дважды, потом пробрасывается.
 
 ### RndHexString
 
@@ -80,7 +80,7 @@ public static string RndHexString(int length)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L20)
 
-Random lowercase hex string of `length` digits, prefixed with `0x`.
+Случайная hex-строка в нижнем регистре из `length` цифр с префиксом `0x`.
 
 ### RndInt
 
@@ -90,11 +90,11 @@ public static int RndInt(this IZennoPosterProjectModel project, string Var)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L253)
 
-Reads a project variable as an integer; a value like `10-20` gives a random integer from 10 (inclusive) to 20 (exclusive).
+Читает переменную проекта как целое число; значение вида `10-20` даёт случайное целое от 10 (включительно) до 20 (не включая).
 
 | Параметр | Описание |
 |---|---|
-| `Var` | Variable name. |
+| `Var` | Имя переменной. |
 
 ### RndMail
 
@@ -104,13 +104,13 @@ public static string RndMail(int minLength = 5, int maxLength = 10, string domai
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L349)
 
-Random e-mail address: a random local part of letters and digits at a popular mail domain.
+Случайный адрес почты: случайная локальная часть из букв и цифр на популярном почтовом домене.
 
 | Параметр | Описание |
 |---|---|
-| `minLength` | Shortest local part. |
-| `maxLength` | Longest local part. |
-| `domain` | Domain; random when `null`. |
+| `minLength` | Наименьшая длина локальной части. |
+| `maxLength` | Наибольшая длина локальной части. |
+| `domain` | Домен; случайный, если `null`. |
 
 ### RndMonth
 
@@ -120,7 +120,7 @@ public static string RndMonth()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L364)
 
-Random English month name.
+Случайное название месяца по-английски.
 
 ### RndNickname
 
@@ -130,12 +130,12 @@ public static string RndNickname(int min = 8, int max = 16)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L45)
 
-Random nickname built from word lists (adjective, noun, suffix, numbers, separators), up to 100 tries to fit the length.
+Случайный никнейм из списков слов (прилагательное, существительное, суффикс, числа, разделители); до 100 попыток уложиться в длину.
 
 | Параметр | Описание |
 |---|---|
-| `min` | Shortest length. |
-| `max` | Longest length. |
+| `min` | Наименьшая длина. |
+| `max` | Наибольшая длина. |
 
 ### RndPass
 
@@ -145,14 +145,14 @@ public static string RndPass(int minLength = 10, int maxLength = 14, bool upperC
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L386)
 
-Random password with at least one lowercase letter and digit, plus the selected groups. Passwords with three sequential characters (abc, 321, ZYX) are rejected and generated again.
+Случайный пароль, в котором есть хотя бы одна строчная буква и цифра, плюс выбранные группы. Пароли с тремя последовательными символами (abc, 321, ZYX) отбрасываются и генерируются заново.
 
 | Параметр | Описание |
 |---|---|
-| `minLength` | Shortest length. |
-| `maxLength` | Longest length. |
-| `upperCase` | Include uppercase letters. |
-| `symbols` | Include `!@#$%?&`. |
+| `minLength` | Наименьшая длина. |
+| `maxLength` | Наибольшая длина. |
+| `upperCase` | Включать заглавные буквы. |
+| `symbols` | Включать `!@#$%?&`. |
 
 ### RndPercent
 
@@ -162,13 +162,13 @@ public static double RndPercent(decimal input, double percent, double maxPercent
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L197)
 
-Takes `percent`% of `input` and reduces it by a random 0…`maxPercent`%. A result that is not positive is replaced by a tiny positive value.
+Берёт `percent`% от `input` и уменьшает на случайные 0…`maxPercent`%. Если результат не положительный, он заменяется крошечным положительным значением.
 
 | Параметр | Описание |
 |---|---|
-| `input` | Base amount. |
-| `percent` | Share to take, 0–100. |
-| `maxPercent` | Largest random reduction, 0–100. |
+| `input` | Базовая сумма. |
+| `percent` | Какую долю брать, 0–100. |
+| `maxPercent` | Наибольшее случайное уменьшение, 0–100. |
 
 ### RndProfileData
 
@@ -178,12 +178,12 @@ public static void RndProfileData(this IZennoPosterProjectModel project, bool em
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L477)
 
-Sets random profile data.
+Задаёт случайные данные профиля.
 
 | Параметр | Описание |
 |---|---|
-| `email` | Set `project.Profile.Email` to `RndMail()`. |
-| `password` | Set `project.Profile.Password` to `RndPass()`. |
+| `email` | Записать в `project.Profile.Email` результат `RndMail()`. |
+| `password` | Записать в `project.Profile.Password` результат `RndPass()`. |
 
 ### RndString
 
@@ -193,5 +193,5 @@ public static string RndString(int length)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Rnd.cs#L32)
 
-Random string of Latin letters and digits.
+Случайная строка из латинских букв и цифр.
 

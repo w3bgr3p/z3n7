@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class ZpAuth
 ```
 
-Access token of `ZpServer`: storing, issuing, checking requests. There is one secret per machine, kept under `ZP_TOKEN` in the `.env` next to the assembly (the same file `Env.ReadEnv(global: true)` reads). The token is printed in the node line so that the line can be pasted into the DevDeck panel as a whole.
+Токен доступа `ZpServer`: хранение, выдача, проверка запросов. Секрет один на машину, хранится под `ZP_TOKEN` в `.env` рядом со сборкой (тот же файл, что читает `Env.ReadEnv(global: true)`). Токен печатается в строке узла, чтобы строку можно было целиком вставить в панель DevDeck.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public static string Token { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Server/ZpAuth.cs#L24)
 
-The current token. An empty string until `Load` is called.
+Текущий токен. Пустая строка, пока не вызван `Load`.
 
 ## Методы
 
@@ -36,9 +36,9 @@ public static bool Authorized(HttpListenerRequest req)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Server/ZpAuth.cs#L61)
 
-Checks the request token: the `Authorization: Bearer` header, otherwise the `?token=` parameter, needed for download links where a header cannot be set.
+Проверяет токен запроса: заголовок `Authorization: Bearer`, иначе параметр `?token=` — он нужен для ссылок на скачивание, где заголовок не задать.
 
-**Возвращает:** `false` when `Load` has not run or the token does not match.
+**Возвращает:** `false`, если `Load` не вызывался или токен не совпадает.
 
 ### Load
 
@@ -48,11 +48,11 @@ public static void Load(IZennoPosterProjectModel project, bool log)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Server/ZpAuth.cs#L34)
 
-Reads the token from `.env`; when there is none, generates one (32 random bytes as hex) and tries to save it. Call it before taking the port: the configuration check is cheap, and there is no point holding the resource if something is wrong with it. A failed write does not stop the server: the node stays manageable, but the token lives only in the process memory.
+Читает токен из `.env`; если его нет, генерирует (32 случайных байта в hex) и пытается сохранить. Вызывай до того, как занимать порт: проверка конфигурации дешёвая, и держать ресурс, если с ней что-то не так, незачем. Неудачная запись не останавливает сервер: узлом по-прежнему можно управлять, но токен живёт только в памяти процесса.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Write the path of the saved token to the log. |
+| `log` | Записать в лог путь к сохранённому токену. |
 
 ## Поля
 
@@ -64,5 +64,5 @@ public const string EnvKey = "ZP_TOKEN";
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Server/ZpAuth.cs#L19)
 
-Key of the token in `.env`.
+Ключ токена в `.env`.
 

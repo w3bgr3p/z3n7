@@ -12,13 +12,13 @@ generated: z3n7-docgen
 public enum DatabaseType
 ```
 
-Kind of database behind an `Sql` connection.
+Вид базы данных за соединением `Sql`.
 
 ## Значения
 
 | | Описание |
 |---|---|
-| `Unknown` | Not SQLite or PostgreSQL. |
-| `SQLite` | SQLite through ODBC. |
-| `PostgreSQL` | PostgreSQL through Npgsql. |
+| `Unknown` | Не SQLite и не PostgreSQL. |
+| `SQLite` | SQLite через ODBC. |
+| `PostgreSQL` | PostgreSQL через Npgsql. |
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class GpuVendor
 ```
 
-GPU architectures of one vendor.
+Архитектуры GPU одного производителя.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public List<GpuArch> Archs { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L44)
 
-Architectures of this vendor.
+Архитектуры этого производителя.
 
 ### Vendor
 
@@ -34,5 +34,5 @@ public string Vendor { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L42)
 
-`NVIDIA`, `AMD` or `Intel`.
+`NVIDIA`, `AMD` или `Intel`.
 

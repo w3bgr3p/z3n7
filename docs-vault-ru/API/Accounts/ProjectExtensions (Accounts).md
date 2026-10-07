@@ -14,7 +14,7 @@ public static class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Browser)]], [[ProjectExtensions (Diagnostic)]], [[ProjectExtensions (Essentials)]], [[ProjectExtensions (Mail)]], [[ProjectExtensions (MethodExtensions)]], [[ProjectExtensions (Reports)]], [[ProjectExtensions (Requests)]], [[ProjectExtensions (Traffic)]]
 
-Extension methods on `IZennoPosterProjectModel`: browser start and finish for an account.
+Методы расширения для `IZennoPosterProjectModel`: запуск и завершение браузера для аккаунта.
 
 ## Методы
 
@@ -26,7 +26,7 @@ public static void Finish(this IZennoPosterProjectModel project, Instance instan
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L588)
 
-Ends the account session: `Disposer.FinishSession`.
+Завершает сессию аккаунта: `Disposer.FinishSession`.
 
 ### ProxySet
 
@@ -36,14 +36,14 @@ public static bool ProxySet(this IZennoPosterProjectModel project, Instance inst
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L624)
 
-Checks a proxy and applies it to the instance: compares the IP seen by public echo services directly and through the proxy, and sets the proxy only when they differ.
+Проверяет прокси и применяет его к инстансу: сравнивает IP, который видят публичные echo-сервисы напрямую и через прокси, и ставит прокси только если они различаются.
 
 | Параметр | Описание |
 |---|---|
-| `proxyString` | Proxy; default is the `proxy` column of the account's `_instance` row. |
-| `instance` | Browser instance. |
+| `proxyString` | Прокси; по умолчанию колонка `proxy` строки аккаунта в `_instance`. |
+| `instance` | Инстанс браузера. |
 
-**Возвращает:** `true`. Throws when the proxy is empty, does not answer, or shows the local IP.
+**Возвращает:** `true`. Бросает исключение, если прокси пустой, не отвечает или показывает локальный IP.
 
 ### ReportError
 
@@ -53,15 +53,15 @@ public static string ReportError(this IZennoPosterProjectModel project, Instance
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L599)
 
-Writes an error report (`Reporter.ReportError`).
+Пишет отчёт об ошибке (`Reporter.ReportError`).
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `toLog` | Write it to the log. |
-| `toTelegram` | Send it to Telegram. |
-| `toDb` | Write it to the account's row. |
-| `screenshot` | Save a screenshot. |
+| `instance` | Инстанс браузера. |
+| `toLog` | Записать в лог. |
+| `toTelegram` | Отправить в Telegram. |
+| `toDb` | Записать в строку аккаунта. |
+| `screenshot` | Сохранить скриншот. |
 
 ### ReportSuccess
 
@@ -71,15 +71,15 @@ public static string ReportSuccess(this IZennoPosterProjectModel project, Instan
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L611)
 
-Writes a success report (`Reporter.ReportSuccess`).
+Пишет отчёт об успехе (`Reporter.ReportSuccess`).
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `toLog` | Write it to the log. |
-| `toTelegram` | Send it to Telegram. |
-| `toDb` | Write it to the account's row. |
-| `customMessage` | Extra line. |
+| `instance` | Инстанс браузера. |
+| `toLog` | Записать в лог. |
+| `toTelegram` | Отправить в Telegram. |
+| `toDb` | Записать в строку аккаунта. |
+| `customMessage` | Дополнительная строка. |
 
 ### RunBrowser
 
@@ -89,17 +89,17 @@ public static void RunBrowser(this IZennoPosterProjectModel project, Instance in
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L573)
 
-Starts the browser for the current account (`InstanceManager.Initialize`) and sets `state = 'busy'` in `_instance`. Does nothing when a Chromium browser is already running in the instance.
+Запускает браузер для текущего аккаунта (`InstanceManager.Initialize`) и ставит `state = 'busy'` в `_instance`. Ничего не делает, если в инстансе уже работает браузер Chromium.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `browserToLaunch` | `Chromium` or `WithoutBrowser`. |
-| `debug` | Log progress. |
-| `fixTimezone` | See `Initialize`. |
-| `useLegacy` | See `Initialize`. |
-| `useZpprofile` | See `Initialize`. |
-| `useFolder` | See `Initialize`. |
+| `instance` | Инстанс браузера. |
+| `browserToLaunch` | `Chromium` или `WithoutBrowser`. |
+| `debug` | Писать ход работы в лог. |
+| `fixTimezone` | См. `Initialize`. |
+| `useLegacy` | См. `Initialize`. |
+| `useZpprofile` | См. `Initialize`. |
+| `useFolder` | См. `Initialize`. |
 
 ### SaveProfile
 
@@ -109,9 +109,9 @@ public static void SaveProfile(this IZennoPosterProjectModel project, Instance i
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L684)
 
-Exports the profile and instance properties, WebGL settings and cookies (Base64) to `{project.Directory}/profiles/zenno_profile_{yyyyMMdd_HHmmss}_{id}.json`.
+Выгружает свойства профиля и инстанса, настройки WebGL и куки (Base64) в `{project.Directory}/profiles/zenno_profile_{yyyyMMdd_HHmmss}_{id}.json`.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
+| `instance` | Инстанс браузера. |
 

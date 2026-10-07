@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Init
 ```
 
-Project start-up: session, account range, encrypted storage and the start banner in the log. Usually called through `project.InitVariables(instance)`.
+Старт проекта: сессия, диапазон аккаунтов, зашифрованное хранилище и стартовый баннер в логе. Обычно вызывается через `project.InitVariables(instance)`.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public Init(IZennoPosterProjectModel project, Instance instance, bool log = fals
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Init.cs#L27)
 
-Creates the initializer for a project and its browser instance.
+Создаёт инициализатор для проекта и его инстанса браузера.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Write the initializer's own messages to the log. |
+| `log` | Писать в лог собственные сообщения инициализатора. |
 
 ## Методы
 
@@ -40,11 +40,11 @@ public void InitVariables(string author = "")
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Init.cs#L50)
 
-Runs the start-up sequence: disables ZennoPoster file logs (`LogDisabler.DisableLogs`), replaces the `jVars` variable (a file path) with that file's content, starts the session, fills `rangeStart`, `rangeEnd` and `range` from `cfgAccRange`, initialises SAFU with the key at `.internal/safu.key` under the project folder and writes the start banner with ZennoPoster, .NET and library versions.
+Выполняет последовательность старта: выключает файловые логи ZennoPoster (`LogDisabler.DisableLogs`), заменяет переменную `jVars` (путь к файлу) содержимым этого файла, начинает сессию, заполняет `rangeStart`, `rangeEnd` и `range` из `cfgAccRange`, инициализирует SAFU ключом `.internal/safu.key` в папке проекта и пишет стартовый баннер с версиями ZennoPoster, .NET и библиотеки.
 
 | Параметр | Описание |
 |---|---|
-| `author` | Script author shown in the banner; empty to omit. |
+| `author` | Автор скрипта для баннера; пусто — не показывать. |
 
-**Примечания:** Reads `jVars` with `File.ReadAllText`: the variable must hold a path to an existing file.
+**Примечания:** Читает `jVars` через `File.ReadAllText`: в переменной должен лежать путь к существующему файлу.
 

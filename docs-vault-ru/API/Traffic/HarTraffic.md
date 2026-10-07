@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class HarTraffic
 ```
 
-HAR 1.2 export of browser traffic (`GetTraffic`) and of saved `Rqst` traffic.
+Выгрузка в HAR 1.2 трафика браузера (`GetTraffic`) и сохранённого трафика `Rqst`.
 
 ## Методы
 
@@ -24,7 +24,7 @@ public static string ExportRqst(IZennoPosterProjectModel project, string project
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Har.Rqst.cs#L14)
 
-Exports all complete saved Rqst transactions as a HAR 1.2 JSON document.
+Выгружает все завершённые сохранённые транзакции Rqst в JSON-документ HAR 1.2.
 
 ### FromRqstJsonl
 
@@ -34,13 +34,13 @@ public static string FromRqstJsonl(string path, string projectFilter = null, str
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Har.Rqst.cs#L25)
 
-Converts the `Rqst` traffic file at `path` to a HAR 1.2 JSON document. Only what `Rqst` recorded is available: timings hold the total duration only, binary bodies are text.
+Переводит файл трафика `Rqst` по пути `path` в JSON-документ HAR 1.2. Доступно только то, что записал `Rqst`: в таймингах только общая длительность, бинарные тела — текстом.
 
 | Параметр | Описание |
 |---|---|
-| `path` | Traffic file written by `ZpTraffic`. |
-| `projectFilter` | Keep only records of this project. |
-| `taskId` | Keep only records of this task. |
+| `path` | Файл трафика, который пишет `ZpTraffic`. |
+| `projectFilter` | Оставить только записи этого проекта. |
+| `taskId` | Оставить только записи этой задачи. |
 
 ### Save
 
@@ -50,13 +50,13 @@ public static int Save(Instance instance, string path, string filter = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Har.cs#L28)
 
-Writes the active tab's traffic to a HAR 1.2 file, replacing an existing file. Response bodies are decoded (gzip, deflate; brotli and zstd when Brotli.Core or ZstdNet are loaded); text types are stored as text, others as Base64. Items that cannot be converted are skipped. Timings and start times are approximate: ZennoPoster gives only the total time.
+Записывает трафик активной вкладки в файл HAR 1.2, заменяя существующий. Тела ответов декодируются (gzip, deflate; brotli и zstd — если загружены Brotli.Core или ZstdNet); текстовые типы хранятся текстом, остальные — в Base64. Элементы, которые не удалось преобразовать, пропускаются. Тайминги и время начала приблизительные: ZennoPoster даёт только общее время.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `path` | Target file; must end with `.har`. Missing folders are created. |
-| `filter` | URL filter for `GetTraffic`; default is the active tab's domain. |
+| `instance` | Инстанс браузера. |
+| `path` | Целевой файл; должен оканчиваться на `.har`. Недостающие папки создаются. |
+| `filter` | Фильтр URL для `GetTraffic`; по умолчанию домен активной вкладки. |
 
-**Возвращает:** Number of entries written.
+**Возвращает:** Число записанных записей.
 

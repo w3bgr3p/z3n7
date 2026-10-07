@@ -12,5 +12,5 @@ generated: z3n7-docgen
 public static class TaskManager
 ```
 
-Conversion helpers for ZennoPoster task input settings (internal).
+Вспомогательные преобразования для входных настроек задачи ZennoPoster (внутреннее).
 

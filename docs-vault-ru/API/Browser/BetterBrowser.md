@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class BetterBrowser
 ```
 
-Preparing a browser instance for a session: cookies, profile data and a browser profile matching the proxy's exit point.
+Подготовка инстанса браузера к сессии: куки, данные профиля и профиль браузера под точку выхода прокси.
 
 ## Методы
 
@@ -24,7 +24,7 @@ public static void ImproveBrowser(this IZennoPosterProjectModel project, Instanc
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/BetterBrowser.cs#L52)
 
-Applies a browser profile matching the proxy's exit point, then checks the result. 1. Opens `check.z3n.pro/api/ip` in the browser to learn the exit IP and Chrome version. 2. Requests a profile for them and the `proxy_iso` country from `check.z3n.pro/api/profile` (directly, without the proxy). 3. Applies it to `project.Profile.BrowserProfile` and the instance. 4. Sets timezone and canvas emulation with the profile's canvas seed and window size. 5. Appends a diagnostic line to `{project.Path}/diag/z3n-diag.jsonl`. 6. Opens the `check.z3n.pro` fingerprint check, waits up to 60 seconds and writes each finding to the log as a warning.
+Применяет профиль браузера под точку выхода прокси и проверяет результат. 1. Открывает в браузере `check.z3n.pro/api/ip`, чтобы узнать выходной IP и версию Chrome. 2. Запрашивает под них и страну `proxy_iso` профиль у `check.z3n.pro/api/profile` (напрямую, без прокси). 3. Применяет его к `project.Profile.BrowserProfile` и инстансу. 4. Задаёт эмуляцию часового пояса и canvas с canvas-seed и размером окна из профиля. 5. Дописывает строку диагностики в `{project.Path}/diag/z3n-diag.jsonl`. 6. Открывает проверку отпечатка `check.z3n.pro`, ждёт до 60 секунд и пишет каждую находку в лог как предупреждение.
 
 ### PrepareSession
 
@@ -34,5 +34,5 @@ public static void PrepareSession(this IZennoPosterProjectModel project, Instanc
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/BetterBrowser.cs#L23)
 
-Loads the account's cookies (`instance.GetCookies`), sets the profile email to `{NickName}@outlook.com` and a random 12-character password, turns on traffic monitoring, sets the window to 1280×720, stores `Time.Now()` in `ts0` and runs `ImproveBrowser`. An error is logged and rethrown.
+Загружает куки аккаунта (`instance.GetCookies`), ставит в профиль email `{NickName}@outlook.com` и случайный пароль из 12 символов, включает мониторинг трафика, ставит окно 1280×720, сохраняет `Time.Now()` в `ts0` и запускает `ImproveBrowser`. Ошибка пишется в лог и пробрасывается дальше.
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class Helper
 ```
 
-Developer aids shown as Windows forms inside ZennoPoster.
+Инструменты разработчика в виде окон Windows внутри ZennoPoster.
 
 ## Методы
 
@@ -24,9 +24,9 @@ public static void Help(this IZennoPosterProjectModel project, string toSearch =
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Helper.cs#L368)
 
-Opens a searchable API browser window. The index is built once per process from the XML documentation files next to the ZennoPoster executable and, by reflection, from the public members of the loaded `ZennoLab*` assemblies. Every search term must match the member's name, type or summary.
+Открывает окно просмотра API с поиском. Индекс строится один раз за процесс из файлов XML-документации рядом с исполняемым файлом ZennoPoster и, через рефлексию, из публичных членов загруженных сборок `ZennoLab*`. Каждое слово поиска должно совпасть с именем, типом или описанием члена.
 
 | Параметр | Описание |
 |---|---|
-| `toSearch` | Initial search text. |
+| `toSearch` | Начальный текст поиска. |
 

@@ -12,9 +12,9 @@ generated: z3n7-docgen
 public class Sql : IDisposable
 ```
 
-One open connection to SQLite (through the SQLite3 ODBC driver) or PostgreSQL (Npgsql). Dispose it to close the connection.
+Одно открытое соединение с SQLite (через ODBC-драйвер SQLite3) или PostgreSQL (Npgsql). Вызови Dispose, чтобы закрыть соединение.
 
-**Примечания:** The connection is opened in the constructor.
+**Примечания:** Соединение открывается в конструкторе.
 
 ## Конструкторы
 
@@ -26,12 +26,12 @@ public Sql(string dbPath, string dbPass)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L37)
 
-Opens an SQLite database through the `SQLite3 ODBC Driver`.
+Открывает базу SQLite через `SQLite3 ODBC Driver`.
 
 | Параметр | Описание |
 |---|---|
-| `dbPath` | Database file. |
-| `dbPass` | Not used. |
+| `dbPath` | Файл базы данных. |
+| `dbPass` | Не используется. |
 
 ```csharp
 public Sql(string hostname, string port, string database, string user, string password)
@@ -39,7 +39,7 @@ public Sql(string hostname, string port, string database, string user, string pa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L45)
 
-Opens a PostgreSQL connection with pooling.
+Открывает соединение PostgreSQL с пулом.
 
 ```csharp
 public Sql(string connectionstring)
@@ -47,7 +47,7 @@ public Sql(string connectionstring)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L52)
 
-Opens a PostgreSQL connection from an Npgsql connection string.
+Открывает соединение PostgreSQL по строке подключения Npgsql.
 
 ```csharp
 public Sql(IDbConnection connection)
@@ -55,7 +55,7 @@ public Sql(IDbConnection connection)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L59)
 
-Wraps an existing connection and opens it if it is closed.
+Оборачивает существующее соединение и открывает его, если оно закрыто.
 
 ## Свойства
 
@@ -67,7 +67,7 @@ public DatabaseType ConnectionType { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L69)
 
-SQLite for an ODBC connection, PostgreSQL for Npgsql, otherwise Unknown.
+SQLite для соединения ODBC, PostgreSQL для Npgsql, иначе Unknown.
 
 ## Методы
 
@@ -79,7 +79,7 @@ public async Task AddRange(int range, string tableName = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L780)
 
-Inserts rows with ids from the current maximum + 1 up to `range`, one statement per row.
+Вставляет строки с id от текущего максимума + 1 до `range`, по одному запросу на строку.
 
 ### CopyTableAsync
 
@@ -89,14 +89,14 @@ public async Task<int> CopyTableAsync(string sourceTable, string destinationTabl
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L265)
 
-Creates `destinationTable` with the columns and primary key of `sourceTable` and copies all rows into it, within the same database.
+Создаёт `destinationTable` с колонками и первичным ключом `sourceTable` и копирует в неё все строки, в пределах одной базы.
 
 | Параметр | Описание |
 |---|---|
-| `sourceTable` | Source; on PostgreSQL may be `schema.table`. |
-| `destinationTable` | Table to create; must not exist. |
+| `sourceTable` | Источник; на PostgreSQL может быть `schema.table`. |
+| `destinationTable` | Таблица, которую нужно создать; её не должно быть. |
 
-**Возвращает:** Number of copied rows.
+**Возвращает:** Число скопированных строк.
 
 ### CreateParameter
 
@@ -106,7 +106,7 @@ public IDbDataParameter CreateParameter(string name, object value)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L120)
 
-Creates a command parameter of the right provider type; `null` becomes `DBNull`.
+Создаёт параметр команды нужного для провайдера типа; `null` превращается в `DBNull`.
 
 ### CreateParameters
 
@@ -116,7 +116,7 @@ public IDbDataParameter[] CreateParameters(params (string name, object value)[] 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L137)
 
-Creates several parameters, see `CreateParameter`.
+Создаёт несколько параметров, см. `CreateParameter`.
 
 ### DbRead
 
@@ -126,7 +126,7 @@ public string DbRead(string sql, string separator = "|")
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L192)
 
-Synchronous `DbReadAsync` with the default row separator.
+Синхронный `DbReadAsync` с разделителем строк по умолчанию.
 
 ### DbReadAsync
 
@@ -136,13 +136,13 @@ public async Task<string> DbReadAsync(string sql, string columnSeparator = "|", 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L151)
 
-Runs a query and returns every row as text.
+Выполняет запрос и возвращает все строки текстом.
 
 | Параметр | Описание |
 |---|---|
-| `sql` | Query. |
-| `columnSeparator` | Joins the columns of a row. |
-| `rawSepararor` | Joins the rows. |
+| `sql` | Запрос. |
+| `columnSeparator` | Чем соединять колонки строки. |
+| `rawSepararor` | Чем соединять строки. |
 
 ### DbWrite
 
@@ -152,7 +152,7 @@ public int DbWrite(string sql, params IDbDataParameter[] parameters)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L253)
 
-Synchronous `DbWriteAsync`.
+Синхронный `DbWriteAsync`.
 
 ### DbWriteAsync
 
@@ -162,9 +162,9 @@ public async Task<int> DbWriteAsync(string sql, params IDbDataParameter[] parame
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L199)
 
-Executes a non-query statement.
+Выполняет запрос, не возвращающий строк.
 
-**Возвращает:** The affected row count. Errors are rethrown with the SQL text appended.
+**Возвращает:** Число затронутых строк. Ошибки пробрасываются с добавленным текстом SQL.
 
 ### Dispose
 
@@ -174,7 +174,7 @@ public void Dispose()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L93)
 
-Closes and disposes the connection.
+Закрывает соединение и освобождает его.
 
 ### Get
 
@@ -184,16 +184,16 @@ public async Task<string> Get(string toGet, string id, string tableName = null, 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L722)
 
-Reads the first column of the first matching row.
+Читает первую колонку первой подходящей строки.
 
 | Параметр | Описание |
 |---|---|
-| `toGet` | Column list. |
-| `id` | Row id, passed as a parameter. |
-| `tableName` | Table; required. |
-| `where` | Raw SQL condition; when set, `id` is ignored. |
+| `toGet` | Список колонок. |
+| `id` | Id строки, передаётся параметром. |
+| `tableName` | Таблица; обязательна. |
+| `where` | Сырое SQL-условие; если задано, `id` игнорируется. |
 
-**Возвращает:** The value as text, or `null`.
+**Возвращает:** Значение текстом или `null`.
 
 ### MigrateAllTablesAsync
 
@@ -203,9 +203,9 @@ public static async Task<int> MigrateAllTablesAsync(Sql sourceDb, Sql destinatio
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L426)
 
-Copies every user table from one database to another of the other kind (PostgreSQL ↔ SQLite). Tables that already exist in the target are not recreated, rows are still inserted. A table that fails is skipped; the error goes to the debug output only.
+Копирует все пользовательские таблицы из одной базы в базу другого вида (PostgreSQL ↔ SQLite). Таблицы, которые уже есть в целевой базе, не пересоздаются, но строки всё равно вставляются. Таблица с ошибкой пропускается; ошибка выводится только в отладочный вывод.
 
-**Возвращает:** Total number of copied rows.
+**Возвращает:** Общее число скопированных строк.
 
 ### Upd
 
@@ -215,17 +215,17 @@ public async Task<int> Upd(string toUpd, object id, string tableName = null, str
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L662)
 
-Runs `UPDATE … SET toUpd` for the row `id` or the rows matching `where`.
+Выполняет `UPDATE … SET toUpd` для строки `id` или для строк, подходящих под `where`.
 
 | Параметр | Описание |
 |---|---|
-| `toUpd` | Assignments; column names are quoted. |
-| `id` | Row id, inserted as written. |
-| `tableName` | Table; required. |
-| `where` | Raw SQL condition; when set, `id` is ignored. |
-| `last` | Also set the `last` column to the UTC time `MM-ddTHH:mm`. |
+| `toUpd` | Присваивания; имена колонок берутся в кавычки. |
+| `id` | Id строки, подставляется как написан. |
+| `tableName` | Таблица; обязательна. |
+| `where` | Сырое SQL-условие; если задано, `id` игнорируется. |
+| `last` | Заодно записать в колонку `last` время UTC в формате `MM-ddTHH:mm`. |
 
-**Возвращает:** Affected row count.
+**Возвращает:** Число затронутых строк.
 
 ```csharp
 public async Task Upd(List<string> toWrite, string tableName = null, string where = null, bool last = false)
@@ -233,5 +233,5 @@ public async Task Upd(List<string> toWrite, string tableName = null, string wher
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Sql.cs#L705)
 
-Runs `Upd` for each item, with ids 0, 1, 2 … in list order.
+Выполняет `Upd` для каждого элемента с id 0, 1, 2 … в порядке списка.
 

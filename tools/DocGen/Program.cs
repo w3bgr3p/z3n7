@@ -7,6 +7,10 @@ namespace DocGen;
 ///
 ///   dotnet run --project tools/DocGen                 write docs-vault-en/API and docs-vault-ru/API
 ///   dotnet run --project tools/DocGen -- --check      exit 1 if the committed pages are out of date
+///   dotnet run --project tools/DocGen -- --todo       write tools/DocGen/i18n/ru.todo.json: texts without a translation
+///
+/// Russian descriptions come from tools/DocGen/i18n/ru.json (English text → Russian text).
+/// A text without a usable translation stays English on the Russian page.
 /// </summary>
 public static class Program
 {
@@ -20,6 +24,7 @@ public static class Program
         try
         {
             var check = args.Contains("--check");
+            var todo = args.Contains("--todo");
             var repo = FindRepoRoot(Directory.GetCurrentDirectory());
             var projectDir = Path.Combine(repo, "z3n7");
             var vaults = new[] { ("docs-vault-en", "en"), ("docs-vault-ru", "ru") };
@@ -36,7 +41,15 @@ public static class Program
             foreach (var (dir, lang) in vaults)
             {
                 stage = $"render {dir}";
-                var rendered = new Writer(pages, Strings.For(lang), SourceUrl).Render();
+                var i18n = Path.Combine(repo, "tools", "DocGen", "i18n");
+                var tr = lang == "en" ? Translations.None : Translations.Load(Path.Combine(i18n, lang + ".json"));
+                var rendered = new Writer(pages, Strings.For(lang), SourceUrl, tr).Render();
+                if (tr.Active)
+                {
+                    Console.WriteLine($"  {lang}: untranslated {tr.Missing.Count}, rejected {tr.Rejected.Count}, unused {tr.Unused.Count()}");
+                    foreach (var r in tr.Rejected) Console.WriteLine($"  [rejected: code spans or links differ] {r[..Math.Min(r.Length, 120)]}");
+                    if (todo) Translations.WriteMap(Path.Combine(i18n, lang + ".todo.json"), tr.Missing.ToDictionary(k => k, _ => ""));
+                }
                 var vault = new Vault(Path.Combine(repo, dir));
 
                 stage = $"write {dir}";

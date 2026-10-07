@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbCore
 ```
 
-Single entry point that runs SQL against the project database.
+Единая точка входа, через которую выполняется SQL к базе проекта.
 
 ## Методы
 
@@ -24,17 +24,17 @@ public static string DbQ(this IZennoPosterProjectModel project, string query, bo
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1824)
 
-Executes one SQL statement against the database named by `dbSource` (project variable, else global variable). A `dbSource` starting with `Host=` is a PostgreSQL connection string; anything else selects SQLite. On SQLite a "database is locked" error is retried up to 10 times with a growing pause.
+Выполняет один SQL-запрос к базе, заданной `dbSource` (переменная проекта, иначе глобальная переменная). `dbSource`, начинающийся с `Host=`, — строка подключения PostgreSQL; всё остальное означает SQLite. На SQLite ошибка «database is locked» повторяется до 10 раз с нарастающей паузой.
 
 | Параметр | Описание |
 |---|---|
-| `query` | SQL text. |
-| `log` | Write the query and its result to the project log. |
-| `sqLitePath` | SQLite database file. Only this argument is used as the SQLite path. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `unSafe` | Not used. |
+| `query` | Текст SQL. |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `sqLitePath` | Файл базы SQLite. Путём к SQLite служит только этот аргумент. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `unSafe` | Не используется. |
 
-**Возвращает:** For `SELECT`: rows joined by `·`, columns by `¦`. Otherwise the affected row count as text. An empty string after an error when `thrw` is false.
+**Возвращает:** Для `SELECT`: строки через `·`, колонки через `¦`. Иначе число затронутых строк текстом. Пустая строка после ошибки, если `thrw` равно false.
 
-**Примечания:** Throws when `dbSource` is not set.
+**Примечания:** Бросает исключение, если `dbSource` не задан.
 

@@ -12,9 +12,9 @@ generated: z3n7-docgen
 public class Db
 ```
 
-SQL helper over PostgreSQL or SQLite with one API for both. Every statement opens its own connection. A `SELECT` returns rows joined by `·` and columns joined by `¦`; other statements return the number of affected rows. On SQLite a "database is locked" error is retried up to 10 times with a growing pause.
+Помощник SQL поверх PostgreSQL или SQLite с одним API для обоих. Каждый запрос открывает своё соединение. `SELECT` возвращает строки через `·` и колонки через `¦`; остальные запросы возвращают число затронутых строк. На SQLite ошибка «database is locked» повторяется до 10 раз с нарастающей паузой.
 
-**Примечания:** SQLite is reached through the SQLite3 ODBC driver, which must be installed. Values passed as `id` or `where` are inserted into SQL as written.
+**Примечания:** SQLite подключается через ODBC-драйвер SQLite3, он должен быть установлен. Значения, переданные как `id` или `where`, подставляются в SQL как написаны.
 
 ## Конструкторы
 
@@ -26,19 +26,19 @@ public Db(string dbMode = "pgSQL", string sqLitePath = null, string pgHost = "lo
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L49)
 
-Creates a database helper with explicit connection settings.
+Создаёт помощника базы данных с явно заданными настройками подключения.
 
 | Параметр | Описание |
 |---|---|
-| `dbMode` | `pgSQL` for PostgreSQL; any other value uses SQLite. |
-| `sqLitePath` | SQLite database file. |
-| `pgHost` | PostgreSQL host. |
-| `pgPort` | PostgreSQL port. |
-| `pgDbName` | PostgreSQL database. |
-| `pgUser` | PostgreSQL user. |
-| `pgPass` | PostgreSQL password. |
-| `defaultTable` | Table used when a method gets no table name. |
-| `logLevel` | Not used for output: without a project the logger has nowhere to write. |
+| `dbMode` | `pgSQL` — PostgreSQL; любое другое значение — SQLite. |
+| `sqLitePath` | Файл базы SQLite. |
+| `pgHost` | Хост PostgreSQL. |
+| `pgPort` | Порт PostgreSQL. |
+| `pgDbName` | База PostgreSQL. |
+| `pgUser` | Пользователь PostgreSQL. |
+| `pgPass` | Пароль PostgreSQL. |
+| `defaultTable` | Таблица, которая используется, если методу не передано имя таблицы. |
+| `logLevel` | Для вывода не используется: без проекта логгеру некуда писать. |
 
 ```csharp
 public Db(IZennoPosterProjectModel project, string dbMode = null, string sqLitePath = null, string pgHost = null, string pgPort = null, string pgDbName = null, string pgUser = null, string pgPass = null, string defaultTable = null, bool log = false)
@@ -46,11 +46,11 @@ public Db(IZennoPosterProjectModel project, string dbMode = null, string sqLiteP
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbZenno.cs#L18)
 
-Creates a database helper from project settings. Each argument left `null` is read from: `dbMode` — variable `DBmode`; `sqLitePath` — variable `DBsqltPath`; PostgreSQL host, port, database, user and password — global variables `sqlPgHost`, `sqlPgPort`, `sqlPgName`, `sqlPgUser`, `sqlPgPass`; `defaultTable` — `project.ProjectTable()` (`__` + project name).
+Создаёт помощника базы данных по настройкам проекта. Каждый аргумент, оставленный `null`, читается так: `dbMode` — переменная `DBmode`; `sqLitePath` — переменная `DBsqltPath`; хост, порт, база, пользователь и пароль PostgreSQL — глобальные переменные `sqlPgHost`, `sqlPgPort`, `sqlPgName`, `sqlPgUser`, `sqlPgPass`; `defaultTable` — `project.ProjectTable()` (`__` + имя проекта).
 
 | Параметр | Описание |
 |---|---|
-| `log` | Log queries and results at `Info` level. |
+| `log` | Писать запросы и результаты в лог на уровне `Info`. |
 
 ## Методы
 
@@ -62,14 +62,14 @@ public void AddColumn(string columnName, string tableName = null, bool log = fal
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1094)
 
-Adds a column if the table does not have it yet.
+Добавляет колонку, если её ещё нет в таблице.
 
 | Параметр | Описание |
 |---|---|
-| `columnName` | Column name. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `defaultValue` | SQL type of the new column. |
+| `columnName` | Имя колонки. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `defaultValue` | Тип SQL новой колонки. |
 
 ### AddColumns
 
@@ -79,14 +79,14 @@ public void AddColumns(List<string> columns, string tableName = null, bool log =
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1114)
 
-Adds each listed column that the table does not have yet.
+Добавляет каждую из перечисленных колонок, которой ещё нет в таблице.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | Column names. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `defaultValue` | SQL type of the new columns. |
+| `columns` | Имена колонок. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `defaultValue` | Тип SQL новых колонок. |
 
 ```csharp
 public void AddColumns(Dictionary<string, string> tableStructure, string tableName = null, bool log = false)
@@ -94,13 +94,13 @@ public void AddColumns(Dictionary<string, string> tableStructure, string tableNa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1131)
 
-Adds each column of `tableStructure` that the table does not have yet, with its type.
+Добавляет каждую колонку из `tableStructure`, которой ещё нет в таблице, с её типом.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Column → SQL type. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `tableStructure` | Колонка → тип SQL. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### AddRange
 
@@ -110,13 +110,13 @@ public void AddRange(string tableName, int range, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1208)
 
-Inserts rows with ids from the current maximum + 1 up to `range`, in batches of 500. Existing ids are skipped.
+Вставляет строки с id от текущего максимума + 1 до `range` порциями по 500. Существующие id пропускаются.
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table with an `id` column. |
-| `range` | Highest id to have. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `tableName` | Таблица с колонкой `id`. |
+| `range` | Наибольший id, который должен быть. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### BridgeTable
 
@@ -126,16 +126,16 @@ public void BridgeTable(string sourceTable, string targetDbPath, string targetTa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1622)
 
-Copies a table from this database to another one: PostgreSQL → SQLite, SQLite → PostgreSQL or SQLite → SQLite. The target table is dropped and recreated.
+Копирует таблицу из этой базы в другую: PostgreSQL → SQLite, SQLite → PostgreSQL или SQLite → SQLite. Целевая таблица удаляется и создаётся заново.
 
 | Параметр | Описание |
 |---|---|
-| `sourceTable` | Table in this database. |
-| `targetDbPath` | Target SQLite file, or the Npgsql connection string of the target database for `pgSQL`. |
-| `targetTable` | Target table. |
-| `targetMode` | `SQLite` or `pgSQL`. |
-| `schema` | PostgreSQL schema. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `sourceTable` | Таблица в этой базе. |
+| `targetDbPath` | Целевой файл SQLite или строка подключения Npgsql к целевой базе для `pgSQL`. |
+| `targetTable` | Целевая таблица. |
+| `targetMode` | `SQLite` или `pgSQL`. |
+| `schema` | Схема PostgreSQL. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### Clear
 
@@ -145,13 +145,13 @@ public void Clear(string tableName = null, bool log = false, bool thrw = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1279)
 
-Deletes all rows and resets the id counter (`TRUNCATE … RESTART IDENTITY CASCADE` on PostgreSQL, the `sqlite_sequence` entry on SQLite).
+Удаляет все строки и сбрасывает счётчик id (`TRUNCATE … RESTART IDENTITY CASCADE` на PostgreSQL, запись в `sqlite_sequence` на SQLite).
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
 
 ### ClearLine
 
@@ -161,14 +161,14 @@ public void ClearLine(int id, string tableName = null, bool log = false, bool th
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1308)
 
-Sets every column except `id` to an empty string in one row.
+Записывает пустую строку во все колонки одной строки, кроме `id`.
 
 | Параметр | Описание |
 |---|---|
-| `id` | Row id. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `id` | Id строки. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
 
 ### ColumnExists
 
@@ -178,13 +178,13 @@ public bool ColumnExists(string columnName, string tableName, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1069)
 
-Checks whether a column exists. Case-insensitive on PostgreSQL, case-sensitive on SQLite.
+Проверяет, есть ли колонка. На PostgreSQL без учёта регистра, на SQLite с учётом.
 
 | Параметр | Описание |
 |---|---|
-| `columnName` | Column name. |
-| `tableName` | Table name. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `columnName` | Имя колонки. |
+| `tableName` | Имя таблицы. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### CreateTable
 
@@ -194,13 +194,13 @@ public void CreateTable(Dictionary<string, string> tableStructure, string tableN
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L980)
 
-Creates the table unless it exists. On PostgreSQL `AUTOINCREMENT` in a type is replaced by `SERIAL`.
+Создаёт таблицу, если её нет. На PostgreSQL `AUTOINCREMENT` в типе заменяется на `SERIAL`.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Column → SQL type. |
-| `tableName` | Table to create. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `tableStructure` | Колонка → тип SQL. |
+| `tableName` | Таблица, которую нужно создать. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### DbToJson
 
@@ -210,16 +210,16 @@ public string DbToJson(string tableName = null, bool log = false, bool thrw = fa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L430)
 
-Rebuilds the JSON stored by `JsonToDb` from the row with the given `id`. Columns starting with `_` and `id` are left out.
+Восстанавливает JSON, сохранённый `JsonToDb`, из строки с заданным `id`. Колонки, начинающиеся с `_`, и `id` не попадают.
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `id` | Значение `key`, подставляется в SQL как написано: текстовые значения бери в кавычки сам. |
 
-**Возвращает:** The JSON text, or `{}` when the table has no `_json_structure` column or it cannot be parsed.
+**Возвращает:** Текст JSON или `{}`, если в таблице нет колонки `_json_structure` или её не удалось разобрать.
 
 ### Del
 
@@ -229,16 +229,16 @@ public void Del(string tableName = null, bool log = false, bool thrw = false, st
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1246)
 
-Deletes the row where `key` = `id`, or the rows matching `where`.
+Удаляет строку, где `key` = `id`, или строки, подходящие под `where`.
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`, подставляется в SQL как написано: текстовые значения бери в кавычки сам. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
 ### DropColumn
 
@@ -248,13 +248,13 @@ public void DropColumn(string columnName, string tableName = null, bool log = fa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1155)
 
-Drops a column if it exists (`CASCADE` on PostgreSQL).
+Удаляет колонку, если она есть (на PostgreSQL с `CASCADE`).
 
 | Параметр | Описание |
 |---|---|
-| `columnName` | Column name. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `columnName` | Имя колонки. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### Get
 
@@ -264,19 +264,19 @@ public string Get(string columns, string tableName = null, bool log = false, boo
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L137)
 
-Selects columns from the row where `key` = `id`, or from the rows matching `where`.
+Выбирает колонки из строки, где `key` = `id`, или из строк, подходящих под `where`.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | Comma-separated column names; each is quoted. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `columns` | Имена колонок через запятую; каждое берётся в кавычки. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`, подставляется в SQL как написано: текстовые значения бери в кавычки сам. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
-**Возвращает:** Raw result in the `Query` format.
+**Возвращает:** Сырой результат в формате `Query`.
 
 ### GetColumns
 
@@ -286,19 +286,19 @@ public Dictionary<string, string> GetColumns(string columns, string tableName = 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L174)
 
-Like `Get`, but returns the first row as column → value.
+То же, что `Get`, но возвращает первую строку в виде колонка → значение.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | Comma-separated column names; each is quoted. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `columns` | Имена колонок через запятую; каждое берётся в кавычки. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`, подставляется в SQL как написано: текстовые значения бери в кавычки сам. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
-**Возвращает:** An empty dictionary when nothing was found.
+**Возвращает:** Пустой словарь, если ничего не найдено.
 
 ### GetLine
 
@@ -308,17 +308,17 @@ public string[] GetLine(string columns, string tableName = null, bool log = fals
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L206)
 
-Like `Get`, split into column values.
+То же, что `Get`, с разбивкой на значения колонок.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | Comma-separated column names; each is quoted. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `columns` | Имена колонок через запятую; каждое берётся в кавычки. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`, подставляется в SQL как написано: текстовые значения бери в кавычки сам. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
 ### GetLines
 
@@ -328,17 +328,17 @@ public List<string> GetLines(string columns, string tableName = null, bool log =
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L222)
 
-Like `Get`, split into rows. Each row still has its columns joined by `¦`.
+То же, что `Get`, с разбивкой на строки. Колонки в каждой строке по-прежнему соединены через `¦`.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | Comma-separated column names; each is quoted. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `columns` | Имена колонок через запятую; каждое берётся в кавычки. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`, подставляется в SQL как написано: текстовые значения бери в кавычки сам. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
 ### GetRandom
 
@@ -348,18 +348,18 @@ public string GetRandom(string column, string tableName = null, bool log = false
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L239)
 
-Selects `column` from random rows where it is not empty.
+Выбирает `column` из случайных строк, где она не пустая.
 
 | Параметр | Описание |
 |---|---|
-| `column` | Column to read. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `maxId` | When above 0, only rows with `id` below it. |
-| `includeId` | Prefix the result with the `id` column. |
-| `single` | Return one row instead of all matching rows in random order. |
-| `invertEmpty` | Select rows where the column is empty instead. |
+| `column` | Колонка, которую нужно прочитать. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `maxId` | Если больше 0 — только строки с `id` меньше этого числа. |
+| `includeId` | Начинать результат с колонки `id`. |
+| `single` | Вернуть одну строку вместо всех подходящих в случайном порядке. |
+| `invertEmpty` | Вместо этого выбирать строки, где колонка пустая. |
 
 ### GetTableColumns
 
@@ -369,12 +369,12 @@ public List<string> GetTableColumns(string tableName, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1045)
 
-Column names of a table.
+Имена колонок таблицы.
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table name. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `tableName` | Имя таблицы. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### GetTables
 
@@ -384,11 +384,11 @@ public List<string> GetTables(bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1027)
 
-Names of all tables, sorted (PostgreSQL: base tables of the `public` schema).
+Имена всех таблиц по алфавиту (PostgreSQL: базовые таблицы схемы `public`).
 
 | Параметр | Описание |
 |---|---|
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### InsertDic
 
@@ -398,14 +398,14 @@ public void InsertDic(Dictionary<string, string> data, string tableName = null, 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L354)
 
-Inserts one row from a dictionary. On PostgreSQL a conflicting row is skipped (`ON CONFLICT DO NOTHING`).
+Вставляет одну строку из словаря. На PostgreSQL конфликтующая строка пропускается (`ON CONFLICT DO NOTHING`).
 
 | Параметр | Описание |
 |---|---|
-| `data` | Column → value. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
+| `data` | Колонка → значение. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
 
 ### JsonToDb
 
@@ -415,15 +415,15 @@ public void JsonToDb(string json, string tableName = null, bool log = false, boo
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L405)
 
-Flattens a JSON object into columns and writes it with `UpdFromDict`. Nested keys are joined with `_` (`a_b_0`). The original shape is saved in the `_json_structure` column so that `DbToJson` can rebuild it.
+Разворачивает JSON-объект в колонки и записывает через `UpdFromDict`. Вложенные ключи соединяются через `_` (`a_b_0`). Исходная форма сохраняется в колонке `_json_structure`, чтобы `DbToJson` мог её восстановить.
 
 | Параметр | Описание |
 |---|---|
-| `json` | JSON object. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `where` | Raw SQL condition selecting the row. |
+| `json` | JSON-объект. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `where` | Сырое SQL-условие, выбирающее строку. |
 
 ### PgToSqlite
 
@@ -433,17 +433,17 @@ public void PgToSqlite(string pgTable, string sqlitePath, string sqliteTable, st
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1518)
 
-Copies a PostgreSQL table into an SQLite file. The target table is dropped and recreated; PostgreSQL types are mapped to INTEGER, REAL, TEXT or BLOB.
+Копирует таблицу PostgreSQL в файл SQLite. Целевая таблица удаляется и создаётся заново; типы PostgreSQL переводятся в INTEGER, REAL, TEXT или BLOB.
 
 | Параметр | Описание |
 |---|---|
-| `pgTable` | Source table. |
-| `sqlitePath` | SQLite database file. |
-| `sqliteTable` | Target table. |
-| `pgSchema` | Source schema. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `pgTable` | Таблица-источник. |
+| `sqlitePath` | Файл базы SQLite. |
+| `sqliteTable` | Целевая таблица. |
+| `pgSchema` | Схема-источник. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
-**Примечания:** This instance must be in `pgSQL` mode.
+**Примечания:** Этот экземпляр должен быть в режиме `pgSQL`.
 
 ### PrepareTable
 
@@ -453,15 +453,15 @@ public void PrepareTable(Dictionary<string, string> tableStructure, string table
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L684)
 
-Creates the table if it does not exist and adds missing columns.
+Создаёт таблицу, если её нет, и добавляет недостающие колонки.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Column → SQL type, e.g. `{"id", "INTEGER PRIMARY KEY"}`. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `prune` | Also drop columns that are not in `tableStructure` (`PruneColumns`). |
-| `rearrange` | Also reorder columns to match `tableStructure` (`RearrangeColumns`). |
+| `tableStructure` | Колонка → тип SQL, например `{"id", "INTEGER PRIMARY KEY"}`. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `prune` | Заодно удалить колонки, которых нет в `tableStructure` (`PruneColumns`). |
+| `rearrange` | Заодно переставить колонки в порядке `tableStructure` (`RearrangeColumns`). |
 
 ```csharp
 public void PrepareTable(List<string> columns, string tableName = null, string defaultType = "TEXT DEFAULT ''", string serial = "INTEGER", bool log = false, bool prune = false, bool rearrange = false)
@@ -469,17 +469,17 @@ public void PrepareTable(List<string> columns, string tableName = null, string d
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L716)
 
-Same as the dictionary overload, with an `id` primary key and one type for every other column.
+То же, что перегрузка со словарём, с первичным ключом `id` и одним типом для всех остальных колонок.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | Column names; `id` and duplicates are skipped. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `defaultType` | SQL type of every column. |
-| `serial` | Type of `id`. `INTEGER` becomes `INTEGER PRIMARY KEY AUTOINCREMENT` (`AUTOINCREMENT` is replaced by `SERIAL` on PostgreSQL). |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `prune` | Drop columns not in the list. |
-| `rearrange` | Reorder columns to match the list. |
+| `columns` | Имена колонок; `id` и повторы пропускаются. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `defaultType` | Тип SQL для всех колонок. |
+| `serial` | Тип `id`. `INTEGER` превращается в `INTEGER PRIMARY KEY AUTOINCREMENT` (на PostgreSQL `AUTOINCREMENT` заменяется на `SERIAL`). |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `prune` | Удалить колонки, которых нет в списке. |
+| `rearrange` | Переставить колонки в порядке списка. |
 
 ### PruneColumns
 
@@ -489,13 +489,13 @@ public void PruneColumns(Dictionary<string, string> tableStructure, string table
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L951)
 
-Drops every column except `id` that is not a key of `tableStructure`.
+Удаляет все колонки, кроме `id`, которых нет среди ключей `tableStructure`.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Columns to keep. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `tableStructure` | Какие колонки оставить. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### PruneEmptyColumns
 
@@ -505,12 +505,12 @@ public void PruneEmptyColumns(string tableName = null, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1175)
 
-Drops every column except `id` in which no row has a non-empty value.
+Удаляет все колонки, кроме `id`, в которых ни в одной строке нет непустого значения.
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### Query
 
@@ -520,16 +520,16 @@ public string Query(string query, bool log = false, bool thrw = false, bool unSa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L78)
 
-Executes one SQL statement.
+Выполняет один SQL-запрос.
 
 | Параметр | Описание |
 |---|---|
-| `query` | SQL text. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `unSafe` | Not used. |
+| `query` | Текст SQL. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `unSafe` | Не используется. |
 
-**Возвращает:** For `SELECT`: rows joined by `·`, columns by `¦`. Otherwise the affected row count as text. An empty string after an error when `thrw` is false.
+**Возвращает:** Для `SELECT`: строки через `·`, колонки через `¦`. Иначе число затронутых строк текстом. Пустая строка после ошибки, если `thrw` равно false.
 
 ### RearrangeColumns
 
@@ -539,13 +539,13 @@ public void RearrangeColumns(Dictionary<string, string> tableStructure, string t
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L747)
 
-Reorders the table's columns: `id` first, then the columns of `tableStructure` that exist, then the rest. Works by copying the data into a new table, dropping the old one and renaming the new one. On failure the temporary table is dropped and an exception is thrown.
+Переставляет колонки таблицы: сначала `id`, затем существующие колонки из `tableStructure`, затем остальные. Для этого копирует данные в новую таблицу, удаляет старую и переименовывает новую. При ошибке временная таблица удаляется и бросается исключение.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Desired order (column → type). |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `tableStructure` | Нужный порядок (колонка → тип). |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### SetDone
 
@@ -555,18 +555,18 @@ public void SetDone(string taskColumn = "daily", int cooldownMin = 0, string tab
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L383)
 
-Writes a local timestamp `yyyy-MM-dd HH:mm:ss` to `taskColumn`: now, or now plus `cooldownMin`.
+Записывает в `taskColumn` местное время `yyyy-MM-dd HH:mm:ss`: текущее или текущее плюс `cooldownMin`.
 
 | Параметр | Описание |
 |---|---|
-| `taskColumn` | Column to write. |
-| `cooldownMin` | Minutes to add; 0 writes the current time. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `taskColumn` | Колонка, в которую нужно записать. |
+| `cooldownMin` | Сколько минут прибавить; 0 — записать текущее время. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`, подставляется в SQL как написано: текстовые значения бери в кавычки сам. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
 ### SqliteToPg
 
@@ -576,17 +576,17 @@ public void SqliteToPg(string sqlitePath, string sqliteTable, string pgTable, st
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1555)
 
-Copies an SQLite table into PostgreSQL. The target table is dropped and recreated; SQLite types are mapped to bigint, double precision, text or bytea.
+Копирует таблицу SQLite в PostgreSQL. Целевая таблица удаляется и создаётся заново; типы SQLite переводятся в bigint, double precision, text или bytea.
 
 | Параметр | Описание |
 |---|---|
-| `sqlitePath` | SQLite database file. |
-| `sqliteTable` | Source table. |
-| `pgTable` | Target table. |
-| `pgSchema` | Target schema. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `sqlitePath` | Файл базы SQLite. |
+| `sqliteTable` | Таблица-источник. |
+| `pgTable` | Целевая таблица. |
+| `pgSchema` | Целевая схема. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
-**Примечания:** This instance must be in `pgSQL` mode; it is the target.
+**Примечания:** Этот экземпляр должен быть в режиме `pgSQL`; он и есть цель.
 
 ### SqliteToSqlite
 
@@ -596,15 +596,15 @@ public void SqliteToSqlite(string sourcePath, string sourceTable, string targetP
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1589)
 
-Copies a table between two SQLite files. The target table is dropped and recreated.
+Копирует таблицу между двумя файлами SQLite. Целевая таблица удаляется и создаётся заново.
 
 | Параметр | Описание |
 |---|---|
-| `sourcePath` | Source database file. |
-| `sourceTable` | Source table. |
-| `targetPath` | Target database file. |
-| `targetTable` | Target table. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `sourcePath` | Файл базы-источника. |
+| `sourceTable` | Таблица-источник. |
+| `targetPath` | Файл целевой базы. |
+| `targetTable` | Целевая таблица. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### SwapLines
 
@@ -614,15 +614,15 @@ public void SwapLines(int id1, int id2, string tableName = null, bool log = fals
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1339)
 
-Exchanges the values of all columns except `id` between two rows.
+Меняет местами значения всех колонок, кроме `id`, у двух строк.
 
 | Параметр | Описание |
 |---|---|
-| `id1` | First row id. |
-| `id2` | Second row id. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Throw when a row is not found; otherwise it is logged and nothing changes. |
+| `id1` | Id первой строки. |
+| `id2` | Id второй строки. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Бросать исключение, если строка не найдена; иначе это пишется в лог и ничего не меняется. |
 
 ### TableExists
 
@@ -632,12 +632,12 @@ public bool TableExists(string tableName, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L1005)
 
-Checks whether the table exists (in the `public` schema on PostgreSQL).
+Проверяет, есть ли таблица (на PostgreSQL — в схеме `public`).
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table name; double quotes are ignored. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
+| `tableName` | Имя таблицы; двойные кавычки игнорируются. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
 
 ### Upd
 
@@ -647,17 +647,17 @@ public void Upd(string setClause, string tableName = null, bool log = false, boo
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L285)
 
-Runs `UPDATE … SET setClause` for the row where `key` = `id`, or for the rows matching `where`.
+Выполняет `UPDATE … SET setClause` для строки, где `key` = `id`, или для строк, подходящих под `where`.
 
 | Параметр | Описание |
 |---|---|
-| `setClause` | Assignments such as `status = 'ok', note = ''`; column names are quoted, values are taken as written. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`, inserted into the SQL as written: quote text values yourself. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `setClause` | Присваивания вида `status = 'ok', note = ''`; имена колонок берутся в кавычки, значения — как написаны. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`, подставляется в SQL как написано: текстовые значения бери в кавычки сам. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
 ### UpdFromDict
 
@@ -667,13 +667,13 @@ public void UpdFromDict(Dictionary<string, string> data, string tableName = null
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/Db.cs#L320)
 
-Updates the rows matching `where` from a dictionary, adding missing columns first. A key `id` is written to the column `_id`. Single quotes are removed from values.
+Обновляет строки, подходящие под `where`, из словаря, сначала добавив недостающие колонки. Ключ `id` пишется в колонку `_id`. Одинарные кавычки из значений удаляются.
 
 | Параметр | Описание |
 |---|---|
-| `data` | Column → value. |
-| `tableName` | Table; default is the table given to the constructor. |
-| `log` | Write the query and its result to the project log even when the logger level is `Off`. A `Db` created without a project writes nothing. |
-| `thrw` | Rethrow a database error instead of returning an empty result. |
-| `where` | Raw SQL condition; required. |
+| `data` | Колонка → значение. |
+| `tableName` | Таблица; по умолчанию та, что передана в конструктор. |
+| `log` | Писать запрос и его результат в лог проекта, даже если уровень логгера `Off`. `Db`, созданный без проекта, ничего не пишет. |
+| `thrw` | Пробрасывать ошибку базы, а не возвращать пустой результат. |
+| `where` | Сырое SQL-условие; обязательно. |
 

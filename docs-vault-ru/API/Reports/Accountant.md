@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Accountant
 ```
 
-HTML reports of account balances from the `_native` table, colour-coded by amount.
+HTML-отчёты о балансах аккаунтов из таблицы `_native` с цветовой разметкой по сумме.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public Accountant(IZennoPosterProjectModel project, Logger log = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L46)
 
-Creates the report builder.
+Создаёт построитель отчётов.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Not used. |
+| `log` | Не используется. |
 
 ## Методы
 
@@ -40,13 +40,13 @@ public void ShowBalanceTable(string chains = null, bool single = false, bool cal
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L65)
 
-Writes a balance table of accounts up to `rangeEnd` to `{project.Path}/.data/balanceReport.html`. Up to 3 columns and 100+ rows are laid out as several 50-row blocks side by side. The `{project.Path}/.data` folder must exist.
+Пишет таблицу балансов аккаунтов до `rangeEnd` в `{project.Path}/.data/balanceReport.html`. До 3 колонок и 100+ строк раскладываются в несколько блоков по 50 строк рядом. Папка `{project.Path}/.data` должна существовать.
 
 | Параметр | Описание |
 |---|---|
-| `chains` | Comma-separated columns of `_native`; default all. |
-| `single` | Always use one table. |
-| `call` | Open the file with the default program afterwards. |
+| `chains` | Колонки `_native` через запятую; по умолчанию все. |
+| `single` | Всегда использовать одну таблицу. |
+| `call` | Потом открыть файл программой по умолчанию. |
 
 ### ShowBalanceTableFromList
 
@@ -56,12 +56,12 @@ public void ShowBalanceTableFromList(List<string> data, bool call = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L206)
 
-Writes a balance table from `account:balance` lines to `{project.Path}/.data/balanceListReport.html`; other lines are skipped. The `{project.Path}/.data` folder must exist.
+Пишет таблицу балансов из строк `account:balance` в `{project.Path}/.data/balanceListReport.html`; остальные строки пропускаются. Папка `{project.Path}/.data` должна существовать.
 
 | Параметр | Описание |
 |---|---|
-| `data` | Lines `account:balance`. |
-| `call` | Open the file with the default program afterwards. |
+| `data` | Строки вида `account:balance`. |
+| `call` | Потом открыть файл программой по умолчанию. |
 
 ### ShowBalanceTableHeatmap
 
@@ -71,10 +71,10 @@ public void ShowBalanceTableHeatmap(string chains = null, bool call = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L115)
 
-Writes a heatmap of balances per account and chain to `{project.Path}/.data/balanceHeatmap.html`. The `{project.Path}/.data` folder must exist.
+Пишет тепловую карту балансов по аккаунтам и сетям в `{project.Path}/.data/balanceHeatmap.html`. Папка `{project.Path}/.data` должна существовать.
 
 | Параметр | Описание |
 |---|---|
-| `chains` | Comma-separated columns of `_native`; default all except `id`. |
-| `call` | Open the file with the default program afterwards. |
+| `chains` | Колонки `_native` через запятую; по умолчанию все, кроме `id`. |
+| `call` | Потом открыть файл программой по умолчанию. |
 

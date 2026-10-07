@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class GmailClient
 ```
 
-Gmail access over the Gmail API with an OAuth refresh token. Credentials come from the `_api` table, row `id = 'gmail'`: `client_id`, `client_secret`, `refresh_token`. A new access token is requested before every operation.
+Доступ к Gmail через Gmail API по OAuth refresh token. Учётные данные берутся из таблицы `_api`, строка `id = 'gmail'`: `client_id`, `client_secret`, `refresh_token`. Перед каждой операцией запрашивается новый access token.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public GmailClient(IZennoPosterProjectModel project, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/GMail.cs#L34)
 
-Creates the client and reads the credentials from the database.
+Создаёт клиент и читает учётные данные из базы.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Log requests and responses. |
+| `log` | Писать запросы и ответы в лог. |
 
 ## Методы
 
@@ -40,13 +40,13 @@ public string GetLink(string targetEmail)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/GMail.cs#L190)
 
-Returns the first http(s) link in the plain-text body of the newest of the last 5 messages (within 5 minutes) sent to `targetEmail`.
+Возвращает первую ссылку http(s) из текстового тела самого нового из последних 5 писем (за 5 минут), отправленных на `targetEmail`.
 
 | Параметр | Описание |
 |---|---|
-| `targetEmail` | Address the message must be sent to (matched against the `To` header). |
+| `targetEmail` | Адрес, на который должно быть отправлено письмо (сверяется с заголовком `To`). |
 
-**Возвращает:** The link. Throws when none is found.
+**Возвращает:** Ссылка. Бросает исключение, если ссылка не найдена.
 
 ### Otp
 
@@ -56,14 +56,14 @@ public string Otp(string targetEmail, int maxResults = 10)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/GMail.cs#L159)
 
-Looks through messages of the last 5 minutes sent to `targetEmail` and returns the first 6-digit number of the subject, else of the plain-text body.
+Просматривает письма за последние 5 минут, отправленные на `targetEmail`, и возвращает первое 6-значное число из темы, иначе из текстового тела.
 
 | Параметр | Описание |
 |---|---|
-| `targetEmail` | Address the message must be sent to (matched against the `To` header). |
-| `maxResults` | How many recent messages to check. |
+| `targetEmail` | Адрес, на который должно быть отправлено письмо (сверяется с заголовком `To`). |
+| `maxResults` | Сколько последних писем проверять. |
 
-**Возвращает:** The code. Throws when none is found.
+**Возвращает:** Код. Бросает исключение, если код не найден.
 
 ### SendMail
 
@@ -73,11 +73,11 @@ public void SendMail(string to, string subject, string body)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/GMail.cs#L224)
 
-Sends a plain-text message from this mailbox.
+Отправляет текстовое письмо из этого ящика.
 
 | Параметр | Описание |
 |---|---|
-| `to` | Recipient. |
-| `subject` | Subject. |
-| `body` | Text. |
+| `to` | Получатель. |
+| `subject` | Тема. |
+| `body` | Текст. |
 

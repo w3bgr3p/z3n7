@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class Vars
 ```
 
-Short accessors for project variables: read, write, parse, count.
+Короткие методы для переменных проекта: чтение, запись, разбор, счётчики.
 
 ## Методы
 
@@ -24,7 +24,7 @@ public static bool Bool(this IZennoPosterProjectModel project, string var)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L96)
 
-Returns `true` when the project variable equals `True` exactly.
+Возвращает `true`, если переменная проекта в точности равна `True`.
 
 ### Decimal
 
@@ -34,7 +34,7 @@ public static decimal Decimal(this IZennoPosterProjectModel project, string var)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L83)
 
-Returns a project variable parsed as `decimal` (current culture), or 0 when it cannot be parsed.
+Возвращает переменную проекта, разобранную как `decimal` (текущая культура), или 0, если разобрать не удалось.
 
 ### Int
 
@@ -44,7 +44,7 @@ public static int Int(this IZennoPosterProjectModel project, string var)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L59)
 
-Returns a project variable parsed as `int`, or 0 when it is empty or not a number.
+Возвращает переменную проекта, разобранную как `int`, или 0, если она пустая или не число.
 
 ```csharp
 public static int Int(this IZennoPosterProjectModel project, string varName, int input)
@@ -52,9 +52,9 @@ public static int Int(this IZennoPosterProjectModel project, string varName, int
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L73)
 
-Adds `input` to an integer project variable and stores the result.
+Прибавляет `input` к целочисленной переменной проекта и сохраняет результат.
 
-**Возвращает:** The new value.
+**Возвращает:** Новое значение.
 
 ### MaxErr
 
@@ -64,12 +64,12 @@ public static void MaxErr(this IZennoPosterProjectModel project, int maxAttempts
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L108)
 
-Error counter for retry loops. Stores the error text in `err` and increments `maxErr`; once `maxErr` exceeds `maxAttempts`, writes a warning and throws.
+Счётчик ошибок для циклов с повтором. Сохраняет текст ошибки в `err` и увеличивает `maxErr`; когда `maxErr` превышает `maxAttempts`, пишет предупреждение и бросает исключение.
 
 | Параметр | Описание |
 |---|---|
-| `maxAttempts` | Number of errors tolerated. |
-| `ex` | The error; when null, `project.LastErrorComment` is used. |
+| `maxAttempts` | Сколько ошибок допускается. |
+| `ex` | Ошибка; если null, используется `project.LastErrorComment`. |
 
 ### Range
 
@@ -79,15 +79,15 @@ public static List<string> Range(this IZennoPosterProjectModel project, string a
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L258)
 
-Parses an account range and stores it in `rangeStart`, `rangeEnd` and `range` (comma-separated list). Accepted forms: `5`, `1-10`, `1,4,7`. Anything after `:` is ignored.
+Разбирает диапазон аккаунтов и сохраняет его в `rangeStart`, `rangeEnd` и `range` (список через запятую). Допустимые формы: `5`, `1-10`, `1,4,7`. Всё после `:` игнорируется.
 
 | Параметр | Описание |
 |---|---|
-| `accRange` | Range text; when empty, the `cfgAccRange` variable is used. |
-| `output` | Not used. |
-| `log` | Not used. |
+| `accRange` | Текст диапазона; если пусто, берётся переменная `cfgAccRange`. |
+| `output` | Не используется. |
+| `log` | Не используется. |
 
-**Возвращает:** Account numbers as strings, or `null` (with a warning) when no range is given.
+**Возвращает:** Номера аккаунтов строками или `null` (с предупреждением), если диапазон не задан.
 
 ### Var
 
@@ -97,11 +97,11 @@ public static string Var(this IZennoPosterProjectModel project, string var)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L22)
 
-Returns the value of a project variable. A missing variable is reported to the log and an empty string is returned.
+Возвращает значение переменной проекта. Если переменной нет, это пишется в лог и возвращается пустая строка.
 
 | Параметр | Описание |
 |---|---|
-| `var` | Variable name. |
+| `var` | Имя переменной. |
 
 ```csharp
 public static string Var(this IZennoPosterProjectModel project, string var, object value)
@@ -109,14 +109,14 @@ public static string Var(this IZennoPosterProjectModel project, string var, obje
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L45)
 
-Sets a project variable to `value.ToString()`. `null` is ignored. A missing variable is reported to the log, nothing is thrown.
+Записывает в переменную проекта `value.ToString()`. `null` игнорируется. Если переменной нет, это пишется в лог, исключение не бросается.
 
 | Параметр | Описание |
 |---|---|
-| `var` | Variable name. |
-| `value` | New value. |
+| `var` | Имя переменной. |
+| `value` | Новое значение. |
 
-**Возвращает:** Always an empty string.
+**Возвращает:** Всегда пустая строка.
 
 ### VarAdd
 
@@ -126,15 +126,15 @@ public static bool VarAdd(this IZennoPosterProjectModel project, string name, st
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L140)
 
-Adds a variable to the project open in ProjectMaker through the local ZennoPoster API (`http://localhost:5299`). Development-time only: it edits ProjectMaker's in-memory copy of the project, so a task running in the runner is not affected. Save the project to keep the change. The API key is read from `ZENNO_API_KEY` in the `.env` next to `z3n7.dll`; the key tier must be T1 or higher.
+Добавляет переменную в проект, открытый в ProjectMaker, через локальный API ZennoPoster (`http://localhost:5299`). Только для разработки: меняет копию проекта в памяти ProjectMaker, на задачу в раннере это не влияет. Чтобы изменение осталось, сохрани проект. API-ключ читается из `ZENNO_API_KEY` в `.env` рядом с `z3n7.dll`; уровень ключа — T1 или выше.
 
 | Параметр | Описание |
 |---|---|
-| `name` | Variable name. |
-| `defaultValue` | Initial value. |
-| `comment` | Variable comment. |
+| `name` | Имя переменной. |
+| `defaultValue` | Начальное значение. |
+| `comment` | Комментарий к переменной. |
 
-**Возвращает:** `true` when the API answered `RESULT_OK`; otherwise the answer is written to the log as a warning.
+**Возвращает:** `true`, если API ответил `RESULT_OK`; иначе ответ пишется в лог как предупреждение.
 
 ### VarCounter
 
@@ -144,9 +144,9 @@ public static int VarCounter(this IZennoPosterProjectModel project, string varNa
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L188)
 
-Adds `input` to an integer project variable and stores the result. Same as `Int(varName, input)`.
+Прибавляет `input` к целочисленной переменной проекта и сохраняет результат. То же, что `Int(varName, input)`.
 
-**Возвращает:** The new value.
+**Возвращает:** Новое значение.
 
 ### VarRnd
 
@@ -156,11 +156,11 @@ public static string VarRnd(this IZennoPosterProjectModel project, string var)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L162)
 
-Reads a project variable. A value like `10-20` returns a random integer from 10 (inclusive) to 20 (exclusive); any other value is returned trimmed.
+Читает переменную проекта. Значение вида `10-20` возвращает случайное целое от 10 (включительно) до 20 (не включая); любое другое значение возвращается без пробелов по краям.
 
 | Параметр | Описание |
 |---|---|
-| `var` | Variable name. |
+| `var` | Имя переменной. |
 
 ### VarsFromDict
 
@@ -170,7 +170,7 @@ public static void VarsFromDict(this IZennoPosterProjectModel project, Dictionar
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L232)
 
-Sets a project variable for every key of the dictionary.
+Задаёт переменную проекта для каждого ключа словаря.
 
 ### VarsFromJson
 
@@ -180,11 +180,11 @@ public static void VarsFromJson(this IZennoPosterProjectModel project, string js
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L242)
 
-Sets project variables from a flat JSON object of string values.
+Задаёт переменные проекта из плоского JSON-объекта со строковыми значениями.
 
 | Параметр | Описание |
 |---|---|
-| `json` | JSON text, or the default `jVars` to read the JSON from the `jVars` variable. |
+| `json` | Текст JSON или значение по умолчанию `jVars`, чтобы прочитать JSON из переменной `jVars`. |
 
 ### VarsMath
 
@@ -194,14 +194,14 @@ public static decimal VarsMath(this IZennoPosterProjectModel project, string var
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L203)
 
-Applies `+`, `-`, `*` or `/` to two project variables parsed as `decimal` (invariant culture). Other operations throw.
+Применяет `+`, `-`, `*` или `/` к двум переменным проекта, разобранным как `decimal` (инвариантная культура). Другие операции бросают исключение.
 
 | Параметр | Описание |
 |---|---|
-| `varA` | Left operand variable. |
-| `operation` | One of `+ - * /`. |
-| `varB` | Right operand variable. |
-| `resultVar` | Variable that receives the result; empty to skip. |
+| `varA` | Переменная левого операнда. |
+| `operation` | Одна из `+ - * /`. |
+| `varB` | Переменная правого операнда. |
+| `resultVar` | Переменная, в которую записывается результат; пусто — не записывать. |
 
-**Возвращает:** The result.
+**Возвращает:** Результат.
 

@@ -14,7 +14,7 @@ public static class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Accounts)]], [[ProjectExtensions (Browser)]], [[ProjectExtensions (Diagnostic)]], [[ProjectExtensions (Essentials)]], [[ProjectExtensions (Mail)]], [[ProjectExtensions (MethodExtensions)]], [[ProjectExtensions (Reports)]], [[ProjectExtensions (Traffic)]]
 
-Project shortcuts for `NetHttp` requests.
+Сокращения для запросов `NetHttp` из проекта.
 
 ## Методы
 
@@ -26,18 +26,18 @@ public static string NetGet(this IZennoPosterProjectModel project, string url, s
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L834)
 
-Sends a GET request through `NetHttp` without logging.
+Отправляет GET-запрос через `NetHttp` без логирования.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `proxyString` | Empty for a direct request. `+` — the `proxy` column of the account's `_instance` row; otherwise `[scheme://][user:pass@]host:port`. The proxy is always used as an HTTP proxy. |
-| `headers` | `Name: value` lines. |
-| `parse` | Load the response body into `project.Json`. |
-| `deadline` | Timeout in seconds; the client itself never waits longer than 30 s. |
-| `thrw` | Throw on a non-2xx status or an error instead of returning a message. |
+| `url` | URL запроса. |
+| `proxyString` | Пусто — прямой запрос. `+` — колонка `proxy` строки аккаунта в `_instance`; иначе `[scheme://][user:pass@]host:port`. Прокси всегда используется как HTTP-прокси. |
+| `headers` | Строки вида `Name: value`. |
+| `parse` | Загрузить тело ответа в `project.Json`. |
+| `deadline` | Таймаут в секундах; сам клиент никогда не ждёт дольше 30 с. |
+| `thrw` | Бросать исключение при статусе не 2xx или ошибке, а не возвращать сообщение. |
 
-**Возвращает:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
+**Возвращает:** Тело без пробелов по краям. При статусе не 2xx: `{code} !!! {reason}`; при таймауте `Timeout: …`; при других ошибках `Error: …`.
 
 ### NetPost
 
@@ -47,17 +47,17 @@ public static string NetPost(this IZennoPosterProjectModel project, string url, 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L860)
 
-Sends a POST request with a JSON body through `NetHttp` without logging.
+Отправляет POST-запрос с телом в JSON через `NetHttp` без логирования.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `body` | JSON body. |
-| `proxyString` | Empty for a direct request. `+` — the `proxy` column of the account's `_instance` row; otherwise `[scheme://][user:pass@]host:port`. The proxy is always used as an HTTP proxy. |
-| `headers` | `Name: value` lines. |
-| `parse` | Load the response body into `project.Json`. |
-| `deadline` | Timeout in seconds; the client itself never waits longer than 30 s. |
-| `thrw` | Throw on a non-2xx status or an error instead of returning a message. |
+| `url` | URL запроса. |
+| `body` | Тело в JSON. |
+| `proxyString` | Пусто — прямой запрос. `+` — колонка `proxy` строки аккаунта в `_instance`; иначе `[scheme://][user:pass@]host:port`. Прокси всегда используется как HTTP-прокси. |
+| `headers` | Строки вида `Name: value`. |
+| `parse` | Загрузить тело ответа в `project.Json`. |
+| `deadline` | Таймаут в секундах; сам клиент никогда не ждёт дольше 30 с. |
+| `thrw` | Бросать исключение при статусе не 2xx или ошибке, а не возвращать сообщение. |
 
-**Возвращает:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
+**Возвращает:** Тело без пробелов по краям. При статусе не 2xx: `{code} !!! {reason}`; при таймауте `Timeout: …`; при других ошибках `Error: …`.
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Telegram
 ```
 
-Sends messages to a Telegram chat topic through the Bot API (`sendMessage` over `NetHttp`). Missing token, chat and topic are read from the `_api` table, row `id = 'tg_logger'`: `apikey` and `extra` = `{chat}/{topic}`.
+Отправляет сообщения в тему чата Telegram через Bot API (`sendMessage` через `NetHttp`). Недостающие токен, чат и тема читаются из таблицы `_api`, строка `id = 'tg_logger'`: `apikey` и `extra` = `{chat}/{topic}`.
 
 ## Конструкторы
 
@@ -24,14 +24,14 @@ public Telegram(IZennoPosterProjectModel project, Logger log = null, string toke
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Telegram.cs#L30)
 
-Creates a client.
+Создаёт клиент.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Logger for progress; `null` logs nothing. |
-| `token` | Bot token. |
-| `group` | Chat id. |
-| `topic` | Message id of the topic to reply to. |
+| `log` | Логгер для хода работы; `null` — ничего не писать. |
+| `token` | Токен бота. |
+| `group` | Id чата. |
+| `topic` | Id сообщения темы, в которую нужно ответить. |
 
 ## Методы
 
@@ -43,7 +43,7 @@ public void Report()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Telegram.cs#L74)
 
-Sends the `failReport` variable as a MarkdownV2 message when it is set; otherwise a success line with the project name and `acc0` as hashtags.
+Отправляет переменную `failReport` сообщением MarkdownV2, если она задана; иначе строку об успехе с именем проекта и `acc0` в виде хештегов.
 
 ### SendCommitsSummary
 
@@ -53,12 +53,12 @@ public string SendCommitsSummary(string summary, bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Telegram.cs#L154)
 
-Sends a text summary as plain text: drops a leading `---` block and replaces `## ` and `# ` headings with emoji markers.
+Отправляет текстовую сводку обычным текстом: отбрасывает блок `---` в начале и заменяет заголовки `## ` и `# ` маркерами-эмодзи.
 
 | Параметр | Описание |
 |---|---|
-| `summary` | Text. |
-| `log` | Not used. |
+| `summary` | Текст. |
+| `log` | Не используется. |
 
 ### SendLongMessage
 
@@ -68,15 +68,15 @@ public string SendLongMessage(string message, bool useMarkdown = false, bool log
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Telegram.cs#L188)
 
-Sends a message, split into parts of up to 4000 characters at paragraph or line boundaries; stops at the first failed part.
+Отправляет сообщение, разбивая его на части до 4000 символов по границам абзацев или строк; останавливается на первой части, которая не ушла.
 
 | Параметр | Описание |
 |---|---|
-| `message` | Text. |
-| `useMarkdown` | Send with Markdown parsing. |
-| `log` | Not used. |
+| `message` | Текст. |
+| `useMarkdown` | Отправлять с разбором Markdown. |
+| `log` | Не используется. |
 
-**Возвращает:** Comma-separated links of the parts, or the error of the failed part.
+**Возвращает:** Ссылки на части через запятую или ошибка той части, которая не загрузилась.
 
 ### SendMarkdown
 
@@ -86,15 +86,15 @@ public string SendMarkdown(string message, bool useMarkdownV2 = false, bool disa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Telegram.cs#L106)
 
-Sends a message with Markdown parsing.
+Отправляет сообщение с разбором Markdown.
 
 | Параметр | Описание |
 |---|---|
-| `message` | Text. |
-| `useMarkdownV2` | Use MarkdownV2 instead of Markdown. |
-| `disableWebPagePreview` | Disable link previews. |
-| `replyToTopic` | Post into the topic. |
-| `log` | Not used. |
+| `message` | Текст. |
+| `useMarkdownV2` | Использовать MarkdownV2 вместо Markdown. |
+| `disableWebPagePreview` | Отключить превью ссылок. |
+| `replyToTopic` | Отправить в тему. |
+| `log` | Не используется. |
 
-**Возвращает:** The link `https://t.me/c/{chat}/{messageId}` on success; otherwise the Telegram answer or `❌ Exception: …`.
+**Возвращает:** Ссылка `https://t.me/c/{chat}/{messageId}` при успехе; иначе ответ Telegram или `❌ Exception: …`.
 

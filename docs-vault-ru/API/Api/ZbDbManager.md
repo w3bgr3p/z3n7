@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class ZbDbManager
 ```
 
-Reading the ZennoBrowser profile database and parsing its profile lists.
+Чтение базы профилей ZennoBrowser и разбор её списков профилей.
 
 ## Методы
 
@@ -24,15 +24,15 @@ public static string ZBDbGet(this IZennoPosterProjectModel project, string query
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L94)
 
-Reads `query` columns of the profile whose id is in the `zb_id` variable, directly from `%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db`.
+Читает колонки `query` профиля, id которого лежит в переменной `zb_id`, напрямую из `%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db`.
 
 | Параметр | Описание |
 |---|---|
-| `query` | Comma-separated column names. |
-| `tableName` | Table. |
-| `log` | Write the query and its result to the log. |
+| `query` | Имена колонок через запятую. |
+| `tableName` | Таблица. |
+| `log` | Записать запрос и его результат в лог. |
 
-**Возвращает:** Columns joined by `¦`; empty when there is no such profile.
+**Возвращает:** Колонки через `¦`; пусто, если такого профиля нет.
 
 ### ZBIdDic
 
@@ -42,12 +42,12 @@ public static Dictionary<string, string> ZBIdDic(this IZennoPosterProjectModel p
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L110)
 
-Maps profile names to ids from a JSON array of ZennoBrowser profiles (`Name`, `Id`, `FolderName`); for duplicate names the first wins.
+Сопоставляет имена профилей с id по JSON-массиву профилей ZennoBrowser (`Name`, `Id`, `FolderName`); при повторе имени побеждает первый.
 
 | Параметр | Описание |
 |---|---|
-| `json` | JSON array of profiles. |
-| `folder` | Only profiles of this folder; empty for all. |
+| `json` | JSON-массив профилей. |
+| `folder` | Только профили этой папки; пусто — все. |
 
 ### ZBIdList
 
@@ -57,10 +57,10 @@ public static List<string> ZBIdList(this IZennoPosterProjectModel project, strin
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L128)
 
-Profile ids of a folder from a JSON array of profiles (see `ZBIdDic`).
+Id профилей папки из JSON-массива профилей (см. `ZBIdDic`).
 
 | Параметр | Описание |
 |---|---|
-| `json` | JSON array of profiles. |
-| `folder` | Folder name. |
+| `json` | JSON-массив профилей. |
+| `folder` | Имя папки. |
 

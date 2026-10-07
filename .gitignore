@@ -9,5 +9,6 @@ riderModule.iml
 /dllReady/
 /Numlex/
 .env
-
+icon.png
 /ZennoLab/ExternalAssemblies/
+tools/DocGen/i18n/*.todo.json

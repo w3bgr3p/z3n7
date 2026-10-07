@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class Extractor
 ```
 
-Reading and writing ZennoPoster project files (.zp) through ProjectMaker's own loader, and searching their actions. Works only inside ProjectMaker: it uses the ProjectMaker assembly loaded in the process and does nothing elsewhere.
+Чтение и запись файлов проектов ZennoPoster (.zp) собственным загрузчиком ProjectMaker и поиск по их действиям. Работает только внутри ProjectMaker: использует сборку ProjectMaker, загруженную в процесс, а в других местах ничего не делает.
 
 ## Методы
 
@@ -24,12 +24,12 @@ public static void BuildZpFromXml(this IZennoPosterProjectModel project, string 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L146)
 
-Builds a .zp file from project XML, using the current project file as the container.
+Собирает файл .zp из XML проекта; контейнером служит файл текущего проекта.
 
 | Параметр | Описание |
 |---|---|
-| `xml` | Project XML; default is the current project's `.xml` next to it. |
-| `zpPath` | Target file; default is the project name with a Unix-ms suffix, e.g. `name.1730000000000.zp`. |
+| `xml` | XML проекта; по умолчанию `.xml` текущего проекта рядом с ним. |
+| `zpPath` | Целевой файл; по умолчанию имя проекта с суффиксом в Unix-мс, например `name.1730000000000.zp`. |
 
 ### ExtractInputSettingsHtml
 
@@ -39,9 +39,9 @@ public static string ExtractInputSettingsHtml(string zpPath)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L58)
 
-Reads the input settings HTML (`InputSettings/inputSettings.html`) of a .zp file.
+Читает HTML входных настроек (`InputSettings/inputSettings.html`) файла .zp.
 
-**Возвращает:** The HTML without BOM; `null` outside ProjectMaker.
+**Возвращает:** HTML без BOM; `null` вне ProjectMaker.
 
 ### ExtractXml
 
@@ -51,13 +51,13 @@ public static string ExtractXml(string zpPath)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L24)
 
-Unpacks the project XML of a .zp file.
+Распаковывает XML проекта из файла .zp.
 
 | Параметр | Описание |
 |---|---|
-| `zpPath` | Project file. |
+| `zpPath` | Файл проекта. |
 
-**Возвращает:** The XML; the loader's exception text when it fails; `null` outside ProjectMaker.
+**Возвращает:** XML; текст исключения загрузчика при сбое; `null` вне ProjectMaker.
 
 ### SaveAsXml
 
@@ -67,11 +67,11 @@ public static void SaveAsXml(this IZennoPosterProjectModel project, string xmlPa
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L48)
 
-Unpacks the current project to XML (UTF-16).
+Распаковывает текущий проект в XML (UTF-16).
 
 | Параметр | Описание |
 |---|---|
-| `xmlPath` | Target file; default is the project file name with `.xml`. |
+| `xmlPath` | Целевой файл; по умолчанию имя файла проекта с `.xml`. |
 
 ### SaveInputSettingsHtml
 
@@ -81,7 +81,7 @@ public static void SaveInputSettingsHtml(string zpPath, string html)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L82)
 
-Replaces the input settings HTML inside the .zp file itself.
+Заменяет HTML входных настроек внутри самого файла .zp.
 
 ```csharp
 public static void SaveInputSettingsHtml(string zpPath, string html, string outputZpPath)
@@ -89,13 +89,13 @@ public static void SaveInputSettingsHtml(string zpPath, string html, string outp
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L94)
 
-Writes a copy of the .zp file with the input settings HTML replaced. When the output is the source file, it is written through a temporary file.
+Записывает копию файла .zp с заменённым HTML входных настроек. Если выходной файл — это исходный, запись идёт через временный файл.
 
 | Параметр | Описание |
 |---|---|
-| `zpPath` | Source project. |
-| `html` | New input settings HTML. |
-| `outputZpPath` | Target project file. |
+| `zpPath` | Проект-источник. |
+| `html` | Новый HTML входных настроек. |
+| `outputZpPath` | Целевой файл проекта. |
 
 ### SearchInZp
 
@@ -105,15 +105,15 @@ public static List<SearchHit> SearchInZp(this IZennoPosterProjectModel project, 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Extractor.cs#L243)
 
-Finds text in the actions of every .zp file in a folder (case-insensitive, in attributes and values; XML entities are decoded for matching). One hit per action; each hit is also written to the log. Unpacking takes about a second per file, so unpacked XML can be cached in a hidden `.xml` folder; the cache file name holds the project's modification time and size, so a changed project is re-read automatically.
+Ищет текст в действиях всех файлов .zp в папке (без учёта регистра, в атрибутах и значениях; XML-сущности при сравнении декодируются). Одно совпадение на действие; каждое совпадение также пишется в лог. Распаковка занимает около секунды на файл, поэтому распакованный XML можно кешировать в скрытой папке `.xml`; в имени файла кеша — время изменения и размер проекта, так что изменённый проект перечитывается сам.
 
 | Параметр | Описание |
 |---|---|
-| `text` | Text to find. |
-| `folder` | Folder; default is the project folder. |
-| `recursive` | Include subfolders. |
-| `cache` | Use the XML cache. |
-| `padding` | Characters of context on each side. |
+| `text` | Текст для поиска. |
+| `folder` | Папка; по умолчанию папка проекта. |
+| `recursive` | Включать подпапки. |
+| `cache` | Использовать кеш XML. |
+| `padding` | Сколько символов контекста брать с каждой стороны. |
 
-**Примечания:** Works only inside ProjectMaker: it uses the ProjectMaker assembly loaded in the process and does nothing elsewhere.
+**Примечания:** Работает только внутри ProjectMaker: использует сборку ProjectMaker, загруженную в процесс, а в других местах ничего не делает.
 

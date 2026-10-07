@@ -14,7 +14,7 @@ public static class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Accounts)]], [[ProjectExtensions (Browser)]], [[ProjectExtensions (Diagnostic)]], [[ProjectExtensions (Mail)]], [[ProjectExtensions (MethodExtensions)]], [[ProjectExtensions (Reports)]], [[ProjectExtensions (Requests)]], [[ProjectExtensions (Traffic)]]
 
-Extension methods on `IZennoPosterProjectModel`: start-up, logging, timing and running other projects.
+Методы расширения для `IZennoPosterProjectModel`: старт, логирование, тайминги и запуск других проектов.
 
 ## Методы
 
@@ -26,11 +26,11 @@ public static T Age<T>(this IZennoPosterProjectModel project, string var = null)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L194)
 
-Age of the session: time since the Unix milliseconds stored in `var`. When the variable does not hold a number, it is set to now first. `string` returns `TimeSpan.ToString()`, `TimeSpan` returns the span, any other type receives whole seconds converted with `Convert.ChangeType`.
+Возраст сессии: время, прошедшее с момента в Unix-миллисекундах, сохранённого в `var`. Если в переменной не число, сначала в неё записывается текущий момент. `string` возвращает `TimeSpan.ToString()`, `TimeSpan` — сам интервал, любой другой тип получает целые секунды, приведённые через `Convert.ChangeType`.
 
 | Параметр | Описание |
 |---|---|
-| `var` | Variable with the start time; default `varSessionId`. |
+| `var` | Переменная с временем старта; по умолчанию `varSessionId`. |
 
 ### Deadline
 
@@ -40,12 +40,12 @@ public static int Deadline(this IZennoPosterProjectModel project, int sec = 0, b
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L252)
 
-Two-call deadline based on the `t0` variable. With `sec` = 0 it stores the current time and returns 0; with `sec` &gt; 0 it returns the seconds since then and throws when they exceed `sec`.
+Дедлайн на два вызова по переменной `t0`. При `sec` = 0 сохраняет текущее время и возвращает 0; при `sec` &gt; 0 возвращает число секунд с того момента и бросает исключение, если оно больше `sec`.
 
 | Параметр | Описание |
 |---|---|
-| `sec` | Limit in seconds, or 0 to start. |
-| `log` | Write the elapsed seconds to the log. |
+| `sec` | Предел в секундах или 0 для старта. |
+| `log` | Писать в лог число прошедших секунд. |
 
 ### InitVariables
 
@@ -55,12 +55,12 @@ public static void InitVariables(this IZennoPosterProjectModel project, Instance
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Init.cs#L144)
 
-Runs `Init.InitVariables` and then starts the embedded server (`StartZpServer`). A server start failure is written to the log as a warning and does not stop the project.
+Выполняет `Init.InitVariables`, затем запускает встроенный сервер (`StartZpServer`). Ошибка запуска сервера пишется в лог как предупреждение и не останавливает проект.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance of the project. |
-| `author` | Script author shown in the start banner. |
+| `instance` | Инстанс браузера проекта. |
+| `author` | Автор скрипта, который показывается в стартовом баннере. |
 
 ### log
 
@@ -70,13 +70,13 @@ public static void log(this IZennoPosterProjectModel project, object toLog, [Cal
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L209)
 
-Writes a message to the project log through a default `Logger`. When called directly from a C# action, the generated action name is replaced by the project name.
+Пишет сообщение в лог проекта через `Logger` по умолчанию. Если вызван прямо из C#-кубика, сгенерированное имя кубика заменяется именем проекта.
 
 | Параметр | Описание |
 |---|---|
-| `toLog` | Message. |
-| `show` | Write even if below the minimum level. |
-| `toZp` | Write to the ZennoPoster log. |
+| `toLog` | Сообщение. |
+| `show` | Писать, даже если ниже минимального уровня. |
+| `toZp` | Писать в лог ZennoPoster. |
 
 ### RunZp
 
@@ -86,13 +86,13 @@ public static bool RunZp(this IZennoPosterProjectModel project, List<string> var
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/ExternalCode.cs#L19)
 
-Runs the project whose path is stored in the `projectScript` variable, via `ExecuteProject`. Each name in `vars` is mapped to the variable of the same name in the called project. An exception is written to the log as a warning and rethrown.
+Запускает проект, путь к которому лежит в переменной `projectScript`, через `ExecuteProject`. Каждое имя из `vars` сопоставляется с переменной того же имени в вызываемом проекте. Исключение пишется в лог как предупреждение и пробрасывается дальше.
 
 | Параметр | Описание |
 |---|---|
-| `vars` | Variable names to pass to the called project. |
+| `vars` | Имена переменных, которые передаются в вызываемый проект. |
 
-**Возвращает:** The result of `ExecuteProject`.
+**Возвращает:** Результат `ExecuteProject`.
 
 ```csharp
 public static bool RunZp(this IZennoPosterProjectModel project, string path)
@@ -100,13 +100,13 @@ public static bool RunZp(this IZennoPosterProjectModel project, string path)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/ExternalCode.cs#L52)
 
-Runs the project at `path` via `ExecuteProject`, passing a fixed set of variables by name: `acc0`, `cfgLog`, `cfgPin`, `DBmode`, `DBpstgrPass`, `DBpstgrUser`, `DBsqltPath`, `instancePort`, `lastQuery`, `varSessionId`, `wkMode`.
+Запускает проект по пути `path` через `ExecuteProject` и передаёт по имени фиксированный набор переменных: `acc0`, `cfgLog`, `cfgPin`, `DBmode`, `DBpstgrPass`, `DBpstgrUser`, `DBsqltPath`, `instancePort`, `lastQuery`, `varSessionId`, `wkMode`.
 
 | Параметр | Описание |
 |---|---|
-| `path` | Path to the .zp file. |
+| `path` | Путь к файлу .zp. |
 
-**Возвращает:** The result of `ExecuteProject`.
+**Возвращает:** Результат `ExecuteProject`.
 
 ### StartSession
 
@@ -116,7 +116,7 @@ public static void StartSession(this IZennoPosterProjectModel project)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L273)
 
-Waits a random 0–1 s and stores the current Unix milliseconds in `varSessionId`.
+Ждёт случайные 0–1 с и сохраняет текущие Unix-миллисекунды в `varSessionId`.
 
 ### TimeElapsed
 
@@ -126,11 +126,11 @@ public static int TimeElapsed(this IZennoPosterProjectModel project, string varN
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L178)
 
-Seconds since the time stored (as Unix milliseconds) in a project variable.
+Секунды, прошедшие с момента, сохранённого (в Unix-миллисекундах) в переменной проекта.
 
 | Параметр | Описание |
 |---|---|
-| `varName` | Variable with the start time; default is the session start, `varSessionId`. |
+| `varName` | Переменная с временем старта; по умолчанию начало сессии, `varSessionId`. |
 
 ### TimeOut
 
@@ -140,11 +140,11 @@ public static void TimeOut(this IZennoPosterProjectModel project, int min = 0)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L233)
 
-Throws once the session (`varSessionId`) is older than `min` minutes. The message names the last executed action.
+Бросает исключение, как только сессия (`varSessionId`) становится старше `min` минут. В сообщении указано последнее выполненное действие.
 
 | Параметр | Описание |
 |---|---|
-| `min` | Limit in minutes; 0 reads it from the `timeOut` variable. |
+| `min` | Предел в минутах; 0 — прочитать из переменной `timeOut`. |
 
 ### warn
 
@@ -154,13 +154,13 @@ public static void warn(this IZennoPosterProjectModel project, string msg, bool 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L225)
 
-Writes a warning to the project log.
+Пишет предупреждение в лог проекта.
 
 | Параметр | Описание |
 |---|---|
-| `msg` | Message. |
-| `thrw` | Also store the message in the `err` variable and throw an `Exception`. |
-| `show` | Write even if below the minimum level. |
+| `msg` | Сообщение. |
+| `thrw` | Заодно сохранить сообщение в переменную `err` и бросить `Exception`. |
+| `show` | Писать, даже если ниже минимального уровня. |
 
 ```csharp
 public static void warn(this IZennoPosterProjectModel project, Exception ex, bool thrw = false, bool withStack = false, bool toZp = true, [CallerMemberName] string caller = "")
@@ -168,12 +168,12 @@ public static void warn(this IZennoPosterProjectModel project, Exception ex, boo
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L244)
 
-Writes an exception message as a warning and stores it in the `err` variable.
+Пишет сообщение исключения как предупреждение и сохраняет его в переменную `err`.
 
 | Параметр | Описание |
 |---|---|
-| `ex` | Exception to report. |
-| `thrw` | Throw an `Exception` with the message after writing. |
-| `withStack` | Append the stack trace. |
-| `toZp` | Not used. |
+| `ex` | Исключение для отчёта. |
+| `thrw` | После записи бросить `Exception` с сообщением. |
+| `withStack` | Добавить стек вызовов. |
+| `toZp` | Не используется. |
 

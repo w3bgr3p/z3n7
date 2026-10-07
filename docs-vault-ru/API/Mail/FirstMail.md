@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class FirstMail
 ```
 
-Client of the FirstMail mailbox API (`firstmail.ltd`). API key, default login, password and proxy come from the `_api` table, row `id = 'firstmail'` (`apikey`, `apisecret`, `passphrase`, `proxy`). Responses are loaded into `project.Json`. The client signs in to the mailbox that receives forwarded mail. An `email` argument is the original recipient: the address the message was sent to, which forwarded it to this mailbox.
+Клиент API почты FirstMail (`firstmail.ltd`). API-ключ, логин по умолчанию, пароль и прокси берутся из таблицы `_api`, строка `id = 'firstmail'` (`apikey`, `apisecret`, `passphrase`, `proxy`). Ответы загружаются в `project.Json`. Клиент входит в ящик, на который пересылается почта. Аргумент `email` — исходный получатель: адрес, на который было отправлено письмо и который переслал его в этот ящик.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public FirstMail(IZennoPosterProjectModel project, Logger log = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L44)
 
-Creates a client for the mailbox stored in the database.
+Создаёт клиент для ящика, сохранённого в базе.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Not used. |
+| `log` | Не используется. |
 
 ```csharp
 public FirstMail(IZennoPosterProjectModel project, string mail, string password, Logger log = null)
@@ -36,13 +36,13 @@ public FirstMail(IZennoPosterProjectModel project, string mail, string password,
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L56)
 
-Creates a client for the given mailbox; the API key and proxy still come from the database.
+Создаёт клиент для заданного ящика; API-ключ и прокси всё равно берутся из базы.
 
 | Параметр | Описание |
 |---|---|
-| `mail` | Mailbox address. |
-| `password` | Mailbox password. |
-| `log` | Not used. |
+| `mail` | Адрес ящика. |
+| `password` | Пароль ящика. |
+| `log` | Не используется. |
 
 ## Методы
 
@@ -54,12 +54,12 @@ public string Delete(string email, bool seen = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L81)
 
-Calls `/v1/mail/delete` for the client's mailbox.
+Вызывает `/v1/mail/delete` для ящика клиента.
 
 | Параметр | Описание |
 |---|---|
-| `email` | Original recipient; not used. |
-| `seen` | Append `seen=true` to the request URL. |
+| `email` | Исходный получатель; не используется. |
+| `seen` | Добавить `seen=true` к URL запроса. |
 
 ### Get
 
@@ -69,13 +69,13 @@ public string Get(int limit = 5)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L110)
 
-Latest INBOX messages of the client's mailbox (`/api/v1/email/messages`).
+Последние письма INBOX ящика клиента (`/api/v1/email/messages`).
 
 | Параметр | Описание |
 |---|---|
-| `limit` | How many. |
+| `limit` | Сколько. |
 
-**Возвращает:** JSON array of messages.
+**Возвращает:** JSON-массив писем.
 
 ### GetAll
 
@@ -85,11 +85,11 @@ public string GetAll(string email)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L100)
 
-Messages of the client's mailbox (`/v1/get/messages`).
+Письма ящика клиента (`/v1/get/messages`).
 
 | Параметр | Описание |
 |---|---|
-| `email` | Original recipient; not used. |
+| `email` | Исходный получатель; не используется. |
 
 ### GetLink
 
@@ -99,13 +99,13 @@ public string GetLink(string email)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L164)
 
-Takes the latest message; when its first recipient contains `email`, returns the first http(s) link of its text.
+Берёт последнее письмо; если его первый получатель содержит `email`, возвращает первую ссылку http(s) из его текста.
 
 | Параметр | Описание |
 |---|---|
-| `email` | Original recipient the message was sent to. |
+| `email` | Исходный получатель, на которого было отправлено письмо. |
 
-**Возвращает:** The link. Throws when there is none.
+**Возвращает:** Ссылка. Бросает исключение, если ссылки нет.
 
 ### GetOne
 
@@ -115,11 +115,11 @@ public string GetOne(string email)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L91)
 
-Latest message of the client's mailbox (`/v1/mail/one`).
+Последнее письмо ящика клиента (`/v1/mail/one`).
 
 | Параметр | Описание |
 |---|---|
-| `email` | Original recipient; not used. |
+| `email` | Исходный получатель; не используется. |
 
 ### GetOTP
 
@@ -129,13 +129,13 @@ public string GetOTP(string email)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L129)
 
-Takes the latest message; when its first recipient contains `email`, returns the first 6-digit number of the subject, text or HTML.
+Берёт последнее письмо; если его первый получатель содержит `email`, возвращает первое 6-значное число из темы, текста или HTML.
 
 | Параметр | Описание |
 |---|---|
-| `email` | Original recipient the message was sent to. |
+| `email` | Исходный получатель, на которого было отправлено письмо. |
 
-**Возвращает:** The code. Throws when the latest message is for another address or has no code.
+**Возвращает:** Код. Бросает исключение, если последнее письмо адресовано другому адресу или в нём нет кода.
 
 ### Otp
 
@@ -145,11 +145,11 @@ public string Otp(string email)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L193)
 
-Looks through the latest 5 INBOX messages for one sent to `email` and returns the first 6-digit number of its subject, text or HTML.
+Просматривает последние 5 писем INBOX, ищет отправленное на `email` и возвращает первое 6-значное число из его темы, текста или HTML.
 
 | Параметр | Описание |
 |---|---|
-| `email` | Original recipient the message was sent to. |
+| `email` | Исходный получатель, на которого было отправлено письмо. |
 
-**Возвращает:** The code. Throws when none is found.
+**Возвращает:** Код. Бросает исключение, если код не найден.
 

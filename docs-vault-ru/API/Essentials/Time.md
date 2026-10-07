@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Time
 ```
 
-Time helpers: timestamps, deadlines, random pauses.
+Помощники для времени: метки времени, дедлайны, случайные паузы.
 
 ## Методы
 
@@ -24,12 +24,12 @@ public static string Cd(object input = null, string o = "iso")
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L105)
 
-Returns a point in time counted from now (UTC), for cooldowns stored in the database.
+Возвращает момент времени, отсчитанный от текущего (UTC), для кулдаунов, хранящихся в базе.
 
 | Параметр | Описание |
 |---|---|
-| `input` | `null` — today 23:59:59; `"nextH"` — one minute past the next hour; `int`/`decimal` — that many minutes from now (0 means practically never); other text — a `TimeSpan` such as `"02:30:00"` added to now. |
-| `o` | `iso` (`yyyy-MM-ddTHH:mm:ss.fffZ`) or `unix` (seconds). Anything else throws. |
+| `input` | `null` — сегодня 23:59:59; `"nextH"` — минута после начала следующего часа; `int`/`decimal` — столько минут от текущего момента (0 означает практически никогда); другой текст — `TimeSpan` вроде `"02:30:00"`, прибавленный к текущему моменту. |
+| `o` | `iso` (`yyyy-MM-ddTHH:mm:ss.fffZ`) или `unix` (секунды). Всё остальное приводит к исключению. |
 
 ### Elapsed
 
@@ -39,12 +39,12 @@ public static long Elapsed(long startTime = 0, bool useMs = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L140)
 
-Time since `startTime`, or the current Unix time when `startTime` is 0.
+Время, прошедшее с `startTime`, или текущее Unix-время, если `startTime` равно 0.
 
 | Параметр | Описание |
 |---|---|
-| `startTime` | Start as Unix time in the same unit as `useMs` selects. |
-| `useMs` | Milliseconds instead of seconds. |
+| `startTime` | Старт в Unix-времени в той же единице, которую задаёт `useMs`. |
+| `useMs` | Миллисекунды вместо секунд. |
 
 ### Now
 
@@ -54,11 +54,11 @@ public static string Now(string format = "unix")
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L87)
 
-Current UTC time as text.
+Текущее время UTC текстом.
 
 | Параметр | Описание |
 |---|---|
-| `format` | `unix` — milliseconds since epoch; `iso` — `yyyy-MM-ddTHH:mm:ss.fffZ`; `short` — `MM-ddTHH:mm`; `utcToId` — seconds since epoch. Anything else throws. |
+| `format` | `unix` — миллисекунды с начала эпохи; `iso` — `yyyy-MM-ddTHH:mm:ss.fffZ`; `short` — `MM-ddTHH:mm`; `utcToId` — секунды с начала эпохи. Всё остальное приводит к исключению. |
 
 ### TillNextHour
 
@@ -68,5 +68,5 @@ public static int TillNextHour()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L158)
 
-Seconds left until the next full hour, local time.
+Сколько секунд осталось до следующего полного часа, по местному времени.
 

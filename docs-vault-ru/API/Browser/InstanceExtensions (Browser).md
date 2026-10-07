@@ -14,7 +14,7 @@ public static class InstanceExtensions
 
 Другие части этого типа: [[InstanceExtensions (Traffic)]]
 
-Extension methods on `Instance`: image search on page screenshots, clicks, taps and swipes by coordinates, viewport helpers.
+Методы расширения для `Instance`: поиск картинки на скриншотах страницы, клики, тапы и свайпы по координатам, помощь с областью просмотра.
 
 ## Методы
 
@@ -26,12 +26,12 @@ public static int[] CenterArea(this Instance instance, int width = 0, int height
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L652)
 
-Area `[x, y, width, height]` of the given size centred in the viewport.
+Область `[x, y, width, height]` заданного размера по центру области просмотра.
 
 | Параметр | Описание |
 |---|---|
-| `width` | Width; 0 together with `height` = 0 returns the whole viewport. |
-| `height` | Height; 0 means equal to `width`. |
+| `width` | Ширина; 0 вместе с `height` = 0 возвращает всю область просмотра. |
+| `height` | Высота; 0 — равна `width`. |
 
 ### ClearShit
 
@@ -41,7 +41,7 @@ public static void ClearShit(this Instance instance, string domain)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L733)
 
-Closes all tabs, clears cache and cookies of `domain` and opens `about:blank`.
+Закрывает все вкладки, очищает кеш и куки `domain` и открывает `about:blank`.
 
 ### ClickCenter
 
@@ -51,7 +51,7 @@ public static int[] ClickCenter(this Instance instance)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L641)
 
-Clicks the viewport centre; returns the point.
+Кликает в центр области просмотра; возвращает точку.
 
 ### ClickImg
 
@@ -61,17 +61,17 @@ public static int[] ClickImg(this Instance instance, string imgFile, int[] searc
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L592)
 
-Finds the image and clicks its centre.
+Находит картинку и кликает в её центр.
 
 | Параметр | Описание |
 |---|---|
-| `imgFile` | Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64. |
-| `searchArea` | Search area `[x, y, width, height]` in page pixels. |
-| `threshold` | Required similarity, 0–1. |
-| `nativeSearch` | Use `FindImg` (default) instead of `FindImgFast`. |
-| `delay` | Seconds to wait before clicking. |
+| `imgFile` | Картинка-шаблон: путь к файлу (.png, .jpg, .jpeg, .gif, .bmp, .webp) или Base64. |
+| `searchArea` | Область поиска `[x, y, width, height]` в пикселях страницы. |
+| `threshold` | Требуемое сходство, 0–1. |
+| `nativeSearch` | Использовать `FindImg` (по умолчанию), а не `FindImgFast`. |
+| `delay` | Сколько секунд ждать перед кликом. |
 
-**Возвращает:** The clicked point.
+**Возвращает:** Точка клика.
 
 ### CloseExtraTabs
 
@@ -81,12 +81,12 @@ public static void CloseExtraTabs(this Instance instance, bool blank = false, in
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L745)
 
-Closes every tab after the first `tabToKeep`.
+Закрывает все вкладки после первых `tabToKeep`.
 
 | Параметр | Описание |
 |---|---|
-| `blank` | Then open `about:blank` in the active tab. |
-| `tabToKeep` | How many tabs to keep. |
+| `blank` | Затем открыть `about:blank` в активной вкладке. |
+| `tabToKeep` | Сколько вкладок оставить. |
 
 ### CloseNewTab
 
@@ -96,13 +96,13 @@ public static void CloseNewTab(this Instance instance, int deadline = 10, int ta
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L768)
 
-Waits until the number of tabs equals `tabIndex` and closes all but the first.
+Ждёт, пока число вкладок станет равно `tabIndex`, и закрывает все, кроме первой.
 
 | Параметр | Описание |
 |---|---|
-| `deadline` | Seconds to wait. |
-| `tabIndex` | Tab count to wait for. |
-| `thrw` | Throw when it does not happen in time. |
+| `deadline` | Сколько секунд ждать. |
+| `tabIndex` | Сколько вкладок ждать. |
+| `thrw` | Бросать исключение, если это не произошло вовремя. |
 
 ### ConvertToSupportedFormat
 
@@ -112,7 +112,7 @@ public static Bitmap ConvertToSupportedFormat(Bitmap source)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L28)
 
-Returns the bitmap in 24bpp RGB (on a white background), the format AForge template matching needs; a 24bpp bitmap is returned as is.
+Возвращает картинку в 24bpp RGB (на белом фоне) — формат, который нужен для сравнения с шаблоном в AForge; картинка в 24bpp возвращается как есть.
 
 ### CtrlV
 
@@ -122,7 +122,7 @@ public static void CtrlV(this Instance instance, string ToPaste)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L829)
 
-Pastes text through the Windows clipboard (Ctrl+V); the previous clipboard text is restored. Errors are ignored.
+Вставляет текст через буфер обмена Windows (Ctrl+V); прежний текст буфера восстанавливается. Ошибки игнорируются.
 
 ### Down
 
@@ -132,11 +132,11 @@ public static void Down(this Instance instance, int pauseAfterMs = 5000)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L871)
 
-Closes the browser (launches "without browser") and waits.
+Закрывает браузер (запуск «без браузера») и ждёт.
 
 | Параметр | Описание |
 |---|---|
-| `pauseAfterMs` | Pause afterwards, ms. |
+| `pauseAfterMs` | Пауза после, мс. |
 
 ### F5
 
@@ -146,11 +146,11 @@ public static void F5(this Instance instance, bool WaitTillLoad = true)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L809)
 
-Reloads the page.
+Перезагружает страницу.
 
 | Параметр | Описание |
 |---|---|
-| `WaitTillLoad` | Wait for loading to finish. |
+| `WaitTillLoad` | Ждать окончания загрузки. |
 
 ### FindAllInScreenshot
 
@@ -160,16 +160,16 @@ public static Dictionary<string, List<int[]>> FindAllInScreenshot(this Instance 
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L224)
 
-Takes one page preview (`GetPagePreview`) and finds every occurrence of each template in the area. Matches closer than `minDistance` to a better one are dropped.
+Снимает одно превью страницы (`GetPagePreview`) и ищет в области все вхождения каждого шаблона. Совпадения, которые ближе `minDistance` к более точному, отбрасываются.
 
 | Параметр | Описание |
 |---|---|
-| `templates` | Name → Base64 image. |
-| `searchArea` | Search area `[x, y, width, height]` in page pixels. |
-| `threshold` | Required similarity, 0–1. |
-| `minDistance` | Minimum distance between reported centres, px. |
+| `templates` | Имя → картинка в Base64. |
+| `searchArea` | Область поиска `[x, y, width, height]` в пикселях страницы. |
+| `threshold` | Требуемое сходство, 0–1. |
+| `minDistance` | Наименьшее расстояние между найденными центрами, px. |
 
-**Возвращает:** Name → centres `[x, y]`; templates without matches or with unreadable images are left out.
+**Возвращает:** Имя → центры `[x, y]`; шаблоны без совпадений или с нечитаемыми картинками не попадают.
 
 ### FindImg
 
@@ -179,15 +179,15 @@ public static int[] FindImg(this Instance instance, string imgFile, int[] search
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L86)
 
-Finds an image in the area with ZennoPoster's own image search.
+Находит картинку в области собственным поиском картинок ZennoPoster.
 
 | Параметр | Описание |
 |---|---|
-| `imgFile` | Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64. |
-| `searchArea` | Search area `[x, y, width, height]` in page pixels. |
-| `threshold` | Required similarity, 0–1. |
+| `imgFile` | Картинка-шаблон: путь к файлу (.png, .jpg, .jpeg, .gif, .bmp, .webp) или Base64. |
+| `searchArea` | Область поиска `[x, y, width, height]` в пикселях страницы. |
+| `threshold` | Требуемое сходство, 0–1. |
 
-**Возвращает:** Centre `[x, y]` of the match, or `null` when not found.
+**Возвращает:** Центр `[x, y]` совпадения или `null`, если не найдено.
 
 ### FindImgFast
 
@@ -197,16 +197,16 @@ public static int[] FindImgFast(this Instance instance, string imgFile, int[] se
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L132)
 
-Takes one page preview (`GetPagePreview`) and finds the image in the area with AForge template matching.
+Снимает одно превью страницы (`GetPagePreview`) и ищет картинку в области сравнением с шаблоном AForge.
 
 | Параметр | Описание |
 |---|---|
-| `imgFile` | Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64. |
-| `searchArea` | Search area `[x, y, width, height]` in page pixels. |
-| `threshold` | Required similarity, 0–1. |
-| `thrw` | Throw when not found; otherwise return `null`. |
+| `imgFile` | Картинка-шаблон: путь к файлу (.png, .jpg, .jpeg, .gif, .bmp, .webp) или Base64. |
+| `searchArea` | Область поиска `[x, y, width, height]` в пикселях страницы. |
+| `threshold` | Требуемое сходство, 0–1. |
+| `thrw` | Бросать исключение, если не найдено; иначе вернуть `null`. |
 
-**Возвращает:** Centre `[x, y]` of the first match.
+**Возвращает:** Центр `[x, y]` первого совпадения.
 
 ### FindMultipleInCachedScreenshot
 
@@ -216,14 +216,14 @@ public static Dictionary<string, int[]> FindMultipleInCachedScreenshot(string ba
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L475)
 
-Like `FindMultipleInScreenshot`, on a screenshot taken earlier.
+То же, что `FindMultipleInScreenshot`, но на скриншоте, снятом ранее.
 
 | Параметр | Описание |
 |---|---|
-| `base64Screenshot` | Screenshot as Base64. |
-| `templates` | Name → Base64 image. |
-| `searchArea` | Search area `[x, y, width, height]` in page pixels. |
-| `threshold` | Required similarity, 0–1. |
+| `base64Screenshot` | Скриншот в Base64. |
+| `templates` | Имя → картинка в Base64. |
+| `searchArea` | Область поиска `[x, y, width, height]` в пикселях страницы. |
+| `threshold` | Требуемое сходство, 0–1. |
 
 ### FindMultipleInMultipleAreas
 
@@ -233,14 +233,14 @@ public static Dictionary<string, int[]> FindMultipleInMultipleAreas(this Instanc
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L397)
 
-Takes one page preview (`GetPagePreview`) and finds each template in its own area.
+Снимает одно превью страницы (`GetPagePreview`) и ищет каждый шаблон в его собственной области.
 
 | Параметр | Описание |
 |---|---|
-| `templatesWithAreas` | Name → (Base64 image, area `[x, y, width, height]`). |
-| `threshold` | Required similarity, 0–1. |
+| `templatesWithAreas` | Имя → (картинка в Base64, область `[x, y, width, height]`). |
+| `threshold` | Требуемое сходство, 0–1. |
 
-**Возвращает:** Name → centre `[x, y]`; templates without a match are left out.
+**Возвращает:** Имя → центр `[x, y]`; шаблоны без совпадений не попадают.
 
 ### FindMultipleInScreenshot
 
@@ -250,15 +250,15 @@ public static Dictionary<string, int[]> FindMultipleInScreenshot(this Instance i
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L326)
 
-Takes one page preview (`GetPagePreview`) and finds the first match of each template in the area.
+Снимает одно превью страницы (`GetPagePreview`) и ищет в области первое совпадение каждого шаблона.
 
 | Параметр | Описание |
 |---|---|
-| `templates` | Name → Base64 image. |
-| `searchArea` | Search area `[x, y, width, height]` in page pixels. |
-| `threshold` | Required similarity, 0–1. |
+| `templates` | Имя → картинка в Base64. |
+| `searchArea` | Область поиска `[x, y, width, height]` в пикселях страницы. |
+| `threshold` | Требуемое сходство, 0–1. |
 
-**Возвращает:** Name → centre `[x, y]`; templates without a match are left out.
+**Возвращает:** Имя → центр `[x, y]`; шаблоны без совпадений не попадают.
 
 ### FixTimezone
 
@@ -268,9 +268,9 @@ public static void FixTimezone(this Instance instance, IZennoPosterProjectModel 
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L932)
 
-Opens `browserscan.net`, takes the IP timezone from its visitor-IP request in the traffic and sets it as the instance's IANA timezone.
+Открывает `browserscan.net`, берёт часовой пояс IP из его запроса visitor-IP в трафике и ставит его инстансу как часовой пояс IANA.
 
-**Примечания:** Throws when the response does not arrive within about 60 seconds or has no timezone.
+**Примечания:** Бросает исключение, если ответ не пришёл примерно за 60 секунд или в нём нет часового пояса.
 
 ### GetCenter
 
@@ -280,7 +280,7 @@ public static int[] GetCenter(this Instance instance)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L609)
 
-Centre `[x, y]` of the page viewport (`window.innerWidth/innerHeight`).
+Центр `[x, y]` области просмотра страницы (`window.innerWidth/innerHeight`).
 
 ### GetCookies
 
@@ -290,9 +290,9 @@ public static string GetCookies(this Instance instance, IZennoPosterProjectModel
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L684)
 
-Collects fresh cookies from 5–15 random popular sites with `CookieCollector` (the profile's user agent and languages, requests sent directly without the instance proxy) and loads them into the instance.
+Собирает свежие куки с 5–15 случайных популярных сайтов через `CookieCollector` (user agent и языки профиля, запросы идут напрямую, без прокси инстанса) и загружает их в инстанс.
 
-**Возвращает:** The cookies in Netscape format.
+**Возвращает:** Куки в формате Netscape.
 
 ### GetHe
 
@@ -302,14 +302,14 @@ public static HtmlElement GetHe(this Instance instance, object obj, string metho
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L41)
 
-Finds an element in the active tab.
+Находит элемент в активной вкладке.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `method` | For a 5-part selector: `random` picks a random match, `last` the last one; otherwise the index is used. |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `method` | Для селектора из 5 частей: `random` выбирает случайное совпадение, `last` — последнее; иначе используется индекс. |
 
-**Возвращает:** The element. Throws when it is not found or the selector shape is unsupported.
+**Возвращает:** Элемент. Бросает исключение, если он не найден или вид селектора не поддерживается.
 
 ### Go
 
@@ -319,14 +319,14 @@ public static void Go(this Instance instance, string url, bool strict = false, b
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L791)
 
-Navigates the active tab unless it is already on the URL.
+Переходит активной вкладкой на URL, если она ещё не на нём.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Target URL. |
-| `strict` | Compare the whole URL; otherwise skip when the current URL contains it. |
-| `waitTdle` | Wait for loading to finish. |
-| `newTab` | Open a new tab first. |
+| `url` | Целевой URL. |
+| `strict` | Сравнивать URL целиком; иначе пропускать, если текущий URL его содержит. |
+| `waitTdle` | Ждать окончания загрузки. |
+| `newTab` | Сначала открыть новую вкладку. |
 
 ### HeCatch
 
@@ -336,18 +336,18 @@ public static string HeCatch(this Instance instance, object obj, string method =
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L247)
 
-Watches for an element that must not appear (e.g. an error message) for `deadline` seconds.
+Следит `deadline` секунд за элементом, который не должен появиться (например, сообщением об ошибке).
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `method` | For a 5-part selector: `random` picks a random match, `last` the last one; otherwise the index is used. |
-| `deadline` | Seconds to keep looking (every 0.5 s). |
-| `atr` | Attribute used as the exception message. |
-| `delay` | Seconds to wait before starting. |
-| `pathToScript` | Not used. |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `method` | Для селектора из 5 частей: `random` выбирает случайное совпадение, `last` — последнее; иначе используется индекс. |
+| `deadline` | Сколько секунд продолжать поиск (каждые 0,5 с). |
+| `atr` | Атрибут, который используется как сообщение исключения. |
+| `delay` | Сколько секунд ждать перед началом. |
+| `pathToScript` | Не используется. |
 
-**Возвращает:** `null` when the element never appeared. When it appears, throws an exception whose message is its `atr`.
+**Возвращает:** `null`, если элемент так и не появился. Если появился, бросает исключение, сообщение которого — его `atr`.
 
 ```csharp
 public static string HeCatch(this Instance instance, IZennoPosterProjectModel project, object obj, string method = "", int deadline = 10, string atr = "innertext", int delay = 1, string pathToScript = null)
@@ -355,17 +355,17 @@ public static string HeCatch(this Instance instance, IZennoPosterProjectModel pr
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L299)
 
-Same as the overload without `project`; also stores the message in the `err` variable before throwing.
+То же, что перегрузка без `project`; перед исключением ещё сохраняет сообщение в переменную `err`.
 
 | Параметр | Описание |
 |---|---|
-| `project` | Project for the `err` variable. |
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `method` | For a 5-part selector: `random` picks a random match, `last` the last one; otherwise the index is used. |
-| `deadline` | Seconds to keep looking (every 0.5 s). |
-| `atr` | Attribute used as the exception message. |
-| `delay` | Seconds to wait before starting. |
-| `pathToScript` | Not used. |
+| `project` | Проект для переменной `err`. |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `method` | Для селектора из 5 частей: `random` выбирает случайное совпадение, `last` — последнее; иначе используется индекс. |
+| `deadline` | Сколько секунд продолжать поиск (каждые 0,5 с). |
+| `atr` | Атрибут, который используется как сообщение исключения. |
+| `delay` | Сколько секунд ждать перед началом. |
+| `pathToScript` | Не используется. |
 
 ### HeClick
 
@@ -375,19 +375,19 @@ public static void HeClick(this Instance instance, object obj, string method = "
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L361)
 
-Waits for an element and clicks it after a random pause of about 1–1.3 s × `delay`.
+Ждёт элемент и кликает по нему после случайной паузы примерно 1–1,3 с × `delay`.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `method` | For a 5-part selector: `random` picks a random match, `last` the last one; otherwise the index is used. `clickOut` keeps clicking until the element disappears. |
-| `deadline` | Seconds to keep looking (every 0.5 s). |
-| `delay` | Multiplier of the pause before clicking. |
-| `comment` | Text added to the timeout message. |
-| `thrw` | Throw when the element is not found in time; otherwise return quietly. |
-| `thr0w` | Legacy switch: `false` also turns `thrw` off. |
-| `emu` | 1 — use full mouse emulation for this action, −1 — turn it off, 0 — leave the instance setting. |
-| `pathToScript` | When set, appends the action and the element's XPath to this file. |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `method` | Для селектора из 5 частей: `random` выбирает случайное совпадение, `last` — последнее; иначе используется индекс. `clickOut` кликает, пока элемент не исчезнет. |
+| `deadline` | Сколько секунд продолжать поиск (каждые 0,5 с). |
+| `delay` | Множитель паузы перед кликом. |
+| `comment` | Текст, который добавляется к сообщению о таймауте. |
+| `thrw` | Бросать исключение, если элемент не найден вовремя; иначе тихо вернуться. |
+| `thr0w` | Старый переключатель: `false` выключает и `thrw`. |
+| `emu` | 1 — включить полную эмуляцию мыши для этого действия, −1 — выключить, 0 — оставить настройку инстанса. |
+| `pathToScript` | Если задано, действие и XPath элемента дописываются в этот файл. |
 
 ### HeDragAndDrop
 
@@ -397,15 +397,15 @@ public static Point HeDragAndDrop(this Instance instance, HtmlElement element, i
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L656)
 
-Drags from the element's centre by the given offset with a human-like path: easing, slight vertical wobble and, for longer moves, a small overshoot and correction.
+Перетаскивает из центра элемента на заданное смещение по человекоподобной траектории: плавный разгон и торможение, лёгкое покачивание по вертикали и, на длинных перемещениях, небольшой перелёт с поправкой.
 
 | Параметр | Описание |
 |---|---|
-| `element` | Element to drag. |
-| `offsetX` | Horizontal offset, px. |
-| `offsetY` | Vertical offset, px. |
+| `element` | Элемент, который нужно перетащить. |
+| `offsetX` | Смещение по горизонтали, px. |
+| `offsetY` | Смещение по вертикали, px. |
 
-**Возвращает:** The drop point.
+**Возвращает:** Точка, куда отпущено.
 
 ### HeDrop
 
@@ -415,14 +415,14 @@ public static void HeDrop(this Instance instance, object obj, string method = ""
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L619)
 
-Waits for an element and removes it from the page.
+Ждёт элемент и удаляет его со страницы.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `method` | For a 5-part selector: `random` picks a random match, `last` the last one; otherwise the index is used. |
-| `deadline` | Seconds to keep looking (every 0.5 s). |
-| `thrw` | Throw when the element is not found in time; otherwise return quietly. |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `method` | Для селектора из 5 частей: `random` выбирает случайное совпадение, `last` — последнее; иначе используется индекс. |
+| `deadline` | Сколько секунд продолжать поиск (каждые 0,5 с). |
+| `thrw` | Бросать исключение, если элемент не найден вовремя; иначе тихо вернуться. |
 
 ### HeGet
 
@@ -432,21 +432,21 @@ public static string HeGet(this Instance instance, object obj, string method = "
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L165)
 
-Waits for an element and returns one of its attributes.
+Ждёт элемент и возвращает один из его атрибутов.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `method` | For a 5-part selector: `random` picks a random match, `last` the last one; otherwise the index is used. |
-| `deadline` | Seconds to keep looking (every 0.5 s). |
-| `atr` | Attribute to read. |
-| `delay` | Seconds to wait after finding it. |
-| `thrw` | Throw when the element is not found in time; otherwise return quietly. |
-| `thr0w` | Legacy switch: `false` also turns `thrw` off. |
-| `waitTillVoid` | Wait until the element is gone instead; returns `null` at the deadline and throws while it is present. |
-| `pathToScript` | When set, appends the action and the element's XPath to this file. |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `method` | Для селектора из 5 частей: `random` выбирает случайное совпадение, `last` — последнее; иначе используется индекс. |
+| `deadline` | Сколько секунд продолжать поиск (каждые 0,5 с). |
+| `atr` | Атрибут, который нужно прочитать. |
+| `delay` | Сколько секунд ждать после того, как найдено. |
+| `thrw` | Бросать исключение, если элемент не найден вовремя; иначе тихо вернуться. |
+| `thr0w` | Старый переключатель: `false` выключает и `thrw`. |
+| `waitTillVoid` | Вместо этого ждать, пока элемент исчезнет; по дедлайну возвращает `null`, а пока элемент есть — бросает исключение. |
+| `pathToScript` | Если задано, действие и XPath элемента дописываются в этот файл. |
 
-**Возвращает:** The attribute value, or `null` when not found and `thrw` is false.
+**Возвращает:** Значение атрибута или `null`, если не найдено и `thrw` равно false.
 
 ### HeLongClick
 
@@ -456,19 +456,19 @@ public static void HeLongClick(this Instance instance, object obj, int holdMs = 
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L442)
 
-Waits for an element and holds the left button at a random point inside it.
+Ждёт элемент и удерживает левую кнопку в случайной точке внутри него.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `holdMs` | Hold time in milliseconds. |
-| `method` | For a 5-part selector: `random` picks a random match, `last` the last one; otherwise the index is used. |
-| `deadline` | Seconds to keep looking (every 0.5 s). |
-| `delay` | Multiplier of the pause before pressing. |
-| `comment` | Text added to the timeout message. |
-| `thrw` | Throw when the element is not found in time; otherwise return quietly. |
-| `thr0w` | Legacy switch: `false` also turns `thrw` off. |
-| `emu` | 1 — use full mouse emulation for this action, −1 — turn it off, 0 — leave the instance setting. |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `holdMs` | Время удержания в миллисекундах. |
+| `method` | Для селектора из 5 частей: `random` выбирает случайное совпадение, `last` — последнее; иначе используется индекс. |
+| `deadline` | Сколько секунд продолжать поиск (каждые 0,5 с). |
+| `delay` | Множитель паузы перед нажатием. |
+| `comment` | Текст, который добавляется к сообщению о таймауте. |
+| `thrw` | Бросать исключение, если элемент не найден вовремя; иначе тихо вернуться. |
+| `thr0w` | Старый переключатель: `false` выключает и `thrw`. |
+| `emu` | 1 — включить полную эмуляцию мыши для этого действия, −1 — выключить, 0 — оставить настройку инстанса. |
 
 ```csharp
 public static void HeLongClick(this Instance instance, int x, int y, int holdMs = 3, double delay = 1, int emu = 0)
@@ -476,15 +476,15 @@ public static void HeLongClick(this Instance instance, int x, int y, int holdMs 
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L501)
 
-Holds the left button at a point.
+Удерживает левую кнопку в точке.
 
 | Параметр | Описание |
 |---|---|
-| `x` | X in the tab. |
-| `y` | Y in the tab. |
-| `holdMs` | Hold time in milliseconds. |
-| `delay` | Multiplier of the pause before pressing. |
-| `emu` | 1 — use full mouse emulation for this action, −1 — turn it off, 0 — leave the instance setting. |
+| `x` | X во вкладке. |
+| `y` | Y во вкладке. |
+| `holdMs` | Время удержания в миллисекундах. |
+| `delay` | Множитель паузы перед нажатием. |
+| `emu` | 1 — включить полную эмуляцию мыши для этого действия, −1 — выключить, 0 — оставить настройку инстанса. |
 
 ### HeMultiClick
 
@@ -494,7 +494,7 @@ public static void HeMultiClick(this Instance instance, List<object> selectors)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L337)
 
-Clicks each element in turn with `HeClick` defaults.
+Кликает по каждому элементу по очереди с настройками `HeClick` по умолчанию.
 
 ### HePeakRandom
 
@@ -504,13 +504,13 @@ public static void HePeakRandom(this Instance instance, object obj, int min = 1,
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L714)
 
-Opens a drop-down by two long clicks and presses Down a random number of times.
+Открывает выпадающий список двумя долгими кликами и нажимает «вниз» случайное число раз.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `min` | Fewest presses. |
-| `max` | Upper bound of presses (exclusive). |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `min` | Меньше всего нажатий. |
+| `max` | Верхняя граница числа нажатий (не включая). |
 
 ### HeSet
 
@@ -520,20 +520,20 @@ public static void HeSet(this Instance instance, object obj, string value, strin
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L569)
 
-Waits for an input and enters `value` after a random pause of about 1.3–2 s × `delay`.
+Ждёт поле ввода и вводит `value` после случайной паузы примерно 1,3–2 с × `delay`.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Element: an `HtmlElement`; `(value, "id")` or `(value, "name")`; or `(tag, attribute, pattern, mode, index)` as in `FindElementByAttribute`. |
-| `value` | Text to enter. |
-| `method` | For a 5-part selector: `random` picks a random match, `last` the last one; otherwise the index is used. |
-| `deadline` | Seconds to keep looking (every 0.5 s). |
-| `delay` | Multiplier of the pause. |
-| `comment` | Text added to the timeout message. |
-| `thrw` | Throw when the element is not found in time; otherwise return quietly. |
-| `thr0w` | Legacy switch: `false` also turns `thrw` off. |
-| `emu` | 0 — set the value with ZennoPoster's full emulation; above 0 — click the field and type the text; below 0 — nothing is entered. |
-| `pathToScript` | When set, appends the action and the element's XPath to this file. |
+| `obj` | Элемент: `HtmlElement`; `(value, "id")` или `(value, "name")`; или `(tag, attribute, pattern, mode, index)`, как в `FindElementByAttribute`. |
+| `value` | Текст для ввода. |
+| `method` | Для селектора из 5 частей: `random` выбирает случайное совпадение, `last` — последнее; иначе используется индекс. |
+| `deadline` | Сколько секунд продолжать поиск (каждые 0,5 с). |
+| `delay` | Множитель паузы. |
+| `comment` | Текст, который добавляется к сообщению о таймауте. |
+| `thrw` | Бросать исключение, если элемент не найден вовремя; иначе тихо вернуться. |
+| `thr0w` | Старый переключатель: `false` выключает и `thrw`. |
+| `emu` | 0 — задать значение полной эмуляцией ZennoPoster; больше 0 — кликнуть по полю и напечатать текст; меньше 0 — ничего не вводится. |
+| `pathToScript` | Если задано, действие и XPath элемента дописываются в этот файл. |
 
 ### MousePOsCenter
 
@@ -543,13 +543,13 @@ public static int[] MousePOsCenter(this Instance instance, bool moveMouse = fals
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L618)
 
-Turns on full mouse emulation and puts the cursor at the viewport centre.
+Включает полную эмуляцию мыши и ставит курсор в центр области просмотра.
 
 | Параметр | Описание |
 |---|---|
-| `moveMouse` | Move the cursor there instead of setting its position. |
+| `moveMouse` | Переместить курсор туда, а не задать его позицию. |
 
-**Возвращает:** The centre.
+**Возвращает:** Центр.
 
 ### SaveCookies
 
@@ -559,7 +559,7 @@ public static string SaveCookies(this Instance instance)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L883)
 
-Returns the instance's cookies as saved by `SaveCookie` (through a temporary file).
+Возвращает куки инстанса в том виде, в каком их сохраняет `SaveCookie` (через временный файл).
 
 ### ScrollDown
 
@@ -569,11 +569,11 @@ public static void ScrollDown(this Instance instance, int y = 420)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L817)
 
-Scrolls with the emulated mouse wheel.
+Прокручивает эмулированным колесом мыши.
 
 | Параметр | Описание |
 |---|---|
-| `y` | Wheel delta. |
+| `y` | Шаг колеса. |
 
 ### SetTimeFromDb
 
@@ -583,7 +583,7 @@ public static void SetTimeFromDb(this Instance instance, IZennoPosterProjectMode
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L913)
 
-Sets timezone emulation from the `timezone` JSON (`timezoneOffset`, `timezoneName`) of the account's `_instance` row; warns when there is none.
+Задаёт эмуляцию часового пояса из JSON `timezone` (`timezoneOffset`, `timezoneName`) строки аккаунта в `_instance`; если его нет, пишет предупреждение.
 
 ### SwipeFromCenter
 
@@ -593,15 +593,15 @@ public static int[] SwipeFromCenter(this Instance instance, int distance, string
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L681)
 
-Swipes from the viewport centre.
+Делает свайп от центра области просмотра.
 
 | Параметр | Описание |
 |---|---|
-| `distance` | Swipe length, px. |
-| `direction` | `left`, `right`, `up` or `down`; random when empty. |
-| `bounds` | Keep the end point inside `[x, y, width, height]`. |
+| `distance` | Длина свайпа, px. |
+| `direction` | `left`, `right`, `up` или `down`; если пусто — случайно. |
+| `bounds` | Держать конечную точку внутри `[x, y, width, height]`. |
 
-**Возвращает:** The end point.
+**Возвращает:** Конечная точка.
 
 ### SwipeImgToCenter
 
@@ -611,16 +611,16 @@ public static int[] SwipeImgToCenter(this Instance instance, string imgFile, int
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L736)
 
-Finds the image and swipes from it to the viewport centre.
+Находит картинку и делает свайп от неё к центру области просмотра.
 
 | Параметр | Описание |
 |---|---|
-| `imgFile` | Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64. |
-| `searchArea` | Search area `[x, y, width, height]` in page pixels. |
-| `threshold` | Required similarity, 0–1. |
-| `nativeSearch` | Use `FindImg` instead of `FindImgFast`. |
+| `imgFile` | Картинка-шаблон: путь к файлу (.png, .jpg, .jpeg, .gif, .bmp, .webp) или Base64. |
+| `searchArea` | Область поиска `[x, y, width, height]` в пикселях страницы. |
+| `threshold` | Требуемое сходство, 0–1. |
+| `nativeSearch` | Использовать `FindImg`, а не `FindImgFast`. |
 
-**Возвращает:** The viewport centre.
+**Возвращает:** Центр области просмотра.
 
 ### TapCenter
 
@@ -630,7 +630,7 @@ public static int[] TapCenter(this Instance instance)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L633)
 
-Taps the viewport centre; returns the point.
+Тапает в центр области просмотра; возвращает точку.
 
 ### TapImg
 
@@ -640,17 +640,17 @@ public static int[] TapImg(this Instance instance, string imgFile, int[] searchA
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Canvas.cs#L574)
 
-Finds the image and taps its centre (touch event).
+Находит картинку и тапает в её центр (событие касания).
 
 | Параметр | Описание |
 |---|---|
-| `imgFile` | Template image: a file path (.png, .jpg, .jpeg, .gif, .bmp, .webp) or Base64. |
-| `searchArea` | Search area `[x, y, width, height]` in page pixels. |
-| `threshold` | Required similarity, 0–1. |
-| `nativeSearch` | Use `FindImg` instead of `FindImgFast`. |
-| `delay` | Seconds to wait before tapping. |
+| `imgFile` | Картинка-шаблон: путь к файлу (.png, .jpg, .jpeg, .gif, .bmp, .webp) или Base64. |
+| `searchArea` | Область поиска `[x, y, width, height]` в пикселях страницы. |
+| `threshold` | Требуемое сходство, 0–1. |
+| `nativeSearch` | Использовать `FindImg`, а не `FindImgFast`. |
+| `delay` | Сколько секунд ждать перед тапом. |
 
-**Возвращает:** The tapped point.
+**Возвращает:** Точка тапа.
 
 ### UpEmpty
 
@@ -660,7 +660,7 @@ public static void UpEmpty(this Instance instance)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L864)
 
-Launches Chromium without a profile folder.
+Запускает Chromium без папки профиля.
 
 ### UpFromFolder
 
@@ -670,11 +670,11 @@ public static void UpFromFolder(this Instance instance, string pathProfile, bool
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/InstanceExtencions.cs#L853)
 
-Launches the browser with a profile folder.
+Запускает браузер с папкой профиля.
 
 | Параметр | Описание |
 |---|---|
-| `pathProfile` | Profile folder. |
-| `useProfile` | Apply the ZennoPoster profile too. |
-| `browserType` | Browser to launch. |
+| `pathProfile` | Папка профиля. |
+| `useProfile` | Применить и профиль ZennoPoster. |
+| `browserType` | Какой браузер запускать. |
 

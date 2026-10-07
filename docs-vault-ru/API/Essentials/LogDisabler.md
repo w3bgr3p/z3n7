@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class LogDisabler
 ```
 
-Stops ZennoPoster from writing its own log files to the `Logs` folder next to the running executable.
+Запрещает ZennoPoster писать собственные файлы логов в папку `Logs` рядом с запущенным исполняемым файлом.
 
 ## Методы
 
@@ -24,11 +24,11 @@ public static void DisableLogs(bool aggressive = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/LogDisabler.cs#L23)
 
-Replaces the `Logs` folder with a directory link to `NUL`. Does nothing if the folder is already a link, a file, or has a `Logs.lock` marker next to it. If that fails, the folder is replaced with a hidden read-only file named `Logs` and a `Logs.lock` marker is written.
+Заменяет папку `Logs` ссылкой на каталог `NUL`. Ничего не делает, если папка уже ссылка, файл или рядом с ней лежит маркер `Logs.lock`. Если не получилось, папка заменяется скрытым файлом только для чтения с именем `Logs`, и записывается маркер `Logs.lock`.
 
 | Параметр | Описание |
 |---|---|
-| `aggressive` | Use `rd /s /q` to remove the folder and retry up to 3 times. |
+| `aggressive` | Удалять папку через `rd /s /q` и повторять до 3 раз. |
 
-**Примечания:** Deletes the existing `Logs` folder with its contents.
+**Примечания:** Удаляет существующую папку `Logs` вместе с содержимым.
 

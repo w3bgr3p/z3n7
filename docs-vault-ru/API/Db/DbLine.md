@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbLine
 ```
 
-Operations on whole rows.
+Операции над строками целиком.
 
 ## Методы
 
@@ -24,14 +24,14 @@ public static void DbClearLine(this IZennoPosterProjectModel project, int id, st
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L809)
 
-Sets every column except `id` to an empty string in one row.
+Записывает пустую строку во все колонки одной строки, кроме `id`.
 
 | Параметр | Описание |
 |---|---|
-| `id` | Row id. |
-| `tableName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `id` | Id строки. |
+| `tableName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
 
 ### DbSwapLines
 
@@ -41,13 +41,13 @@ public static void DbSwapLines(this IZennoPosterProjectModel project, int id1, i
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L837)
 
-Exchanges the values of all columns except `id` between two rows.
+Меняет местами значения всех колонок, кроме `id`, у двух строк.
 
 | Параметр | Описание |
 |---|---|
-| `id1` | First row id. |
-| `id2` | Second row id. |
-| `tableName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw when a row is not found; otherwise nothing changes. |
+| `id1` | Id первой строки. |
+| `id2` | Id второй строки. |
+| `tableName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение, если строка не найдена; иначе ничего не меняется. |
 

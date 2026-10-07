@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class InstanceManager
 ```
 
-Starts the browser for the current account with its profile, proxy and cookies, and saves and cleans up at the end.
+Запускает браузер для текущего аккаунта с его профилем, прокси и куками, а в конце сохраняет и убирает за собой.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public InstanceManager(IZennoPosterProjectModel project, Instance instance, Logg
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L30)
 
-Creates the manager.
+Создаёт менеджер.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Logger for progress; `null` logs nothing. |
+| `log` | Логгер для хода работы; `null` — ничего не писать. |
 
 ## Методы
 
@@ -40,7 +40,7 @@ public void Cleanup()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L507)
 
-Frees the account (clears its global `acc{n}`, sets `state = 'idle'` in `_instance`), clears `acc0` and stops the instance.
+Освобождает аккаунт (очищает его глобальную `acc{n}`, ставит `state = 'idle'` в `_instance`), очищает `acc0` и останавливает инстанс.
 
 ### Initialize
 
@@ -50,15 +50,15 @@ public void Initialize(string browserToLaunch = null, bool fixTimezone = false, 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L56)
 
-Launches the browser for `acc0` and prepares it. Stores the browser port and PID in `port`, `pid` and `instancePort`. Legacy path: for Chromium, applies WebGL from the database, the proxy and the cookies (database, else the cookie file); otherwise only the proxy; up to 4 attempts, then the account's global `acc{n}` is cleared and the error is thrown. Non-legacy path: restores the profile from the `folder_*` tables (`ProfileSync`) and sets the proxy.
+Запускает браузер для `acc0` и готовит его. Сохраняет порт и PID браузера в `port`, `pid` и `instancePort`. Старый путь: для Chromium применяет WebGL из базы, прокси и куки (из базы, иначе из файла кук); для остальных — только прокси; до 4 попыток, потом глобальная `acc{n}` аккаунта очищается и ошибка пробрасывается. Новый путь: восстанавливает профиль из таблиц `folder_*` (`ProfileSync`) и ставит прокси.
 
 | Параметр | Описание |
 |---|---|
-| `browserToLaunch` | `Chromium` or `WithoutBrowser`; default is the `cfgBrowser` variable. |
-| `fixTimezone` | Fix the timezone through browserscan.net when its score mentions time. |
-| `useLegacy` | Use the legacy setup path. |
-| `useZpprofile` | Load the ZennoPoster profile file `{profileFolder}.zpprofile` when it exists. |
-| `useFolder` | Launch Chromium with the account's profile folder. |
+| `browserToLaunch` | `Chromium` или `WithoutBrowser`; по умолчанию переменная `cfgBrowser`. |
+| `fixTimezone` | Исправлять часовой пояс через browserscan.net, если в его оценке упоминается время. |
+| `useLegacy` | Использовать старый путь подготовки. |
+| `useZpprofile` | Загружать файл профиля ZennoPoster `{profileFolder}.zpprofile`, если он есть. |
+| `useFolder` | Запускать Chromium с папкой профиля аккаунта. |
 
 ### ProxySet
 
@@ -68,13 +68,13 @@ public bool ProxySet(string proxyString = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L390)
 
-Checks a proxy and applies it to the instance: compares the IP seen by public echo services directly and through the proxy, and sets the proxy only when they differ.
+Проверяет прокси и применяет его к инстансу: сравнивает IP, который видят публичные echo-сервисы напрямую и через прокси, и ставит прокси только если они различаются.
 
 | Параметр | Описание |
 |---|---|
-| `proxyString` | Proxy; default is the `proxy` column of the account's `_instance` row. |
+| `proxyString` | Прокси; по умолчанию колонка `proxy` строки аккаунта в `_instance`. |
 
-**Возвращает:** `true`. Throws when the proxy is empty, does not answer, or shows the local IP.
+**Возвращает:** `true`. Бросает исключение, если прокси пустой, не отвечает или показывает локальный IP.
 
 ### SaveProfile
 
@@ -84,12 +84,12 @@ public void SaveProfile(bool saveCookies = true, bool saveProfile = true, string
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/InstanceManager.cs#L462)
 
-Saves the account's browser data when the browser is Chromium, `acc0` is set and `accRnd` is empty: profile, instance, cookies and WebGL to the tables of `saveTo` (`ProfileSync`), and the ZennoPoster profile to the profile folder. Errors are logged, not thrown.
+Сохраняет данные браузера аккаунта, если браузер Chromium, `acc0` задан, а `accRnd` пуст: профиль, инстанс, куки и WebGL — в таблицы `saveTo` (`ProfileSync`), профиль ZennoPoster — в папку профиля. Ошибки пишутся в лог, а не бросаются.
 
 | Параметр | Описание |
 |---|---|
-| `saveCookies` | Save cookies. |
-| `saveProfile` | Save profile, instance and WebGL. |
-| `saveTo` | Table prefix: `folder`, `zb` or `zpprofile`. |
-| `saveZpProfile` | Also save the ZennoPoster profile to the profile folder. |
+| `saveCookies` | Сохранять куки. |
+| `saveProfile` | Сохранять профиль, инстанс и WebGL. |
+| `saveTo` | Префикс таблиц: `folder`, `zb` или `zpprofile`. |
+| `saveZpProfile` | Заодно сохранить профиль ZennoPoster в папку профиля. |
 

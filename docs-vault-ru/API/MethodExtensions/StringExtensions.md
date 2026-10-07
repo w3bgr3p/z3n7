@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class StringExtensions
 ```
 
-Extension methods on strings: hex, Base64, JSON, ranges, Markdown escaping, JWT, passwords.
+Методы расширения для строк: hex, Base64, JSON, диапазоны, экранирование Markdown, JWT, пароли.
 
 ## Методы
 
@@ -24,7 +24,7 @@ public static string CleanFilePath(this string text)
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L297)
 
-Removes characters that are not allowed in file names.
+Удаляет символы, недопустимые в именах файлов.
 
 ### ConvertUrl
 
@@ -34,14 +34,14 @@ public static string ConvertUrl(this string url, bool oneline = false)
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L189)
 
-Shows the query parameters of a URL, one per line. When there is an `addEthereumChainParameter` parameter with JSON, returns that JSON instead.
+Показывает параметры запроса из URL, по одному на строку. Если есть параметр `addEthereumChainParameter` с JSON, возвращает этот JSON.
 
 | Параметр | Описание |
 |---|---|
 | `url` | URL. |
-| `oneline` | Put everything on one line. |
+| `oneline` | Вывести всё одной строкой. |
 
-**Возвращает:** The text, or a message starting with `Error:`.
+**Возвращает:** Текст или сообщение, начинающееся с `Error:`.
 
 ### EscapeMarkdown
 
@@ -51,7 +51,7 @@ public static string EscapeMarkdown(this string text)
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L345)
 
-Escapes Telegram MarkdownV2 special characters with a backslash.
+Экранирует обратной косой чертой спецсимволы Telegram MarkdownV2.
 
 ### FromBase64
 
@@ -61,7 +61,7 @@ public static string FromBase64(this string base64Cookies)
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L106)
 
-Decodes UTF-8 Base64; empty for empty input; the input unchanged when it is not Base64.
+Декодирует Base64 в UTF-8; для пустого входа — пусто; если вход не Base64, возвращает его без изменений.
 
 ### GetFileNameFromUrl
 
@@ -71,14 +71,14 @@ public static string GetFileNameFromUrl(string input, bool withExtension = false
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L316)
 
-File name from a URL, or from the `src`/`href` attribute in an HTML fragment.
+Имя файла из URL или из атрибута `src`/`href` во фрагменте HTML.
 
 | Параметр | Описание |
 |---|---|
-| `input` | URL or HTML fragment. |
-| `withExtension` | Keep the extension. |
+| `input` | URL или фрагмент HTML. |
+| `withExtension` | Оставить расширение. |
 
-**Возвращает:** The file name, or the input when none is found.
+**Возвращает:** Имя файла или вход без изменений, если имя не найдено.
 
 ### HexToString
 
@@ -88,14 +88,14 @@ public static string HexToString(this string hexValue, string convert = "")
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L66)
 
-Converts a hex number (with or without `0x`) to decimal text, optionally scaling it down.
+Переводит hex-число (с `0x` или без) в десятичный текст, при необходимости уменьшая масштаб.
 
 | Параметр | Описание |
 |---|---|
-| `hexValue` | Hex number. |
-| `convert` | `gwei` (×10⁹), `eth` (×10¹⁸), or empty for the plain number. |
+| `hexValue` | Hex-число. |
+| `convert` | `gwei` (×10⁹), `eth` (×10¹⁸) или пусто для числа как есть. |
 
-**Возвращает:** The number; `0` for empty or invalid input.
+**Возвращает:** Число; `0` для пустого или неверного входа.
 
 ### JsonToDic
 
@@ -105,12 +105,12 @@ public static Dictionary<string, string> JsonToDic(this string json, bool ignore
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L133)
 
-Flattens a JSON object: nested keys are joined with `_`, array items get their index (`a_b_0`).
+Разворачивает JSON-объект: вложенные ключи соединяются через `_`, элементы массивов получают свой индекс (`a_b_0`).
 
 | Параметр | Описание |
 |---|---|
-| `json` | JSON object. |
-| `ignoreEmpty` | Leave out empty values. |
+| `json` | JSON-объект. |
+| `ignoreEmpty` | Пропускать пустые значения. |
 
 ### NewPassword
 
@@ -120,16 +120,16 @@ public static string NewPassword(int length = 16, bool includeDigits = true, boo
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L458)
 
-Random password from lowercase letters plus the selected groups; at least one character of each selected group is included.
+Случайный пароль из строчных букв и выбранных групп; в нём есть хотя бы один символ каждой выбранной группы.
 
 | Параметр | Описание |
 |---|---|
-| `length` | Length. |
-| `includeDigits` | Include digits. |
-| `randomizeCase` | Include uppercase letters. |
-| `includeSymbols` | Include `!@#$%^&*()`. |
+| `length` | Длина. |
+| `includeDigits` | Включать цифры. |
+| `randomizeCase` | Включать заглавные буквы. |
+| `includeSymbols` | Включать `!@#$%^&*()`. |
 
-**Возвращает:** The password. Throws when the length is below 1 or too small for the selected groups.
+**Возвращает:** Пароль. Бросает исключение, если длина меньше 1 или слишком мала для выбранных групп.
 
 ### ParseJwt
 
@@ -139,9 +139,9 @@ public static Dictionary<string, object> ParseJwt(this string jwt)
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L364)
 
-Decodes a JWT without checking its signature.
+Декодирует JWT без проверки подписи.
 
-**Возвращает:** `alg`, `typ`, `kid`, `iss`, `sub`, `aud`, `iat`/`exp` with dates, `ttl_seconds`, `is_expired`, raw header and payload JSON and the signature; or `error`.
+**Возвращает:** `alg`, `typ`, `kid`, `iss`, `sub`, `aud`, `iat`/`exp` с датами, `ttl_seconds`, `is_expired`, сырой JSON заголовка и payload и подпись; или `error`.
 
 ### Range
 
@@ -151,9 +151,9 @@ public static string[] Range(this string accRange)
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L273)
 
-Expands an account range: `1,4,7` as is, `1-10` to every number, a single number `n` to `1…n`.
+Разворачивает диапазон аккаунтов: `1,4,7` как есть, `1-10` — в каждое число, одно число `n` — в `1…n`.
 
-**Возвращает:** The numbers as strings. Throws for empty input.
+**Возвращает:** Числа строками. Для пустого входа бросает исключение.
 
 ### StringToHex
 
@@ -163,14 +163,14 @@ public static string StringToHex(this string value, string convert = "")
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L27)
 
-Converts a decimal number to a `0x` hex string, optionally scaling it first.
+Переводит десятичное число в hex-строку с `0x`, при необходимости сначала масштабируя его.
 
 | Параметр | Описание |
 |---|---|
-| `value` | Number in invariant culture. |
-| `convert` | `gwei` (×10⁹), `eth` (×10¹⁸), or empty for the plain number. |
+| `value` | Число в инвариантной культуре. |
+| `convert` | `gwei` (×10⁹), `eth` (×10¹⁸) или пусто для числа как есть. |
 
-**Возвращает:** The hex value; `0x0` for empty or invalid input.
+**Возвращает:** Hex-значение; `0x0` для пустого или неверного входа.
 
 ### ToBase64
 
@@ -180,5 +180,5 @@ public static string ToBase64(this string cookiesJson)
 
 Метод расширения для `string`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/StringExtentions.cs#L96)
 
-UTF-8 Base64 of the text; empty for empty input.
+Текст в Base64 (UTF-8); для пустого входа — пусто.
 

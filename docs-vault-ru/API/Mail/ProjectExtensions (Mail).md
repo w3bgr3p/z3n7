@@ -14,7 +14,7 @@ public static class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Accounts)]], [[ProjectExtensions (Browser)]], [[ProjectExtensions (Diagnostic)]], [[ProjectExtensions (Essentials)]], [[ProjectExtensions (MethodExtensions)]], [[ProjectExtensions (Reports)]], [[ProjectExtensions (Requests)]], [[ProjectExtensions (Traffic)]]
 
-Extension methods on `IZennoPosterProjectModel`: one-time codes from mail.
+Методы расширения для `IZennoPosterProjectModel`: одноразовые коды из почты.
 
 ## Методы
 
@@ -26,9 +26,9 @@ public static string OtpCode(this IZennoPosterProjectModel project, string sourc
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/FirstMail.cs#L231)
 
-One-time code from a source: for an address (contains `@`), the code from its latest FirstMail message; otherwise `source` is a TOTP secret and the current code is computed locally.
+Одноразовый код из источника: для адреса (содержит `@`) — код из последнего письма FirstMail; иначе `source` считается секретом TOTP, и текущий код вычисляется локально.
 
 | Параметр | Описание |
 |---|---|
-| `source` | Mailbox address or TOTP secret. |
+| `source` | Адрес ящика или секрет TOTP. |
 

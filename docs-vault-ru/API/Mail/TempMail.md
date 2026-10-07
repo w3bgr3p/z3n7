@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class TempMail
 ```
 
-Client of the Temp Mail service (Privatix) on RapidAPI. The mailbox id is the MD5 of the address; it is kept in `tempMailId`.
+Клиент сервиса Temp Mail (Privatix) на RapidAPI. Id ящика — MD5 адреса; хранится в `tempMailId`.
 
 ## Конструкторы
 
@@ -24,14 +24,14 @@ public TempMail(IZennoPosterProjectModel project, string apikey, bool log = fals
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L35)
 
-Creates a client.
+Создаёт клиент.
 
 | Параметр | Описание |
 |---|---|
-| `apikey` | RapidAPI key; required. |
-| `log` | Log requests and responses. |
-| `useNetHttp` | Send requests through `NetHttp` instead of ZennoPoster's HTTP client. |
-| `proxy` | Proxy in `Rqst` format; empty for none. |
+| `apikey` | Ключ RapidAPI; обязателен. |
+| `log` | Писать запросы и ответы в лог. |
+| `useNetHttp` | Отправлять запросы через `NetHttp`, а не через HTTP-клиент ZennoPoster. |
+| `proxy` | Прокси в формате `Rqst`; пусто — без прокси. |
 
 ## Методы
 
@@ -43,7 +43,7 @@ public static string CreateAddress(string login, string domain)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L216)
 
-Joins login and domain into an address.
+Склеивает логин и домен в адрес.
 
 ### GetDomains
 
@@ -53,9 +53,9 @@ public string[] GetDomains()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L68)
 
-Domains the service offers.
+Домены, которые предлагает сервис.
 
-**Возвращает:** Throws when the list is empty.
+**Возвращает:** Бросает исключение, если список пуст.
 
 ### GetHrefs
 
@@ -65,11 +65,11 @@ public HashSet<string> GetHrefs(int deadline = 120)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L177)
 
-Waits for a message and collects the links of its HTML, skipping anchors, `mailto:`, `tel:`, `javascript:`, `data:` and links to images, styles, scripts and fonts.
+Ждёт письмо и собирает ссылки из его HTML, пропуская якоря, `mailto:`, `tel:`, `javascript:`, `data:` и ссылки на картинки, стили, скрипты и шрифты.
 
 | Параметр | Описание |
 |---|---|
-| `deadline` | Seconds to wait; then `TimeoutException`. |
+| `deadline` | Сколько секунд ждать; потом `TimeoutException`. |
 
 ### GetMail
 
@@ -79,13 +79,13 @@ public string GetMail(int deadline = 120)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L129)
 
-Waits for a message, checking every 5 seconds.
+Ждёт письмо, проверяя каждые 5 секунд.
 
 | Параметр | Описание |
 |---|---|
-| `deadline` | Seconds to wait; then `TimeoutException`. |
+| `deadline` | Сколько секунд ждать; потом `TimeoutException`. |
 
-**Возвращает:** JSON of the first message.
+**Возвращает:** JSON первого письма.
 
 ### GetMessages
 
@@ -95,9 +95,9 @@ public string GetMessages()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L114)
 
-Current messages of the mailbox in `tempMailId` (else `mailId`), without waiting.
+Текущие письма ящика из `tempMailId` (иначе из `mailId`), без ожидания.
 
-**Возвращает:** The raw JSON answer. Throws when no mailbox was created.
+**Возвращает:** Сырой ответ в JSON. Бросает исключение, если ящик не создан.
 
 ### HashEmail
 
@@ -107,7 +107,7 @@ public static string HashEmail(string email)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L227)
 
-MD5 of the lower-cased address, as hex: the mailbox id used by the service.
+MD5 адреса в нижнем регистре, в hex: id ящика, который использует сервис.
 
 ### Link
 
@@ -117,14 +117,14 @@ public string Link(string urlPattern, int deadline = 120)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L206)
 
-Waits for a message and returns the first match of `urlPattern` in its JSON, HTML-decoded.
+Ждёт письмо и возвращает первое совпадение `urlPattern` в его JSON с декодированием HTML.
 
 | Параметр | Описание |
 |---|---|
-| `urlPattern` | Regular expression. |
-| `deadline` | Seconds to wait; then `TimeoutException`. |
+| `urlPattern` | Регулярное выражение. |
+| `deadline` | Сколько секунд ждать; потом `TimeoutException`. |
 
-**Возвращает:** The match. Throws when there is none.
+**Возвращает:** Совпадение. Бросает исключение, если совпадения нет.
 
 ### NewMail
 
@@ -134,12 +134,12 @@ public string[] NewMail(string login = null, string domain = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L87)
 
-Builds an address on a service domain; no request creates it, the service accepts mail for any login. Stores the id in `tempMailId` and `mailId`, the address in `email` and `project.Profile.Email`.
+Строит адрес на домене сервиса; запроса на создание нет, сервис принимает почту на любой логин. Сохраняет id в `tempMailId` и `mailId`, адрес — в `email` и `project.Profile.Email`.
 
 | Параметр | Описание |
 |---|---|
-| `login` | Local part; random 10 hex characters when empty. |
-| `domain` | Domain; a random service domain when empty. |
+| `login` | Локальная часть; если пусто — 10 случайных hex-символов. |
+| `domain` | Домен; если пусто — случайный домен сервиса. |
 
 **Возвращает:** `[md5, email]`.
 
@@ -151,11 +151,11 @@ public string Otp(int deadline = 120)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/TempMail.cs#L154)
 
-Waits for a message and returns the first 6-digit number of its subject, else of its text.
+Ждёт письмо и возвращает первое 6-значное число из темы, иначе из текста.
 
 | Параметр | Описание |
 |---|---|
-| `deadline` | Seconds to wait; then `TimeoutException`. |
+| `deadline` | Сколько секунд ждать; потом `TimeoutException`. |
 
-**Возвращает:** The code. Throws when there is none.
+**Возвращает:** Код. Бросает исключение, если кода нет.
 

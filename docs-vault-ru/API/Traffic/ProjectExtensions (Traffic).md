@@ -14,7 +14,7 @@ public class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Accounts)]], [[ProjectExtensions (Browser)]], [[ProjectExtensions (Diagnostic)]], [[ProjectExtensions (Essentials)]], [[ProjectExtensions (Mail)]], [[ProjectExtensions (MethodExtensions)]], [[ProjectExtensions (Reports)]], [[ProjectExtensions (Requests)]]
 
-Extension methods on `IZennoPosterProjectModel`: HAR export.
+Методы расширения для `IZennoPosterProjectModel`: выгрузка HAR.
 
 ## Методы
 
@@ -26,11 +26,11 @@ public static void SaveSuccessHar(this IZennoPosterProjectModel project, Instanc
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Har.cs#L489)
 
-Saves the browser traffic to `{project.Path}/har/{yyyy-MM-dd}/{result}/{project.Name}/{unix ms}.har`. Uses the CDP recorder when `instance.StartHar()` was called; otherwise `HarTraffic.Save` with the main domain as the filter, and a warning in the log.
+Сохраняет трафик браузера в `{project.Path}/har/{yyyy-MM-dd}/{result}/{project.Name}/{unix ms}.har`. Использует запись через CDP, если был вызван `instance.StartHar()`; иначе `HarTraffic.Save` с основным доменом в качестве фильтра и предупреждение в логе.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `filter` | URL filter; default: everything (CDP) or the main domain (GetTraffic). |
-| `result` | Sub-folder name, e.g. `success` or `fail`. |
+| `instance` | Инстанс браузера. |
+| `filter` | Фильтр URL; по умолчанию — всё (CDP) или основной домен (GetTraffic). |
+| `result` | Имя подпапки, например `success` или `fail`. |
 

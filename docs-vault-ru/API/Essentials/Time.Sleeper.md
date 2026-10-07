@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Sleeper
 ```
 
-Random pause within a fixed range.
+Случайная пауза в фиксированном диапазоне.
 
 ## Конструкторы
 
@@ -24,12 +24,12 @@ public Sleeper(int min, int max)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L57)
 
-Creates a sleeper for pauses of `min` … `max` milliseconds, both inclusive.
+Создаёт объект пауз длиной от `min` до `max` миллисекунд, обе границы включительно.
 
 | Параметр | Описание |
 |---|---|
-| `min` | Minimum, ms. Must not be negative. |
-| `max` | Maximum, ms. Must not be less than `min`. |
+| `min` | Минимум, мс. Не может быть отрицательным. |
+| `max` | Максимум, мс. Не меньше `min`. |
 
 ## Методы
 
@@ -41,9 +41,9 @@ public void Sleep(double multiplier = 1.0)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L74)
 
-Blocks the thread for a random time within the range.
+Блокирует поток на случайное время в пределах диапазона.
 
 | Параметр | Описание |
 |---|---|
-| `multiplier` | Scale factor for the pause, e.g. 2.0 waits twice as long. |
+| `multiplier` | Множитель паузы, например 2.0 ждёт вдвое дольше. |
 

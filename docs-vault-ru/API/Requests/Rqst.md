@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Rqst
 ```
 
-HTTP client for ZennoPoster projects: proxy, headers and cookies are taken from the project when not given. Requests go through ZennoPoster's HTTP client by default, serialised by a lock shared by all `Rqst` instances. Every request is appended as a JSON line to the traffic file (`ZpTraffic`).
+HTTP-клиент для проектов ZennoPoster: прокси, заголовки и куки берутся из проекта, если не заданы. По умолчанию запросы идут через HTTP-клиент ZennoPoster и выполняются по очереди под общим для всех экземпляров `Rqst` замком. Каждый запрос дописывается строкой JSON в файл трафика (`ZpTraffic`).
 
 ## Конструкторы
 
@@ -24,12 +24,12 @@ public Rqst(IZennoPosterProjectModel project, bool log = false, bool mask = fals
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/Rqst.cs#L31)
 
-Creates a client for the project.
+Создаёт клиент для проекта.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Log responses and request errors. Without it, nothing is written to the log. |
-| `mask` | Not used. |
+| `log` | Писать в лог ответы и ошибки запросов. Без этого в лог ничего не пишется. |
+| `mask` | Не используется. |
 
 ## Методы
 
@@ -41,22 +41,22 @@ public string DELETE(string url, string proxy = "", string[] headers = null, str
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/Rqst.cs#L226)
 
-Sends a DELETE request.
+Отправляет DELETE-запрос.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `proxy` | Empty for none. `+` — the `proxy` variable, else the `proxy` column of the account's `_instance` row; `z` — the `z_proxy` column of that row; otherwise `[scheme://][user:pass@]host:port` (scheme defaults to http). |
-| `headers` | `Name: value` lines. When empty, the lines of the `headers` variable are used. User-Agent and Content-Type lines set those values (defaults: the profile user agent and `application/json`); Host, Connection, Content-Length and similar transport headers are dropped. |
-| `cookies` | `-` — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's domain from the `cookies` variable (JSON array); when it is empty and `acc0` and `dbSource` are set, from the Base64 `cookies` column of the `_instance` row (also stored into the variable); when nothing is found, the profile cookie container. |
-| `log` | Write the response body to the log. Effective only when the `Rqst` was created with `log: true`. |
-| `deadline` | Timeout in seconds. |
-| `thrw` | Throw on a non-2xx status or a transport error. |
-| `useNetHttp` | Send through `NetHttp` (.NET HttpClient) instead of ZennoPoster's HTTP client. |
-| `returnSuccessWithStatus` | Return `{status}\r\n\r\n{body}` for any status, without the non-2xx handling. |
-| `bodyOnly` | Ask ZennoPoster for the body only; response headers are then not recorded. |
+| `url` | URL запроса. |
+| `proxy` | Пусто — без прокси. `+` — переменная `proxy`, иначе колонка `proxy` строки аккаунта в `_instance`; `z` — колонка `z_proxy` этой строки; иначе `[scheme://][user:pass@]host:port` (схема по умолчанию http). |
+| `headers` | Строки вида `Name: value`. Если пусто, берутся строки переменной `headers`. Строки User-Agent и Content-Type задают эти значения (по умолчанию user agent профиля и `application/json`); Host, Connection, Content-Length и подобные транспортные заголовки отбрасываются. |
+| `cookies` | `-` — без кук. Любой другой текст отправляется как заголовок Cookie. Пусто — куки для домена URL из переменной `cookies` (JSON-массив); если она пуста, а `acc0` и `dbSource` заданы, — из колонки `cookies` в Base64 строки `_instance` (заодно сохраняются в переменную); если ничего не найдено — контейнер кук профиля. |
+| `log` | Писать тело ответа в лог. Работает, только если `Rqst` создан с `log: true`. |
+| `deadline` | Таймаут в секундах. |
+| `thrw` | Бросать исключение при статусе не 2xx или транспортной ошибке. |
+| `useNetHttp` | Отправлять через `NetHttp` (.NET HttpClient), а не через HTTP-клиент ZennoPoster. |
+| `returnSuccessWithStatus` | Возвращать `{status}\r\n\r\n{body}` для любого статуса, без обработки статусов не 2xx. |
+| `bodyOnly` | Запрашивать у ZennoPoster только тело; заголовки ответа тогда не записываются. |
 
-**Возвращает:** The trimmed response body. For a non-2xx status: the body (or an exception with `thrw`). For a transport error: `Error: {message}` (or the exception with `thrw`).
+**Возвращает:** Тело ответа без пробелов по краям. При статусе не 2xx — тело (или исключение при `thrw`). При транспортной ошибке — `Error: {message}` (или исключение при `thrw`).
 
 ### GET
 
@@ -66,23 +66,23 @@ public string GET(string url, string proxy = "", string[] headers = null, string
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/Rqst.cs#L100)
 
-Sends a GET request.
+Отправляет GET-запрос.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `proxy` | Empty for none. `+` — the `proxy` variable, else the `proxy` column of the account's `_instance` row; `z` — the `z_proxy` column of that row; otherwise `[scheme://][user:pass@]host:port` (scheme defaults to http). |
-| `headers` | `Name: value` lines. When empty, the lines of the `headers` variable are used. User-Agent and Content-Type lines set those values (defaults: the profile user agent and `application/json`); Host, Connection, Content-Length and similar transport headers are dropped. |
-| `cookies` | `-` — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's domain from the `cookies` variable (JSON array); when it is empty and `acc0` and `dbSource` are set, from the Base64 `cookies` column of the `_instance` row (also stored into the variable); when nothing is found, the profile cookie container. |
-| `log` | Write the response body to the log. Effective only when the `Rqst` was created with `log: true`. |
-| `parse` | Load the response body into `project.Json`. |
-| `deadline` | Timeout in seconds. |
-| `thrw` | Throw on a non-2xx status or a transport error. |
-| `useNetHttp` | Send through `NetHttp` (.NET HttpClient) instead of ZennoPoster's HTTP client. |
-| `returnSuccessWithStatus` | Return `{status}\r\n\r\n{body}` for any status, without the non-2xx handling. |
-| `bodyOnly` | Ask ZennoPoster for the body only; response headers are then not recorded. |
+| `url` | URL запроса. |
+| `proxy` | Пусто — без прокси. `+` — переменная `proxy`, иначе колонка `proxy` строки аккаунта в `_instance`; `z` — колонка `z_proxy` этой строки; иначе `[scheme://][user:pass@]host:port` (схема по умолчанию http). |
+| `headers` | Строки вида `Name: value`. Если пусто, берутся строки переменной `headers`. Строки User-Agent и Content-Type задают эти значения (по умолчанию user agent профиля и `application/json`); Host, Connection, Content-Length и подобные транспортные заголовки отбрасываются. |
+| `cookies` | `-` — без кук. Любой другой текст отправляется как заголовок Cookie. Пусто — куки для домена URL из переменной `cookies` (JSON-массив); если она пуста, а `acc0` и `dbSource` заданы, — из колонки `cookies` в Base64 строки `_instance` (заодно сохраняются в переменную); если ничего не найдено — контейнер кук профиля. |
+| `log` | Писать тело ответа в лог. Работает, только если `Rqst` создан с `log: true`. |
+| `parse` | Загрузить тело ответа в `project.Json`. |
+| `deadline` | Таймаут в секундах. |
+| `thrw` | Бросать исключение при статусе не 2xx или транспортной ошибке. |
+| `useNetHttp` | Отправлять через `NetHttp` (.NET HttpClient), а не через HTTP-клиент ZennoPoster. |
+| `returnSuccessWithStatus` | Возвращать `{status}\r\n\r\n{body}` для любого статуса, без обработки статусов не 2xx. |
+| `bodyOnly` | Запрашивать у ZennoPoster только тело; заголовки ответа тогда не записываются. |
 
-**Возвращает:** The trimmed response body. For a non-2xx status: the body (or an exception with `thrw`). For a transport error: `Error: {message}` (or the exception with `thrw`).
+**Возвращает:** Тело ответа без пробелов по краям. При статусе не 2xx — тело (или исключение при `thrw`). При транспортной ошибке — `Error: {message}` (или исключение при `thrw`).
 
 ### POST
 
@@ -92,24 +92,24 @@ public string POST(string url, string body, string proxy = "", string[] headers 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/Rqst.cs#L142)
 
-Sends a POST request.
+Отправляет POST-запрос.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `body` | Request body. |
-| `proxy` | Empty for none. `+` — the `proxy` variable, else the `proxy` column of the account's `_instance` row; `z` — the `z_proxy` column of that row; otherwise `[scheme://][user:pass@]host:port` (scheme defaults to http). |
-| `headers` | `Name: value` lines. When empty, the lines of the `headers` variable are used. User-Agent and Content-Type lines set those values (defaults: the profile user agent and `application/json`); Host, Connection, Content-Length and similar transport headers are dropped. |
-| `cookies` | `-` — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's domain from the `cookies` variable (JSON array); when it is empty and `acc0` and `dbSource` are set, from the Base64 `cookies` column of the `_instance` row (also stored into the variable); when nothing is found, the profile cookie container. |
-| `log` | Write the response body to the log. Effective only when the `Rqst` was created with `log: true`. |
-| `parse` | Load the response body into `project.Json`. |
-| `deadline` | Timeout in seconds. |
-| `thrw` | Throw on a non-2xx status or a transport error. |
-| `useNetHttp` | Send through `NetHttp` (.NET HttpClient) instead of ZennoPoster's HTTP client. |
-| `returnSuccessWithStatus` | Return `{status}\r\n\r\n{body}` for any status, without the non-2xx handling. |
-| `bodyOnly` | Ask ZennoPoster for the body only; response headers are then not recorded. |
+| `url` | URL запроса. |
+| `body` | Тело запроса. |
+| `proxy` | Пусто — без прокси. `+` — переменная `proxy`, иначе колонка `proxy` строки аккаунта в `_instance`; `z` — колонка `z_proxy` этой строки; иначе `[scheme://][user:pass@]host:port` (схема по умолчанию http). |
+| `headers` | Строки вида `Name: value`. Если пусто, берутся строки переменной `headers`. Строки User-Agent и Content-Type задают эти значения (по умолчанию user agent профиля и `application/json`); Host, Connection, Content-Length и подобные транспортные заголовки отбрасываются. |
+| `cookies` | `-` — без кук. Любой другой текст отправляется как заголовок Cookie. Пусто — куки для домена URL из переменной `cookies` (JSON-массив); если она пуста, а `acc0` и `dbSource` заданы, — из колонки `cookies` в Base64 строки `_instance` (заодно сохраняются в переменную); если ничего не найдено — контейнер кук профиля. |
+| `log` | Писать тело ответа в лог. Работает, только если `Rqst` создан с `log: true`. |
+| `parse` | Загрузить тело ответа в `project.Json`. |
+| `deadline` | Таймаут в секундах. |
+| `thrw` | Бросать исключение при статусе не 2xx или транспортной ошибке. |
+| `useNetHttp` | Отправлять через `NetHttp` (.NET HttpClient), а не через HTTP-клиент ZennoPoster. |
+| `returnSuccessWithStatus` | Возвращать `{status}\r\n\r\n{body}` для любого статуса, без обработки статусов не 2xx. |
+| `bodyOnly` | Запрашивать у ZennoPoster только тело; заголовки ответа тогда не записываются. |
 
-**Возвращает:** The trimmed response body. For a non-2xx status: the body (or an exception with `thrw`). For a transport error: `Error: {message}` (or the exception with `thrw`).
+**Возвращает:** Тело ответа без пробелов по краям. При статусе не 2xx — тело (или исключение при `thrw`). При транспортной ошибке — `Error: {message}` (или исключение при `thrw`).
 
 ### PUT
 
@@ -119,22 +119,22 @@ public string PUT(string url, string body, string proxy = "", string[] headers =
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/Rqst.cs#L185)
 
-Sends a PUT request.
+Отправляет PUT-запрос.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `body` | Request body. |
-| `proxy` | Empty for none. `+` — the `proxy` variable, else the `proxy` column of the account's `_instance` row; `z` — the `z_proxy` column of that row; otherwise `[scheme://][user:pass@]host:port` (scheme defaults to http). |
-| `headers` | `Name: value` lines. When empty, the lines of the `headers` variable are used. User-Agent and Content-Type lines set those values (defaults: the profile user agent and `application/json`); Host, Connection, Content-Length and similar transport headers are dropped. |
-| `cookies` | `-` — no cookies. Any other text is sent as the Cookie header. Empty — cookies for the URL's domain from the `cookies` variable (JSON array); when it is empty and `acc0` and `dbSource` are set, from the Base64 `cookies` column of the `_instance` row (also stored into the variable); when nothing is found, the profile cookie container. |
-| `log` | Write the response body to the log. Effective only when the `Rqst` was created with `log: true`. |
-| `parse` | Load the response body into `project.Json`. |
-| `deadline` | Timeout in seconds. |
-| `thrw` | Throw on a non-2xx status or a transport error. |
-| `useNetHttp` | Send through `NetHttp` (.NET HttpClient) instead of ZennoPoster's HTTP client. |
-| `returnSuccessWithStatus` | Return `{status}\r\n\r\n{body}` for any status, without the non-2xx handling. |
-| `bodyOnly` | Ask ZennoPoster for the body only; response headers are then not recorded. |
+| `url` | URL запроса. |
+| `body` | Тело запроса. |
+| `proxy` | Пусто — без прокси. `+` — переменная `proxy`, иначе колонка `proxy` строки аккаунта в `_instance`; `z` — колонка `z_proxy` этой строки; иначе `[scheme://][user:pass@]host:port` (схема по умолчанию http). |
+| `headers` | Строки вида `Name: value`. Если пусто, берутся строки переменной `headers`. Строки User-Agent и Content-Type задают эти значения (по умолчанию user agent профиля и `application/json`); Host, Connection, Content-Length и подобные транспортные заголовки отбрасываются. |
+| `cookies` | `-` — без кук. Любой другой текст отправляется как заголовок Cookie. Пусто — куки для домена URL из переменной `cookies` (JSON-массив); если она пуста, а `acc0` и `dbSource` заданы, — из колонки `cookies` в Base64 строки `_instance` (заодно сохраняются в переменную); если ничего не найдено — контейнер кук профиля. |
+| `log` | Писать тело ответа в лог. Работает, только если `Rqst` создан с `log: true`. |
+| `parse` | Загрузить тело ответа в `project.Json`. |
+| `deadline` | Таймаут в секундах. |
+| `thrw` | Бросать исключение при статусе не 2xx или транспортной ошибке. |
+| `useNetHttp` | Отправлять через `NetHttp` (.NET HttpClient), а не через HTTP-клиент ZennoPoster. |
+| `returnSuccessWithStatus` | Возвращать `{status}\r\n\r\n{body}` для любого статуса, без обработки статусов не 2xx. |
+| `bodyOnly` | Запрашивать у ZennoPoster только тело; заголовки ответа тогда не записываются. |
 
-**Возвращает:** The trimmed response body. For a non-2xx status: the body (or an exception with `thrw`). For a transport error: `Error: {message}` (or the exception with `thrw`).
+**Возвращает:** Тело ответа без пробелов по краям. При статусе не 2xx — тело (или исключение при `thrw`). При транспортной ошибке — `Error: {message}` (или исключение при `thrw`).
 

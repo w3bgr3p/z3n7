@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbLock
 ```
 
-Shared lock object for code that must not access the database concurrently.
+Общий объект блокировки для кода, который не должен обращаться к базе одновременно.
 
 ## Поля
 
@@ -24,5 +24,5 @@ public static readonly object lockObj;
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L17)
 
-The lock object.
+Объект блокировки.
 

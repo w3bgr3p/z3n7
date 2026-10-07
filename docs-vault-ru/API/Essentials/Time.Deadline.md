@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Deadline
 ```
 
-Stopwatch that throws once a time limit is exceeded.
+Секундомер, который бросает исключение при превышении предела времени.
 
 ## Конструкторы
 
@@ -24,7 +24,7 @@ public Deadline()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L19)
 
-Starts the stopwatch.
+Запускает секундомер.
 
 ## Методы
 
@@ -36,11 +36,11 @@ public double Check(double limitSec)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L25)
 
-Returns the seconds elapsed since start or the last `Reset`.
+Возвращает число секунд, прошедших со старта или с последнего `Reset`.
 
 | Параметр | Описание |
 |---|---|
-| `limitSec` | Limit in seconds; exceeding it throws `TimeoutException`. |
+| `limitSec` | Предел в секундах; при превышении бросается `TimeoutException`. |
 
 ### Reset
 
@@ -50,5 +50,5 @@ public void Reset()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Time.cs#L37)
 
-Restarts the stopwatch.
+Перезапускает секундомер.
 

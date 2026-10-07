@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class ListExtensions
 ```
 
-Extension methods on lists.
+Методы расширения для списков.
 
 ## Методы
 
@@ -24,11 +24,11 @@ public static T Rnd<T>(this IList<T> list, bool remove = false)
 
 Метод расширения для `IList<T>`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/MethodExtensions/ListExtentions.cs#L20)
 
-Returns a random item.
+Возвращает случайный элемент.
 
 | Параметр | Описание |
 |---|---|
-| `remove` | Also remove it from the list. |
+| `remove` | Заодно удалить его из списка. |
 
-**Возвращает:** The item. Throws when the list is empty.
+**Возвращает:** Элемент. Бросает исключение, если список пуст.
 

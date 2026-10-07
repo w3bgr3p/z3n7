@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class CookieCollector
 ```
 
-Collects cookies by visiting sites over plain HTTP (not the browser), starting from an existing cookie set, and returns them as browser-extension style JSON.
+Собирает куки, обходя сайты по обычному HTTP (не браузером), начиная с имеющегося набора кук, и возвращает их в JSON в формате браузерных расширений.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public string Accept { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L39)
 
-Accept header of the requests.
+Заголовок Accept запросов.
 
 ### AcceptLanguage
 
@@ -34,7 +34,7 @@ public string AcceptLanguage { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L43)
 
-Accept-Language header of the requests.
+Заголовок Accept-Language запросов.
 
 ### AllowRedirects
 
@@ -44,7 +44,7 @@ public bool AllowRedirects { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L24)
 
-Follow redirects (up to 10).
+Следовать редиректам (до 10).
 
 ### Log
 
@@ -54,7 +54,7 @@ public Action<string> Log { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L47)
 
-Receives `COOKIES={count}` at the end of `Run`; `null` for none.
+Получает `COOKIES={count}` в конце `Run`; `null` — ничего.
 
 ### MaxCookieAgeDays
 
@@ -64,7 +64,7 @@ public int MaxCookieAgeDays { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L28)
 
-Upper bound of the made-up age of new cookies, days.
+Верхняя граница выдуманного возраста новых кук, в днях.
 
 ### MaxLastAccessAgeDays
 
@@ -74,7 +74,7 @@ public int MaxLastAccessAgeDays { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L30)
 
-Made-up last-access dates of new cookies fall within this many days before now.
+Выдуманные даты последнего обращения у новых кук попадают в столько дней до текущего момента.
 
 ### MinCookieAgeDays
 
@@ -84,7 +84,7 @@ public int MinCookieAgeDays { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L26)
 
-Lower bound of the made-up age of new cookies, days.
+Нижняя граница выдуманного возраста новых кук, в днях.
 
 ### TimeoutSeconds
 
@@ -94,7 +94,7 @@ public int TimeoutSeconds { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L22)
 
-Timeout of each request, seconds.
+Таймаут каждого запроса, секунды.
 
 ### UserAgent
 
@@ -104,7 +104,7 @@ public string UserAgent { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L33)
 
-User-Agent header of the requests.
+Заголовок User-Agent запросов.
 
 ## Методы
 
@@ -116,13 +116,13 @@ public string Run(IEnumerable<string> services, string cookiesJson, string proxy
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/CookieCollector.cs#L63)
 
-Loads `cookiesJson`, sends a GET to each service and saves every cookie of the involved domains. A service that times out or fails is skipped. Cookies without `creationDate` get random creation and last-access dates within the configured ages.
+Загружает `cookiesJson`, отправляет GET на каждый сервис и сохраняет все куки затронутых доменов. Сервис, который не ответил вовремя или упал, пропускается. Куки без `creationDate` получают случайные даты создания и последнего обращения в пределах заданных возрастов.
 
 | Параметр | Описание |
 |---|---|
-| `services` | URLs or host names; `https://` is added when missing. |
-| `cookiesJson` | Starting cookies: JSON array with `name`, `value`, `domain`, `path`, `secure`, `httpOnly`, `expirationDate` and optional `creationDate`/`lastAccessDate`. |
-| `proxy` | `[scheme://][user:pass@]host:port`; empty for none. |
+| `services` | URL или имена хостов; если нет `https://`, он добавляется. |
+| `cookiesJson` | Начальные куки: JSON-массив с `name`, `value`, `domain`, `path`, `secure`, `httpOnly`, `expirationDate` и необязательными `creationDate`/`lastAccessDate`. |
+| `proxy` | `[scheme://][user:pass@]host:port`; пусто — без прокси. |
 
-**Возвращает:** JSON array of cookies in the same format.
+**Возвращает:** JSON-массив кук в том же формате.
 

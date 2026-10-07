@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class HtmlEncoder
 ```
 
-HTML escaping helpers.
+Помощники для экранирования HTML.
 
 ## Методы
 
@@ -24,7 +24,7 @@ public static string HtmlAttributeEncode(string text)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L237)
 
-Escapes `& " ' < >` for HTML attribute values.
+Экранирует `& " ' < >` для значений HTML-атрибутов.
 
 ### HtmlEncode
 
@@ -34,5 +34,5 @@ public static string HtmlEncode(string text)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L223)
 
-Escapes `& < > " '` for HTML text.
+Экранирует `& < > " '` для текста HTML.
 

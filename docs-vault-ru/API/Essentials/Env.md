@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class Env
 ```
 
-Reads settings from a `.env` file.
+Читает настройки из файла `.env`.
 
 ## Методы
 
@@ -24,12 +24,12 @@ public static string ReadEnv(this IZennoPosterProjectModel project, string key, 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Env.cs#L23)
 
-Returns the value of `key` from a `.env` file, or `null` when the file or the key is missing. Lines are `KEY=value`; empty lines and lines starting with `#` are skipped. The key is matched case-insensitively; surrounding single or double quotes are removed from the value.
+Возвращает значение `key` из файла `.env` или `null`, если нет файла или ключа. Строки вида `KEY=value`; пустые строки и строки, начинающиеся с `#`, пропускаются. Ключ сравнивается без учёта регистра; одинарные или двойные кавычки вокруг значения убираются.
 
 | Параметр | Описание |
 |---|---|
-| `key` | Name of the setting. |
-| `global` | false: the file next to the project (`project.Path`). true: the file next to `z3n7.dll`. |
+| `key` | Имя настройки. |
+| `global` | false — файл рядом с проектом (`project.Path`). true — файл рядом с `z3n7.dll`. |
 
-**Возвращает:** The value, or `null`.
+**Возвращает:** Значение или `null`.
 

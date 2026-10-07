@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class BrowserScan
 ```
 
-Reads the fingerprint report of `browserscan.net` in a browser instance.
+Читает отчёт об отпечатке `browserscan.net` в инстансе браузера.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public BrowserScan(IZennoPosterProjectModel project, Instance instance, Logger l
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/BrowserScan.cs#L21)
 
-Creates the reader.
+Создаёт читателя.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Logger for progress; `null` logs nothing. |
+| `log` | Логгер для хода работы; `null` — ничего не писать. |
 
 ## Методы
 
@@ -40,7 +40,7 @@ public string FixTime()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/BrowserScan.cs#L180)
 
-Opens `browserscan.net` and waits for it to finish (checked every 3–5 seconds, up to 60 seconds). Sets the instance timezone to the page's IP-based offset (emulation mode) and IANA zone.
+Открывает `browserscan.net` и ждёт окончания проверки (каждые 3–5 секунд, до 60 секунд). Ставит инстансу часовой пояс по смещению IP со страницы (режим эмуляции) и зону IANA.
 
 **Возвращает:** JSON `{ timezoneOffset, timezoneName }`.
 
@@ -52,9 +52,9 @@ public string GetScore()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/BrowserScan.cs#L134)
 
-Opens `browserscan.net` and waits for it to finish (checked every 3–5 seconds, up to 60 seconds). Reads the overall score.
+Открывает `browserscan.net` и ждёт окончания проверки (каждые 3–5 секунд, до 60 секунд). Считывает общую оценку.
 
-**Возвращает:** `[score] problems`; problems are listed when the score is not 100%.
+**Возвращает:** `[score] problems`; проблемы перечисляются, если оценка не 100%.
 
 ### ParseStats
 
@@ -64,9 +64,9 @@ public Dictionary<string, string> ParseStats()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/BrowserScan.cs#L79)
 
-Opens `browserscan.net` and waits for it to finish (checked every 3–5 seconds, up to 60 seconds). Reads WebGL, WebGL report, audio, client rects, WebGPU report, fonts and the IP-based timezone and time, and writes them to the current account's row of the `_browserscan` table (created and filled with account rows if needed).
+Открывает `browserscan.net` и ждёт окончания проверки (каждые 3–5 секунд, до 60 секунд). Считывает WebGL, отчёт WebGL, аудио, client rects, отчёт WebGPU, шрифты и часовой пояс и время по IP и записывает их в строку текущего аккаунта таблицы `_browserscan` (при необходимости таблица создаётся и заполняется строками аккаунтов).
 
-**Возвращает:** Field → value as shown on the page.
+**Возвращает:** Поле → значение, как оно показано на странице.
 
 ### Problems
 
@@ -76,7 +76,7 @@ public Dictionary<string, string> Problems()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/BrowserScan.cs#L153)
 
-Opens `browserscan.net` and waits for it to finish (checked every 3–5 seconds, up to 60 seconds). Reads the listed problems when the score is not 100%.
+Открывает `browserscan.net` и ждёт окончания проверки (каждые 3–5 секунд, до 60 секунд). Считывает перечисленные проблемы, если оценка не 100%.
 
-**Возвращает:** Problem → description; empty at 100%.
+**Возвращает:** Проблема → описание; при 100% пусто.
 

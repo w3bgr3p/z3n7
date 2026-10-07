@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class GpuArch
 ```
 
-GPU models of one architecture.
+Модели GPU одной архитектуры.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public string Arch { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L32)
 
-Architecture name, e.g. `Ampere`.
+Название архитектуры, например `Ampere`.
 
 ### Models
 
@@ -34,5 +34,5 @@ public List<GpuModel> Models { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/GpuSpoof.cs#L34)
 
-Models of this architecture.
+Модели этой архитектуры.
 

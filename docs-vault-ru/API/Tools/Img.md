@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Img
 ```
 
-SVG rendering.
+Отрисовка SVG.
 
 ## Методы
 
@@ -24,13 +24,13 @@ public static string DrawSvgAsBase64(string svgContent)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Img.cs#L26)
 
-Renders SVG markup to PNG.
+Отрисовывает SVG-разметку в PNG.
 
 | Параметр | Описание |
 |---|---|
-| `svgContent` | SVG markup. |
+| `svgContent` | SVG-разметка. |
 
-**Возвращает:** The PNG as Base64.
+**Возвращает:** PNG в Base64.
 
 ### ImgFromSvg
 
@@ -40,10 +40,10 @@ public static void ImgFromSvg(string svgContent, string pathToScreen)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Img.cs#L14)
 
-Renders SVG markup to an image file; the format follows the file extension.
+Отрисовывает SVG-разметку в файл картинки; формат определяется расширением файла.
 
 | Параметр | Описание |
 |---|---|
-| `svgContent` | SVG markup. |
-| `pathToScreen` | Target file. |
+| `svgContent` | SVG-разметка. |
+| `pathToScreen` | Целевой файл. |
 

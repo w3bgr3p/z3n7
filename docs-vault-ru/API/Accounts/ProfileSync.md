@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class ProfileSync
 ```
 
-Saves the ZennoPoster profile, instance settings, cookies and WebGL settings of the current account to database tables and restores them.
+Сохраняет профиль ZennoPoster, настройки инстанса, куки и настройки WebGL текущего аккаунта в таблицы базы и восстанавливает их.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public ProfileSync(IZennoPosterProjectModel project, Instance instance, Logger l
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/ProfileSync.cs#L22)
 
-Creates the helper.
+Создаёт помощника.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Logger for progress; `null` logs nothing. |
+| `log` | Логгер для хода работы; `null` — ничего не писать. |
 
 ## Методы
 
@@ -40,11 +40,11 @@ public void AddStructureToDb(bool log = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/ProfileSync.cs#L169)
 
-Creates the `folder_*`, `zpprofile_*` and `zb_*` tables with account rows and the profile and instance columns, unless `folder_profile` and `zb_profile` already exist.
+Создаёт таблицы `folder_*`, `zpprofile_*` и `zb_*` со строками аккаунтов и колонками профиля и инстанса, если `folder_profile` и `zb_profile` ещё не существуют.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Not used. |
+| `log` | Не используется. |
 
 ### RestoreProfile
 
@@ -54,16 +54,16 @@ public void RestoreProfile(string restoreFrom, bool restoreProfile = true, bool 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/ProfileSync.cs#L45)
 
-Restores the current account's data from the tables of `restoreFrom`. Throws for any other source.
+Восстанавливает данные текущего аккаунта из таблиц `restoreFrom`. Для любого другого источника бросает исключение.
 
 | Параметр | Описание |
 |---|---|
-| `restoreFrom` | `folder`, `zb` or `zpprofile`: the prefix of the tables `{prefix}_profile`, `{prefix}_instance` and `{prefix}_webgl`. |
-| `restoreProfile` | Profile properties. |
-| `restoreCookies` | Cookies (Base64 in the `cookies` column). |
-| `restoreInstance` | Instance properties. |
-| `restoreWebgl` | WebGL settings (`_preferences` column). |
-| `rebuildWebgl` | Rebuild the WebGL settings from the flattened JSON columns (`DbToJson`) instead of `_preferences`. |
+| `restoreFrom` | `folder`, `zb` или `zpprofile`: префикс таблиц `{prefix}_profile`, `{prefix}_instance` и `{prefix}_webgl`. |
+| `restoreProfile` | Свойства профиля. |
+| `restoreCookies` | Куки (Base64 в колонке `cookies`). |
+| `restoreInstance` | Свойства инстанса. |
+| `restoreWebgl` | Настройки WebGL (колонка `_preferences`). |
+| `rebuildWebgl` | Восстанавливать настройки WebGL из развёрнутых JSON-колонок (`DbToJson`), а не из `_preferences`. |
 
 ### SaveProfile
 
@@ -73,13 +73,13 @@ public void SaveProfile(string saveTo, bool saveProfile = true, bool saveInstanc
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/ProfileSync.cs#L112)
 
-Saves the current account's data to the tables of `saveTo`. Throws for any other target.
+Сохраняет данные текущего аккаунта в таблицы `saveTo`. Для любой другой цели бросает исключение.
 
 | Параметр | Описание |
 |---|---|
-| `saveTo` | `folder`, `zb` or `zpprofile`: the prefix of the tables `{prefix}_profile`, `{prefix}_instance` and `{prefix}_webgl`. |
-| `saveProfile` | Profile properties. |
-| `saveInstance` | Instance properties. |
-| `saveCookies` | All cookies (`SaveAllCookies`). |
-| `saveWebgl` | WebGL settings, both as `_preferences` and flattened into columns. |
+| `saveTo` | `folder`, `zb` или `zpprofile`: префикс таблиц `{prefix}_profile`, `{prefix}_instance` и `{prefix}_webgl`. |
+| `saveProfile` | Свойства профиля. |
+| `saveInstance` | Свойства инстанса. |
+| `saveCookies` | Все куки (`SaveAllCookies`). |
+| `saveWebgl` | Настройки WebGL — и в `_preferences`, и развёрнутые по колонкам. |
 

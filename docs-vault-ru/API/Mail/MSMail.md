@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class MSMail
 ```
 
-Microsoft mailbox access over Microsoft Graph with an OAuth refresh token. Credentials are kept in the `mail` table of a `FastDb` (created if missing): the row of the address in the `mail` project variable supplies `thunderbird_client_id` and `graph_refresh_token`.
+Доступ к ящикам Microsoft через Microsoft Graph по OAuth refresh token. Учётные данные хранятся в таблице `mail` базы `FastDb` (создаётся, если её нет): строка адреса из переменной проекта `mail` даёт `thunderbird_client_id` и `graph_refresh_token`.
 
 ## Конструкторы
 
@@ -24,13 +24,13 @@ public MSMail(IZennoPosterProjectModel project, FastDb db, string proxy = "", bo
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L40)
 
-Creates the client. When the `mail` variable is set, loads its credentials and gets an access token right away; throws when the table has no credentials for it or the token request fails.
+Создаёт клиент. Если задана переменная `mail`, загружает её учётные данные и сразу получает токен доступа; бросает исключение, если в таблице нет учётных данных для неё или запрос токена не удался.
 
 | Параметр | Описание |
 |---|---|
-| `db` | Database with the `mail` table. |
-| `proxy` | Proxy for Graph requests (`Rqst` format). The token request itself is sent directly. |
-| `log` | Log requests and responses. |
+| `db` | База с таблицей `mail`. |
+| `proxy` | Прокси для запросов к Graph (формат `Rqst`). Сам запрос токена идёт напрямую. |
+| `log` | Писать запросы и ответы в лог. |
 
 ## Методы
 
@@ -42,11 +42,11 @@ public void CleanAll(int batchSize = 50)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L242)
 
-Deletes all messages, `batchSize` at a time.
+Удаляет все письма порциями по `batchSize`.
 
 | Параметр | Описание |
 |---|---|
-| `batchSize` | Messages fetched per round. |
+| `batchSize` | Сколько писем запрашивать за один проход. |
 
 ### Delete
 
@@ -56,13 +56,13 @@ public string Delete(string endpoint)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L122)
 
-Sends a DELETE request to Microsoft Graph.
+Отправляет DELETE-запрос в Microsoft Graph.
 
 | Параметр | Описание |
 |---|---|
-| `endpoint` | Path under `https://graph.microsoft.com/v1.0/`, e.g. `me/messages`. |
+| `endpoint` | Путь после `https://graph.microsoft.com/v1.0/`, например `me/messages`. |
 
-**Возвращает:** Response body. Throws on a non-2xx status.
+**Возвращает:** Тело ответа. При статусе не 2xx бросает исключение.
 
 ### DelLast
 
@@ -72,7 +72,7 @@ public void DelLast()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L221)
 
-Deletes the newest message, if there is one.
+Удаляет самое новое письмо, если оно есть.
 
 ### Get
 
@@ -82,13 +82,13 @@ public string Get(string endpoint)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L98)
 
-Sends a GET request to Microsoft Graph.
+Отправляет GET-запрос в Microsoft Graph.
 
 | Параметр | Описание |
 |---|---|
-| `endpoint` | Path under `https://graph.microsoft.com/v1.0/`, e.g. `me/messages`. |
+| `endpoint` | Путь после `https://graph.microsoft.com/v1.0/`, например `me/messages`. |
 
-**Возвращает:** Response body. Throws on a non-2xx status.
+**Возвращает:** Тело ответа. При статусе не 2xx бросает исключение.
 
 ### GetMessages
 
@@ -98,11 +98,11 @@ public JArray GetMessages(int top = 10)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L132)
 
-Mailbox messages, newest first.
+Письма ящика, сначала новые.
 
 | Параметр | Описание |
 |---|---|
-| `top` | How many. |
+| `top` | Сколько. |
 
 ### ImportFromJson
 
@@ -112,11 +112,11 @@ public void ImportFromJson(string json)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L291)
 
-Adds mailboxes to the `mail` table from a JSON array; existing addresses are left as they are.
+Добавляет ящики в таблицу `mail` из JSON-массива; уже существующие адреса не трогает.
 
 | Параметр | Описание |
 |---|---|
-| `json` | Array of objects with `email`, `password`, `access_token`, `refresh_token`, `thunderbird_client_id`, `graph_access_token`, `graph_refresh_token`. |
+| `json` | Массив объектов с `email`, `password`, `access_token`, `refresh_token`, `thunderbird_client_id`, `graph_access_token`, `graph_refresh_token`. |
 
 ### Post
 
@@ -126,14 +126,14 @@ public string Post(string endpoint, string jsonBody)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L110)
 
-Sends a POST request with a JSON body to Microsoft Graph.
+Отправляет POST-запрос с телом в JSON в Microsoft Graph.
 
 | Параметр | Описание |
 |---|---|
-| `endpoint` | Path under `https://graph.microsoft.com/v1.0/`, e.g. `me/messages`. |
-| `jsonBody` | JSON body. |
+| `endpoint` | Путь после `https://graph.microsoft.com/v1.0/`, например `me/messages`. |
+| `jsonBody` | Тело в JSON. |
 
-**Возвращает:** Response body. Throws on a non-2xx status.
+**Возвращает:** Тело ответа. При статусе не 2xx бросает исключение.
 
 ### SelfCheck
 
@@ -143,14 +143,14 @@ public bool SelfCheck(int timeoutSeconds = 30, int checkIntervalSeconds = 3)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L170)
 
-Sends a message with a unique subject to the mailbox itself and waits until it shows up among the latest 20 messages.
+Отправляет письмо с уникальной темой самому ящику и ждёт, пока оно появится среди последних 20 писем.
 
 | Параметр | Описание |
 |---|---|
-| `timeoutSeconds` | How long to wait. |
-| `checkIntervalSeconds` | Pause between checks. |
+| `timeoutSeconds` | Сколько ждать. |
+| `checkIntervalSeconds` | Пауза между проверками. |
 
-**Возвращает:** `true` when the message arrived in time.
+**Возвращает:** `true`, если письмо пришло вовремя.
 
 ### SendMail
 
@@ -160,11 +160,11 @@ public void SendMail(string toEmail, string subject, string body)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/MSMail.cs#L143)
 
-Sends a plain-text message.
+Отправляет текстовое сообщение.
 
 | Параметр | Описание |
 |---|---|
-| `toEmail` | Recipient. |
-| `subject` | Subject. |
-| `body` | Text. |
+| `toEmail` | Получатель. |
+| `subject` | Тема. |
+| `body` | Текст. |
 

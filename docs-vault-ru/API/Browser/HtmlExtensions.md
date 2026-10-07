@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class HtmlExtensions
 ```
 
-Helpers for ZennoPoster `HtmlElement`: centre point, QR decoding, XPath.
+Помощники для `HtmlElement` ZennoPoster: точка центра, распознавание QR, XPath.
 
 ## Методы
 
@@ -24,13 +24,13 @@ public static Point Center(this HtmlElement element, Point origin)
 
 Метод расширения для `HtmlElement`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/HtmlExtensions.cs#L19)
 
-Centre of the element relative to `origin` (bounding-client size when known, else the element size).
+Центр элемента относительно `origin` (по размеру bounding client rect, если он известен, иначе по размеру элемента).
 
 | Параметр | Описание |
 |---|---|
-| `origin` | Top-left corner of the element. |
+| `origin` | Левый верхний угол элемента. |
 
-**Возвращает:** The point. Throws when the element is null or void.
+**Возвращает:** Точка. Бросает исключение, если элемент null или пустой.
 
 ### DecodeQr
 
@@ -40,9 +40,9 @@ public static string DecodeQr(this HtmlElement element)
 
 Метод расширения для `HtmlElement`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/HtmlExtensions.cs#L35)
 
-Draws the element and decodes a QR code from the picture (ZXing).
+Отрисовывает элемент и распознаёт QR-код с картинки (ZXing).
 
-**Возвращает:** The decoded text, or one of `elementZeroSize`, `bitmapIsNull`, `qrIsNull`, or an exception message. Never throws.
+**Возвращает:** Распознанный текст или одно из `elementZeroSize`, `bitmapIsNull`, `qrIsNull`, или сообщение исключения. Исключений не бросает.
 
 ### GetXPath
 
@@ -52,9 +52,9 @@ public static string GetXPath(this HtmlElement element)
 
 Метод расширения для `HtmlElement`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/HtmlExtensions.cs#L62)
 
-Builds an XPath for the element by walking up to `body`. Each step uses `@id`, else the first class, else `@name`, else the position among same-tag siblings.
+Строит XPath элемента, поднимаясь до `body`. На каждом шаге берётся `@id`, иначе первый класс, иначе `@name`, иначе позиция среди соседей с тем же тегом.
 
-**Возвращает:** The XPath, starting with `//*`; empty for a void element.
+**Возвращает:** XPath, начинающийся с `//*`; пусто для пустого элемента.
 
 ### VerifyXPath
 
@@ -64,5 +64,5 @@ public static bool VerifyXPath(Tab tab, HtmlElement originalElement, string xpat
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/HtmlExtensions.cs#L141)
 
-Checks that the first element found by `xpath` in `tab` has the same outer HTML as `originalElement`.
+Проверяет, что у первого элемента, найденного по `xpath` в `tab`, такой же outer HTML, как у `originalElement`.
 

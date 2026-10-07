@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbMigration
 ```
 
-Copying tables inside the project database and between PostgreSQL and SQLite.
+Копирование таблиц внутри базы проекта и между PostgreSQL и SQLite.
 
 ## Методы
 
@@ -24,9 +24,9 @@ public static void MigrateAllTables(this IZennoPosterProjectModel project)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1719)
 
-Copies every user table from the current database to the other kind: PostgreSQL → SQLite or SQLite → PostgreSQL (see `Sql.MigrateAllTablesAsync`). Errors are written to the log as a warning.
+Копирует все пользовательские таблицы из текущей базы в базу другого вида: PostgreSQL → SQLite или SQLite → PostgreSQL (см. `Sql.MigrateAllTablesAsync`). Ошибки пишутся в лог как предупреждение.
 
-**Примечания:** PostgreSQL is reached at localhost:5432, database and user `postgres`, password from the `DBpstgrPass` variable; SQLite at the `DBsqltPath` variable.
+**Примечания:** PostgreSQL — на localhost:5432, база и пользователь `postgres`, пароль из переменной `DBpstgrPass`; SQLite — по пути из переменной `DBsqltPath`.
 
 ### MigrateTable
 
@@ -36,12 +36,12 @@ public static void MigrateTable(this IZennoPosterProjectModel project, string so
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1702)
 
-Copies `source` to a new table `dest` in the same database, then renames a column `acc0` or `key` to `id` if there is one.
+Копирует `source` в новую таблицу `dest` в той же базе, затем переименовывает колонку `acc0` или `key` в `id`, если такая есть.
 
 | Параметр | Описание |
 |---|---|
-| `source` | Existing table. |
-| `dest` | Table to create. |
+| `source` | Существующая таблица. |
+| `dest` | Таблица, которую нужно создать. |
 
-**Примечания:** The database kind follows `dbSource`. PostgreSQL is reached at localhost:5432, database and user `postgres`, password from the `DBpstgrPass` variable; SQLite at the `DBsqltPath` variable.
+**Примечания:** Вид базы определяется `dbSource`. PostgreSQL — на localhost:5432, база и пользователь `postgres`, пароль из переменной `DBpstgrPass`; SQLite — по пути из переменной `DBsqltPath`.
 

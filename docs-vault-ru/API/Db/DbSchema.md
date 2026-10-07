@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbSchema
 ```
 
-Names and layouts of the library's own tables.
+Имена и раскладки собственных таблиц библиотеки.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public static string Instance { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L42)
 
-Instance table, default `_instance`.
+Таблица инстансов, по умолчанию `_instance`.
 
 ### Wlt
 
@@ -34,7 +34,7 @@ public static string Wlt { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L39)
 
-Wallet table, default `_wlt`.
+Таблица кошельков, по умолчанию `_wlt`.
 
 ## Поля
 
@@ -46,5 +46,5 @@ public static readonly TableSchema Process;
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L22)
 
-Table `_processes`: one row per process with machine, name, RAM, uptime and command line.
+Таблица `_processes`: по строке на процесс с машиной, именем, RAM, временем работы и командной строкой.
 

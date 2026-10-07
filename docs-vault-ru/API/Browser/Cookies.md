@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class Cookies
 ```
 
-Browser cookies: read and write in an instance, store as Base64 in the account's database row, convert between JSON and Netscape formats.
+Куки браузера: чтение и запись в инстансе, хранение в Base64 в строке аккаунта в базе, перевод между форматами JSON и Netscape.
 
 ## Методы
 
@@ -24,14 +24,14 @@ public static CookieInfo AnalyzeCookies(this IZennoPosterProjectModel project, s
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L44)
 
-Reads the current account's stored cookies and summarises them.
+Читает сохранённые куки текущего аккаунта и сводит их.
 
 | Параметр | Описание |
 |---|---|
-| `table` | Table with the account's cookies. |
-| `column` | Column with Base64 cookies (JSON or Netscape). |
+| `table` | Таблица с куками аккаунта. |
+| `column` | Колонка с куками в Base64 (JSON или Netscape). |
 
-**Возвращает:** The summary; zero counts when nothing is stored.
+**Возвращает:** Сводка; если ничего не сохранено — нулевые счётчики.
 
 ### CleanDomainInDb
 
@@ -41,13 +41,13 @@ public static void CleanDomainInDb(this IZennoPosterProjectModel project, string
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L489)
 
-Removes cookies of a domain (and, for cookies stored with a leading dot, its subdomains) from the current account's stored set.
+Удаляет из сохранённого набора текущего аккаунта куки домена (а для кук, сохранённых с точкой в начале, — и его поддоменов).
 
 | Параметр | Описание |
 |---|---|
-| `domain` | Domain, e.g. `x.com`. |
-| `table` | Table with the account's cookies. |
-| `column` | Column with Base64 cookies (JSON or Netscape). |
+| `domain` | Домен, например `x.com`. |
+| `table` | Таблица с куками аккаунта. |
+| `column` | Колонка с куками в Base64 (JSON или Netscape). |
 
 ### ConvertCookieFormat
 
@@ -57,14 +57,14 @@ public static string ConvertCookieFormat(string input, string output = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L167)
 
-Converts cookies between JSON (browser-extension format) and Netscape (tab-separated). Text starting with `[` or `{` is JSON; text with tabs is Netscape.
+Переводит куки между JSON (формат браузерных расширений) и Netscape (через табуляцию). Текст, начинающийся с `[` или `{`, считается JSON; текст с табуляциями — Netscape.
 
 | Параметр | Описание |
 |---|---|
-| `input` | Cookies. |
-| `output` | `json`, `netscape`, or empty to convert to the other format. |
+| `input` | Куки. |
+| `output` | `json`, `netscape` или пусто — перевести в другой формат. |
 
-**Возвращает:** The converted text, or the input when it is already in the requested format. Throws on an unknown format.
+**Возвращает:** Преобразованный текст или вход без изменений, если он уже в нужном формате. При неизвестном формате бросает исключение.
 
 ### GetCookies
 
@@ -74,12 +74,12 @@ public static string GetCookies(this Instance instance, string domainFilter = nu
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L311)
 
-Reads the instance's cookies.
+Читает куки инстанса.
 
 | Параметр | Описание |
 |---|---|
-| `domainFilter` | Only cookies of this domain; `.` for the active tab's main domain; empty for all. |
-| `format` | `json`, `netscape`, `base64Json` or `base64Netscape`. |
+| `domainFilter` | Только куки этого домена; `.` — основной домен активной вкладки; пусто — все. |
+| `format` | `json`, `netscape`, `base64Json` или `base64Netscape`. |
 
 ### GetCookiesByJs
 
@@ -89,7 +89,7 @@ public static string GetCookiesByJs(this Instance instance)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L393)
 
-Reads `document.cookie` of the active page as JSON (path `/`, no expiry; HttpOnly cookies are not visible to scripts).
+Читает `document.cookie` активной страницы в виде JSON (путь `/`, без срока действия; куки HttpOnly скриптам не видны).
 
 ### ParseJwt
 
@@ -99,9 +99,9 @@ public static Dictionary<string, object> ParseJwt(string jwt)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L593)
 
-Decodes a JWT without checking its signature.
+Декодирует JWT без проверки подписи.
 
-**Возвращает:** `alg`, `typ`, `kid`, `iss`, `sub`, `aud`, `iat`/`exp` with dates, `ttl_seconds`, `is_expired`, raw header and payload JSON and the signature; or `error`.
+**Возвращает:** `alg`, `typ`, `kid`, `iss`, `sub`, `aud`, `iat`/`exp` с датами, `ttl_seconds`, `is_expired`, сырой JSON заголовка и payload и подпись; или `error`.
 
 ### PrintCookieReport
 
@@ -111,12 +111,12 @@ public static void PrintCookieReport(this IZennoPosterProjectModel project, stri
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L132)
 
-Writes the `AnalyzeCookies` summary to the log (top 10 domains, top 5 largest cookies).
+Пишет в лог сводку `AnalyzeCookies` (10 главных доменов, 5 самых больших кук).
 
 | Параметр | Описание |
 |---|---|
-| `table` | Table with the account's cookies. |
-| `column` | Column with Base64 cookies (JSON or Netscape). |
+| `table` | Таблица с куками аккаунта. |
+| `column` | Колонка с куками в Base64 (JSON или Netscape). |
 
 ### PruneAllCookies
 
@@ -126,13 +126,13 @@ public static void PruneAllCookies(this IZennoPosterProjectModel project, bool r
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L114)
 
-Runs `PruneCookies` on the `_instance` and `folder_profile` tables for every account from `rangeStart` to `rangeEnd`, then clears `acc0`.
+Выполняет `PruneCookies` для таблиц `_instance` и `folder_profile` по каждому аккаунту от `rangeStart` до `rangeEnd`, затем очищает `acc0`.
 
 | Параметр | Описание |
 |---|---|
-| `removeExpired` | Remove expired cookies. |
-| `removeOld` | Remove cookies that expired more than 6 months ago. |
-| `removeNonGoogle` | Keep only cookies whose domain contains `google`. |
+| `removeExpired` | Удалить истёкшие куки. |
+| `removeOld` | Удалить куки, истёкшие больше 6 месяцев назад. |
+| `removeNonGoogle` | Оставить только куки, у которых домен содержит `google`. |
 
 ### PruneCookies
 
@@ -142,15 +142,15 @@ public static void PruneCookies(this IZennoPosterProjectModel project, bool remo
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L75)
 
-Removes cookies from the current account's stored set and writes it back as Base64 JSON.
+Удаляет куки из сохранённого набора текущего аккаунта и записывает его обратно в виде JSON в Base64.
 
 | Параметр | Описание |
 |---|---|
-| `removeExpired` | Remove expired cookies. |
-| `removeOld` | Remove cookies that expired more than 6 months ago. |
-| `removeNonGoogle` | Keep only cookies whose domain contains `google`. |
-| `table` | Table with the account's cookies. |
-| `column` | Column with Base64 cookies (JSON or Netscape). |
+| `removeExpired` | Удалить истёкшие куки. |
+| `removeOld` | Удалить куки, истёкшие больше 6 месяцев назад. |
+| `removeNonGoogle` | Оставить только куки, у которых домен содержит `google`. |
+| `table` | Таблица с куками аккаунта. |
+| `column` | Колонка с куками в Base64 (JSON или Netscape). |
 
 ### SaveAllCookies
 
@@ -160,14 +160,14 @@ public static void SaveAllCookies(this IZennoPosterProjectModel project, Instanc
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L337)
 
-Writes all instance cookies as Base64 to the `cookies` column of the current account's row.
+Записывает все куки инстанса в Base64 в колонку `cookies` строки текущего аккаунта.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `jsonPath` | Also write the cookies as JSON to this file. |
-| `table` | Target table. |
-| `saveJsonToDb` | Store JSON instead of Netscape. |
+| `instance` | Инстанс браузера. |
+| `jsonPath` | Заодно записать куки в этот файл в виде JSON. |
+| `table` | Целевая таблица. |
+| `saveJsonToDb` | Сохранять в JSON, а не в Netscape. |
 
 ### SaveDomainCookies
 
@@ -177,15 +177,15 @@ public static void SaveDomainCookies(this IZennoPosterProjectModel project, Inst
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L357)
 
-Writes the instance cookies of one domain as Base64 to the `cookies` column of the current account's row.
+Записывает куки инстанса одного домена в Base64 в колонку `cookies` строки текущего аккаунта.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `domain` | Domain; default is the active tab's main domain. |
-| `jsonPath` | Also write the cookies as JSON to this file. |
-| `tableName` | Target table. |
-| `saveJsonToDb` | Store JSON instead of Netscape. |
+| `instance` | Инстанс браузера. |
+| `domain` | Домен; по умолчанию основной домен активной вкладки. |
+| `jsonPath` | Заодно записать куки в этот файл в виде JSON. |
+| `tableName` | Целевая таблица. |
+| `saveJsonToDb` | Сохранять в JSON, а не в Netscape. |
 
 ### SetCookiesByJs
 
@@ -195,9 +195,9 @@ public static void SetCookiesByJs(this Instance instance, string cookiesJson)
 
 Метод расширения для `Instance`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Browser/Cookies.cs#L428)
 
-Sets cookies of the active tab's domain through `document.cookie`, for the parent domain, Secure, expiring in a year when the stored date has passed.
+Ставит куки домена активной вкладки через `document.cookie` — на родительский домен, с Secure и сроком в год, если сохранённая дата уже прошла.
 
 | Параметр | Описание |
 |---|---|
-| `cookiesJson` | JSON array of cookies; for duplicate domain + name the last one wins, other domains are skipped. |
+| `cookiesJson` | JSON-массив кук; при повторе домена и имени побеждает последняя, другие домены пропускаются. |
 

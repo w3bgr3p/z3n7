@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class Otp
 ```
 
-One-time codes.
+Одноразовые коды.
 
 ## Методы
 
@@ -24,11 +24,11 @@ public static string FirstMail(IZennoPosterProjectModel project, string email)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Otp.cs#L39)
 
-Code from the latest FirstMail message sent to `email` (see `z3n7.FirstMail.GetOTP`).
+Код из последнего письма FirstMail, отправленного на `email` (см. `z3n7.FirstMail.GetOTP`).
 
 | Параметр | Описание |
 |---|---|
-| `email` | Original recipient the message was sent to. |
+| `email` | Исходный получатель, на которого было отправлено письмо. |
 
 ### Offline
 
@@ -38,12 +38,12 @@ public static string Offline(string keyString, int waitIfTimeLess = 5)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Tools/Otp.cs#L17)
 
-Computes the current TOTP code from a Base32 secret. When the code expires within `waitIfTimeLess` seconds, waits for the next one.
+Вычисляет текущий TOTP-код по секрету в Base32. Если до истечения кода осталось меньше `waitIfTimeLess` секунд, ждёт следующий.
 
 | Параметр | Описание |
 |---|---|
-| `keyString` | Base32 secret. |
-| `waitIfTimeLess` | Seconds of validity below which the next code is awaited. |
+| `keyString` | Секрет в Base32. |
+| `waitIfTimeLess` | Если код действителен меньше этого числа секунд, ждётся следующий. |
 
-**Возвращает:** The code. Throws for an empty secret.
+**Возвращает:** Код. Для пустого секрета бросает исключение.
 

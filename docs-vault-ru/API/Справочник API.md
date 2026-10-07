@@ -14,172 +14,172 @@ generated: z3n7-docgen
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[AccountRunner]] | static class | Picking the next account to work on from the database by condition, range priorities and social-account filters. |
-| [[Disposer]] | class | End of an account session: report, save the browser profile, clean up. |
-| [[InstanceManager]] | class | Starts the browser for the current account with its profile, proxy and cookies, and saves and cleans up at the end. |
-| [[ProfileSync]] | class | Saves the ZennoPoster profile, instance settings, cookies and WebGL settings of the current account to database tables and restores them. |
-| [[ProjectExtensions (Accounts)]] | static class | Extension methods on `IZennoPosterProjectModel`: browser start and finish for an account. |
-| [[PropertyManager]] | static class | Copies simple properties of objects to and from database rows (by reflection). |
+| [[AccountRunner]] | static class | Выбор следующего аккаунта для работы из базы по условию, приоритетам диапазона и фильтрам по соцсетям. |
+| [[Disposer]] | class | Завершение сессии аккаунта: отчёт, сохранение профиля браузера, уборка. |
+| [[InstanceManager]] | class | Запускает браузер для текущего аккаунта с его профилем, прокси и куками, а в конце сохраняет и убирает за собой. |
+| [[ProfileSync]] | class | Сохраняет профиль ZennoPoster, настройки инстанса, куки и настройки WebGL текущего аккаунта в таблицы базы и восстанавливает их. |
+| [[ProjectExtensions (Accounts)]] | static class | Методы расширения для `IZennoPosterProjectModel`: запуск и завершение браузера для аккаунта. |
+| [[PropertyManager]] | static class | Копирует простые свойства объектов в строки базы и обратно (через рефлексию). |
 
 ## Api
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[Aiio]] | class | Client of the io.net intelligence chat API (`api.intelligence.io.solutions`). |
-| [[OmniRoute]] | class | Client of a local OpenAI-compatible router at `http://localhost:20128` (no API key). |
-| [[Telegram]] | class | Sends messages to a Telegram chat topic through the Bot API (`sendMessage` over `NetHttp`). |
-| [[Webshare]] | class | Client of the Webshare proxy API. |
-| [[ZbDbManager]] | static class | Reading the ZennoBrowser profile database and parsing its profile lists. |
-| [[ZennoBrowser]] | static class | ZennoBrowser (ZP8) profiles: their ids and running the helper project `ZB.zp`. |
+| [[Aiio]] | class | Клиент чат-API io.net intelligence (`api.intelligence.io.solutions`). |
+| [[OmniRoute]] | class | Клиент локального OpenAI-совместимого роутера на `http://localhost:20128` (без API-ключа). |
+| [[Telegram]] | class | Отправляет сообщения в тему чата Telegram через Bot API (`sendMessage` через `NetHttp`). |
+| [[Webshare]] | class | Клиент API прокси Webshare. |
+| [[ZbDbManager]] | static class | Чтение базы профилей ZennoBrowser и разбор её списков профилей. |
+| [[ZennoBrowser]] | static class | Профили ZennoBrowser (ZP8): их id и запуск вспомогательного проекта `ZB.zp`. |
 
 ## Browser
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[BetterBrowser]] | static class | Preparing a browser instance for a session: cookies, profile data and a browser profile matching the proxy's exit point. |
-| [[BrowserScan]] | class | Reads the fingerprint report of `browserscan.net` in a browser instance. |
-| [[ChromeExt]] | class | Older variant of `Extension`: Chromium instances only, manager installed from CRX. |
-| [[CookieCollector]] | class | Collects cookies by visiting sites over plain HTTP (not the browser), starting from an existing cookie set, and returns them as browser-extension style JSON. |
-| [[Cookies]] | static class | Browser cookies: read and write in an instance, store as Base64 in the account's database row, convert between JSON and Netscape formats. |
-| [[Cookies.CookieInfo]] | class | Summary of a stored cookie set (see `AnalyzeCookies`). |
-| [[Extension]] | class | Chrome extension management in a ZennoPoster instance: version, install, enable/disable, remove. |
-| [[GpuArch]] | class | GPU models of one architecture. |
-| [[GpuModel]] | class | One GPU model from the PCI ID list. |
-| [[GpuSpoof]] | static class | Picks a plausible WebGL vendor/renderer pair of the same GPU architecture as the machine's card, from the public PCI ID list. |
-| [[GpuVendor]] | class | GPU architectures of one vendor. |
-| [[HtmlExtensions]] | static class | Helpers for ZennoPoster `HtmlElement`: centre point, QR decoding, XPath. |
-| [[InstanceExtensions (Browser)]] | static class | Extension methods on `Instance`: image search on page screenshots, clicks, taps and swipes by coordinates, viewport helpers. |
-| [[JsExtensions]] | static class | Extension methods on `Instance` that act on the page through JavaScript in the active tab. |
-| [[ProjectExtensions (Browser)]] | static class | Extension methods on `IZennoPosterProjectModel`: WebGL spoofing. |
+| [[BetterBrowser]] | static class | Подготовка инстанса браузера к сессии: куки, данные профиля и профиль браузера под точку выхода прокси. |
+| [[BrowserScan]] | class | Читает отчёт об отпечатке `browserscan.net` в инстансе браузера. |
+| [[ChromeExt]] | class | Старый вариант `Extension`: только инстансы Chromium, менеджер ставится из CRX. |
+| [[CookieCollector]] | class | Собирает куки, обходя сайты по обычному HTTP (не браузером), начиная с имеющегося набора кук, и возвращает их в JSON в формате браузерных расширений. |
+| [[Cookies]] | static class | Куки браузера: чтение и запись в инстансе, хранение в Base64 в строке аккаунта в базе, перевод между форматами JSON и Netscape. |
+| [[Cookies.CookieInfo]] | class | Сводка по сохранённому набору кук (см. |
+| [[Extension]] | class | Управление расширениями Chrome в инстансе ZennoPoster: версия, установка, включение и выключение, удаление. |
+| [[GpuArch]] | class | Модели GPU одной архитектуры. |
+| [[GpuModel]] | class | Одна модель GPU из списка PCI ID. |
+| [[GpuSpoof]] | static class | Подбирает правдоподобную пару WebGL vendor/renderer той же архитектуры GPU, что и карта машины, по публичному списку PCI ID. |
+| [[GpuVendor]] | class | Архитектуры GPU одного производителя. |
+| [[HtmlExtensions]] | static class | Помощники для `HtmlElement` ZennoPoster: точка центра, распознавание QR, XPath. |
+| [[InstanceExtensions (Browser)]] | static class | Методы расширения для `Instance`: поиск картинки на скриншотах страницы, клики, тапы и свайпы по координатам, помощь с областью просмотра. |
+| [[JsExtensions]] | static class | Методы расширения для `Instance`, которые работают со страницей через JavaScript в активной вкладке. |
+| [[ProjectExtensions (Browser)]] | static class | Методы расширения для `IZennoPosterProjectModel`: подмена WebGL. |
 
 ## Db
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[DatabaseType]] | enum | Kind of database behind an `Sql` connection. |
-| [[Db]] | class | SQL helper over PostgreSQL or SQLite with one API for both. |
-| [[DbColumn]] | static class | Adding, dropping and reordering columns. |
-| [[DbCore]] | static class | Single entry point that runs SQL against the project database. |
-| [[DbJson]] | static class | Storing a JSON object as table columns and rebuilding it. |
-| [[DbLine]] | static class | Operations on whole rows. |
-| [[DbLock]] | static class | Shared lock object for code that must not access the database concurrently. |
-| [[DbMigration]] | static class | Copying tables inside the project database and between PostgreSQL and SQLite. |
-| [[DbRange]] | static class | Filling a table with account rows. |
-| [[DbSchema]] | static class | Names and layouts of the library's own tables. |
-| [[DbSql]] | static class | Lower-level SELECT and UPDATE helpers behind the `Db*` methods. |
-| [[DbTable]] | static class | Creating and inspecting tables of the project database. |
-| [[DbUpdate]] | static class | Writing to the project database. |
-| [[FastDb]] | class | SQLite access through ZennoPoster's built-in ODBC query runner, without opening own connections. |
-| [[Get]] | static class | Reading from the project database. |
-| [[Sql]] | class | One open connection to SQLite (through the SQLite3 ODBC driver) or PostgreSQL (Npgsql). |
-| [[TableSchema]] | class | Name and column definitions of a table. |
+| [[DatabaseType]] | enum | Вид базы данных за соединением `Sql`. |
+| [[Db]] | class | Помощник SQL поверх PostgreSQL или SQLite с одним API для обоих. |
+| [[DbColumn]] | static class | Добавление, удаление и перестановка колонок. |
+| [[DbCore]] | static class | Единая точка входа, через которую выполняется SQL к базе проекта. |
+| [[DbJson]] | static class | Хранение JSON-объекта в виде колонок таблицы и его восстановление. |
+| [[DbLine]] | static class | Операции над строками целиком. |
+| [[DbLock]] | static class | Общий объект блокировки для кода, который не должен обращаться к базе одновременно. |
+| [[DbMigration]] | static class | Копирование таблиц внутри базы проекта и между PostgreSQL и SQLite. |
+| [[DbRange]] | static class | Заполнение таблицы строками аккаунтов. |
+| [[DbSchema]] | static class | Имена и раскладки собственных таблиц библиотеки. |
+| [[DbSql]] | static class | Низкоуровневые помощники SELECT и UPDATE, на которых построены методы `Db*`. |
+| [[DbTable]] | static class | Создание и просмотр таблиц базы проекта. |
+| [[DbUpdate]] | static class | Запись в базу проекта. |
+| [[FastDb]] | class | Доступ к SQLite через встроенный в ZennoPoster ODBC-исполнитель запросов, без открытия собственных соединений. |
+| [[Get]] | static class | Чтение из базы проекта. |
+| [[Sql]] | class | Одно открытое соединение с SQLite (через ODBC-драйвер SQLite3) или PostgreSQL (Npgsql). |
+| [[TableSchema]] | class | Имя таблицы и определения её колонок. |
 
 ## DbUtils
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[ProcessManager]] | static class | Keeps the `_processes` table up to date with this machine's ZennoPoster and `zbe1` processes. |
-| [[TaskManager]] | static class | Conversion helpers for ZennoPoster task input settings (internal). |
+| [[ProcessManager]] | static class | Поддерживает актуальность таблицы `_processes` по процессам ZennoPoster и `zbe1` этой машины. |
+| [[TaskManager]] | static class | Вспомогательные преобразования для входных настроек задачи ZennoPoster (внутреннее). |
 
 ## Diagnostic
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[Diagnostic]] | static class | Environment information for logs and diagnostics. |
-| [[ProjectExtensions (Diagnostic)]] | static class | Extension methods on `IZennoPosterProjectModel`: debugging aids. |
-| [[VersionInfo]] | class | Versions of the node's environment. |
+| [[Diagnostic]] | static class | Сведения об окружении для логов и диагностики. |
+| [[ProjectExtensions (Diagnostic)]] | static class | Методы расширения для `IZennoPosterProjectModel`: помощь в отладке. |
+| [[VersionInfo]] | class | Версии окружения узла. |
 
 ## Essentials
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[Constantes]] | static class | Project name, its database table and the standard folders of the profile storage. |
-| [[Env]] | static class | Reads settings from a `.env` file. |
-| [[FunctionStorage]] | static class | Process-wide registry of delegates by name. |
-| [[GVars]] | static class | Global ZennoPoster variables, kept in a namespace named after the current Windows user. |
-| [[Init]] | class | Project start-up: session, account range, encrypted storage and the start banner in the log. |
-| [[ISAFU]] | interface | Encryption used by SAFU (secure storage of account secrets). |
-| [[LogDisabler]] | class | Stops ZennoPoster from writing its own log files to the `Logs` folder next to the running executable. |
-| [[Logger]] | class | Writes messages to the ZennoPoster log. |
-| [[LogLevel]] | enum | Message severity. |
-| [[ProjectExtensions (Essentials)]] | static class | Extension methods on `IZennoPosterProjectModel`: start-up, logging, timing and running other projects. |
-| [[SAFU]] | static class | Entry point to secure storage. |
-| [[Time]] | class | Time helpers: timestamps, deadlines, random pauses. |
-| [[Time.Deadline]] | class | Stopwatch that throws once a time limit is exceeded. |
-| [[Time.Sleeper]] | class | Random pause within a fixed range. |
-| [[Vars]] | static class | Short accessors for project variables: read, write, parse, count. |
-| [[Z3n8SAFU]] | class | SAFU implementation: AES-256-CBC with an HMAC-SHA256 tag, keys derived with PBKDF2-SHA256 (100 000 iterations). |
+| [[Constantes]] | static class | Имя проекта, его таблица в базе и стандартные папки хранилища профилей. |
+| [[Env]] | static class | Читает настройки из файла `.env`. |
+| [[FunctionStorage]] | static class | Реестр делегатов по имени на весь процесс. |
+| [[GVars]] | static class | Глобальные переменные ZennoPoster, хранятся в пространстве имён по имени текущего пользователя Windows. |
+| [[Init]] | class | Старт проекта: сессия, диапазон аккаунтов, зашифрованное хранилище и стартовый баннер в логе. |
+| [[ISAFU]] | interface | Шифрование, которое использует SAFU (защищённое хранение секретов аккаунтов). |
+| [[LogDisabler]] | class | Запрещает ZennoPoster писать собственные файлы логов в папку `Logs` рядом с запущенным исполняемым файлом. |
+| [[Logger]] | class | Пишет сообщения в лог ZennoPoster. |
+| [[LogLevel]] | enum | Важность сообщения. |
+| [[ProjectExtensions (Essentials)]] | static class | Методы расширения для `IZennoPosterProjectModel`: старт, логирование, тайминги и запуск других проектов. |
+| [[SAFU]] | static class | Точка входа в защищённое хранилище. |
+| [[Time]] | class | Помощники для времени: метки времени, дедлайны, случайные паузы. |
+| [[Time.Deadline]] | class | Секундомер, который бросает исключение при превышении предела времени. |
+| [[Time.Sleeper]] | class | Случайная пауза в фиксированном диапазоне. |
+| [[Vars]] | static class | Короткие методы для переменных проекта: чтение, запись, разбор, счётчики. |
+| [[Z3n8SAFU]] | class | Реализация SAFU: AES-256-CBC с тегом HMAC-SHA256, ключи выводятся через PBKDF2-SHA256 (100 000 итераций). |
 
 ## Mail
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[AnyMessage]] | class | Client of the AnyMessage mailbox service (`api.anymessage.shop`): short-term and long-term mailboxes. |
-| [[BestMailBox]] | class | Client of the BestMailBox temporary mailbox service (default `https://mail.autoz3n.xyz`). |
-| [[FirstMail]] | class | Client of the FirstMail mailbox API (`firstmail.ltd`). |
-| [[GmailClient]] | class | Gmail access over the Gmail API with an OAuth refresh token. |
-| [[MSMail]] | class | Microsoft mailbox access over Microsoft Graph with an OAuth refresh token. |
-| [[ProjectExtensions (Mail)]] | static class | Extension methods on `IZennoPosterProjectModel`: one-time codes from mail. |
-| [[TempMail]] | class | Client of the Temp Mail service (Privatix) on RapidAPI. |
-| [[z3nmail]] | class | Client of the temporary mailbox service (default `https://mail.autoz3n.xyz`); the same API as `BestMailBox`. |
+| [[AnyMessage]] | class | Клиент почтового сервиса AnyMessage (`api.anymessage.shop`): краткосрочные и долгосрочные ящики. |
+| [[BestMailBox]] | class | Клиент сервиса временных ящиков BestMailBox (по умолчанию `https://mail.autoz3n.xyz`). |
+| [[FirstMail]] | class | Клиент API почты FirstMail (`firstmail.ltd`). |
+| [[GmailClient]] | class | Доступ к Gmail через Gmail API по OAuth refresh token. |
+| [[MSMail]] | class | Доступ к ящикам Microsoft через Microsoft Graph по OAuth refresh token. |
+| [[ProjectExtensions (Mail)]] | static class | Методы расширения для `IZennoPosterProjectModel`: одноразовые коды из почты. |
+| [[TempMail]] | class | Клиент сервиса Temp Mail (Privatix) на RapidAPI. |
+| [[z3nmail]] | class | Клиент сервиса временных ящиков (по умолчанию `https://mail.autoz3n.xyz`); API то же, что у `BestMailBox`. |
 
 ## MethodExtensions
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[ListExtensions]] | static class | Extension methods on lists. |
-| [[ProjectExtensions (MethodExtensions)]] | static class | Extension methods: dictionaries and ZennoPoster lists. |
-| [[StringExtensions]] | static class | Extension methods on strings: hex, Base64, JSON, ranges, Markdown escaping, JWT, passwords. |
+| [[ListExtensions]] | static class | Методы расширения для списков. |
+| [[ProjectExtensions (MethodExtensions)]] | static class | Методы расширения: словари и списки ZennoPoster. |
+| [[StringExtensions]] | static class | Методы расширения для строк: hex, Base64, JSON, диапазоны, экранирование Markdown, JWT, пароли. |
 
 ## Reports
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[Accountant]] | class | HTML reports of account balances from the `_native` table, colour-coded by amount. |
-| [[Accountant.HtmlEncoder]] | static class | HTML escaping helpers. |
-| [[ProjectExtensions (Reports)]] | static class | Extension methods on `IZennoPosterProjectModel`: balance reports. |
-| [[Reporter]] | class | Builds run reports (error or success) and sends them to the log, Telegram and the account's database row. |
+| [[Accountant]] | class | HTML-отчёты о балансах аккаунтов из таблицы `_native` с цветовой разметкой по сумме. |
+| [[Accountant.HtmlEncoder]] | static class | Помощники для экранирования HTML. |
+| [[ProjectExtensions (Reports)]] | static class | Методы расширения для `IZennoPosterProjectModel`: отчёты о балансах. |
+| [[Reporter]] | class | Собирает отчёты о прогоне (ошибка или успех) и отправляет их в лог, в Telegram и в строку аккаунта в базе. |
 
 ## Requests
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[NetHttp]] | class | Blocking wrapper over `NetHttpAsync` for C# actions that cannot await. |
-| [[NetHttpAsync]] | class | HTTP client on .NET `HttpClient` with async methods. |
-| [[ProjectExtensions (Requests)]] | static class | Project shortcuts for `NetHttp` requests. |
-| [[Rqst]] | class | HTTP client for ZennoPoster projects: proxy, headers and cookies are taken from the project when not given. |
-| [[RqstExtensions]] | static class | Shortcuts that create an `Rqst` for one request. |
+| [[NetHttp]] | class | Блокирующая обёртка над `NetHttpAsync` для C#-кубиков, в которых нельзя использовать await. |
+| [[NetHttpAsync]] | class | HTTP-клиент на .NET `HttpClient` с асинхронными методами. |
+| [[ProjectExtensions (Requests)]] | static class | Сокращения для запросов `NetHttp` из проекта. |
+| [[Rqst]] | class | HTTP-клиент для проектов ZennoPoster: прокси, заголовки и куки берутся из проекта, если не заданы. |
+| [[RqstExtensions]] | static class | Сокращения, которые создают `Rqst` для одного запроса. |
 
 ## Server
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[ZpAuth]] | static class | Access token of `ZpServer`: storing, issuing, checking requests. |
-| [[ZpServer]] | static class | HTTP server inside ZennoPoster that takes commands from an orchestrator directly, without the database. |
+| [[ZpAuth]] | static class | Токен доступа `ZpServer`: хранение, выдача, проверка запросов. |
+| [[ZpServer]] | static class | HTTP-сервер внутри ZennoPoster, который принимает команды от оркестратора напрямую, без базы. |
 
 ## Tools
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[Extractor]] | static class | Reading and writing ZennoPoster project files (.zp) through ProjectMaker's own loader, and searching their actions. |
-| [[Extractor.SearchHit]] | class | One match of `SearchInZp`. |
-| [[Helper]] | static class | Developer aids shown as Windows forms inside ZennoPoster. |
-| [[Img]] | class | SVG rendering. |
-| [[Otp]] | static class | One-time codes. |
-| [[Rnd]] | static class | Random values: strings, nicknames, e-mail addresses, passwords, numbers from project variables, pauses. |
-| [[ZpToCsx]] | static class | Converts a ZennoPoster project (.zp) into a C# script (.csx) outline and builds .zp files from XML. |
+| [[Extractor]] | static class | Чтение и запись файлов проектов ZennoPoster (.zp) собственным загрузчиком ProjectMaker и поиск по их действиям. |
+| [[Extractor.SearchHit]] | class | Одно совпадение `SearchInZp`. |
+| [[Helper]] | static class | Инструменты разработчика в виде окон Windows внутри ZennoPoster. |
+| [[Img]] | class | Отрисовка SVG. |
+| [[Otp]] | static class | Одноразовые коды. |
+| [[Rnd]] | static class | Случайные значения: строки, никнеймы, адреса почты, пароли, числа из переменных проекта, паузы. |
+| [[ZpToCsx]] | static class | Превращает проект ZennoPoster (.zp) в каркас C#-скрипта (.csx) и собирает файлы .zp из XML. |
 
 ## Traffic
 
 | Тип | Вид | Описание |
 |---|---|---|
-| [[CdpHar]] | class | HAR recorder that talks to the instance browser over its own DevTools endpoint (the browser writes the port to &lt;user-data-dir&gt;\DevToolsActivePort). |
-| [[GraphQL]] | class | Collects the GraphQL operations seen in a browser instance's traffic. |
-| [[HarTraffic]] | static class | HAR 1.2 export of browser traffic (`GetTraffic`) and of saved `Rqst` traffic. |
-| [[InstanceExtensions (Traffic)]] | static class | Extension methods on `Instance`: HAR recording over DevTools. |
-| [[ProjectExtensions (Traffic)]] | class | Extension methods on `IZennoPosterProjectModel`: HAR export. |
-| [[Traffic]] | class | Reads the traffic recorded by the active tab of a ZennoPoster instance (`ActiveTab.GetTraffic`). |
-| [[Traffic.TrafficElement]] | class | One recorded request with its response. |
-| [[TrafficCounter]] | static class | Counts traffic per labelled step of a project run and reports it as JSON. |
-| [[TrafficCounter.TrafficStep]] | class | One counted step. |
+| [[CdpHar]] | class | Запись HAR, которая общается с браузером инстанса через его собственный DevTools endpoint (браузер пишет порт в &lt;user-data-dir&gt;\DevToolsActivePort). |
+| [[GraphQL]] | class | Собирает GraphQL-операции из трафика инстанса браузера. |
+| [[HarTraffic]] | static class | Выгрузка в HAR 1.2 трафика браузера (`GetTraffic`) и сохранённого трафика `Rqst`. |
+| [[InstanceExtensions (Traffic)]] | static class | Методы расширения для `Instance`: запись HAR через DevTools. |
+| [[ProjectExtensions (Traffic)]] | class | Методы расширения для `IZennoPosterProjectModel`: выгрузка HAR. |
+| [[Traffic]] | class | Читает трафик, записанный активной вкладкой инстанса ZennoPoster (`ActiveTab.GetTraffic`). |
+| [[Traffic.TrafficElement]] | class | Один записанный запрос с ответом. |
+| [[TrafficCounter]] | static class | Считает трафик по помеченным шагам прогона проекта и выдаёт отчёт в JSON. |
+| [[TrafficCounter.TrafficStep]] | class | Один учтённый шаг. |
 

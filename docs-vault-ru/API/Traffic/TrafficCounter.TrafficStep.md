@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class TrafficStep
 ```
 
-One counted step.
+Один учтённый шаг.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public long Bytes { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L180)
 
-Counted bytes.
+Учтённые байты.
 
 ### Label
 
@@ -34,7 +34,7 @@ public string Label { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L178)
 
-Step name.
+Имя шага.
 
 ### T
 
@@ -44,5 +44,5 @@ public long T { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L176)
 
-Time, seconds since 2020-01-01 UTC.
+Время, секунды с 2020-01-01 UTC.
 

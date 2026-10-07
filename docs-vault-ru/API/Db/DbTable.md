@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbTable
 ```
 
-Creating and inspecting tables of the project database.
+Создание и просмотр таблиц базы проекта.
 
 ## Методы
 
@@ -24,11 +24,11 @@ public static void EnsureTable(this IZennoPosterProjectModel project, TableSchem
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1034)
 
-Creates the table described by `schema` if it does not exist.
+Создаёт таблицу, описанную в `schema`, если её нет.
 
 | Параметр | Описание |
 |---|---|
-| `schema` | Table name and columns, e.g. `DbSchema.Process`. |
+| `schema` | Имя таблицы и колонки, например `DbSchema.Process`. |
 
 ### PrepareProjectTable
 
@@ -38,7 +38,7 @@ public static void PrepareProjectTable(this IZennoPosterProjectModel project, st
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1172)
 
-Array form of `PrepareProjectTable(List<string>, …)`.
+Вариант `PrepareProjectTable(List<string>, …)` для массива.
 
 ```csharp
 public static void PrepareProjectTable(this IZennoPosterProjectModel project, List<string> projectColumns = null, string tblName = null, bool log = false, bool prune = false, bool rearrange = false)
@@ -46,15 +46,15 @@ public static void PrepareProjectTable(this IZennoPosterProjectModel project, Li
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1186)
 
-Creates the table with the `TblForProject` layout if needed and adds missing columns.
+Создаёт таблицу с раскладкой `TblForProject` при необходимости и добавляет недостающие колонки.
 
 | Параметр | Описание |
 |---|---|
-| `projectColumns` | Extra columns. |
-| `tblName` | Table; default is the `projectTable` variable. |
-| `log` | Write the query and its result to the project log. |
-| `prune` | Also drop columns that are not in the layout. |
-| `rearrange` | Also reorder columns to match the layout. |
+| `projectColumns` | Дополнительные колонки. |
+| `tblName` | Таблица; по умолчанию переменная `projectTable`. |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `prune` | Заодно удалить колонки, которых нет в раскладке. |
+| `rearrange` | Заодно переставить колонки в порядке раскладки. |
 
 ```csharp
 public static void PrepareProjectTable(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null, bool log = false, bool prune = false, bool rearrange = false)
@@ -62,15 +62,15 @@ public static void PrepareProjectTable(this IZennoPosterProjectModel project, Di
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1202)
 
-Creates the table if needed and adds missing columns.
+Создаёт таблицу при необходимости и добавляет недостающие колонки.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Column → SQL type. |
-| `tblName` | Table; default is the `projectTable` variable. |
-| `log` | Write the query and its result to the project log. |
-| `prune` | Also drop columns that are not in `tableStructure`. |
-| `rearrange` | Also reorder columns to match `tableStructure`. |
+| `tableStructure` | Колонка → тип SQL. |
+| `tblName` | Таблица; по умолчанию переменная `projectTable`. |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `prune` | Заодно удалить колонки, которых нет в `tableStructure`. |
+| `rearrange` | Заодно переставить колонки в порядке `tableStructure`. |
 
 ### TblAdd
 
@@ -80,13 +80,13 @@ public static void TblAdd(this IZennoPosterProjectModel project, Dictionary<stri
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1046)
 
-Creates a table unless it exists. On PostgreSQL `INTEGER PRIMARY KEY AUTOINCREMENT` becomes `SERIAL PRIMARY KEY`.
+Создаёт таблицу, если её нет. На PostgreSQL `INTEGER PRIMARY KEY AUTOINCREMENT` превращается в `SERIAL PRIMARY KEY`.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Column → SQL type. |
-| `tblName` | Table; may be `schema.table`. |
-| `log` | Write the query and its result to the project log. |
+| `tableStructure` | Колонка → тип SQL. |
+| `tblName` | Таблица; может быть `schema.table`. |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ### TblColumns
 
@@ -96,12 +96,12 @@ public static List<string> TblColumns(this IZennoPosterProjectModel project, str
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1100)
 
-Column names of a table.
+Имена колонок таблицы.
 
 | Параметр | Описание |
 |---|---|
-| `tblName` | Table; on PostgreSQL may be `schema.table`. |
-| `log` | Write the query and its result to the project log. |
+| `tblName` | Таблица; на PostgreSQL может быть `schema.table`. |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ### TblExist
 
@@ -111,12 +111,12 @@ public static bool TblExist(this IZennoPosterProjectModel project, string tblNam
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1064)
 
-Checks whether a table exists.
+Проверяет, есть ли таблица.
 
 | Параметр | Описание |
 |---|---|
-| `tblName` | Table; on PostgreSQL may be `schema.table` (default schema `public`). |
-| `log` | Write the query and its result to the project log. |
+| `tblName` | Таблица; на PostgreSQL может быть `schema.table` (схема по умолчанию `public`). |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ### TblForProject
 
@@ -126,12 +126,12 @@ public static Dictionary<string, string> TblForProject(this IZennoPosterProjectM
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1121)
 
-Builds a table layout: `id INTEGER PRIMARY KEY AUTOINCREMENT`, the given columns, and one column per item of the comma-separated `cfgToDo` variable.
+Строит раскладку таблицы: `id INTEGER PRIMARY KEY AUTOINCREMENT`, заданные колонки и по колонке на каждый элемент переменной `cfgToDo` (через запятую).
 
 | Параметр | Описание |
 |---|---|
-| `projectColumns` | Extra columns. |
-| `defaultType` | SQL type of every column except `id`. |
+| `projectColumns` | Дополнительные колонки. |
+| `defaultType` | Тип SQL для всех колонок, кроме `id`. |
 
 ### TblList
 
@@ -141,12 +141,12 @@ public static List<string> TblList(this IZennoPosterProjectModel project, bool l
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1084)
 
-Names of all tables, sorted.
+Имена всех таблиц по алфавиту.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Write the query and its result to the project log. |
-| `schema` | PostgreSQL schema. |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `schema` | Схема PostgreSQL. |
 
 ### TblPrepareDefault
 
@@ -156,9 +156,9 @@ public static void TblPrepareDefault(this IZennoPosterProjectModel project, bool
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1161)
 
-Creates the project table (`projectTable` variable) with the `TblForProject` layout and adds missing columns.
+Создаёт таблицу проекта (переменная `projectTable`) с раскладкой `TblForProject` и добавляет недостающие колонки.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Write the query and its result to the project log. |
+| `log` | Писать запрос и его результат в лог проекта. |
 

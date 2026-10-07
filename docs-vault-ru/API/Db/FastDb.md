@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class FastDb
 ```
 
-SQLite access through ZennoPoster's built-in ODBC query runner, without opening own connections.
+Доступ к SQLite через встроенный в ZennoPoster ODBC-исполнитель запросов, без открытия собственных соединений.
 
 ## Конструкторы
 
@@ -24,12 +24,12 @@ public FastDb(IZennoPosterProjectModel project, string dbName = null, bool log =
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L32)
 
-Uses the file `{project.Path}{dbName}.sql`.
+Используется файл `{project.Path}{dbName}.sql`.
 
 | Параметр | Описание |
 |---|---|
-| `dbName` | File name without extension; default is the `dbName` variable, or `db`. |
-| `log` | Write queries and `SELECT` answers to the log. |
+| `dbName` | Имя файла без расширения; по умолчанию переменная `dbName` или `db`. |
+| `log` | Писать в лог запросы и ответы на `SELECT`. |
 
 ## Методы
 
@@ -41,7 +41,7 @@ public List<string> dbList(string query)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L64)
 
-Executes a query and returns its rows.
+Выполняет запрос и возвращает его строки.
 
 ### dbString
 
@@ -51,9 +51,9 @@ public string dbString(string query)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L53)
 
-Executes a query.
+Выполняет запрос.
 
-**Возвращает:** Rows joined by line breaks, columns by `|`.
+**Возвращает:** Строки через перевод строки, колонки через `|`.
 
 ### ExportToCsv
 
@@ -63,7 +63,7 @@ public void ExportToCsv(string tableName, string fileName)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L74)
 
-Writes the whole table to `{project.Path}{fileName}` as CSV with a header row (UTF-8).
+Записывает всю таблицу в `{project.Path}{fileName}` в CSV со строкой заголовка (UTF-8).
 
 ```csharp
 public void ExportToCsv(string tableName, string fileName, string columns = "*")
@@ -71,9 +71,9 @@ public void ExportToCsv(string tableName, string fileName, string columns = "*")
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/FastDb.cs#L98)
 
-Writes the selected columns to `{project.Path}{fileName}` as CSV, UTF-8 with BOM so that Excel opens it correctly.
+Записывает выбранные колонки в `{project.Path}{fileName}` в CSV, UTF-8 с BOM, чтобы Excel открыл его правильно.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | `*` for all columns, or a comma-separated list that is also used as the header. |
+| `columns` | `*` — все колонки, или список через запятую, который также служит заголовком. |
 

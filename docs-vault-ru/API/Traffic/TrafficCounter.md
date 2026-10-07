@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class TrafficCounter
 ```
 
-Counts traffic per labelled step of a project run and reports it as JSON. Steps are kept in `project.Context`.
+Считает трафик по помеченным шагам прогона проекта и выдаёт отчёт в JSON. Шаги хранятся в `project.Context`.
 
 ## Методы
 
@@ -24,12 +24,12 @@ public static void Add(IZennoPosterProjectModel project, string label, string re
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L88)
 
-Adds a step for traffic outside the browser, counted as the UTF-8 size of `responseText`.
+Добавляет шаг для трафика вне браузера; считается как размер `responseText` в UTF-8.
 
 | Параметр | Описание |
 |---|---|
-| `label` | Step name. |
-| `responseText` | Response text. |
+| `label` | Имя шага. |
+| `responseText` | Текст ответа. |
 
 ### Checkpoint
 
@@ -39,13 +39,13 @@ public static long Checkpoint(Instance instance, IZennoPosterProjectModel projec
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L51)
 
-Adds a step: the summed request and response body sizes of the traffic returned by `ActiveTab.GetTraffic()` (blocked requests are skipped). Errors are written to the log as warnings.
+Добавляет шаг: суммарный размер тел запросов и ответов из трафика, который вернул `ActiveTab.GetTraffic()` (заблокированные запросы пропускаются). Ошибки пишутся в лог как предупреждения.
 
 | Параметр | Описание |
 |---|---|
-| `label` | Step name. |
+| `label` | Имя шага. |
 
-**Возвращает:** Bytes counted for this step.
+**Возвращает:** Число байт, учтённых для этого шага.
 
 ### Init
 
@@ -55,7 +55,7 @@ public static void Init(Instance instance)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L20)
 
-Turns on traffic monitoring and reads the traffic recorded so far once.
+Включает мониторинг трафика и один раз читает записанный к этому моменту трафик.
 
 ### MergeAndReport
 
@@ -65,13 +65,13 @@ public static string MergeAndReport(IZennoPosterProjectModel project, string exi
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L107)
 
-Merges the steps of an earlier report with the current ones, sorted by time, and builds a new report.
+Объединяет шаги прежнего отчёта с текущими, сортирует по времени и строит новый отчёт.
 
 | Параметр | Описание |
 |---|---|
-| `existingJson` | Report from `ReportJson` or this method; ignored when empty or unreadable. |
+| `existingJson` | Отчёт из `ReportJson` или из этого метода; пустой или нечитаемый игнорируется. |
 
-**Возвращает:** JSON `{ total_kb, steps: [{ t, label, kb }] }`; `t` is seconds since 2020-01-01 UTC.
+**Возвращает:** JSON `{ total_kb, steps: [{ t, label, kb }] }`; `t` — секунды с 2020-01-01 UTC.
 
 ### ReportJson
 
@@ -81,7 +81,7 @@ public static string ReportJson(IZennoPosterProjectModel project)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/TrafficCounter.cs#L150)
 
-Builds a report from the current steps.
+Собирает отчёт из текущих шагов.
 
-**Возвращает:** JSON `{ total_kb, steps: [{ t, label, kb }] }`; `t` is seconds since 2020-01-01 UTC.
+**Возвращает:** JSON `{ total_kb, steps: [{ t, label, kb }] }`; `t` — секунды с 2020-01-01 UTC.
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class GVars
 ```
 
-Global ZennoPoster variables, kept in a namespace named after the current Windows user.
+Глобальные переменные ZennoPoster, хранятся в пространстве имён по имени текущего пользователя Windows.
 
 ## Методы
 
@@ -24,9 +24,9 @@ public static List<int> GClean(this IZennoPosterProjectModel project, bool log =
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L450)
 
-Clears the global variables `acc1` … `acc{rangeEnd}`.
+Очищает глобальные переменные `acc1` … `acc{rangeEnd}`.
 
-**Возвращает:** Numbers of the variables that were cleared.
+**Возвращает:** Номера очищенных переменных.
 
 ### GGetBusyList
 
@@ -36,13 +36,13 @@ public static List<string> GGetBusyList(this IZennoPosterProjectModel project, b
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L354)
 
-Lists accounts taken by running threads: every non-empty global variable `acc1` … `acc{rangeEnd}`.
+Перечисляет аккаунты, занятые работающими потоками: все непустые глобальные переменные `acc1` … `acc{rangeEnd}`.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Write the list to the log. |
+| `log` | Записать список в лог. |
 
-**Возвращает:** Entries in the form `number:value`.
+**Возвращает:** Записи вида `number:value`.
 
 ### GSetAcc
 
@@ -52,15 +52,15 @@ public static bool GSetAcc(this IZennoPosterProjectModel project, string input =
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L400)
 
-Marks the current account (`acc0`) as taken by writing `input` to the global variable `acc{acc0}`.
+Помечает текущий аккаунт (`acc0`) занятым: записывает `input` в глобальную переменную `acc{acc0}`.
 
 | Параметр | Описание |
 |---|---|
-| `input` | Value to store; default is the `projectName` variable. |
-| `force` | Overwrite even if the account is already taken. |
-| `log` | Write the outcome to the log. |
+| `input` | Что сохранить; по умолчанию переменная `projectName`. |
+| `force` | Перезаписать, даже если аккаунт уже занят. |
+| `log` | Записать итог в лог. |
 
-**Возвращает:** `false` when the account is already taken and `force` is false.
+**Возвращает:** `false`, если аккаунт уже занят, а `force` равно false.
 
 ### GVar
 
@@ -70,7 +70,7 @@ public static string GVar(this IZennoPosterProjectModel project, string var)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L311)
 
-Returns a global variable, or an empty string when it does not exist.
+Возвращает глобальную переменную или пустую строку, если её нет.
 
 ```csharp
 public static string GVar(this IZennoPosterProjectModel project, string var, object value)
@@ -78,7 +78,7 @@ public static string GVar(this IZennoPosterProjectModel project, string var, obj
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Vars.cs#L327)
 
-Sets a global variable, creating it when it does not exist. Errors are swallowed.
+Задаёт глобальную переменную, создавая её, если её нет. Ошибки проглатываются.
 
-**Возвращает:** Always an empty string.
+**Возвращает:** Всегда пустая строка.
 

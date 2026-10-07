@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbColumn
 ```
 
-Adding, dropping and reordering columns.
+Добавление, удаление и перестановка колонок.
 
 ## Методы
 
@@ -24,14 +24,14 @@ public static void ClmnAdd(this IZennoPosterProjectModel project, string clmnNam
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1278)
 
-Adds a column if the table does not have it.
+Добавляет колонку, если её нет в таблице.
 
 | Параметр | Описание |
 |---|---|
-| `clmnName` | Column. |
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
-| `defaultValue` | SQL type of the new column. |
+| `clmnName` | Колонка. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `defaultValue` | Тип SQL новой колонки. |
 
 ```csharp
 public static void ClmnAdd(this IZennoPosterProjectModel project, List<string> columns, string tblName, bool log = false, string defaultValue = "TEXT DEFAULT ''")
@@ -39,14 +39,14 @@ public static void ClmnAdd(this IZennoPosterProjectModel project, List<string> c
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1293)
 
-Adds each listed column that the table does not have.
+Добавляет каждую из перечисленных колонок, которой нет в таблице.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | Columns. |
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
-| `defaultValue` | SQL type of the new columns. |
+| `columns` | Колонки. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `defaultValue` | Тип SQL новых колонок. |
 
 ```csharp
 public static void ClmnAdd(this IZennoPosterProjectModel project, string[] columns, string tblName, bool log = false, string defaultValue = "TEXT DEFAULT ''")
@@ -54,14 +54,14 @@ public static void ClmnAdd(this IZennoPosterProjectModel project, string[] colum
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1303)
 
-Adds each listed column that the table does not have.
+Добавляет каждую из перечисленных колонок, которой нет в таблице.
 
 | Параметр | Описание |
 |---|---|
-| `columns` | Columns. |
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
-| `defaultValue` | SQL type of the new columns. |
+| `columns` | Колонки. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `defaultValue` | Тип SQL новых колонок. |
 
 ```csharp
 public static void ClmnAdd(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null, bool log = false)
@@ -69,13 +69,13 @@ public static void ClmnAdd(this IZennoPosterProjectModel project, Dictionary<str
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1313)
 
-Adds each column of `tableStructure` that the table does not have, with its type.
+Добавляет каждую колонку из `tableStructure`, которой нет в таблице, с её типом.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Column → SQL type. |
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
+| `tableStructure` | Колонка → тип SQL. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ### ClmnDrop
 
@@ -85,13 +85,13 @@ public static void ClmnDrop(this IZennoPosterProjectModel project, string clmnNa
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1345)
 
-Drops a column if it exists (`CASCADE` on PostgreSQL).
+Удаляет колонку, если она есть (на PostgreSQL с `CASCADE`).
 
 | Параметр | Описание |
 |---|---|
-| `clmnName` | Column. |
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
+| `clmnName` | Колонка. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ```csharp
 public static void ClmnDrop(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null, bool log = false)
@@ -99,13 +99,13 @@ public static void ClmnDrop(this IZennoPosterProjectModel project, Dictionary<st
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1363)
 
-Drops each column named by a key of `tableStructure` that the table has.
+Удаляет каждую колонку, имя которой есть среди ключей `tableStructure` и которая есть в таблице.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Column → type; only the keys are used. |
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
+| `tableStructure` | Колонка → тип; используются только ключи. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ### ClmnExist
 
@@ -115,13 +115,13 @@ public static bool ClmnExist(this IZennoPosterProjectModel project, string clmnN
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1258)
 
-Checks whether a column exists. Case-insensitive on PostgreSQL, case-sensitive on SQLite.
+Проверяет, есть ли колонка. На PostgreSQL без учёта регистра, на SQLite с учётом.
 
 | Параметр | Описание |
 |---|---|
-| `clmnName` | Column. |
-| `tblName` | Table. |
-| `log` | Write the query and its result to the project log. |
+| `clmnName` | Колонка. |
+| `tblName` | Таблица. |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ### ClmnList
 
@@ -131,12 +131,12 @@ public static List<string> ClmnList(this IZennoPosterProjectModel project, strin
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1331)
 
-Column names of a table.
+Имена колонок таблицы.
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
+| `tableName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ### ClmnPrune
 
@@ -146,12 +146,12 @@ public static void ClmnPrune(this IZennoPosterProjectModel project, string tblNa
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1381)
 
-Drops every column except `id` in which no row has a non-empty value.
+Удаляет все колонки, кроме `id`, в которых ни в одной строке нет непустого значения.
 
 | Параметр | Описание |
 |---|---|
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ```csharp
 public static void ClmnPrune(this IZennoPosterProjectModel project, Dictionary<string, string> tableStructure, string tblName = null, bool log = false)
@@ -159,13 +159,13 @@ public static void ClmnPrune(this IZennoPosterProjectModel project, Dictionary<s
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1411)
 
-Drops every column that is not a key of `tableStructure` (including `id` if it is not listed).
+Удаляет все колонки, которых нет среди ключей `tableStructure` (включая `id`, если его нет в списке).
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Columns to keep. |
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
+| `tableStructure` | Какие колонки оставить. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ### ClmnRearrange
 
@@ -175,13 +175,13 @@ public static void ClmnRearrange(this IZennoPosterProjectModel project, Dictiona
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1433)
 
-Reorders columns: `id` first, then the columns of `tableStructure` that exist, then the rest. Copies the data into a new table, drops the old one and renames the new one. On failure the temporary table is dropped and an exception is thrown.
+Переставляет колонки: сначала `id`, затем существующие колонки из `tableStructure`, затем остальные. Копирует данные в новую таблицу, удаляет старую и переименовывает новую. При ошибке временная таблица удаляется и бросается исключение.
 
 | Параметр | Описание |
 |---|---|
-| `tableStructure` | Desired order. |
-| `tblName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
+| `tableStructure` | Нужный порядок. |
+| `tblName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
 
 ```csharp
 public static void ClmnRearrange(this IZennoPosterProjectModel project, List<string> projectColumns, string tblName = null, bool log = false)
@@ -189,5 +189,5 @@ public static void ClmnRearrange(this IZennoPosterProjectModel project, List<str
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1486)
 
-Reorders columns to the `TblForProject(projectColumns)` layout.
+Переставляет колонки по раскладке `TblForProject(projectColumns)`.
 

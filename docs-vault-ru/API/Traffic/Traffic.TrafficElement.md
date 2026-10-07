@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class TrafficElement
 ```
 
-One recorded request with its response. All fields are text; missing values are empty strings.
+Один записанный запрос с ответом. Все поля текстовые; отсутствующие значения — пустые строки.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public string Method { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L150)
 
-HTTP method.
+HTTP-метод.
 
 ### RequestBody
 
@@ -34,7 +34,7 @@ public string RequestBody { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L160)
 
-Request body.
+Тело запроса.
 
 ### RequestCookies
 
@@ -44,7 +44,7 @@ public string RequestCookies { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L158)
 
-Request cookies.
+Куки запроса.
 
 ### RequestHeaders
 
@@ -54,7 +54,7 @@ public string RequestHeaders { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L156)
 
-Request headers as recorded by ZennoPoster.
+Заголовки запроса в том виде, в каком их записал ZennoPoster.
 
 ### ResponseBody
 
@@ -64,7 +64,7 @@ public string ResponseBody { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L166)
 
-Response body as UTF-8 text, decompressed when it is gzip.
+Тело ответа текстом в UTF-8, распакованное, если оно в gzip.
 
 ### ResponseCookies
 
@@ -74,7 +74,7 @@ public string ResponseCookies { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L164)
 
-Response cookies.
+Куки ответа.
 
 ### ResponseHeaders
 
@@ -84,7 +84,7 @@ public string ResponseHeaders { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L162)
 
-Response headers as recorded by ZennoPoster.
+Заголовки ответа в том виде, в каком их записал ZennoPoster.
 
 ### StatusCode
 
@@ -94,7 +94,7 @@ public string StatusCode { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L154)
 
-Response status code.
+Код статуса ответа.
 
 ### Url
 
@@ -104,5 +104,5 @@ public string Url { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L152)
 
-Request URL.
+URL запроса.
 

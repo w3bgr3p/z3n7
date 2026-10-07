@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public interface ISAFU
 ```
 
-Encryption used by SAFU (secure storage of account secrets).
+Шифрование, которое использует SAFU (защищённое хранение секретов аккаунтов).
 
 ## Методы
 
@@ -24,7 +24,7 @@ string Decode(IZennoPosterProjectModel project, string toDecrypt, string pin, st
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L28)
 
-Decrypts text produced by `Encode` with the same machine, PIN and account.
+Расшифровывает текст, полученный `Encode` с той же машиной, PIN и аккаунтом.
 
 ### DecodeHWID
 
@@ -34,7 +34,7 @@ string DecodeHWID(IZennoPosterProjectModel project, string toDecrypt)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L37)
 
-Decrypts text produced by `EncodeHWID` on the same machine.
+Расшифровывает текст, полученный `EncodeHWID` на той же машине.
 
 ### Encode
 
@@ -44,7 +44,7 @@ string Encode(IZennoPosterProjectModel project, string toEncrypt, string pin, st
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L26)
 
-Encrypts text with a key bound to the machine, the PIN and the account.
+Шифрует текст ключом, привязанным к машине, PIN и аккаунту.
 
 ### EncodeHWID
 
@@ -54,7 +54,7 @@ string EncodeHWID(IZennoPosterProjectModel project, string toEncrypt)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L35)
 
-Encrypts text with a key bound to the machine only.
+Шифрует текст ключом, привязанным только к машине.
 
 ### HWPass
 
@@ -64,5 +64,5 @@ string HWPass(IZennoPosterProjectModel project, string pin, string acc)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L33)
 
-Returns a password derived from the machine, the PIN and the account. The same inputs always give the same password.
+Возвращает пароль, выведенный из машины, PIN и аккаунта. Одни и те же входные данные всегда дают один и тот же пароль.
 

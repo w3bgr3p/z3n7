@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class NetHttpAsync
 ```
 
-HTTP client on .NET `HttpClient` with async methods. Clients are shared: one for direct requests and one per proxy string (up to 100 are cached). Set-Cookie values of the response are written to the `debugCookies` variable.
+HTTP-клиент на .NET `HttpClient` с асинхронными методами. Клиенты общие: один для прямых запросов и по одному на каждую строку прокси (кешируется до 100). Значения Set-Cookie из ответа пишутся в переменную `debugCookies`.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public NetHttpAsync(IZennoPosterProjectModel project, Logger log = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L43)
 
-Creates a client. Sets the current thread culture to invariant.
+Создаёт клиент. Ставит инвариантную культуру текущему потоку.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Logger for requests, responses and errors; `null` logs nothing. |
+| `log` | Логгер для запросов, ответов и ошибок; `null` — ничего не писать. |
 
 ## Методы
 
@@ -40,7 +40,7 @@ public static void ClearProxyCache()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L639)
 
-Disposes and forgets all cached proxy clients.
+Освобождает и забывает все закешированные прокси-клиенты.
 
 ### DeleteAsync
 
@@ -50,15 +50,15 @@ public async Task<string> DeleteAsync(string url, string proxyString = "", Dicti
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L535)
 
-Sends a DELETE request with a 30-second timeout.
+Отправляет DELETE-запрос с таймаутом 30 секунд.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `proxyString` | Empty for a direct request. `+` — the `proxy` column of the account's `_instance` row; otherwise `[scheme://][user:pass@]host:port`. The proxy is always used as an HTTP proxy. |
-| `headers` | Extra headers; the profile user agent is sent unless `User-Agent` is given. |
+| `url` | URL запроса. |
+| `proxyString` | Пусто — прямой запрос. `+` — колонка `proxy` строки аккаунта в `_instance`; иначе `[scheme://][user:pass@]host:port`. Прокси всегда используется как HTTP-прокси. |
+| `headers` | Дополнительные заголовки; user agent профиля отправляется, если не задан `User-Agent`. |
 
-**Возвращает:** The trimmed body, or the error message. Never throws.
+**Возвращает:** Тело без пробелов по краям или сообщение об ошибке. Исключений не бросает.
 
 ### GetAsync
 
@@ -68,18 +68,18 @@ public async Task<string> GetAsync(string url, string proxyString = "", Dictiona
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L174)
 
-Sends a GET request.
+Отправляет GET-запрос.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `proxyString` | Empty for a direct request. `+` — the `proxy` column of the account's `_instance` row; otherwise `[scheme://][user:pass@]host:port`. The proxy is always used as an HTTP proxy. |
-| `headers` | Extra headers, sent together with the profile user agent; transport headers such as Host and Content-Length are skipped. |
-| `parse` | Load the response body into `project.Json`. |
-| `deadline` | Timeout in seconds; the client itself never waits longer than 30 s. |
-| `throwOnFail` | Throw on a non-2xx status or an error instead of returning a message. |
+| `url` | URL запроса. |
+| `proxyString` | Пусто — прямой запрос. `+` — колонка `proxy` строки аккаунта в `_instance`; иначе `[scheme://][user:pass@]host:port`. Прокси всегда используется как HTTP-прокси. |
+| `headers` | Дополнительные заголовки, отправляются вместе с user agent профиля; транспортные заголовки вроде Host и Content-Length пропускаются. |
+| `parse` | Загрузить тело ответа в `project.Json`. |
+| `deadline` | Таймаут в секундах; сам клиент никогда не ждёт дольше 30 с. |
+| `throwOnFail` | Бросать исключение при статусе не 2xx или ошибке, а не возвращать сообщение. |
 
-**Возвращает:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
+**Возвращает:** Тело без пробелов по краям. При статусе не 2xx: `{code} !!! {reason}`; при таймауте `Timeout: …`; при других ошибках `Error: …`.
 
 ### PostAsync
 
@@ -89,19 +89,19 @@ public async Task<string> PostAsync(string url, string body, string proxyString 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L310)
 
-Sends a POST request with a JSON body (`application/json; charset=UTF-8`).
+Отправляет POST-запрос с телом в JSON (`application/json; charset=UTF-8`).
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `body` | JSON body. |
-| `proxyString` | Empty for a direct request. `+` — the `proxy` column of the account's `_instance` row; otherwise `[scheme://][user:pass@]host:port`. The proxy is always used as an HTTP proxy. |
-| `headers` | Extra headers, sent together with the profile user agent; transport headers such as Host and Content-Length are skipped. |
-| `parse` | Load the response body into `project.Json`. |
-| `deadline` | Timeout in seconds; the client itself never waits longer than 30 s. |
-| `throwOnFail` | Throw on a non-2xx status or an error instead of returning a message. |
+| `url` | URL запроса. |
+| `body` | Тело в JSON. |
+| `proxyString` | Пусто — прямой запрос. `+` — колонка `proxy` строки аккаунта в `_instance`; иначе `[scheme://][user:pass@]host:port`. Прокси всегда используется как HTTP-прокси. |
+| `headers` | Дополнительные заголовки, отправляются вместе с user agent профиля; транспортные заголовки вроде Host и Content-Length пропускаются. |
+| `parse` | Загрузить тело ответа в `project.Json`. |
+| `deadline` | Таймаут в секундах; сам клиент никогда не ждёт дольше 30 с. |
+| `throwOnFail` | Бросать исключение при статусе не 2xx или ошибке, а не возвращать сообщение. |
 
-**Возвращает:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
+**Возвращает:** Тело без пробелов по краям. При статусе не 2xx: `{code} !!! {reason}`; при таймауте `Timeout: …`; при других ошибках `Error: …`.
 
 ### PutAsync
 
@@ -111,17 +111,17 @@ public async Task<string> PutAsync(string url, string body = "", string proxyStr
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Requests/NetHttp.cs#L423)
 
-Sends a PUT request; a non-empty body is sent as JSON.
+Отправляет PUT-запрос; непустое тело отправляется как JSON.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Request URL. |
-| `body` | JSON body; may be empty. |
-| `proxyString` | Empty for a direct request. `+` — the `proxy` column of the account's `_instance` row; otherwise `[scheme://][user:pass@]host:port`. The proxy is always used as an HTTP proxy. |
-| `headers` | Extra headers, sent together with the profile user agent; transport headers such as Host and Content-Length are skipped. |
-| `parse` | Load the response body into `project.Json`. |
-| `deadline` | Timeout in seconds; the client itself never waits longer than 30 s. |
-| `throwOnFail` | Throw on a non-2xx status or an error instead of returning a message. |
+| `url` | URL запроса. |
+| `body` | Тело в JSON; может быть пустым. |
+| `proxyString` | Пусто — прямой запрос. `+` — колонка `proxy` строки аккаунта в `_instance`; иначе `[scheme://][user:pass@]host:port`. Прокси всегда используется как HTTP-прокси. |
+| `headers` | Дополнительные заголовки, отправляются вместе с user agent профиля; транспортные заголовки вроде Host и Content-Length пропускаются. |
+| `parse` | Загрузить тело ответа в `project.Json`. |
+| `deadline` | Таймаут в секундах; сам клиент никогда не ждёт дольше 30 с. |
+| `throwOnFail` | Бросать исключение при статусе не 2xx или ошибке, а не возвращать сообщение. |
 
-**Возвращает:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
+**Возвращает:** Тело без пробелов по краям. При статусе не 2xx: `{code} !!! {reason}`; при таймауте `Timeout: …`; при других ошибках `Error: …`.
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public sealed class Aiio
 ```
 
-Client of the io.net intelligence chat API (`api.intelligence.io.solutions`). API keys come from the `api` column of the `__aiio` table (rows whose `expire` is empty or in the future); a random one is used per request.
+Клиент чат-API io.net intelligence (`api.intelligence.io.solutions`). API-ключи берутся из колонки `api` таблицы `__aiio` (строки, у которых `expire` пусто или в будущем); на каждый запрос берётся случайный.
 
 ## Конструкторы
 
@@ -24,7 +24,7 @@ public Aiio(IZennoPosterProjectModel project)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L29)
 
-Creates a client; the project gives access to the key table.
+Создаёт клиент; проект даёт доступ к таблице ключей.
 
 ## Методы
 
@@ -36,7 +36,7 @@ public string Complete(string model, string systemPrompt, string userPrompt, dou
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L35)
 
-Blocking version of `CompleteAsync`.
+Блокирующая версия `CompleteAsync`.
 
 ### CompleteAsync
 
@@ -46,18 +46,18 @@ public async Task<string> CompleteAsync(string model, string systemPrompt, strin
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L61)
 
-Sends one system and one user message and returns the reply (`top_p` 0.9, no streaming).
+Отправляет одно системное и одно пользовательское сообщение и возвращает ответ (`top_p` 0.9, без стриминга).
 
 | Параметр | Описание |
 |---|---|
-| `model` | Model id; required. |
-| `systemPrompt` | System message. |
-| `userPrompt` | User message. |
-| `temperature` | Sampling temperature. |
-| `maxTokens` | Reply length limit. |
-| `timeoutSec` | Request timeout, seconds. |
+| `model` | Id модели; обязателен. |
+| `systemPrompt` | Системное сообщение. |
+| `userPrompt` | Сообщение пользователя. |
+| `temperature` | Температура сэмплирования. |
+| `maxTokens` | Ограничение длины ответа. |
+| `timeoutSec` | Таймаут запроса, секунды. |
 
-**Возвращает:** The reply text. Throws on a non-2xx status or an unexpected answer; the message includes the raw answer.
+**Возвращает:** Текст ответа. Бросает исключение при статусе не 2xx или неожиданном ответе; в сообщении есть сырой ответ.
 
 ### GetModels
 
@@ -67,7 +67,7 @@ public List<string> GetModels()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L101)
 
-Blocking version of `GetModelsAsync`.
+Блокирующая версия `GetModelsAsync`.
 
 ### GetModelsAsync
 
@@ -77,7 +77,7 @@ public async Task<List<string>> GetModelsAsync()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L109)
 
-Available model ids, sorted. The list is cached for the process; see `InvalidateModelsCache`.
+Доступные id моделей, по алфавиту. Список кешируется на время процесса; см. `InvalidateModelsCache`.
 
 ### HasKey
 
@@ -87,7 +87,7 @@ public bool HasKey()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L144)
 
-Whether the key table has at least one valid key.
+Есть ли в таблице ключей хотя бы один действующий ключ.
 
 ### InvalidateModelsCache
 
@@ -97,5 +97,5 @@ public static void InvalidateModelsCache()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/Aiio.cs#L150)
 
-Forgets the cached model list.
+Забывает закешированный список моделей.
 

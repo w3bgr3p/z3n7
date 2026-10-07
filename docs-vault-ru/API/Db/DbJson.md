@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbJson
 ```
 
-Storing a JSON object as table columns and rebuilding it.
+Хранение JSON-объекта в виде колонок таблицы и его восстановление.
 
 ## Методы
 
@@ -24,15 +24,15 @@ public static string DbToJson(this IZennoPosterProjectModel project, string tabl
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L457)
 
-Rebuilds the JSON saved by `JsonToDb` with `saveStructure` from the current account's row. Writes detailed progress to the project log.
+Восстанавливает JSON, сохранённый `JsonToDb` с `saveStructure`, из строки текущего аккаунта. Пишет подробный ход работы в лог проекта.
 
 | Параметр | Описание |
 |---|---|
-| `tableName` | Table; default is `project.ProjectTable()` (`__` + project name). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
+| `tableName` | Таблица; по умолчанию `project.ProjectTable()` (`__` + имя проекта). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
 
-**Возвращает:** The JSON text, or `{}` when there is no `_json_structure` or it cannot be parsed.
+**Возвращает:** Текст JSON или `{}`, если `_json_structure` нет или её не удалось разобрать.
 
 ### JsonToDb
 
@@ -42,14 +42,14 @@ public static void JsonToDb(this IZennoPosterProjectModel project, string json, 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L398)
 
-Flattens a JSON object into columns (nested keys joined with `_`) and writes them with `DicToDb`.
+Разворачивает JSON-объект в колонки (вложенные ключи соединяются через `_`) и записывает их через `DicToDb`.
 
 | Параметр | Описание |
 |---|---|
-| `json` | JSON object. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
-| `saveStructure` | Also save the shape in `_json_structure` so that `DbToJson` can rebuild the object. |
+| `json` | JSON-объект. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
+| `saveStructure` | Заодно сохранить форму в `_json_structure`, чтобы `DbToJson` мог восстановить объект. |
 

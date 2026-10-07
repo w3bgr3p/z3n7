@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class GraphQL
 ```
 
-Collects the GraphQL operations seen in a browser instance's traffic.
+Собирает GraphQL-операции из трафика инстанса браузера.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public GraphQL(IZennoPosterProjectModel project, Instance instance, Logger log =
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/GraphQL.cs#L28)
 
-Turns on traffic monitoring for the instance.
+Включает мониторинг трафика для инстанса.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Logger for step-by-step progress; `null` logs nothing. |
+| `log` | Логгер для пошагового хода работы; `null` — ничего не писать. |
 
 ## Методы
 
@@ -40,9 +40,9 @@ public string GetGraphQLStructure(string urlFilter)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/GraphQL.cs#L48)
 
-Builds indented JSON `{ totalOperations, operations: [...] }` from the requests whose URL contains `urlFilter`. An operation is identified by its normalised `query` text, else by `operationName` + persisted-query hash, else by `operationName`; each appears once. Requests without a JSON body or without any of these are skipped. Each item has `operationType`, `operationName`, `url`, `statusCode`, `isPersistedQuery` (with `queryHash`), `requestBody` and `responseBody`.
+Строит JSON с отступами `{ totalOperations, operations: [...] }` из запросов, URL которых содержит `urlFilter`. Операция определяется по нормализованному тексту `query`, иначе по `operationName` + хешу persisted query, иначе по `operationName`; каждая попадает один раз. Запросы без JSON-тела или без всего перечисленного пропускаются. У каждого элемента есть `operationType`, `operationName`, `url`, `statusCode`, `isPersistedQuery` (с `queryHash`), `requestBody` и `responseBody`.
 
 | Параметр | Описание |
 |---|---|
-| `urlFilter` | Text the request URL must contain. |
+| `urlFilter` | Текст, который должен содержаться в URL запроса. |
 

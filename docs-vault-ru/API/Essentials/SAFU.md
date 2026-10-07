@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class SAFU
 ```
 
-Entry point to secure storage. Call `InitZ3n8` once (done by `InitVariables`) before the other methods.
+Точка входа в защищённое хранилище. Перед другими методами один раз вызови `InitZ3n8` (это делает `InitVariables`).
 
 ## Методы
 
@@ -24,7 +24,7 @@ public static string Decode(IZennoPosterProjectModel project, string toDecrypt)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L406)
 
-Decrypts with the key of the current account (`acc0`) and the PIN from the `cfgPin` secure variable.
+Расшифровывает ключом текущего аккаунта (`acc0`) и PIN из защищённой переменной `cfgPin`.
 
 ### DecryptHWID
 
@@ -34,7 +34,7 @@ public static string DecryptHWID(IZennoPosterProjectModel project, string toDecr
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L385)
 
-Decrypts with the machine-bound key. Returns an empty string for empty input.
+Расшифровывает ключом, привязанным к машине. Для пустого входа возвращает пустую строку.
 
 ### Encode
 
@@ -44,7 +44,7 @@ public static string Encode(IZennoPosterProjectModel project, string toEncrypt)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L420)
 
-Encrypts with the key of the current account (`acc0`) and the PIN from the `cfgPin` secure variable.
+Шифрует ключом текущего аккаунта (`acc0`) и PIN из защищённой переменной `cfgPin`.
 
 ### EncryptHWID
 
@@ -54,7 +54,7 @@ public static string EncryptHWID(IZennoPosterProjectModel project, string toEncr
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L394)
 
-Encrypts with the machine-bound key. Returns an empty string for empty input.
+Шифрует ключом, привязанным к машине. Для пустого входа возвращает пустую строку.
 
 ### HWPass
 
@@ -64,7 +64,7 @@ public static string HWPass(this IZennoPosterProjectModel project)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L434)
 
-Returns the deterministic password of the current account (`acc0`), using the PIN from the `cfgPin` secure variable.
+Возвращает детерминированный пароль текущего аккаунта (`acc0`), используя PIN из защищённой переменной `cfgPin`.
 
 ### InitZ3n8
 
@@ -74,9 +74,9 @@ public static void InitZ3n8(IZennoPosterProjectModel project, string keyFilePath
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L366)
 
-Registers `Z3n8SAFU` in `FunctionStorage` and writes the key path to the log.
+Регистрирует `Z3n8SAFU` в `FunctionStorage` и пишет путь к ключу в лог.
 
 | Параметр | Описание |
 |---|---|
-| `keyFilePath` | Path to the 32-byte key file. |
+| `keyFilePath` | Путь к файлу ключа длиной 32 байта. |
 

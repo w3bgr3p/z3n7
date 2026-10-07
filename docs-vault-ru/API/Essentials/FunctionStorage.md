@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class FunctionStorage
 ```
 
-Process-wide registry of delegates by name. SAFU registers its implementation here so that other assemblies can call it.
+Реестр делегатов по имени на весь процесс. SAFU регистрирует здесь свою реализацию, чтобы её могли вызывать другие сборки.
 
 ## Поля
 
@@ -24,5 +24,5 @@ public static ConcurrentDictionary<string, object> Functions;
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Safu8.cs#L19)
 
-Registered delegates, keyed by name (e.g. `SAFU_Encode`).
+Зарегистрированные делегаты по имени (например, `SAFU_Encode`).
 

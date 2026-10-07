@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Traffic
 ```
 
-Reads the traffic recorded by the active tab of a ZennoPoster instance (`ActiveTab.GetTraffic`). `OPTIONS` requests are skipped; gzip response bodies are decompressed.
+Читает трафик, записанный активной вкладкой инстанса ZennoPoster (`ActiveTab.GetTraffic`). Запросы `OPTIONS` пропускаются; тела ответов в gzip распаковываются.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public Traffic(Instance instance, string defaultFilter = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L26)
 
-Turns on traffic monitoring for the instance.
+Включает мониторинг трафика для инстанса.
 
 | Параметр | Описание |
 |---|---|
-| `defaultFilter` | Filter passed to `GetTraffic`; default is the active tab's domain. |
+| `defaultFilter` | Фильтр, который передаётся в `GetTraffic`; по умолчанию домен активной вкладки. |
 
 ## Методы
 
@@ -40,15 +40,15 @@ public TrafficElement Find(string url, bool strict = false, int timeoutSec = 15)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L53)
 
-Waits for a request whose URL matches, polling once a second.
+Ждёт запрос с подходящим URL, проверяя раз в секунду.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Text to look for in the URL, or the whole URL with `strict`. |
-| `strict` | Require an exact URL match. |
-| `timeoutSec` | How long to wait. |
+| `url` | Текст, который ищется в URL, или весь URL при `strict`. |
+| `strict` | Требовать точного совпадения URL. |
+| `timeoutSec` | Сколько ждать. |
 
-**Возвращает:** The first matching request. Throws `TimeoutException` when none appears in time.
+**Возвращает:** Первый подходящий запрос. Бросает `TimeoutException`, если вовремя ничего не появилось.
 
 ### FindAll
 
@@ -58,12 +58,12 @@ public List<TrafficElement> FindAll(string url, bool strict = false)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L68)
 
-Returns all requests recorded so far whose URL matches.
+Возвращает все записанные к этому моменту запросы, URL которых подходит.
 
 | Параметр | Описание |
 |---|---|
-| `url` | Text to look for in the URL, or the whole URL with `strict`. |
-| `strict` | Require an exact URL match. |
+| `url` | Текст, который ищется в URL, или весь URL при `strict`. |
+| `strict` | Требовать точного совпадения URL. |
 
 ### GetApiStructure
 
@@ -73,13 +73,13 @@ public string GetApiStructure(string urlFilter = "api", bool includeHeaders = fa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L81)
 
-Summarises the recorded API calls as indented JSON: `total` and one array per method (`getEndpoints`, `postEndpoints`, …). Each method + URL pair appears once; bodies are included, parsed as JSON when possible.
+Сводит записанные вызовы API в JSON с отступами: `total` и по массиву на каждый метод (`getEndpoints`, `postEndpoints`, …). Каждая пара метод + URL попадает один раз; тела включены и, где возможно, разобраны как JSON.
 
 | Параметр | Описание |
 |---|---|
-| `urlFilter` | Text the URL must contain. |
-| `includeHeaders` | Add request and response headers. |
-| `excludeFiles` | Skip URLs whose last path segment has a file extension. |
+| `urlFilter` | Текст, который должен содержаться в URL. |
+| `includeHeaders` | Добавлять заголовки запроса и ответа. |
+| `excludeFiles` | Пропускать URL, у которых в последнем сегменте пути есть расширение файла. |
 
 ### SaveHeadersToVar
 
@@ -89,13 +89,13 @@ public void SaveHeadersToVar(string url, string varName = "headers", bool strict
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Traffic/Traffic.cs#L129)
 
-Waits for a request (see `Find`) and collects its request headers without `:`-pseudo-headers.
+Ждёт запрос (см. `Find`) и собирает его заголовки запроса без псевдозаголовков с `:`.
 
 | Параметр | Описание |
 |---|---|
-| `url` | URL filter. |
-| `varName` | Not used. |
-| `strict` | Require an exact URL match. |
+| `url` | Фильтр URL. |
+| `varName` | Не используется. |
+| `strict` | Требовать точного совпадения URL. |
 
-**Примечания:** The collected headers are not stored anywhere: the line that wrote them to a variable is commented out.
+**Примечания:** Собранные заголовки никуда не сохраняются: строка, которая записывала их в переменную, закомментирована.
 

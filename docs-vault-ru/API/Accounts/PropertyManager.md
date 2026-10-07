@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class PropertyManager
 ```
 
-Copies simple properties of objects to and from database rows (by reflection).
+Копирует простые свойства объектов в строки базы и обратно (через рефлексию).
 
 ## Методы
 
@@ -24,12 +24,12 @@ public static List<string> GetTypeProperties(Type type, bool requireSetter = fal
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L18)
 
-Names of public readable properties of simple types: primitives, `string`, `decimal`, `DateTime`, enums.
+Имена публичных читаемых свойств простых типов: примитивы, `string`, `decimal`, `DateTime`, перечисления.
 
 | Параметр | Описание |
 |---|---|
-| `type` | Type to inspect. |
-| `requireSetter` | Only properties that also have a public setter. |
+| `type` | Тип, который нужно разобрать. |
+| `requireSetter` | Только свойства, у которых есть и публичный сеттер. |
 
 ```csharp
 public static List<string> GetTypeProperties(object obj)
@@ -37,7 +37,7 @@ public static List<string> GetTypeProperties(object obj)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L42)
 
-Same as `GetTypeProperties(obj.GetType())`.
+То же, что `GetTypeProperties(obj.GetType())`.
 
 ### GetValuesByProperty
 
@@ -47,15 +47,15 @@ public static Dictionary<string, string> GetValuesByProperty(this IZennoPosterPr
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L55)
 
-Reads property values as text, with single quotes doubled. Properties that fail to read are skipped.
+Читает значения свойств текстом, одинарные кавычки удваиваются. Свойства, которые не удалось прочитать, пропускаются.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Source object. |
-| `propertyList` | Properties to read; default `GetTypeProperties`. |
-| `tableToUpd` | When set, also writes the values to the current account's row of this table (`DicToDb`). |
+| `obj` | Объект-источник. |
+| `propertyList` | Какие свойства читать; по умолчанию `GetTypeProperties`. |
+| `tableToUpd` | Если задано, значения также записываются в строку текущего аккаунта этой таблицы (`DicToDb`). |
 
-**Возвращает:** Property → value.
+**Возвращает:** Свойство → значение.
 
 ### SetValuesFromDb
 
@@ -65,14 +65,14 @@ public static void SetValuesFromDb(this IZennoPosterProjectModel project, object
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/PropertyManager.cs#L97)
 
-Sets the object's writable properties from a database row, converting text to the property type. Empty values and failed conversions are skipped; other errors are logged as warnings.
+Задаёт записываемые свойства объекта из строки базы, приводя текст к типу свойства. Пустые значения и неудачные приведения пропускаются; остальные ошибки пишутся в лог как предупреждения.
 
 | Параметр | Описание |
 |---|---|
-| `obj` | Target object. |
-| `table` | Table. |
-| `propertyList` | Properties to set; default `GetTypeProperties`. |
-| `key` | Column matched against `id`. |
-| `id` | Row; default is the current account (`acc0`). |
-| `where` | Raw SQL condition instead of `key`/`id`. |
+| `obj` | Целевой объект. |
+| `table` | Таблица. |
+| `propertyList` | Какие свойства задавать; по умолчанию `GetTypeProperties`. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Строка; по умолчанию текущий аккаунт (`acc0`). |
+| `where` | Сырое SQL-условие вместо `key`/`id`. |
 

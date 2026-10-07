@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class AnyMessage
 ```
 
-Client of the AnyMessage mailbox service (`api.anymessage.shop`): short-term and long-term mailboxes. State is kept in project variables: `anyMailId` for the current short-term order, `anyLLId` for the long-term one. A response whose `status` is not `success` throws with the service's message.
+Клиент почтового сервиса AnyMessage (`api.anymessage.shop`): краткосрочные и долгосрочные ящики. Состояние хранится в переменных проекта: `anyMailId` — текущий краткосрочный заказ, `anyLLId` — долгосрочный. Ответ, у которого `status` не `success`, приводит к исключению с сообщением сервиса.
 
 ## Конструкторы
 
@@ -24,12 +24,12 @@ public AnyMessage(IZennoPosterProjectModel project, string apikey, bool log = fa
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L30)
 
-Creates a client.
+Создаёт клиент.
 
 | Параметр | Описание |
 |---|---|
-| `apikey` | AnyMessage API token. |
-| `log` | Log requests and responses. |
+| `apikey` | API-токен AnyMessage. |
+| `log` | Писать запросы и ответы в лог. |
 
 ## Свойства
 
@@ -41,7 +41,7 @@ public string LastDomain { get; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L55)
 
-Domain of the last ordered mailbox; may differ from the requested one after a fallback.
+Домен последнего заказанного ящика; после замены может отличаться от запрошенного.
 
 ## Методы
 
@@ -53,7 +53,7 @@ public string Balance()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L421)
 
-Account balance as returned by the service.
+Баланс аккаунта в том виде, в каком его вернул сервис.
 
 ### Cancel
 
@@ -63,7 +63,7 @@ public void Cancel()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L372)
 
-Cancels the order in `anyMailId`.
+Отменяет заказ из `anyMailId`.
 
 ### CheapestDomains
 
@@ -73,12 +73,12 @@ public List<string> CheapestDomains(string site, params string[] exclude)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L90)
 
-Domains with mailboxes available, cheapest first; at equal price the one with more mailboxes first.
+Домены, где есть ящики, сначала самые дешёвые; при равной цене — тот, где ящиков больше.
 
 | Параметр | Описание |
 |---|---|
-| `site` | Target site. |
-| `exclude` | Domains to leave out. |
+| `site` | Целевой сайт. |
+| `exclude` | Какие домены исключить. |
 
 ### GetHrefs
 
@@ -88,11 +88,11 @@ public List<string> GetHrefs(int deadline = 60)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L252)
 
-Waits for a message and collects its unique links, skipping anchors, `mailto:`, `tel:`, `javascript:`, `data:` and links to images, styles, scripts and fonts.
+Ждёт письмо и собирает его уникальные ссылки, пропуская якоря, `mailto:`, `tel:`, `javascript:`, `data:` и ссылки на картинки, стили, скрипты и шрифты.
 
 | Параметр | Описание |
 |---|---|
-| `deadline` | Seconds to wait for the message. |
+| `deadline` | Сколько секунд ждать письма. |
 
 ### GetLastMessages
 
@@ -102,13 +102,13 @@ public string GetLastMessages(string subject = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L408)
 
-Recent messages of the long-term mailbox in `anyLLId`.
+Последние письма долгосрочного ящика из `anyLLId`.
 
 | Параметр | Описание |
 |---|---|
-| `subject` | When set, only messages with this subject. |
+| `subject` | Если задано — только письма с этой темой. |
 
-**Возвращает:** The raw JSON answer.
+**Возвращает:** Сырой ответ в JSON.
 
 ### GetMail
 
@@ -118,13 +118,13 @@ public string GetMail(int deadline = 120)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L175)
 
-Waits for a message to the mailbox in `anyMailId`, polling every 5 seconds.
+Ждёт письмо в ящик из `anyMailId`, проверяя каждые 5 секунд.
 
 | Параметр | Описание |
 |---|---|
-| `deadline` | Seconds to wait; then `TimeoutException`. |
+| `deadline` | Сколько секунд ждать; потом `TimeoutException`. |
 
-**Возвращает:** The message body (HTML).
+**Возвращает:** Тело письма (HTML).
 
 ### Href
 
@@ -134,12 +134,12 @@ public string Href(int hrefIndex = 0, int deadline = 60)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L235)
 
-Returns one link from the message (see `GetHrefs`).
+Возвращает одну ссылку из письма (см. `GetHrefs`).
 
 | Параметр | Описание |
 |---|---|
-| `hrefIndex` | Index of the link; -1 writes all links to the log and returns an empty string. |
-| `deadline` | Seconds to wait for the message. |
+| `hrefIndex` | Индекс ссылки; -1 пишет все ссылки в лог и возвращает пустую строку. |
+| `deadline` | Сколько секунд ждать письма. |
 
 ### LinkByRegex
 
@@ -149,11 +149,11 @@ public string LinkByRegex(string urlPattern)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L344)
 
-Waits for a message and returns the first match of `urlPattern` in its HTML. Throws when there is none.
+Ждёт письмо и возвращает первое совпадение `urlPattern` в его HTML. Если совпадения нет, бросает исключение.
 
 | Параметр | Описание |
 |---|---|
-| `urlPattern` | Regular expression. |
+| `urlPattern` | Регулярное выражение. |
 
 ### NewMail
 
@@ -163,16 +163,16 @@ public string[] NewMail(string site, string domain = "outlook.com", bool fallbac
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L131)
 
-Orders a short-term mailbox. Stores the id in `anyMailId` and the address in `email` and `project.Profile.Email`.
+Заказывает краткосрочный ящик. Сохраняет id в `anyMailId`, адрес — в `email` и `project.Profile.Email`.
 
 | Параметр | Описание |
 |---|---|
-| `site` | Target site, e.g. `instagram.com`. |
-| `domain` | Mailbox domain. |
-| `fallback` | When the service answers "no emails", try the cheapest available domains instead. The domain used ends up in `LastDomain`. |
-| `maxFallback` | How many fallback domains to try. |
+| `site` | Целевой сайт, например `instagram.com`. |
+| `domain` | Домен ящика. |
+| `fallback` | Если сервис отвечает «no emails», пробовать самые дешёвые доступные домены. Использованный домен попадает в `LastDomain`. |
+| `maxFallback` | Сколько запасных доменов пробовать. |
 
-**Возвращает:** `[id, email]`. Throws with every attempt's error when nothing could be ordered.
+**Возвращает:** `[id, email]`. Если ничего заказать не удалось, бросает исключение с ошибками всех попыток.
 
 ### OrderLongLive
 
@@ -182,14 +182,14 @@ public string[] OrderLongLive(string site, string domain)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L388)
 
-Buys a long-term mailbox. Stores the id in `anyLLId` and the address in `anyLLEmail`.
+Покупает долгосрочный ящик. Сохраняет id в `anyLLId`, адрес — в `anyLLEmail`.
 
 | Параметр | Описание |
 |---|---|
-| `site` | Target site, e.g. `instagram.com`. |
-| `domain` | Mailbox domain, e.g. `hotmail.com`. |
+| `site` | Целевой сайт, например `instagram.com`. |
+| `domain` | Домен ящика, например `hotmail.com`. |
 
-**Возвращает:** `[id, email, imapPassword, imapHost, imapPort]` of the first mailbox in the answer.
+**Возвращает:** `[id, email, imapPassword, imapHost, imapPort]` первого ящика в ответе.
 
 ### Otp
 
@@ -199,13 +199,13 @@ public string Otp(int matchIndex = 0)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L203)
 
-Waits for a message and extracts a 6-digit code; stores it in `mailOtp`.
+Ждёт письмо и достаёт 6-значный код; сохраняет его в `mailOtp`.
 
 | Параметр | Описание |
 |---|---|
-| `matchIndex` | Which 6-digit number of the message to take; -1 writes all of them to the log and returns an empty string. |
+| `matchIndex` | Какое по счёту 6-значное число из письма брать; -1 пишет их все в лог и возвращает пустую строку. |
 
-**Возвращает:** The code. Throws when no code is found after 10 attempts.
+**Возвращает:** Код. Бросает исключение, если за 10 попыток код не найден.
 
 ### Quantity
 
@@ -215,13 +215,13 @@ public Dictionary<string, (int Count, double Price)> Quantity(string site)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L60)
 
-Available domains for a site (`/email/quantity`).
+Доступные домены для сайта (`/email/quantity`).
 
 | Параметр | Описание |
 |---|---|
-| `site` | Target site, e.g. `instagram.com`. |
+| `site` | Целевой сайт, например `instagram.com`. |
 
-**Возвращает:** Domain → (mailboxes available, price). Domains without a price are left out.
+**Возвращает:** Домен → (доступно ящиков, цена). Домены без цены не попадают.
 
 ### Reorder
 
@@ -231,7 +231,7 @@ public string[] Reorder()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Mail/AnyMessage.cs#L357)
 
-Orders the mailbox in `anyMailId` again under a new id; updates `anyMailId` and `email`.
+Заново заказывает ящик из `anyMailId` под новым id; обновляет `anyMailId` и `email`.
 
 **Возвращает:** `[id, email]`.
 

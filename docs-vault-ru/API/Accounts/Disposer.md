@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Disposer
 ```
 
-End of an account session: report, save the browser profile, clean up.
+Завершение сессии аккаунта: отчёт, сохранение профиля браузера, уборка.
 
 ## Конструкторы
 
@@ -24,11 +24,11 @@ public Disposer(IZennoPosterProjectModel project, Instance instance, Logger log 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L24)
 
-Creates the helper.
+Создаёт помощника.
 
 | Параметр | Описание |
 |---|---|
-| `log` | Logger for progress; `null` logs nothing. |
+| `log` | Логгер для хода работы; `null` — ничего не писать. |
 
 ## Методы
 
@@ -40,14 +40,14 @@ public string ErrorReport(bool toLog = true, bool toTelegram = false, bool toDb 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L72)
 
-Same as `Reporter.ReportError`.
+То же, что `Reporter.ReportError`.
 
 | Параметр | Описание |
 |---|---|
-| `toLog` | Write it to the log. |
-| `toTelegram` | Send it to Telegram. |
-| `toDb` | Write it to the account's row. |
-| `screenshot` | Save a screenshot. |
+| `toLog` | Записать в лог. |
+| `toTelegram` | Отправить в Telegram. |
+| `toDb` | Записать в строку аккаунта. |
+| `screenshot` | Сохранить скриншот. |
 
 ### FinishSession
 
@@ -57,7 +57,7 @@ public void FinishSession()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L44)
 
-Finishes the session. When `acc0` is set, writes a success report (or, when `lastQuery` contains `dropped`, an error report with a screenshot) to the log and the account's row; then saves the profile (`InstanceManager.SaveProfile`), writes the final line to the log and cleans up (`InstanceManager.Cleanup`).
+Завершает сессию. Если задан `acc0`, пишет в лог и в строку аккаунта отчёт об успехе (а если `lastQuery` содержит `dropped` — отчёт об ошибке со скриншотом); затем сохраняет профиль (`InstanceManager.SaveProfile`), пишет итоговую строку в лог и убирает за собой (`InstanceManager.Cleanup`).
 
 ### SuccessReport
 
@@ -67,12 +67,12 @@ public string SuccessReport(bool toLog = true, bool toTelegram = false, bool toD
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Accounts/Disposer.cs#L82)
 
-Same as `Reporter.ReportSuccess`.
+То же, что `Reporter.ReportSuccess`.
 
 | Параметр | Описание |
 |---|---|
-| `toLog` | Write it to the log. |
-| `toTelegram` | Send it to Telegram. |
-| `toDb` | Write it to the account's row. |
-| `customMessage` | Extra line. |
+| `toLog` | Записать в лог. |
+| `toTelegram` | Отправить в Telegram. |
+| `toDb` | Записать в строку аккаунта. |
+| `customMessage` | Дополнительная строка. |
 

@@ -14,7 +14,7 @@ public static class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Accounts)]], [[ProjectExtensions (Browser)]], [[ProjectExtensions (Diagnostic)]], [[ProjectExtensions (Essentials)]], [[ProjectExtensions (Mail)]], [[ProjectExtensions (MethodExtensions)]], [[ProjectExtensions (Requests)]], [[ProjectExtensions (Traffic)]]
 
-Extension methods on `IZennoPosterProjectModel`: balance reports.
+Методы расширения для `IZennoPosterProjectModel`: отчёты о балансах.
 
 ## Методы
 
@@ -26,10 +26,10 @@ public static void GenerateNative(this IZennoPosterProjectModel project, string 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Accountant.cs#L1496)
 
-Writes the balance table of the given chains (`Accountant.ShowBalanceTable` with `id` added).
+Пишет таблицу балансов заданных сетей (`Accountant.ShowBalanceTable` с добавлением `id`).
 
 | Параметр | Описание |
 |---|---|
-| `chains` | Comma-separated columns of `_native`. |
-| `call` | Open the file with the default program afterwards. |
+| `chains` | Колонки `_native` через запятую. |
+| `call` | Потом открыть файл программой по умолчанию. |
 

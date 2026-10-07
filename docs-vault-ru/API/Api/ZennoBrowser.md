@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class ZennoBrowser
 ```
 
-ZennoBrowser (ZP8) profiles: their ids and running the helper project `ZB.zp`.
+Профили ZennoBrowser (ZP8): их id и запуск вспомогательного проекта `ZB.zp`.
 
 ## Методы
 
@@ -24,13 +24,13 @@ public static bool ZB(this IZennoPosterProjectModel project, string toDo)
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L67)
 
-Stores `toDo` in the `toDo` variable and runs `{project.Path}/.internal/ZB.zp`, passing `acc0`, `cfgLog`, `cfgPin`, `DBmode`, `DBpstgrPass`, `DBpstgrUser`, `DBsqltPath`, `instancePort`, `lastQuery`, `cookies`, `varSessionId` and `toDo` by name.
+Записывает `toDo` в переменную `toDo` и запускает `{project.Path}/.internal/ZB.zp`, передавая по имени `acc0`, `cfgLog`, `cfgPin`, `DBmode`, `DBpstgrPass`, `DBpstgrUser`, `DBsqltPath`, `instancePort`, `lastQuery`, `cookies`, `varSessionId` и `toDo`.
 
 | Параметр | Описание |
 |---|---|
-| `toDo` | Command for the helper project. |
+| `toDo` | Команда для вспомогательного проекта. |
 
-**Возвращает:** The result of `ExecuteProject`.
+**Возвращает:** Результат `ExecuteProject`.
 
 ### ZBids
 
@@ -40,7 +40,7 @@ public static Dictionary<string, string> ZBids(this IZennoPosterProjectModel pro
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/ZB.cs#L21)
 
-Reads `id` and `name` of every ZennoBrowser profile except `template` from the `ProfileInfos` table of `%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db`. The file is read directly; project variables are not touched.
+Читает `id` и `name` всех профилей ZennoBrowser, кроме `template`, из таблицы `ProfileInfos` файла `%LOCALAPPDATA%\ZennoLab\ZP8\.zp8\ProfileManagement.db`. Файл читается напрямую; переменные проекта не трогаются.
 
-**Возвращает:** Profile id → profile name. Throws when the ZennoBrowser database file is missing.
+**Возвращает:** Id профиля → имя профиля. Бросает исключение, если файла базы ZennoBrowser нет.
 

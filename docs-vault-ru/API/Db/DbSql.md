@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public static class DbSql
 ```
 
-Lower-level SELECT and UPDATE helpers behind the `Db*` methods.
+Низкоуровневые помощники SELECT и UPDATE, на которых построены методы `Db*`.
 
 ## Методы
 
@@ -24,19 +24,19 @@ public static string SqlGet(this IZennoPosterProjectModel project, string toGet,
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L900)
 
-Selects columns from the row where `key` = `id`, or from the rows matching `where`.
+Выбирает колонки из строки, где `key` = `id`, или из строк, подходящих под `where`.
 
 | Параметр | Описание |
 |---|---|
-| `toGet` | Comma-separated column names; each is quoted. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `toGet` | Имена колонок через запятую; каждое берётся в кавычки. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`; по умолчанию текущий аккаунт, `acc0`. Подставляется в SQL как написано. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
-**Возвращает:** Columns joined by `¦`, rows by `·`.
+**Возвращает:** Колонки через `¦`, строки через `·`.
 
 ### SqlGetArrFromLine
 
@@ -46,17 +46,17 @@ public static string[] SqlGetArrFromLine(this IZennoPosterProjectModel project, 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L968)
 
-Like `SqlGet`, split into column values.
+То же, что `SqlGet`, с разбивкой на значения колонок.
 
 | Параметр | Описание |
 |---|---|
-| `toGet` | Comma-separated column names; each is quoted. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `toGet` | Имена колонок через запятую; каждое берётся в кавычки. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`; по умолчанию текущий аккаунт, `acc0`. Подставляется в SQL как написано. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
 ### SqlGetDicFromLine
 
@@ -66,18 +66,18 @@ public static Dictionary<string, string> SqlGetDicFromLine(this IZennoPosterProj
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L937)
 
-Like `SqlGet`, returning the first row as column → value.
+То же, что `SqlGet`, но возвращает первую строку в виде колонка → значение.
 
 | Параметр | Описание |
 |---|---|
-| `toGet` | Comma-separated column names; each is quoted. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
-| `set` | Also set project variables named after the columns. |
+| `toGet` | Имена колонок через запятую; каждое берётся в кавычки. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`; по умолчанию текущий аккаунт, `acc0`. Подставляется в SQL как написано. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
+| `set` | Заодно задать переменные проекта с именами колонок. |
 
 ### SqlGetListFromLines
 
@@ -87,17 +87,17 @@ public static List<string> SqlGetListFromLines(this IZennoPosterProjectModel pro
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L983)
 
-Like `SqlGet`, split into rows.
+То же, что `SqlGet`, с разбивкой на строки.
 
 | Параметр | Описание |
 |---|---|
-| `toGet` | Comma-separated column names; each is quoted. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `toGet` | Имена колонок через запятую; каждое берётся в кавычки. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`; по умолчанию текущий аккаунт, `acc0`. Подставляется в SQL как написано. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
 ### SqlUpd
 
@@ -107,17 +107,17 @@ public static string SqlUpd(this IZennoPosterProjectModel project, string toUpd,
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbExtencions.cs#L1002)
 
-Runs `UPDATE … SET toUpd` for the row where `key` = `id`, or for the rows matching `where`.
+Выполняет `UPDATE … SET toUpd` для строки, где `key` = `id`, или для строк, подходящих под `where`.
 
 | Параметр | Описание |
 |---|---|
-| `toUpd` | Assignments; column names are quoted, values are taken as written. |
-| `tableName` | Table; default is the project table (`projectTable` variable). |
-| `log` | Write the query and its result to the project log. |
-| `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
-| `key` | Column matched against `id`. |
-| `id` | Value of `key`; default is the current account, `acc0`. Inserted into the SQL as written. |
-| `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
+| `toUpd` | Присваивания; имена колонок берутся в кавычки, значения — как написаны. |
+| `tableName` | Таблица; по умолчанию таблица проекта (переменная `projectTable`). |
+| `log` | Писать запрос и его результат в лог проекта. |
+| `thrw` | Бросать исключение при ошибке базы, а не писать предупреждение и возвращать пустой результат. |
+| `key` | Колонка, которая сверяется с `id`. |
+| `id` | Значение `key`; по умолчанию текущий аккаунт, `acc0`. Подставляется в SQL как написано. |
+| `where` | Сырое SQL-условие. Если задано, `key` и `id` игнорируются. |
 
-**Возвращает:** Affected row count as text.
+**Возвращает:** Число затронутых строк, текстом.
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class TableSchema
 ```
 
-Name and column definitions of a table.
+Имя таблицы и определения её колонок.
 
 ## Свойства
 
@@ -24,7 +24,7 @@ public Dictionary<string, string> Columns { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L11)
 
-Column name → SQL type.
+Имя колонки → тип SQL.
 
 ### Name
 
@@ -34,5 +34,5 @@ public string Name { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Db/DbSchema.cs#L9)
 
-Table name.
+Имя таблицы.
 

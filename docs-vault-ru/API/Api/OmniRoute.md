@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public sealed class OmniRoute
 ```
 
-Client of a local OpenAI-compatible router at `http://localhost:20128` (no API key).
+Клиент локального OpenAI-совместимого роутера на `http://localhost:20128` (без API-ключа).
 
 ## Конструкторы
 
@@ -24,7 +24,7 @@ public OmniRoute()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L24)
 
-Creates a client.
+Создаёт клиент.
 
 ## Методы
 
@@ -36,7 +36,7 @@ public bool Check()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L204)
 
-Blocking version of `CheckAsync`.
+Блокирующая версия `CheckAsync`.
 
 ### CheckAsync
 
@@ -46,7 +46,7 @@ public async Task<bool> CheckAsync()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L210)
 
-Whether the router answers the model list with 2xx within 3 seconds.
+Отвечает ли роутер на запрос списка моделей статусом 2xx за 3 секунды.
 
 ### Complete
 
@@ -56,7 +56,7 @@ public string Complete(string model, string systemPrompt, string userPrompt, dou
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L29)
 
-Blocking version of `CompleteAsync`.
+Блокирующая версия `CompleteAsync`.
 
 ### CompleteAsync
 
@@ -66,18 +66,18 @@ public async Task<string> CompleteAsync(string model, string systemPrompt, strin
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L55)
 
-Sends one system and one user message and returns the reply (`top_p` 0.9, no streaming).
+Отправляет одно системное и одно пользовательское сообщение и возвращает ответ (`top_p` 0.9, без стриминга).
 
 | Параметр | Описание |
 |---|---|
-| `model` | Model id; required. |
-| `systemPrompt` | System message. |
-| `userPrompt` | User message. |
-| `temperature` | Sampling temperature. |
-| `maxTokens` | Reply length limit. |
-| `timeoutSec` | Request timeout, seconds. |
+| `model` | Id модели; обязателен. |
+| `systemPrompt` | Системное сообщение. |
+| `userPrompt` | Сообщение пользователя. |
+| `temperature` | Температура сэмплирования. |
+| `maxTokens` | Ограничение длины ответа. |
+| `timeoutSec` | Таймаут запроса, секунды. |
 
-**Возвращает:** The reply text. Throws on a non-2xx status or an unexpected answer; the message includes the raw answer.
+**Возвращает:** Текст ответа. Бросает исключение при статусе не 2xx или неожиданном ответе; в сообщении есть сырой ответ.
 
 ### CompleteVision
 
@@ -87,7 +87,7 @@ public string CompleteVision(string model, string systemPrompt, string userPromp
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L94)
 
-Blocking version of `CompleteVisionAsync`.
+Блокирующая версия `CompleteVisionAsync`.
 
 ### CompleteVisionAsync
 
@@ -97,19 +97,19 @@ public async Task<string> CompleteVisionAsync(string model, string systemPrompt,
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L131)
 
-Sends a prompt with images. The prompt is extended with the pixel size of the first image; a reply wrapped in a code fence is unwrapped, and when it is JSON with `canvas_width`/`canvas_height`, those are set to the first image's size.
+Отправляет промпт с картинками. К промпту добавляется размер первой картинки в пикселях; ответ, обёрнутый в блок кода, разворачивается, а если это JSON с `canvas_width`/`canvas_height`, им ставится размер первой картинки.
 
 | Параметр | Описание |
 |---|---|
-| `model` | Model id; required. |
-| `systemPrompt` | System message. |
-| `userPrompt` | User message. |
-| `temperature` | Sampling temperature. |
-| `maxTokens` | Reply length limit. |
-| `timeoutSec` | Request timeout, seconds. |
-| `imagesBase64` | Images as Base64 (optionally as data URLs); at least one. |
+| `model` | Id модели; обязателен. |
+| `systemPrompt` | Системное сообщение. |
+| `userPrompt` | Сообщение пользователя. |
+| `temperature` | Температура сэмплирования. |
+| `maxTokens` | Ограничение длины ответа. |
+| `timeoutSec` | Таймаут запроса, секунды. |
+| `imagesBase64` | Картинки в Base64 (по желанию в виде data URL); хотя бы одна. |
 
-**Возвращает:** The reply text. Throws on a non-2xx status or an unexpected answer; the message includes the raw answer.
+**Возвращает:** Текст ответа. Бросает исключение при статусе не 2xx или неожиданном ответе; в сообщении есть сырой ответ.
 
 ### GetModels
 
@@ -119,7 +119,7 @@ public List<string> GetModels()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L166)
 
-Blocking version of `GetModelsAsync`.
+Блокирующая версия `GetModelsAsync`.
 
 ### GetModelsAsync
 
@@ -129,7 +129,7 @@ public async Task<List<string>> GetModelsAsync()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L174)
 
-Available model ids, sorted. The list is cached for the process; see `InvalidateModelsCache`.
+Доступные id моделей, по алфавиту. Список кешируется на время процесса; см. `InvalidateModelsCache`.
 
 ### InvalidateModelsCache
 
@@ -139,5 +139,5 @@ public static void InvalidateModelsCache()
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Api/OmniRoute.cs#L225)
 
-Forgets the cached model list.
+Забывает закешированный список моделей.
 

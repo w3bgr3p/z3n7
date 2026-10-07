@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Reporter
 ```
 
-Builds run reports (error or success) and sends them to the log, Telegram and the account's database row. Telegram credentials come from the `_api` table, row `id = 'tg_logger'` (`apikey`, `extra` = `{chat}/{topic}`).
+Собирает отчёты о прогоне (ошибка или успех) и отправляет их в лог, в Telegram и в строку аккаунта в базе. Данные Telegram берутся из таблицы `_api`, строка `id = 'tg_logger'` (`apikey`, `extra` = `{chat}/{topic}`).
 
 ## Конструкторы
 
@@ -24,7 +24,7 @@ public Reporter(IZennoPosterProjectModel project, Instance instance)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Reporter.cs#L30)
 
-Creates a reporter; remembers the current time and the session's elapsed seconds.
+Создаёт отчётчик; запоминает текущее время и число секунд, прошедших с начала сессии.
 
 ## Методы
 
@@ -36,16 +36,16 @@ public string ReportError(bool toLog = true, bool toTelegram = false, bool toDb 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Reporter.cs#L56)
 
-Reports the project's last error: account, action id and comment, exception type, message, inner message, first stack-trace frame and the current URL.
+Сообщает о последней ошибке проекта: аккаунт, id и комментарий действия, тип исключения, сообщение, внутреннее сообщение, первая строка стека и текущий URL.
 
 | Параметр | Описание |
 |---|---|
-| `toLog` | Write it to the log as a warning. |
-| `toTelegram` | Send it to Telegram (also stored in `failReport`). |
-| `toDb` | Set `status = 'dropped'` and write the report to `last` in the current account's row. |
-| `screenshot` | Save a screenshot with the report as a watermark to `{project.Path}/.failed/{projectName}/`, scaled to 50%. |
+| `toLog` | Записать в лог как предупреждение. |
+| `toTelegram` | Отправить в Telegram (также сохраняется в `failReport`). |
+| `toDb` | Поставить `status = 'dropped'` и записать отчёт в `last` строки текущего аккаунта. |
+| `screenshot` | Сохранить скриншот с отчётом в виде водяного знака в `{project.Path}/.failed/{projectName}/`, в масштабе 50%. |
 
-**Возвращает:** The log text; empty when there is no last error.
+**Возвращает:** Текст для лога; пусто, если последней ошибки нет.
 
 ### ReportSuccess
 
@@ -55,14 +55,14 @@ public string ReportSuccess(bool toLog = true, bool toTelegram = false, bool toD
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Reports/Reporter.cs#L101)
 
-Reports a successful run: account, the `lastQuery` variable, an optional message and the elapsed time.
+Сообщает об успешном прогоне: аккаунт, переменная `lastQuery`, необязательное сообщение и затраченное время.
 
 | Параметр | Описание |
 |---|---|
-| `toLog` | Write it to the log. |
-| `toTelegram` | Send it to Telegram. |
-| `toDb` | Set `status = 'idle'` and write the report to `last` in the current account's row. |
-| `customMessage` | Extra line. |
+| `toLog` | Записать в лог. |
+| `toTelegram` | Отправить в Telegram. |
+| `toDb` | Поставить `status = 'idle'` и записать отчёт в `last` строки текущего аккаунта. |
+| `customMessage` | Дополнительная строка. |
 
-**Возвращает:** The log text.
+**Возвращает:** Текст для лога.
 

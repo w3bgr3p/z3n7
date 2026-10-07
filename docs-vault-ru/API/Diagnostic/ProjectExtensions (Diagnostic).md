@@ -14,7 +14,7 @@ public static class ProjectExtensions
 
 Другие части этого типа: [[ProjectExtensions (Accounts)]], [[ProjectExtensions (Browser)]], [[ProjectExtensions (Essentials)]], [[ProjectExtensions (Mail)]], [[ProjectExtensions (MethodExtensions)]], [[ProjectExtensions (Reports)]], [[ProjectExtensions (Requests)]], [[ProjectExtensions (Traffic)]]
 
-Extension methods on `IZennoPosterProjectModel`: debugging aids.
+Методы расширения для `IZennoPosterProjectModel`: помощь в отладке.
 
 ## Методы
 
@@ -26,14 +26,14 @@ public static void CatchErrorFromTraffic(this IZennoPosterProjectModel project, 
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L132)
 
-After a pause, finds the request to `url` in the traffic of the main domain and checks its JSON response. When `errField` is set, stores the body in `err` and throws through `warn`; otherwise writes the body to the log. Does nothing when the request is not found.
+После паузы находит в трафике основного домена запрос к `url` и проверяет его JSON-ответ. Если задан `errField`, сохраняет тело в `err` и бросает исключение через `warn`; иначе пишет тело в лог. Если запрос не найден, ничего не делает.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `url` | Exact request URL. |
-| `errField` | Top-level JSON field that signals an error. |
-| `sleepBefore` | Pause before reading, ms. |
+| `instance` | Инстанс браузера. |
+| `url` | Точный URL запроса. |
+| `errField` | Поле JSON верхнего уровня, которое означает ошибку. |
+| `sleepBefore` | Пауза перед чтением, мс. |
 
 ### SaveDebugScreenshot
 
@@ -43,10 +43,10 @@ public static void SaveDebugScreenshot(this IZennoPosterProjectModel project, In
 
 Метод расширения для `IZennoPosterProjectModel`. [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Diagnostic/Diagnostic.cs#L28)
 
-Saves a screenshot of the instance to `{project.Path}/debug_screens/{yyyy-MM-dd}/{project.Name}/{actionId} - {unix ms}.png` with a text box in the top-left corner (Iosevka 15 pt, white on dark).
+Сохраняет скриншот инстанса в `{project.Path}/debug_screens/{yyyy-MM-dd}/{project.Name}/{actionId} - {unix ms}.png` с текстовой плашкой в левом верхнем углу (Iosevka 15 pt, белым по тёмному).
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Browser instance. |
-| `watermark` | Text of the box; default is the last error, the current URL and the last action id. |
+| `instance` | Инстанс браузера. |
+| `watermark` | Текст плашки; по умолчанию последняя ошибка, текущий URL и id последнего действия. |
 

@@ -12,7 +12,7 @@ generated: z3n7-docgen
 public class Logger
 ```
 
-Writes messages to the ZennoPoster log. Header fields are switched on by substrings of the `cfgLog` project variable: `acc` (account), `time` (project age), `port` (instance port), `caller` (calling member), `wrap` (print the header at all), `force` (ignore the level filter).
+Пишет сообщения в лог ZennoPoster. Поля заголовка включаются подстроками переменной проекта `cfgLog`: `acc` (аккаунт), `time` (возраст проекта), `port` (порт инстанса), `caller` (вызывающий член), `wrap` (вообще печатать заголовок), `force` (не применять фильтр по уровню).
 
 ## Конструкторы
 
@@ -24,13 +24,13 @@ public Logger(IZennoPosterProjectModel project, Instance instance = null, LogLev
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L60)
 
-Creates a logger bound to a ZennoPoster project. The minimum level is taken from the `logLevel` project variable when it parses as `LogLevel`; otherwise `Debug` when `debug` is `True`; otherwise the `logLevel` argument.
+Создаёт логгер, привязанный к проекту ZennoPoster. Минимальный уровень берётся из переменной проекта `logLevel`, если она разбирается как `LogLevel`; иначе `Debug`, если `debug` равно `True`; иначе аргумент `logLevel`.
 
 | Параметр | Описание |
 |---|---|
-| `instance` | Not used; kept for compatibility. |
-| `logLevel` | Minimum level when the project variables do not set one. |
-| `classEmoji` | Value of `Emoji`. |
+| `instance` | Не используется; оставлен для совместимости. |
+| `logLevel` | Минимальный уровень, если переменные проекта его не задают. |
+| `classEmoji` | Значение `Emoji`. |
 
 ```csharp
 public Logger(LogLevel logLevel = LogLevel.Info, string classEmoji = null)
@@ -38,12 +38,12 @@ public Logger(LogLevel logLevel = LogLevel.Info, string classEmoji = null)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L89)
 
-Creates a logger without a ZennoPoster project. It has nowhere to write, so every message is dropped; `thrw` does not throw either.
+Создаёт логгер без проекта ZennoPoster. Писать ему некуда, поэтому все сообщения отбрасываются; `thrw` тоже не бросает исключение.
 
 | Параметр | Описание |
 |---|---|
-| `logLevel` | Minimum level. |
-| `classEmoji` | Value of `Emoji`. |
+| `logLevel` | Минимальный уровень. |
+| `classEmoji` | Значение `Emoji`. |
 
 ## Свойства
 
@@ -55,7 +55,7 @@ public string Emoji { get; set; }
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L45)
 
-Prefix shown in brackets before every message, e.g. the class marker.
+Префикс в скобках перед каждым сообщением, например маркер класса.
 
 ## Методы
 
@@ -67,7 +67,7 @@ public static void ClearCache(IZennoPosterProjectModel project)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L31)
 
-Does nothing. Kept for compatibility: the logger no longer caches instances.
+Ничего не делает. Оставлен для совместимости: логгер больше не кеширует экземпляры.
 
 ### Debug
 
@@ -77,7 +77,7 @@ public void Debug(object msg, [CallerMemberName] string caller = "")
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L154)
 
-Writes a message at `Debug` level.
+Пишет сообщение уровня `Debug`.
 
 ### Error
 
@@ -87,11 +87,11 @@ public void Error(object msg, [CallerMemberName] string caller = "", bool thrw =
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L169)
 
-Writes an error. Errors are always written regardless of the minimum level.
+Пишет ошибку. Ошибки пишутся всегда, независимо от минимального уровня.
 
 | Параметр | Описание |
 |---|---|
-| `thrw` | Throw an `Exception` with the message after writing. |
+| `thrw` | После записи бросить `Exception` с сообщением. |
 
 ### Get
 
@@ -101,7 +101,7 @@ public static Logger Get(IZennoPosterProjectModel project, Instance instance = n
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L27)
 
-Creates a logger for the project with default settings.
+Создаёт логгер для проекта с настройками по умолчанию.
 
 ### Info
 
@@ -111,7 +111,7 @@ public void Info(object msg, [CallerMemberName] string caller = "")
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L158)
 
-Writes a message at `Info` level.
+Пишет сообщение уровня `Info`.
 
 ### Send
 
@@ -121,19 +121,19 @@ public void Send(object toLog, [CallerMemberName] string caller = "", bool show 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L123)
 
-Writes a message. Messages below the minimum level are dropped unless `show` is true or `cfgLog` contains `force`. The ZennoPoster log type follows the level; text containing `!W` or `!E` is logged as a warning or an error.
+Пишет сообщение. Сообщения ниже минимального уровня отбрасываются, если только `show` не равно true или `cfgLog` не содержит `force`. Тип записи в логе ZennoPoster следует уровню; текст, содержащий `!W` или `!E`, пишется как предупреждение или ошибка.
 
 | Параметр | Описание |
 |---|---|
-| `toLog` | Message; `ToString()` is used, `null` is written as "null". |
-| `caller` | Filled in by the compiler with the calling member name. |
-| `show` | Write even if below the minimum level. |
-| `thrw` | After writing to the ZennoPoster log, throw an `Exception` with the message. Only when the logger has a project and `toZp` is true. |
-| `toZp` | Write to the ZennoPoster log. |
-| `cut` | When the message has more than this many line breaks, join it into one line. 0 keeps it as is. |
-| `level` | Severity used for filtering. |
-| `type` | ZennoPoster log type; overridden by `level` Warning/Error and by the `!W`/`!E` markers. |
-| `color` | ZennoPoster log color. |
+| `toLog` | Сообщение; используется `ToString()`, `null` пишется как «null». |
+| `caller` | Подставляется компилятором: имя вызывающего члена. |
+| `show` | Писать, даже если ниже минимального уровня. |
+| `thrw` | После записи в лог ZennoPoster бросить `Exception` с сообщением. Только если у логгера есть проект и `toZp` равно true. |
+| `toZp` | Писать в лог ZennoPoster. |
+| `cut` | Если в сообщении больше переводов строк, чем это число, оно склеивается в одну строку. 0 — оставить как есть. |
+| `level` | Важность, по которой фильтруются сообщения. |
+| `type` | Тип записи в логе ZennoPoster; переопределяется `level` Warning/Error и маркерами `!W`/`!E`. |
+| `color` | Цвет записи в логе ZennoPoster. |
 
 ### Warn
 
@@ -143,12 +143,12 @@ public void Warn(object msg, [CallerMemberName] string caller = "", bool show = 
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L164)
 
-Writes a warning.
+Пишет предупреждение.
 
 | Параметр | Описание |
 |---|---|
-| `show` | Write even if below the minimum level. |
-| `thrw` | Throw an `Exception` with the message after writing. |
+| `show` | Писать, даже если ниже минимального уровня. |
+| `thrw` | После записи бросить `Exception` с сообщением. |
 
 ### WithInstance
 
@@ -158,5 +158,5 @@ public Logger WithInstance(Instance instance)
 
 [исходник](https://github.com/w3bgr3p/z3n7/blob/master/z3n7/Essentials/Logger.cs#L37)
 
-Returns a copy of this logger. Kept for compatibility: the instance is not used.
+Возвращает копию этого логгера. Оставлен для совместимости: экземпляр не используется.
 
