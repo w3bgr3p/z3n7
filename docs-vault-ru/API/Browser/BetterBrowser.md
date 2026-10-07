@@ -36,4 +36,3 @@ public static void PrepareSession(this IZennoPosterProjectModel project, Instanc
 
 Loads the account's cookies (`instance.GetCookies`), sets the profile email to `{NickName}@outlook.com` and a random 12-character password, turns on traffic monitoring, sets the window to 1280×720, stores `Time.Now()` in `ts0` and runs `ImproveBrowser`. An error is logged and rethrown.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

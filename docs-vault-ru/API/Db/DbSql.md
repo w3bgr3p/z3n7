@@ -121,4 +121,3 @@ Runs `UPDATE … SET toUpd` for the row where `key` = `id`, or for the rows matc
 
 **Возвращает:** Affected row count as text.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

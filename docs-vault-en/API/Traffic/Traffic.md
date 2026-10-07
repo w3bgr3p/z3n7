@@ -99,4 +99,3 @@ Waits for a request (see `Find`) and collects its request headers without `:`-ps
 
 **Remarks:** The collected headers are not stored anywhere: the line that wrote them to a variable is commented out.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

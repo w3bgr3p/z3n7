@@ -115,4 +115,3 @@ Exports the profile and instance properties, WebGL settings and cookies (Base64)
 |---|---|
 | `instance` | Browser instance. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

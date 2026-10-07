@@ -93,4 +93,3 @@ Saves the account's browser data when the browser is Chromium, `acc0` is set and
 | `saveTo` | Table prefix: `folder`, `zb` or `zpprofile`. |
 | `saveZpProfile` | Also save the ZennoPoster profile to the profile folder. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

@@ -90,4 +90,3 @@ public string HWPass(IZennoPosterProjectModel project, string pin, string acc)
 
 Returns a deterministic 24-character password with at least one lowercase letter, uppercase letter, digit and symbol.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -117,4 +117,3 @@ Finds text in the actions of every .zp file in a folder (case-insensitive, in at
 
 **Remarks:** Works only inside ProjectMaker: it uses the ProjectMaker assembly loaded in the process and does nothing elsewhere.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

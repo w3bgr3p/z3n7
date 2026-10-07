@@ -70,4 +70,3 @@ public static int TillNextHour()
 
 Seconds left until the next full hour, local time.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

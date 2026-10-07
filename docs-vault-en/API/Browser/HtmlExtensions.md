@@ -66,4 +66,3 @@ public static bool VerifyXPath(Tab tab, HtmlElement originalElement, string xpat
 
 Checks that the first element found by `xpath` in `tab` has the same outer HTML as `originalElement`.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

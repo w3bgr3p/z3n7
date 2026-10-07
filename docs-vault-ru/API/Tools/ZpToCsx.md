@@ -67,4 +67,3 @@ Builds a .zp file from project XML, using an empty project embedded in the libra
 | `xml` | Project XML. |
 | `zpPath` | Target file. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -36,4 +36,3 @@ public static string HtmlEncode(string text)
 
 Escapes `& < > " '` for HTML text.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

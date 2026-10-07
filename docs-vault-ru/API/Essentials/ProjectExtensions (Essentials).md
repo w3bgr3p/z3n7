@@ -177,4 +177,3 @@ Writes an exception message as a warning and stores it in the `err` variable.
 | `withStack` | Append the stack trace. |
 | `toZp` | Not used. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

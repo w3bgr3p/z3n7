@@ -80,4 +80,3 @@ Opens `browserscan.net` and waits for it to finish (checked every 3–5 seconds,
 
 **Returns:** Problem → description; empty at 100%.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

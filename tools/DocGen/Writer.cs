@@ -64,7 +64,6 @@ public sealed class Writer
         Section(sb, _s.Fields, p.Members.Where(m => m.Kind == MemberKind.Field));
         Section(sb, _s.Events, p.Members.Where(m => m.Kind == MemberKind.Event));
 
-        sb.Append($"> {_s.GeneratedNote}\n");
         return sb.ToString();
     }
 
@@ -139,7 +138,6 @@ public sealed class Writer
                 sb.Append($"| [[{p.Label}]] | {p.Kind} | {FirstSentence(p.Doc.Summary)} |\n");
             sb.Append('\n');
         }
-        sb.Append($"> {_s.GeneratedNote}\n");
         return sb.ToString();
     }
 
@@ -160,7 +158,6 @@ public sealed class Writer
             }
             sb.Append('\n');
         }
-        sb.Append($"> {_s.GeneratedNote}\n");
         return sb.ToString();
     }
 

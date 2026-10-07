@@ -162,4 +162,3 @@ Creates the project table (`projectTable` variable) with the `TblForProject` lay
 |---|---|
 | `log` | Write the query and its result to the project log. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

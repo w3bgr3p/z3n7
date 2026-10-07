@@ -47,4 +47,3 @@ Takes a random WebGL profile (Base64 JSON per line) from `{project.Path}/resours
 |---|---|
 | `instance` | Browser instance. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

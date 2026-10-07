@@ -159,4 +159,3 @@ Waits for a message and returns the first 6-digit number of its subject, else of
 
 **Возвращает:** The code. Throws when there is none.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

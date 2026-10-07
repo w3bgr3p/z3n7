@@ -50,4 +50,3 @@ Saves a screenshot of the instance to `{project.Path}/debug_screens/{yyyy-MM-dd}
 | `instance` | Browser instance. |
 | `watermark` | Text of the box; default is the last error, the current URL and the last action id. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

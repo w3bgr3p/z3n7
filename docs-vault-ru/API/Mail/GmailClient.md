@@ -81,4 +81,3 @@ Sends a plain-text message from this mailbox.
 | `subject` | Subject. |
 | `body` | Text. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

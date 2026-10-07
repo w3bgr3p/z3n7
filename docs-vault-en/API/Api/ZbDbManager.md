@@ -64,4 +64,3 @@ Profile ids of a folder from a JSON array of profiles (see `ZBIdDic`).
 | `json` | JSON array of profiles. |
 | `folder` | Folder name. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

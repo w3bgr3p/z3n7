@@ -174,4 +174,3 @@ Returns the `cfgRefCode` variable; when it is empty, picks a random non-empty `i
 | `inviteColumn` | Column with invite codes. |
 | `log` | Write the query and its result to the project log. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

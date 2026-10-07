@@ -47,4 +47,3 @@ Renders SVG markup to an image file; the format follows the file extension.
 | `svgContent` | SVG markup. |
 | `pathToScreen` | Target file. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

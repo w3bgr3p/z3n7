@@ -126,4 +126,3 @@ Loads `cookiesJson`, sends a GET to each service and saves every cookie of the i
 
 **Возвращает:** JSON array of cookies in the same format.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -32,4 +32,3 @@ Inserts rows with ids from the current maximum + 1 up to `range`, in batches of 
 | `range` | Highest id; 0 reads `rangeEnd`, and 10 is used with a warning when that is not a number. |
 | `log` | Write the query and its result to the project log. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

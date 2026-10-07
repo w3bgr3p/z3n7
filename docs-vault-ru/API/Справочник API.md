@@ -183,4 +183,3 @@ generated: z3n7-docgen
 | [[TrafficCounter]] | static class | Counts traffic per labelled step of a project run and reports it as JSON. |
 | [[TrafficCounter.TrafficStep]] | class | One counted step. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

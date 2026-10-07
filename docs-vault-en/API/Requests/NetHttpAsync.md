@@ -125,4 +125,3 @@ Sends a PUT request; a non-empty body is sent as JSON.
 
 **Returns:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

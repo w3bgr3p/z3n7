@@ -66,4 +66,3 @@ public const string EnvKey = "ZP_TOKEN";
 
 Key of the token in `.env`.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

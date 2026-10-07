@@ -32,4 +32,3 @@ One-time code from a source: for an address (contains `@`), the code from its la
 |---|---|
 | `source` | Mailbox address or TOTP secret. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

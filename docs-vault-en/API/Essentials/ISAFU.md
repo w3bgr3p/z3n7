@@ -66,4 +66,3 @@ string HWPass(IZennoPosterProjectModel project, string pin, string acc)
 
 Returns a password derived from the machine, the PIN and the account. The same inputs always give the same password.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

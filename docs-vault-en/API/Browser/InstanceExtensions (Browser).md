@@ -678,4 +678,3 @@ Launches the browser with a profile folder.
 | `useProfile` | Apply the ZennoPoster profile too. |
 | `browserType` | Browser to launch. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

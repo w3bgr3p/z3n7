@@ -36,4 +36,3 @@ Extension method for `IZennoPosterProjectModel`. [source](https://github.com/w3b
 
 Loads the account's cookies (`instance.GetCookies`), sets the profile email to `{NickName}@outlook.com` and a random 12-character password, turns on traffic monitoring, sets the window to 1280×720, stores `Time.Now()` in `ts0` and runs `ImproveBrowser`. An error is logged and rethrown.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

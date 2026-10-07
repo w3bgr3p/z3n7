@@ -95,4 +95,3 @@ Writes a dictionary to the current account's row (or the rows matching `where`),
 | `thrw` | Throw on a database error instead of logging a warning and returning an empty result. |
 | `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -76,4 +76,3 @@ public string zennoposter { get; set; }
 
 Product version of the host process (ZennoPoster).
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

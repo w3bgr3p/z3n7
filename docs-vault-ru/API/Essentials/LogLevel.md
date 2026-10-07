@@ -24,4 +24,3 @@ Message severity. A logger drops messages below its minimum level; `Off` drops e
 | `Error` |  |
 | `Off` |  |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

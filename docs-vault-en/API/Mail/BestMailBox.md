@@ -128,4 +128,3 @@ Polls the service every 2.5 seconds for a one-time code found by the service in 
 
 **Returns:** The code.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

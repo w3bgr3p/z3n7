@@ -47,4 +47,3 @@ Blocks the thread for a random time within the range.
 |---|---|
 | `multiplier` | Scale factor for the pause, e.g. 2.0 waits twice as long. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

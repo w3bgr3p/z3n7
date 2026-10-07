@@ -235,4 +235,3 @@ Orders the mailbox in `anyMailId` again under a new id; updates `anyMailId` and 
 
 **Returns:** `[id, email]`.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

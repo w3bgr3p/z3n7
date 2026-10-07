@@ -26,4 +26,3 @@ public static readonly object lockObj;
 
 The lock object.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

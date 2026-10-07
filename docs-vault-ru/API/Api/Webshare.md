@@ -64,4 +64,3 @@ Downloads the proxy list of the account's first plan (direct connection, usernam
 
 **Возвращает:** One proxy per item, as returned by Webshare. Throws when the plan or the download token cannot be obtained.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

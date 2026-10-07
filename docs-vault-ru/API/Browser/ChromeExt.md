@@ -109,4 +109,3 @@ Enables the listed extensions and disables all others through the One-Click Exte
 
 **Возвращает:** `true` when a listed extension was switched on.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

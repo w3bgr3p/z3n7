@@ -82,4 +82,3 @@ Sets a global variable, creating it when it does not exist. Errors are swallowed
 
 **Returns:** Always an empty string.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

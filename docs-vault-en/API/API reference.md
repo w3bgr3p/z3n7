@@ -183,4 +183,3 @@ Every public type of the library, grouped by the source folder it lives in. Gene
 | [[TrafficCounter]] | static class | Counts traffic per labelled step of a project run and reports it as JSON. |
 | [[TrafficCounter.TrafficStep]] | class | One counted step. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

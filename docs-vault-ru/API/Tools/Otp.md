@@ -47,4 +47,3 @@ Computes the current TOTP code from a Base32 secret. When the code expires withi
 
 **Возвращает:** The code. Throws for an empty secret.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -201,4 +201,3 @@ Sets cookies of the active tab's domain through `document.cookie`, for the paren
 |---|---|
 | `cookiesJson` | JSON array of cookies; for duplicate domain + name the last one wins, other domains are skipped. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

@@ -105,4 +105,3 @@ Counts the accounts matching the condition over all range groups, after the soci
 | `debugLog` | Write the queries to the log. |
 | `sqlNow` | Replace `NOW` in the condition. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

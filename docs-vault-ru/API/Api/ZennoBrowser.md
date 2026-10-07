@@ -44,4 +44,3 @@ Reads `id` and `name` of every ZennoBrowser profile except `template` from the `
 
 **Возвращает:** Profile id → profile name. Throws when the ZennoBrowser database file is missing.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

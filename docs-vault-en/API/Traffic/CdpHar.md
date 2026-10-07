@@ -180,4 +180,3 @@ public int MaxEntries;
 
 Most entries kept; the oldest are dropped beyond it.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

@@ -14,4 +14,3 @@ public static class TaskManager
 
 Conversion helpers for ZennoPoster task input settings (internal).
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

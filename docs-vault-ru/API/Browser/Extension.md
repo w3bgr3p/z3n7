@@ -126,4 +126,3 @@ Enables the listed extensions and disables all others through the One-Click Exte
 
 **Возвращает:** `true` when at least one listed extension is enabled.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

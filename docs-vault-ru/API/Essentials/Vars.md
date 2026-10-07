@@ -205,4 +205,3 @@ Applies `+`, `-`, `*` or `/` to two project variables parsed as `decimal` (invar
 
 **Возвращает:** The result.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

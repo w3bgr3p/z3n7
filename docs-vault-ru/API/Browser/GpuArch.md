@@ -36,4 +36,3 @@ public List<GpuModel> Models { get; set; }
 
 Models of this architecture.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

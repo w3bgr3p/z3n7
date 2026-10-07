@@ -235,4 +235,3 @@ public async Task Upd(List<string> toWrite, string tableName = null, string wher
 
 Runs `Upd` for each item, with ids 0, 1, 2 … in list order.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

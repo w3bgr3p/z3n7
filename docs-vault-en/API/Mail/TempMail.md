@@ -159,4 +159,3 @@ Waits for a message and returns the first 6-digit number of its subject, else of
 
 **Returns:** The code. Throws when there is none.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

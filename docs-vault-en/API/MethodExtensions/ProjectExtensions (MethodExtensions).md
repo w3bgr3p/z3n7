@@ -96,4 +96,3 @@ Loads JSON into `project.Json`. When the text is not JSON, takes the line starti
 | `thrw` | Throw when the second attempt also fails. |
 | `objIndex` | Line number prefix to look for. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

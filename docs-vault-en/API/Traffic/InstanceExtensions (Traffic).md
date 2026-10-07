@@ -70,4 +70,3 @@ Extension method for `Instance`. [source](https://github.com/w3bgr3p/z3n7/blob/m
 
 Stops HAR recording for this instance.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

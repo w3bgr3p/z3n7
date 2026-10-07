@@ -138,4 +138,3 @@ Sends a PUT request.
 
 **Returns:** The trimmed response body. For a non-2xx status: the body (or an exception with `thrw`). For a transport error: `Error: {message}` (or the exception with `thrw`).
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

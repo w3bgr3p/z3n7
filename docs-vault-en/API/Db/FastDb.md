@@ -77,4 +77,3 @@ Writes the selected columns to `{project.Path}{fileName}` as CSV, UTF-8 with BOM
 |---|---|
 | `columns` | `*` for all columns, or a comma-separated list that is also used as the header. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

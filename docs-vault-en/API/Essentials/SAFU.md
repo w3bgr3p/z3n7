@@ -80,4 +80,3 @@ Registers `Z3n8SAFU` in `FunctionStorage` and writes the key path to the log.
 |---|---|
 | `keyFilePath` | Path to the 32-byte key file. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

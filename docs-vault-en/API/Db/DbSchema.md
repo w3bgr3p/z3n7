@@ -48,4 +48,3 @@ public static readonly TableSchema Process;
 
 Table `_processes`: one row per process with machine, name, RAM, uptime and command line.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

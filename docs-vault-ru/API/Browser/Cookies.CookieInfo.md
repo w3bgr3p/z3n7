@@ -86,4 +86,3 @@ public long TotalSizeBytes { get; set; }
 
 Size of the cookie JSON, bytes.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

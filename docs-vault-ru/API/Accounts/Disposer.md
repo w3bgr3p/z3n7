@@ -76,4 +76,3 @@ Same as `Reporter.ReportSuccess`.
 | `toDb` | Write it to the account's row. |
 | `customMessage` | Extra line. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

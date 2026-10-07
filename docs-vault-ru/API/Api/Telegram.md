@@ -98,4 +98,3 @@ Sends a message with Markdown parsing.
 
 **Возвращает:** The link `https://t.me/c/{chat}/{messageId}` on success; otherwise the Telegram answer or `❌ Exception: …`.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -61,4 +61,3 @@ Sends a POST request with a JSON body through `NetHttp` without logging.
 
 **Возвращает:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

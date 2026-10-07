@@ -122,4 +122,3 @@ public static void SaveGpuJson(string json, string path)
 
 Writes the GPU JSON to a file (UTF-8).
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

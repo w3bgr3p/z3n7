@@ -82,4 +82,3 @@ Sets a global variable, creating it when it does not exist. Errors are swallowed
 
 **Возвращает:** Always an empty string.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

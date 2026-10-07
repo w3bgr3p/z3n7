@@ -6,7 +6,7 @@ public sealed class Strings
     public string HubTitle, HubIntro, ExtTitle, ExtIntro, ExtOn;
     public string Constructors, Properties, Methods, Fields, Events, Values;
     public string Namespace, Source, OtherParts, Parameter, Description, Returns, Exceptions, Remarks, Example;
-    public string Extends, NoDescription, Type, Kind, Summary, GeneratedNote;
+    public string Extends, NoDescription, Type, Kind, Summary;
 
     public static readonly Strings En = new()
     {
@@ -23,8 +23,7 @@ public sealed class Strings
         Parameter = "Parameter", Description = "Description", Returns = "Returns",
         Exceptions = "Exceptions", Remarks = "Remarks", Example = "Example",
         Extends = "Extension method for", NoDescription = "No description yet.",
-        Type = "Type", Kind = "Kind", Summary = "Summary",
-        GeneratedNote = "This page is generated from the source code. Do not edit it: changes will be overwritten.",
+        Type = "Type", Kind = "Kind", Summary = "Summary"
     };
 
     public static readonly Strings Ru = new()
@@ -42,8 +41,7 @@ public sealed class Strings
         Parameter = "Параметр", Description = "Описание", Returns = "Возвращает",
         Exceptions = "Исключения", Remarks = "Примечания", Example = "Пример",
         Extends = "Метод расширения для", NoDescription = "Описания пока нет.",
-        Type = "Тип", Kind = "Вид", Summary = "Описание",
-        GeneratedNote = "Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.",
+        Type = "Тип", Kind = "Вид", Summary = "Описание"
     };
 
     public static Strings For(string lang) => lang switch

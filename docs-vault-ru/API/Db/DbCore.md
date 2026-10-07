@@ -38,4 +38,3 @@ Executes one SQL statement against the database named by `dbSource` (project var
 
 **Примечания:** Throws when `dbSource` is not set.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

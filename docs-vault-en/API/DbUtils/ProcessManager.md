@@ -85,4 +85,3 @@ Running ZennoPoster and `zbe1` processes of this machine.
 
 **Returns:** Items `[name, ramMb, uptimeMinutes, pid]`.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

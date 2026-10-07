@@ -85,4 +85,3 @@ Builds a report from the current steps.
 
 **Возвращает:** JSON `{ total_kb, steps: [{ t, label, kb }] }`; `t` is seconds since 2020-01-01 UTC.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

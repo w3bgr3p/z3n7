@@ -70,4 +70,3 @@ public static void StopHar(this Instance instance)
 
 Stops HAR recording for this instance.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

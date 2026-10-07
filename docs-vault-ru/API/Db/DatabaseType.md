@@ -22,4 +22,3 @@ Kind of database behind an `Sql` connection.
 | `SQLite` | SQLite through ODBC. |
 | `PostgreSQL` | PostgreSQL through Npgsql. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

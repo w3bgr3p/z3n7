@@ -90,4 +90,3 @@ Reads a value from the encrypted `jVars` variable: decrypts it with `SAFU.Decryp
 
 **Returns:** The value, or an empty string when `jVars` is empty, cannot be decrypted, or has no such key.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

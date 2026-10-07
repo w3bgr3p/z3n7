@@ -237,4 +237,3 @@ Extension methods grouped by the type they extend. In a ZennoPoster C# action `p
 |---|---|
 | [[Rnd#RndBool\|RndBool]] | `true` with the given probability, in percent. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

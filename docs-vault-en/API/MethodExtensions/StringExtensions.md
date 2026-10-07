@@ -182,4 +182,3 @@ Extension method for `string`. [source](https://github.com/w3bgr3p/z3n7/blob/mas
 
 UTF-8 Base64 of the text; empty for empty input.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

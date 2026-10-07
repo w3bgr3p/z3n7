@@ -46,4 +46,3 @@ public string Name { get; set; }
 
 Model name, e.g. `GeForce RTX 3060 Ti`.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

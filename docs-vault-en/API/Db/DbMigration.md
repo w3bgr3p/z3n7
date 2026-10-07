@@ -45,4 +45,3 @@ Copies `source` to a new table `dest` in the same database, then renames a colum
 
 **Remarks:** The database kind follows `dbSource`. PostgreSQL is reached at localhost:5432, database and user `postgres`, password from the `DBpstgrPass` variable; SQLite at the `DBsqltPath` variable.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

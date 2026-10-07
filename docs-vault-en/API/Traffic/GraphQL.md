@@ -46,4 +46,3 @@ Builds indented JSON `{ totalOperations, operations: [...] }` from the requests 
 |---|---|
 | `urlFilter` | Text the request URL must contain. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

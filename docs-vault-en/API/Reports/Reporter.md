@@ -66,4 +66,3 @@ Reports a successful run: account, the `lastQuery` variable, an optional message
 
 **Returns:** The log text.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

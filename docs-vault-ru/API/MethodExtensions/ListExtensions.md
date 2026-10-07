@@ -32,4 +32,3 @@ Returns a random item.
 
 **Возвращает:** The item. Throws when the list is empty.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

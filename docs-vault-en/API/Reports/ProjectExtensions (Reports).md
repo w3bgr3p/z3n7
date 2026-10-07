@@ -33,4 +33,3 @@ Writes the balance table of the given chains (`Accountant.ShowBalanceTable` with
 | `chains` | Comma-separated columns of `_native`. |
 | `call` | Open the file with the default program afterwards. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

@@ -53,4 +53,3 @@ Flattens a JSON object into columns (nested keys joined with `_`) and writes the
 | `where` | Raw SQL condition. When set, `key` and `id` are ignored. |
 | `saveStructure` | Also save the shape in `_json_structure` so that `DbToJson` can rebuild the object. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

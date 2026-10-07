@@ -153,4 +153,3 @@ Looks through the latest 5 INBOX messages for one sent to `email` and returns th
 
 **Returns:** The code. Throws when none is found.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

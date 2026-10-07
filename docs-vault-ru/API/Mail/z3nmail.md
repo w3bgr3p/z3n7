@@ -128,4 +128,3 @@ Polls the service every 2.5 seconds for a one-time code found by the service in 
 
 **Возвращает:** The code.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

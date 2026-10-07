@@ -32,4 +32,3 @@ Replaces the `Logs` folder with a directory link to `NUL`. Does nothing if the f
 
 **Примечания:** Deletes the existing `Logs` folder with its contents.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

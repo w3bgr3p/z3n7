@@ -78,4 +78,3 @@ Writes a heatmap of balances per account and chain to `{project.Path}/.data/bala
 | `chains` | Comma-separated columns of `_native`; default all except `id`. |
 | `call` | Open the file with the default program afterwards. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

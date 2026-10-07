@@ -76,4 +76,3 @@ Sets the object's writable properties from a database row, converting text to th
 | `id` | Row; default is the current account (`acc0`). |
 | `where` | Raw SQL condition instead of `key`/`id`. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

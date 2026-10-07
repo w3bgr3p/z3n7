@@ -48,4 +48,3 @@ Runs the start-up sequence: disables ZennoPoster file logs (`LogDisabler.Disable
 
 **Примечания:** Reads `jVars` with `File.ReadAllText`: the variable must hold a path to an existing file.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

@@ -26,4 +26,3 @@ public static ConcurrentDictionary<string, object> Functions;
 
 Registered delegates, keyed by name (e.g. `SAFU_Encode`).
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

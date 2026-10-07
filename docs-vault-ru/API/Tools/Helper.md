@@ -30,4 +30,3 @@ Opens a searchable API browser window. The index is built once per process from 
 |---|---|
 | `toSearch` | Initial search text. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

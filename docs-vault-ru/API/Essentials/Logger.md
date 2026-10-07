@@ -160,4 +160,3 @@ public Logger WithInstance(Instance instance)
 
 Returns a copy of this logger. Kept for compatibility: the instance is not used.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

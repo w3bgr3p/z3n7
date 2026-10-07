@@ -60,4 +60,3 @@ Writes the active tab's traffic to a HAR 1.2 file, replacing an existing file. R
 
 **Возвращает:** Number of entries written.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

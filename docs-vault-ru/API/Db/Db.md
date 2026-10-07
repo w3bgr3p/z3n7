@@ -677,4 +677,3 @@ Updates the rows matching `where` from a dictionary, adding missing columns firs
 | `thrw` | Rethrow a database error instead of returning an empty result. |
 | `where` | Raw SQL condition; required. |
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

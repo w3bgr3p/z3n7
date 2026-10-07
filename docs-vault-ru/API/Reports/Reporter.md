@@ -66,4 +66,3 @@ Reports a successful run: account, the `lastQuery` variable, an optional message
 
 **Возвращает:** The log text.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

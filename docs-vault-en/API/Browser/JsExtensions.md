@@ -116,4 +116,3 @@ Finds the element by CSS selector, clicks and focuses it, clears it and types `v
 
 **Returns:** The script result, or `Error: {message}`.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

@@ -83,4 +83,3 @@ Saves the current account's data to the tables of `saveTo`. Throws for any other
 | `saveCookies` | All cookies (`SaveAllCookies`). |
 | `saveWebgl` | WebGL settings, both as `_preferences` and flattened into columns. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

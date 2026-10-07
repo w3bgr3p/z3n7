@@ -47,4 +47,3 @@ Computes the current TOTP code from a Base32 secret. When the code expires withi
 
 **Returns:** The code. Throws for an empty secret.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

@@ -109,4 +109,3 @@ Sends a PUT request and waits for it. See `NetHttpAsync.PutAsync`.
 
 **Returns:** The trimmed body. For a non-2xx status: `{code} !!! {reason}`; on timeout `Timeout: …`; on other errors `Error: …`.
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

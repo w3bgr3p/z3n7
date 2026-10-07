@@ -51,4 +51,3 @@ Exchanges the values of all columns except `id` between two rows.
 | `log` | Write the query and its result to the project log. |
 | `thrw` | Throw when a row is not found; otherwise nothing changes. |
 
-> This page is generated from the source code. Do not edit it: changes will be overwritten.

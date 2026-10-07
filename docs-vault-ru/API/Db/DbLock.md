@@ -26,4 +26,3 @@ public static readonly object lockObj;
 
 The lock object.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

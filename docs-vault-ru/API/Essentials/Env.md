@@ -33,4 +33,3 @@ Returns the value of `key` from a `.env` file, or `null` when the file or the ke
 
 **Возвращает:** The value, or `null`.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.

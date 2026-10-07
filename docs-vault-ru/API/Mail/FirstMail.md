@@ -153,4 +153,3 @@ Looks through the latest 5 INBOX messages for one sent to `email` and returns th
 
 **Возвращает:** The code. Throws when none is found.
 
-> Страница собрана из исходного кода. Не правь её руками: изменения будут перезаписаны.
