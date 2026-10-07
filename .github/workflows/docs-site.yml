@@ -1,0 +1,21 @@
+# Изменилась документация (docs-vault-en, docs-vault-ru) → пересобрать z3n7.z3n.pro.
+# Сайт при сборке сам выкачивает vault из этого репозитория.
+# workflow_dispatch — ручной запуск для проверки (Actions → docs-site → Run workflow).
+name: docs-site
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs-vault-en/**'
+      - 'docs-vault-ru/**'
+  workflow_dispatch:
+jobs:
+  deploy-hook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger z3n7.z3n.pro rebuild
+        env:
+          HOOK: ${{ secrets.Z3N7_SITE_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "секрет Z3N7_SITE_DEPLOY_HOOK не задан"; exit 1; fi
+          curl -fsS -X POST --max-time 30 "$HOOK"
